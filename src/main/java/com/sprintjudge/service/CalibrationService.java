@@ -14,7 +14,7 @@ import java.util.Map;
  * Derives per-question difficulty statistics from real submissions.
  * Difficulty ({@code pValue}) is the mean correctness rate; discrimination is a
  * temporal-split proxy (early-half correct rate minus late-half correct rate by
- * {@code submitted_at} ordering, clamped to [-1, 1]) — deliberately NOT
+ * {@code submitted_at} ordering, clamped to [-1, 1]) -?deliberately NOT
  * point-biserial, which would require per-player ability scores.
  */
 @Service
@@ -39,7 +39,29 @@ public class CalibrationService {
      * @param discrimination early-half minus late-half correct rate in [-1, 1]
      * @param attempts       submission count the stats derive from
      */
-    public record Calibration(String questionId, double pValue, double discrimination, int attempts) {
+    public static final class Calibration {
+        private String questionId;
+        private double pValue;
+        private double discrimination;
+        private int attempts;
+
+        public Calibration() {}
+
+        public Calibration(String questionId, double pValue, double discrimination, int attempts) {
+            this.questionId = questionId;
+            this.pValue = pValue;
+            this.discrimination = discrimination;
+            this.attempts = attempts;
+        }
+
+        public String getQuestionId() { return questionId; }
+        public void setQuestionId(String questionId) { this.questionId = questionId; }
+        public double getPValue() { return pValue; }
+        public void setPValue(double pValue) { this.pValue = pValue; }
+        public double getDiscrimination() { return discrimination; }
+        public void setDiscrimination(double discrimination) { this.discrimination = discrimination; }
+        public int getAttempts() { return attempts; }
+        public void setAttempts(int attempts) { this.attempts = attempts; }
     }
 
     /**
@@ -51,17 +73,21 @@ public class CalibrationService {
      * @return calibrations keyed by question id, never null
      */
     public Map<String, Calibration> calibrateAll() {
-        var rows = dsl.select(Tables.SUB_QUESTION, Tables.SUB_CORRECT, Tables.SUB_AT)
+        List<org.jooq.Record> rows = new ArrayList<>(dsl.select(Tables.SUB_QUESTION, Tables.SUB_CORRECT, Tables.SUB_AT)
                 .from(Tables.SUBMISSIONS)
                 .orderBy(Tables.SUB_QUESTION.asc(), Tables.SUB_AT.asc())
-                .fetch();
+                .fetch());
         Map<String, List<Boolean>> byQuestion = new LinkedHashMap<>();
-        for (var row : rows) {
-            byQuestion.computeIfAbsent(row.get(Tables.SUB_QUESTION), k -> new ArrayList<>())
-                    .add(Boolean.TRUE.equals(row.get(Tables.SUB_CORRECT)));
+        for (org.jooq.Record row : rows) {
+            List<Boolean> list = byQuestion.get(row.get(Tables.SUB_QUESTION));
+            if (list == null) {
+                list = new ArrayList<>();
+                byQuestion.put(row.get(Tables.SUB_QUESTION), list);
+            }
+            list.add(Boolean.TRUE.equals(row.get(Tables.SUB_CORRECT)));
         }
         Map<String, Calibration> result = new LinkedHashMap<>();
-        for (var entry : byQuestion.entrySet()) {
+        for (Map.Entry<String, List<Boolean>> entry : byQuestion.entrySet()) {
             List<Boolean> flags = entry.getValue();
             int n = flags.size();
             double pValue = mean(flags, 0, n);
@@ -88,12 +114,12 @@ public class CalibrationService {
                 .columns(Tables.CAL_QID, Tables.CAL_PVALUE, Tables.CAL_DISC,
                         Tables.CAL_P25, Tables.CAL_MED, Tables.CAL_P75,
                         Tables.CAL_ATTEMPTS, Tables.CAL_UPDATED)
-                .values(calibration.questionId(), calibration.pValue(), calibration.discrimination(),
-                        -1.0, -1.0, -1.0, calibration.attempts(), now)
+                .values(calibration.getQuestionId(), calibration.getPValue(), calibration.getDiscrimination(),
+                        -1.0, -1.0, -1.0, calibration.getAttempts(), now)
                 .onConflict(Tables.CAL_QID).doUpdate()
-                .set(Tables.CAL_PVALUE, calibration.pValue())
-                .set(Tables.CAL_DISC, calibration.discrimination())
-                .set(Tables.CAL_ATTEMPTS, calibration.attempts())
+                .set(Tables.CAL_PVALUE, calibration.getPValue())
+                .set(Tables.CAL_DISC, calibration.getDiscrimination())
+                .set(Tables.CAL_ATTEMPTS, calibration.getAttempts())
                 .set(Tables.CAL_UPDATED, now)
                 .execute();
     }

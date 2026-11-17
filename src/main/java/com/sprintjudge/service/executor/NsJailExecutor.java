@@ -23,7 +23,7 @@ public class NsJailExecutor extends AbstractScriptExecutor {
 
     /**
      * Fail-closed: this bean only exists when nsjail mode is selected, so a
-     * missing binary must abort boot — never silently judge unsandboxed.
+     * missing binary must abort boot -?never silently judge unsandboxed.
      */
     @jakarta.annotation.PostConstruct
     void verifyBinary() {
@@ -48,7 +48,7 @@ public class NsJailExecutor extends AbstractScriptExecutor {
                 "-R", "/usr", "-R", "/lib", "-R", "/lib64", "-R", "/bin", "-R", "/etc/alternatives",
                 // ponytail: the jail sees host-absolute argv paths, so the run
                 // dir (sources, inputs, compiler outputs) must be mounted
-                // writable and the scripts dir readable — otherwise every
+                // writable and the scripts dir readable -?otherwise every
                 // jailed judge fails on invisible files. Tmpfs /tmp keeps
                 // compiler temp files off the host disk.
                 "--bindmount", runDir.toString() + ":" + runDir.toString(),

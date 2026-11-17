@@ -113,14 +113,14 @@ class PublicControllerTest {
     void practiceSpinsUpRoomOnTemplateQuiz() {
         when(quizRepository.findAll()).thenReturn(List.of(quiz("plain", false), quiz("tpl", true)));
         givenPracticeBacking();
-        assertEquals("123456", controller.practice(null, http).pinCode());
+        assertEquals("123456", controller.practice(null, http).getPinCode());
     }
 
     @Test
     void practiceFallsBackToFirstQuiz() {
         when(quizRepository.findAll()).thenReturn(List.of(quiz("tpl", false)));
         givenPracticeBacking();
-        assertEquals("123456", controller.practice(null, http).pinCode());
+        assertEquals("123456", controller.practice(null, http).getPinCode());
     }
 
     @Test
@@ -133,7 +133,7 @@ class PublicControllerTest {
         when(roomManager.createRoom(eq("tpl"), eq("u"), eq(GameRoom.GameMode.PRACTICE)))
                 .thenReturn(session("123456", "LOBBY"));
         assertEquals("123456",
-                controller.practice(Map.of("quizId", "  tpl "), http).pinCode());
+                controller.practice(Map.of("quizId", "  tpl "), http).getPinCode());
     }
 
     @Test
@@ -186,8 +186,8 @@ class PublicControllerTest {
         when(quizRepository.findAll()).thenReturn(List.of(quiz("a", true), quiz("b", false)));
         var banks = controller.banks();
         assertEquals(2, banks.size());
-        assertEquals("a", banks.get(0).id());
-        assertEquals("T", banks.get(0).title());
+        assertEquals("a", banks.get(0).getId());
+        assertEquals("T", banks.get(0).getTitle());
     }
 
     @Test
@@ -225,9 +225,9 @@ class PublicControllerTest {
             when(http.getServerName()).thenReturn("quiz.local");
             when(http.getServerPort()).thenReturn(8080);
             var info = controller.net(http);
-            assertEquals("quiz.local", info.host());
-            assertEquals(8080, info.port());
-            assertEquals(List.of("http://192.168.1.20:8080"), info.urls());
+            assertEquals("quiz.local", info.getHost());
+            assertEquals(8080, info.getPort());
+            assertEquals(List.of("http://192.168.1.20:8080"), info.getUrls());
         }
     }
 
@@ -238,7 +238,7 @@ class PublicControllerTest {
             when(http.getServerName()).thenReturn("quiz.local");
             when(http.getServerPort()).thenReturn(8080);
             var info = controller.net(http);
-            assertTrue(info.urls().isEmpty());
+            assertTrue(info.getUrls().isEmpty());
         }
     }
 
@@ -251,8 +251,8 @@ class PublicControllerTest {
             when(http.getServerName()).thenReturn("quiz.local");
             when(http.getServerPort()).thenReturn(443);
             var info = controller.net(http);
-            assertEquals("quiz.local", info.host());
-            assertTrue(info.urls().isEmpty());
+            assertEquals("quiz.local", info.getHost());
+            assertTrue(info.getUrls().isEmpty());
         }
     }
 }

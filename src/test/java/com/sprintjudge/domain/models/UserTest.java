@@ -18,12 +18,12 @@ class UserTest {
     @Test
     void constructorAndAccessors() {
         User u = sample();
-        assertEquals("id1", u.id());
-        assertEquals("a@b.c", u.email());
-        assertEquals("Al", u.name());
-        assertEquals("http://x/y.png", u.avatarUrl());
-        assertEquals("ADMIN", u.role());
-        assertEquals(Instant.ofEpochSecond(1000), u.createdAt());
+        assertEquals("id1", u.getId());
+        assertEquals("a@b.c", u.getEmail());
+        assertEquals("Al", u.getName());
+        assertEquals("http://x/y.png", u.getAvatarUrl());
+        assertEquals("ADMIN", u.getRole());
+        assertEquals(Instant.ofEpochSecond(1000), u.getCreatedAt());
     }
 
     @Test

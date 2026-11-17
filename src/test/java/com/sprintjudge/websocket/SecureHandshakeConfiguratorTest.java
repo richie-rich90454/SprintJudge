@@ -35,7 +35,7 @@ class SecureHandshakeConfiguratorTest {
     }
 
     private String stagedIp(Map<String, Object> props) {
-        return SecureHandshakeConfigurator.consumeStaged(secWith(props)).ip();
+        return SecureHandshakeConfigurator.consumeStaged(secWith(props)).getIp();
     }
 
     @Test
@@ -93,8 +93,8 @@ class SecureHandshakeConfiguratorTest {
                 requestWith(Map.of("X-Forwarded-For", List.of("3.3.3.3")), principal),
                 mock(HandshakeResponse.class));
         var staged = SecureHandshakeConfigurator.consumeStaged(sec);
-        assertEquals("3.3.3.3", staged.ip());
-        assertTrue(staged.authed());
+        assertEquals("3.3.3.3", staged.getIp());
+        assertTrue(staged.isAuthed());
     }
 
     @Test
@@ -104,17 +104,17 @@ class SecureHandshakeConfiguratorTest {
         configurator.modifyHandshake(sec,
                 requestWith(Map.of("X-Forwarded-For", List.of("4.4.4.4")), null),
                 mock(HandshakeResponse.class));
-        assertEquals("4.4.4.4", SecureHandshakeConfigurator.consumeStaged(sec).ip());
+        assertEquals("4.4.4.4", SecureHandshakeConfigurator.consumeStaged(sec).getIp());
         var second = SecureHandshakeConfigurator.consumeStaged(sec);
-        assertEquals("unresolved", second.ip());
-        assertFalse(second.authed());
+        assertEquals("unresolved", second.getIp());
+        assertFalse(second.isAuthed());
     }
 
     @Test
     void consumeWithoutTokenReturnsUnresolved() {
         var staged = SecureHandshakeConfigurator.consumeStaged(secWith(new HashMap<>()));
-        assertEquals("unresolved", staged.ip());
-        assertFalse(staged.authed());
+        assertEquals("unresolved", staged.getIp());
+        assertFalse(staged.isAuthed());
     }
 
     @Test

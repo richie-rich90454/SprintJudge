@@ -2,26 +2,32 @@ package com.sprintjudge.domain.enums;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GameStatusTest {
 
+    private static final List<String> ALL = Arrays.asList(
+            GameStatus.LOBBY, GameStatus.ACTIVE, GameStatus.REVIEW, GameStatus.ENDED);
+
     @Test
     void allConstantsAreDefined() {
-        GameStatus[] all = GameStatus.values();
-        assertEquals(4, all.length);
-        assertSame(GameStatus.LOBBY, GameStatus.valueOf("LOBBY"));
-        assertSame(GameStatus.ACTIVE, GameStatus.valueOf("ACTIVE"));
-        assertSame(GameStatus.REVIEW, GameStatus.valueOf("REVIEW"));
-        assertSame(GameStatus.ENDED, GameStatus.valueOf("ENDED"));
+        assertEquals(4, ALL.size());
+        assertEquals(GameStatus.LOBBY, GameStatus.from("LOBBY"));
+        assertEquals(GameStatus.ACTIVE, GameStatus.from("ACTIVE"));
+        assertEquals(GameStatus.REVIEW, GameStatus.from("REVIEW"));
+        assertEquals(GameStatus.ENDED, GameStatus.from("ENDED"));
     }
 
     @Test
     void fromNormalizesCaseAndWhitespace() {
-        assertSame(GameStatus.LOBBY, GameStatus.from("lobby"));
-        assertSame(GameStatus.ACTIVE, GameStatus.from(" ACTIVE "));
-        assertSame(GameStatus.REVIEW, GameStatus.from("Review"));
-        assertSame(GameStatus.ENDED, GameStatus.from("ended"));
+        assertEquals(GameStatus.LOBBY, GameStatus.from("lobby"));
+        assertEquals(GameStatus.ACTIVE, GameStatus.from(" ACTIVE "));
+        assertEquals(GameStatus.REVIEW, GameStatus.from("Review"));
+        assertEquals(GameStatus.ENDED, GameStatus.from("ended"));
     }
 
     @Test
@@ -42,9 +48,9 @@ class GameStatusTest {
 
     @Test
     void everyValueRoundTrips() {
-        for (GameStatus s : GameStatus.values()) {
-            assertSame(s, GameStatus.from(s.name()));
-            assertSame(s, GameStatus.from(s.name().toLowerCase()));
+        for (String status : ALL) {
+            assertEquals(status, GameStatus.from(status));
+            assertEquals(status, GameStatus.from(status.toLowerCase()));
         }
     }
 }

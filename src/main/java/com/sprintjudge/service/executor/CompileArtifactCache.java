@@ -27,7 +27,23 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class CompileArtifactCache {
 
-    private record Entry(Path file, AtomicLong lastAccess) {}
+    private static final class Entry {
+        private Path file;
+        private AtomicLong lastAccess;
+
+        Entry() {}
+
+        Entry(Path file, AtomicLong lastAccess) {
+            this.file = file;
+            this.lastAccess = lastAccess;
+        }
+
+        Path getFile() { return file; }
+        void setFile(Path file) { this.file = file; }
+
+        AtomicLong getLastAccess() { return lastAccess; }
+        void setLastAccess(AtomicLong lastAccess) { this.lastAccess = lastAccess; }
+    }
 
     private final Map<String, Entry> map = new ConcurrentHashMap<>();
     private final AtomicLong totalBytes = new AtomicLong();
@@ -54,14 +70,14 @@ public class CompileArtifactCache {
             misses.incrementAndGet();
             return Optional.empty();
         }
-        if (!Files.exists(e.file())) {
+        if (!Files.exists(e.getFile())) {
             map.remove(key);
             misses.incrementAndGet();
             return Optional.empty();
         }
-        e.lastAccess().set(System.nanoTime());
+        e.getLastAccess().set(System.nanoTime());
         hits.incrementAndGet();
-        return Optional.of(e.file());
+        return Optional.of(e.getFile());
     }
 
     /**
@@ -76,8 +92,8 @@ public class CompileArtifactCache {
             long size = Files.size(target);
             Entry prev = map.put(key, new Entry(target, new AtomicLong(System.nanoTime())));
             if (prev != null) {
-                totalBytes.addAndGet(size - fileSize(prev.file()));
-                safeDelete(prev.file());
+                totalBytes.addAndGet(size - fileSize(prev.getFile()));
+                safeDelete(prev.getFile());
             } else {
                 totalBytes.addAndGet(size);
             }
@@ -89,15 +105,27 @@ public class CompileArtifactCache {
 
     private void evictIfNeeded() {
         while (map.size() > maxEntries || totalBytes.get() > maxBytes) {
-            map.entrySet().stream()
-                    .min(Comparator.comparingLong(e -> e.getValue().lastAccess().get()))
-                    // Atomic take: concurrent double-evicts adjust bytes once.
-                    .ifPresent(eldest -> map.computeIfPresent(eldest.getKey(), (k, v) -> {
-                        totalBytes.addAndGet(-fileSize(v.file()));
-                        safeDelete(v.file());
-                        return null;
-                    }));
-            if (map.isEmpty()) return;
+            Map.Entry<String, Entry> eldest = null;
+            for (Map.Entry<String, Entry> e : map.entrySet()) {
+                if (eldest == null || e.getValue().getLastAccess().get() < eldest.getValue().getLastAccess().get()) {
+                    eldest = e;
+                }
+            }
+            if (eldest == null) {
+                return;
+            }
+            final String eldestKey = eldest.getKey();
+            map.computeIfPresent(eldestKey, new java.util.function.BiFunction<String, Entry, Entry>() {
+                @Override
+                public Entry apply(String k, Entry v) {
+                    totalBytes.addAndGet(-fileSize(v.getFile()));
+                    safeDelete(v.getFile());
+                    return null;
+                }
+            });
+            if (map.isEmpty()) {
+                return;
+            }
         }
     }
 

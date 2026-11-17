@@ -74,7 +74,7 @@ class GameRoomTeamBattleFlowTest {
                 Json.write(Map.of("correctIndex", 0)), 0, Instant.now());
     }
 
-    private GameRoom seeded(GameRoomManager mgr, GameRoom.GameMode mode, String... names) {
+    private GameRoom seeded(GameRoomManager mgr, String mode, String... names) {
         try {
             var f = GameRoomManager.class.getDeclaredField("registry");
             f.setAccessible(true);
@@ -104,7 +104,7 @@ class GameRoomTeamBattleFlowTest {
                 .mapToObj(i -> mcq("q" + i)).toList();
         lenient().when(questionRepository.findByQuiz("qz")).thenReturn(qs);
         for (Question q : qs) {
-            lenient().when(questionRepository.findById(q.id())).thenReturn(Optional.of(q));
+            lenient().when(questionRepository.findById(q.getId())).thenReturn(Optional.of(q));
         }
     }
 
@@ -115,10 +115,10 @@ class GameRoomTeamBattleFlowTest {
         GameRoom room = new GameRoom("s", "q", "p", "LOBBY");
         var a = room.createTeam("Alpha");
         var b = room.createTeam("Beta");
-        room.joinTeam(a.id(), "u1");
-        room.joinTeam(b.id(), "u1");
-        assertEquals(b.id(), room.teamIdOf("u1"));
-        assertFalse(room.getTeam(a.id()).memberUuids().contains("u1"));
+        room.joinTeam(a.getId(), "u1");
+        room.joinTeam(b.getId(), "u1");
+        assertEquals(b.getId(), room.teamIdOf("u1"));
+        assertFalse(room.getTeam(a.getId()).getMemberUuids().contains("u1"));
         room.leaveTeam("u1");
         assertNull(room.teamIdOf("u1"));
         room.leaveTeam("nobody");
@@ -130,35 +130,35 @@ class GameRoomTeamBattleFlowTest {
         var slow = room.createTeam("Zulu");
         var fast = room.createTeam("Alpha");
         var tie = room.createTeam("Beta");
-        room.applyTeamScore(fast.id(), 10);
-        room.applyTeamScore(slow.id(), 5);
-        room.applyTeamScore(tie.id(), 10);
+        room.applyTeamScore(fast.getId(), 10);
+        room.applyTeamScore(slow.getId(), 5);
+        room.applyTeamScore(tie.getId(), 10);
         assertEquals(List.of("Alpha", "Beta", "Zulu"),
-                room.teamsSorted().stream().map(GameRoom.Team::name).toList());
+                room.teamsSorted().stream().map(new java.util.function.Function<GameRoom.Team, String>() { @Override public String apply(GameRoom.Team t) { return t.getName(); } }).collect(java.util.stream.Collectors.toList()));
     }
 
     @Test
     void roomBattleStateLifecycle() {
         GameRoom room = new GameRoom("s", "q", "p", "LOBBY");
-        assertEquals(0, room.battleRound());
+        assertEquals(0, room.getBattleRound());
         assertNull(room.currentBattleRound());
         assertNull(room.pairOf("u1"));
         room.resolveCurrentBattleRound(List.of());
 
         room.beginBattleRound(List.of(new GameRoom.BattlePair("u1", "u2", null, false)));
-        assertEquals(1, room.battleRound());
+        assertEquals(1, room.getBattleRound());
         assertNotNull(room.currentBattleRound());
-        assertEquals("u1", room.pairOf("u1").p1Uuid());
+        assertEquals("u1", room.pairOf("u1").getP1Uuid());
         assertNull(room.pairOf("u9"));
         assertNull(room.pairOf(null));
 
         room.resolveCurrentBattleRound(List.of(new GameRoom.BattlePair("u1", "u2", "u1", false)));
-        assertEquals("u1", room.currentBattleRound().pairs().get(0).winnerUuid());
+        assertEquals("u1", room.currentBattleRound().getPairs().get(0).getWinnerUuid());
 
         room.setBattleWinners(List.of("u1"));
-        assertEquals(List.of("u1"), room.battleWinners());
+        assertEquals(List.of("u1"), room.getBattleWinners());
         room.setChampionUuid("u1");
-        assertEquals("u1", room.championUuid());
+        assertEquals("u1", room.getChampionUuid());
 
         room.markBattleAnswer("u1", 42L);
         room.markBattleAnswer("u1", 99L);
@@ -168,10 +168,10 @@ class GameRoomTeamBattleFlowTest {
         assertNull(room.battleAnswerMs("u1"));
 
         room.resetBattle();
-        assertTrue(room.bracketRounds().isEmpty());
-        assertEquals(0, room.battleRound());
-        assertNull(room.championUuid());
-        assertTrue(room.battleWinners().isEmpty());
+        assertTrue(room.getBracketRounds().isEmpty());
+        assertEquals(0, room.getBattleRound());
+        assertNull(room.getChampionUuid());
+        assertTrue(room.getBattleWinners().isEmpty());
     }
 
     // ---------- team manager flow ----------
@@ -183,26 +183,26 @@ class GameRoomTeamBattleFlowTest {
         assertThrows(IllegalArgumentException.class, () -> mgr.createTeam("123456", null));
         assertThrows(IllegalArgumentException.class, () -> mgr.createTeam("123456", "  "));
         var team = mgr.createTeam("123456", "  Alpha  ");
-        assertEquals("Alpha", team.name());
+        assertEquals("Alpha", team.getName());
 
         var player = mgr.join("123456", "Alice", "sess-a", "player", null);
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", null, player.uuid()));
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", " ", player.uuid()));
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.id(), null));
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.id(), " "));
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.id(), "ghost"));
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", "ghost", player.uuid()));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", null, player.getUuid()));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", " ", player.getUuid()));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.getId(), null));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.getId(), " "));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.getId(), "ghost"));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", "ghost", player.getUuid()));
 
-        mgr.joinTeam("123456", team.id(), player.uuid());
-        assertEquals(team.id(), roomOf(mgr).teamIdOf(player.uuid()));
-        mgr.leaveTeam("123456", player.uuid());
-        assertNull(roomOf(mgr).teamIdOf(player.uuid()));
+        mgr.joinTeam("123456", team.getId(), player.getUuid());
+        assertEquals(team.getId(), roomOf(mgr).teamIdOf(player.getUuid()));
+        mgr.leaveTeam("123456", player.getUuid());
+        assertNull(roomOf(mgr).teamIdOf(player.getUuid()));
 
         stubQuiz(1);
         mgr.startQuestion("123456");
         assertThrows(IllegalStateException.class, () -> mgr.createTeam("123456", "Late"));
-        assertThrows(IllegalStateException.class, () -> mgr.joinTeam("123456", team.id(), player.uuid()));
-        assertThrows(IllegalStateException.class, () -> mgr.leaveTeam("123456", player.uuid()));
+        assertThrows(IllegalStateException.class, () -> mgr.joinTeam("123456", team.getId(), player.getUuid()));
+        assertThrows(IllegalStateException.class, () -> mgr.leaveTeam("123456", player.getUuid()));
     }
 
     @Test
@@ -210,21 +210,21 @@ class GameRoomTeamBattleFlowTest {
         GameRoomManager mgr = manager();
         GameRoom room = seeded(mgr, GameRoom.GameMode.TEAM, "Alice", "Bob");
         var team = mgr.createTeam("123456", "Alpha");
-        List<Player> players = room.players();
-        mgr.joinTeam("123456", team.id(), players.get(0).uuid());
-        mgr.joinTeam("123456", team.id(), players.get(1).uuid());
+        List<Player> players = room.getPlayers();
+        mgr.joinTeam("123456", team.getId(), players.get(0).getUuid());
+        mgr.joinTeam("123456", team.getId(), players.get(1).getUuid());
         stubQuiz(1);
         when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any()))
                 .thenReturn(900);
         mgr.startQuestion("123456");
 
-        mgr.submit("123456", "q1", players.get(0).uuid(), "python",
+        mgr.submit("123456", "q1", players.get(0).getUuid(), "python",
                 Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(900, mgr.getTeams("123456").get(0).score());
-        mgr.submit("123456", "q1", players.get(1).uuid(), "python",
+        assertEquals(900, mgr.getTeams("123456").get(0).getScore());
+        mgr.submit("123456", "q1", players.get(1).getUuid(), "python",
                 Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(1800, mgr.getTeams("123456").get(0).score());
+        assertEquals(1800, mgr.getTeams("123456").get(0).getScore());
 
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), sent.capture());
@@ -242,7 +242,7 @@ class GameRoomTeamBattleFlowTest {
                 .thenReturn(500);
         mgr.startQuestion("123456");
 
-        mgr.submit("123456", "q1", room.players().get(0).uuid(), "python",
+        mgr.submit("123456", "q1", room.getPlayers().get(0).getUuid(), "python",
                 Json.readTree("{\"selectedIndex\":0}"));
         assertTrue(mgr.getTeams("123456").isEmpty());
     }
@@ -252,8 +252,8 @@ class GameRoomTeamBattleFlowTest {
         GameRoomManager mgr = manager();
         GameRoom room = seeded(mgr, GameRoom.GameMode.TEAM, "Cody");
         var team = mgr.createTeam("123456", "Alpha");
-        Player cody = room.players().get(0);
-        mgr.joinTeam("123456", team.id(), cody.uuid());
+        Player cody = room.getPlayers().get(0);
+        mgr.joinTeam("123456", team.getId(), cody.getUuid());
         Question oj = new Question("oj1", "qz", "OJ", "D", "OJ_FULL", null, 60, 500, "{}", 0, Instant.now());
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(oj));
         when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
@@ -262,14 +262,14 @@ class GameRoomTeamBattleFlowTest {
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
                 .thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
 
-        mgr.submit("123456", "oj1", cody.uuid(), "python",
+        mgr.submit("123456", "oj1", cody.getUuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
         ArgumentCaptor<CodingOutcomeConsumer> cap = ArgumentCaptor.forClass(CodingOutcomeConsumer.class);
         verify(submissionProcessor).processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), cap.capture());
-        cap.getValue().accept(cody.uuid(), 300, true, 3, 3, null);
+        cap.getValue().accept(cody.getUuid(), 300, true, 3, 3, null);
 
-        assertEquals(300, mgr.getTeams("123456").get(0).score());
+        assertEquals(300, mgr.getTeams("123456").get(0).getScore());
     }
 
     @Test
@@ -277,7 +277,7 @@ class GameRoomTeamBattleFlowTest {
         GameRoomManager mgr = manager();
         GameRoom room = seeded(mgr, GameRoom.GameMode.TEAM, "Alice");
         var team = mgr.createTeam("123456", "Alpha");
-        mgr.joinTeam("123456", team.id(), room.players().get(0).uuid());
+        mgr.joinTeam("123456", team.getId(), room.getPlayers().get(0).getUuid());
         stubQuiz(1);
         mgr.endGame("123456");
 
@@ -286,8 +286,8 @@ class GameRoomTeamBattleFlowTest {
         GameReview review = sent.getAllValues().stream()
                 .filter(GameReview.class::isInstance).map(GameReview.class::cast)
                 .findFirst().orElseThrow();
-        assertEquals(1, review.teams().size());
-        assertEquals("Alpha", review.teams().get(0).name());
+        assertEquals(1, review.getTeams().size());
+        assertEquals("Alpha", review.getTeams().get(0).getName());
 
         GameRoomManager solo = manager();
         seeded(solo, GameRoom.GameMode.STANDARD, "Solo");
@@ -298,7 +298,7 @@ class GameRoomTeamBattleFlowTest {
         GameReview soloReview = sentSolo.getAllValues().stream()
                 .filter(GameReview.class::isInstance).map(GameReview.class::cast)
                 .reduce((first, second) -> second).orElseThrow();
-        assertTrue(soloReview.teams().isEmpty());
+        assertTrue(soloReview.getTeams().isEmpty());
     }
 
     // ---------- battle flow ----------
@@ -308,9 +308,9 @@ class GameRoomTeamBattleFlowTest {
         assertEquals(2, GameRoomManager.pairUp(List.of("a", "b", "c", "d")).size());
         List<GameRoom.BattlePair> odd = GameRoomManager.pairUp(List.of("a", "b", "c"));
         assertEquals(2, odd.size());
-        assertTrue(odd.get(1).bye());
-        assertEquals("c", odd.get(1).winnerUuid());
-        assertNull(odd.get(1).p2Uuid());
+        assertTrue(odd.get(1).isBye());
+        assertEquals("c", odd.get(1).getWinnerUuid());
+        assertNull(odd.get(1).getP2Uuid());
     }
 
     @Test
@@ -347,29 +347,29 @@ class GameRoomTeamBattleFlowTest {
         assertEquals(1, mgr.getBracket("123456").size());
         assertEquals(2, mgr.getBattleMatches("123456").size());
 
-        List<Player> players = room.players();
-        room.applyScore(players.get(0).uuid(), 100);
-        room.recordRound(players.get(0).uuid(), 100, 0);
-        room.applyScore(players.get(2).uuid(), 80);
-        room.recordRound(players.get(2).uuid(), 80, 0);
+        List<Player> players = room.getPlayers();
+        room.applyScore(players.get(0).getUuid(), 100);
+        room.recordRound(players.get(0).getUuid(), 100, 0);
+        room.applyScore(players.get(2).getUuid(), 80);
+        room.recordRound(players.get(2).getUuid(), 80, 0);
         mgr.forceSubmit("123456");
 
         GameRoom.BattleRound round1 = mgr.getBracket("123456").get(0);
-        assertEquals(players.get(0).uuid(), round1.pairs().get(0).winnerUuid());
-        assertEquals(players.get(2).uuid(), round1.pairs().get(1).winnerUuid());
-        assertEquals(2, room.battleWinners().size());
+        assertEquals(players.get(0).getUuid(), round1.getPairs().get(0).getWinnerUuid());
+        assertEquals(players.get(2).getUuid(), round1.getPairs().get(1).getWinnerUuid());
+        assertEquals(2, room.getBattleWinners().size());
 
         mgr.nextQuestion("123456");
         assertEquals(2, mgr.getBracket("123456").size());
         GameRoom.BattleRound round2 = mgr.getBracket("123456").get(1);
-        assertEquals(1, round2.pairs().size());
+        assertEquals(1, round2.getPairs().size());
 
-        room.applyScore(players.get(0).uuid(), 50);
-        room.recordRound(players.get(0).uuid(), 50, 0);
+        room.applyScore(players.get(0).getUuid(), 50);
+        room.recordRound(players.get(0).getUuid(), 50, 0);
         mgr.forceSubmit("123456");
 
-        assertEquals(players.get(0).uuid(), room.championUuid());
-        assertEquals("ENDED", room.status());
+        assertEquals(players.get(0).getUuid(), room.getChampionUuid());
+        assertEquals("ENDED", room.getStatus());
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), sent.capture());
         assertTrue(sent.getAllValues().stream().anyMatch(BattleChampion.class::isInstance));
@@ -400,16 +400,16 @@ class GameRoomTeamBattleFlowTest {
         GameRoom room = seeded(mgr, GameRoom.GameMode.BATTLE, "A", "B");
         stubQuiz(1);
         mgr.startBattle("123456");
-        List<Player> p = room.players();
-        room.recordRound(p.get(0).uuid(), roundA, 0);
-        room.recordRound(p.get(1).uuid(), roundB, 0);
-        if (totalA != 0) room.applyScore(p.get(0).uuid(), totalA);
-        if (totalB != 0) room.applyScore(p.get(1).uuid(), totalB);
-        if (timeA != null) room.markBattleAnswer(p.get(0).uuid(), timeA);
-        if (timeB != null) room.markBattleAnswer(p.get(1).uuid(), timeB);
+        List<Player> p = room.getPlayers();
+        room.recordRound(p.get(0).getUuid(), roundA, 0);
+        room.recordRound(p.get(1).getUuid(), roundB, 0);
+        if (totalA != 0) room.applyScore(p.get(0).getUuid(), totalA);
+        if (totalB != 0) room.applyScore(p.get(1).getUuid(), totalB);
+        if (timeA != null) room.markBattleAnswer(p.get(0).getUuid(), timeA);
+        if (timeB != null) room.markBattleAnswer(p.get(1).getUuid(), timeB);
         mgr.forceSubmit("123456");
-        GameRoom.BattlePair pair = room.currentBattleRound().pairs().get(0);
-        return pair.winnerUuid().equals(p.get(0).uuid()) ? "p1" : "p2";
+        GameRoom.BattlePair pair = room.currentBattleRound().getPairs().get(0);
+        return pair.getWinnerUuid().equals(p.get(0).getUuid()) ? "p1" : "p2";
     }
 
     @Test
@@ -419,19 +419,19 @@ class GameRoomTeamBattleFlowTest {
         stubQuiz(2);
         mgr.startBattle("123456");
         GameRoom.BattleRound round = mgr.getBracket("123456").get(0);
-        assertEquals(2, round.pairs().size());
-        assertTrue(round.pairs().get(1).bye());
-        String byePlayer = round.pairs().get(1).p1Uuid();
+        assertEquals(2, round.getPairs().size());
+        assertTrue(round.getPairs().get(1).isBye());
+        String byePlayer = round.getPairs().get(1).getP1Uuid();
 
         mgr.forceSubmit("123456");
-        assertEquals(2, room.battleWinners().size());
-        assertTrue(room.battleWinners().contains(byePlayer));
+        assertEquals(2, room.getBattleWinners().size());
+        assertTrue(room.getBattleWinners().contains(byePlayer));
 
         mgr.nextQuestion("123456");
         GameRoom.BattleRound next = mgr.getBracket("123456").get(1);
-        assertEquals(1, next.pairs().size());
-        assertTrue(next.pairs().get(0).p1Uuid().equals(byePlayer)
-                || next.pairs().get(0).p2Uuid().equals(byePlayer));
+        assertEquals(1, next.getPairs().size());
+        assertTrue(next.getPairs().get(0).getP1Uuid().equals(byePlayer)
+                || next.getPairs().get(0).getP2Uuid().equals(byePlayer));
     }
 
     @Test
@@ -442,7 +442,7 @@ class GameRoomTeamBattleFlowTest {
         // A player who joins mid-battle is not in the round's pairs.
         mgr.startBattle("123456");
         Player late = mgr.join("123456", "Late", "sess-late", "player", null);
-        assertNull(room.pairOf(late.uuid()));
+        assertNull(room.pairOf(late.getUuid()));
         // A seat with no live session cannot receive the opponent frame.
         mgr.join("123456", "Ghost", null, "player", null);
 
@@ -461,7 +461,7 @@ class GameRoomTeamBattleFlowTest {
         mgr.startQuestion("123456");
         mgr.forceSubmit("123456");
         assertNull(room.currentBattleRound());
-        assertNull(room.championUuid());
+        assertNull(room.getChampionUuid());
     }
 
     @Test
@@ -475,16 +475,16 @@ class GameRoomTeamBattleFlowTest {
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
                 .thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
-        Player cody = room.players().get(0);
+        Player cody = room.getPlayers().get(0);
 
-        mgr.submit("123456", "oj1", cody.uuid(), "python",
+        mgr.submit("123456", "oj1", cody.getUuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
         ArgumentCaptor<CodingOutcomeConsumer> cap = ArgumentCaptor.forClass(CodingOutcomeConsumer.class);
         verify(submissionProcessor).processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), cap.capture());
-        cap.getValue().accept(cody.uuid(), 100, true, 1, 1, null);
+        cap.getValue().accept(cody.getUuid(), 100, true, 1, 1, null);
 
-        assertNotNull(room.battleAnswerMs(cody.uuid()));
+        assertNotNull(room.battleAnswerMs(cody.getUuid()));
     }
 
     @Test
@@ -496,7 +496,7 @@ class GameRoomTeamBattleFlowTest {
         // A malformed legacy pair: not flagged as a bye but missing p2.
         room.beginBattleRound(List.of(new GameRoom.BattlePair("ghost-1", null, null, false)));
         mgr.forceSubmit("123456");
-        assertEquals("ghost-1", room.championUuid());
+        assertEquals("ghost-1", room.getChampionUuid());
     }
 
     @Test
@@ -508,13 +508,13 @@ class GameRoomTeamBattleFlowTest {
         room.beginBattleRound(List.of(new GameRoom.BattlePair("ghost-1", "ghost-2", null, false)));
         mgr.forceSubmit("123456");
 
-        assertEquals("ghost-1", room.championUuid());
+        assertEquals("ghost-1", room.getChampionUuid());
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), sent.capture());
         BattleChampion champion = sent.getAllValues().stream()
                 .filter(BattleChampion.class::isInstance).map(BattleChampion.class::cast)
                 .findFirst().orElseThrow();
-        assertEquals("Player", champion.championName());
+        assertEquals("Player", champion.getChampionName());
     }
 
     @Test
@@ -536,7 +536,7 @@ class GameRoomTeamBattleFlowTest {
         stubQuiz(2);
         mgr.nextQuestion("123456");
         assertNotNull(roomOf(mgr).currentBattleRound());
-        assertEquals("ACTIVE", roomOf(mgr).status());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
     }
 
     @Test
@@ -545,16 +545,16 @@ class GameRoomTeamBattleFlowTest {
         GameRoom room = seeded(mgr, GameRoom.GameMode.BATTLE, "A", "B");
         stubQuiz(1);
         BattleBracket empty = mgr.getBracketView("123456");
-        assertNull(empty.championUuid());
-        assertNull(empty.championName());
+        assertNull(empty.getChampionUuid());
+        assertNull(empty.getChampionName());
 
-        String uuid = room.players().get(0).uuid();
+        String uuid = room.getPlayers().get(0).getUuid();
         room.setChampionUuid(uuid);
-        assertEquals(room.getPlayer(uuid).name(), mgr.getBracketView("123456").championName());
+        assertEquals(room.getPlayer(uuid).getName(), mgr.getBracketView("123456").getChampionName());
 
         room.setChampionUuid("ghost");
-        assertEquals("ghost", mgr.getBracketView("123456").championUuid());
-        assertNull(mgr.getBracketView("123456").championName());
+        assertEquals("ghost", mgr.getBracketView("123456").getChampionUuid());
+        assertNull(mgr.getBracketView("123456").getChampionName());
     }
 
     @Test
@@ -572,11 +572,11 @@ class GameRoomTeamBattleFlowTest {
     void roomSpectatorsWatchWithoutASeat() {
         GameRoom room = new GameRoom("s", "q", "p", "LOBBY", 2, GameRoom.GameMode.STANDARD);
         room.addSpectator(new Player("v1", "Projector", 0, "sv1", true));
-        assertEquals(1, room.spectators().size());
+        assertEquals(1, room.getSpectators().size());
         assertEquals(1, room.connectedCount());
         room.removeSpectator("v1");
         room.removeSpectator(null);
-        assertTrue(room.spectators().isEmpty());
+        assertTrue(room.getSpectators().isEmpty());
         room.addPlayer(new Player("p1", "A", 0, "s1", true));
         room.addPlayer(new Player("p2", "B", 0, "s2", true));
         assertTrue(room.isFull());
@@ -588,9 +588,9 @@ class GameRoomTeamBattleFlowTest {
         GameRoomManager mgr = manager();
         seeded(mgr, GameRoom.GameMode.STANDARD, "Alice");
         Player viewer = mgr.join("123456", "Projector", "sess-v", "spectator", null);
-        assertEquals(1, roomOf(mgr).spectators().size());
-        assertTrue(mgr.getRoomState("123456").players().stream()
-                .noneMatch(p -> p.uuid().equals(viewer.uuid())));
+        assertEquals(1, roomOf(mgr).getSpectators().size());
+        assertTrue(mgr.getRoomState("123456").getPlayers().stream()
+                .noneMatch(p -> p.getUuid().equals(viewer.getUuid())));
 
         // Spectators receive the same broadcasts as players.
         mgr.join("123456", "Silent", null, "spectator", null);
@@ -601,9 +601,9 @@ class GameRoomTeamBattleFlowTest {
                 .broadcast(org.mockito.ArgumentMatchers.argThat(
                         ids -> ids != null && ids.contains("sess-v")), any());
 
-        mgr.leave("123456", viewer.uuid());
-        assertTrue(roomOf(mgr).spectators().stream()
-                .noneMatch(p -> p.uuid().equals(viewer.uuid())));
+        mgr.leave("123456", viewer.getUuid());
+        assertTrue(roomOf(mgr).getSpectators().stream()
+                .noneMatch(p -> p.getUuid().equals(viewer.getUuid())));
     }
 
     @Test

@@ -103,12 +103,12 @@ class GameRoomManagerRestoreTest {
         m.restoreRooms();
         GameRoom room = registry(m).get(123456);
         assertNotNull(room);
-        assertEquals("sid1", room.sessionId());
-        assertEquals("qz1", room.quizId());
-        assertEquals("123456", room.pin());
-        assertEquals("ACTIVE", room.status());
-        assertEquals(2, room.currentQuestionIndex());
-        assertEquals(GameRoom.GameMode.TEAM, room.gameMode());
+        assertEquals("sid1", room.getSessionId());
+        assertEquals("qz1", room.getQuizId());
+        assertEquals("123456", room.getPin());
+        assertEquals("ACTIVE", room.getStatus());
+        assertEquals(2, room.getCurrentQuestionIndex());
+        assertEquals(GameRoom.GameMode.TEAM, room.getGameMode());
     }
 
     @Test
@@ -118,7 +118,7 @@ class GameRoomManagerRestoreTest {
         lenient().when(submissionRepository.findBySession("sid2")).thenReturn(List.of());
         GameRoomManager m = manager();
         m.restoreRooms();
-        assertEquals("LOBBY", registry(m).get(111111).status());
+        assertEquals("LOBBY", registry(m).get(111111).getStatus());
     }
 
     @Test
@@ -128,7 +128,7 @@ class GameRoomManagerRestoreTest {
         lenient().when(submissionRepository.findBySession("sid3")).thenReturn(List.of());
         GameRoomManager m = manager();
         m.restoreRooms();
-        assertEquals(GameRoom.GameMode.STANDARD, registry(m).get(222222).gameMode());
+        assertEquals(GameRoom.GameMode.STANDARD, registry(m).get(222222).getGameMode());
     }
 
     @Test
@@ -138,7 +138,7 @@ class GameRoomManagerRestoreTest {
         lenient().when(submissionRepository.findBySession("sid4")).thenReturn(List.of());
         GameRoomManager m = manager();
         m.restoreRooms();
-        assertEquals(GameRoom.GameMode.STANDARD, registry(m).get(333333).gameMode());
+        assertEquals(GameRoom.GameMode.STANDARD, registry(m).get(333333).getGameMode());
     }
 
     @Test
@@ -148,7 +148,7 @@ class GameRoomManagerRestoreTest {
         lenient().when(submissionRepository.findBySession("sid5")).thenReturn(List.of());
         GameRoomManager m = manager();
         m.restoreRooms();
-        assertEquals(GameRoom.GameMode.STANDARD, registry(m).get(444444).gameMode());
+        assertEquals(GameRoom.GameMode.STANDARD, registry(m).get(444444).getGameMode());
     }
 
     @Test
@@ -205,7 +205,7 @@ class GameRoomManagerRestoreTest {
             r.put(666666, new GameRoom("existing", "qz", "666666", "LOBBY"));
         } catch (Exception e) { throw new RuntimeException(e); }
         m.restoreRooms();
-        assertEquals("existing", registry(m).get(666666).sessionId());
+        assertEquals("existing", registry(m).get(666666).getSessionId());
     }
 
     @Test
@@ -223,17 +223,17 @@ class GameRoomManagerRestoreTest {
         GameRoom room = registry(m).get(777777);
         assertNotNull(room);
         // u1 score 15
-        assertEquals(15L, room.board().scoreOf("u1"));
+        assertEquals(15L, room.getBoard().scoreOf("u1"));
         // u2 score 7
-        assertEquals(7L, room.board().scoreOf("u2"));
+        assertEquals(7L, room.getBoard().scoreOf("u2"));
         // players connected false
-        for (Player p : room.players()) {
-            if (!p.uuid().equals("u1") && !p.uuid().equals("u2")) continue;
+        for (Player p : room.getPlayers()) {
+            if (!p.getUuid().equals("u1") && !p.getUuid().equals("u2")) continue;
             // connected false
         }
         // check connected flag via getPlayer
-        assertEquals(false, room.getPlayer("u1").connected());
-        assertEquals(false, room.getPlayer("u2").connected());
+        assertEquals(false, room.getPlayer("u1").isConnected());
+        assertEquals(false, room.getPlayer("u2").isConnected());
     }
 
     @Test
@@ -245,7 +245,7 @@ class GameRoomManagerRestoreTest {
         GameRoomManager m = manager();
         m.restoreRooms();
         GameRoom room = registry(m).get(888888);
-        assertEquals("Player", room.getPlayer("u3").name());
+        assertEquals("Player", room.getPlayer("u3").getName());
     }
 
     @Test
@@ -257,7 +257,7 @@ class GameRoomManagerRestoreTest {
         GameRoomManager m = manager();
         m.restoreRooms();
         GameRoom room = registry(m).get(999999);
-        assertEquals("Player", room.getPlayer("u4").name());
+        assertEquals("Player", room.getPlayer("u4").getName());
     }
 
     @Test
@@ -270,7 +270,7 @@ class GameRoomManagerRestoreTest {
         m.restoreRooms();
         GameRoom room = registry(m).get(101010);
         // player added at score 0; applyScore not called with 0 but score remains 0
-        assertEquals(0L, room.board().scoreOf("u5"));
+        assertEquals(0L, room.getBoard().scoreOf("u5"));
     }
 
     @Test

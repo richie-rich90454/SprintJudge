@@ -27,8 +27,8 @@ class GlobalExceptionHandlerTest {
     void handleBadRequestReturns400() {
         var resp = handler.handleBadRequest(new IllegalArgumentException("bad input"));
         assertEquals(400, resp.getStatusCode().value());
-        assertEquals("ERROR", resp.getBody().type());
-        assertEquals("bad input", resp.getBody().message());
+        assertEquals("ERROR", resp.getBody().getType());
+        assertEquals("bad input", resp.getBody().getMessage());
     }
 
     @Test
@@ -42,9 +42,9 @@ class GlobalExceptionHandlerTest {
 
         var resp = handler.handleValidation(ex);
         assertEquals(400, resp.getStatusCode().value());
-        assertEquals("ERROR", resp.getBody().type());
-        assertNotNull(resp.getBody().message());
-        org.assertj.core.api.Assertions.assertThat(resp.getBody().message()).contains("title: must not be blank");
+        assertEquals("ERROR", resp.getBody().getType());
+        assertNotNull(resp.getBody().getMessage());
+        org.assertj.core.api.Assertions.assertThat(resp.getBody().getMessage()).contains("title: must not be blank");
     }
 
     @Test
@@ -52,27 +52,27 @@ class GlobalExceptionHandlerTest {
         HttpInputMessage nullBody = null;
         var resp = handler.handleUnreadable(new HttpMessageNotReadableException("boom", nullBody));
         assertEquals(400, resp.getStatusCode().value());
-        assertEquals("Malformed JSON body", resp.getBody().message());
+        assertEquals("Malformed JSON body", resp.getBody().getMessage());
     }
 
     @Test
     void handleConflictReturns409() {
         var resp = handler.handleConflict(new IllegalStateException("busy"));
         assertEquals(409, resp.getStatusCode().value());
-        assertEquals("busy", resp.getBody().message());
+        assertEquals("busy", resp.getBody().getMessage());
     }
 
     @Test
     void handleNoResourceReturns404() {
         var resp = handler.handleNoResource(new NoResourceFoundException(HttpMethod.GET, "/favicon.ico", "not found"));
         assertEquals(404, resp.getStatusCode().value());
-        assertEquals("Not found", resp.getBody().message());
+        assertEquals("Not found", resp.getBody().getMessage());
     }
 
     @Test
     void handleGenericReturns500() {
         var resp = handler.handleGeneric(new RuntimeException("kaboom"));
         assertEquals(500, resp.getStatusCode().value());
-        assertEquals("Internal error", resp.getBody().message());
+        assertEquals("Internal error", resp.getBody().getMessage());
     }
 }

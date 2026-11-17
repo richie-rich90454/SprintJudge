@@ -2,10 +2,9 @@ package com.sprintjudge.service;
 
 /**
  * Outbound port for leaderboard transport, consumed by the async judge
- * pipeline. Exists to invert the natural GameRoomManager ⇄
- * SubmissionProcessor dependency into a clean acyclic edge:
+ * pipeline. Exists to invert the natural GameRoomManager -? * SubmissionProcessor dependency into a clean acyclic edge:
  *
- * <pre>SubmissionProcessor ──▶ LeaderboardBroadcaster ◀── GameRoomManager</pre>
+ * <pre>SubmissionProcessor ---?LeaderboardBroadcaster --- GameRoomManager</pre>
  */
 public interface LeaderboardBroadcaster {
 

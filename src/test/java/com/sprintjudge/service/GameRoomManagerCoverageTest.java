@@ -122,7 +122,7 @@ class GameRoomManagerCoverageTest {
         long end = System.currentTimeMillis() + 5000;
         while (System.currentTimeMillis() < end) {
             GameRoom r = reg.get(Integer.parseInt(pin));
-            if (r != null && want.equals(r.status())) return;
+            if (r != null && want.equals(r.getStatus())) return;
             Thread.sleep(50);
         }
         throw new AssertionError("room " + pin + " never reached " + want);
@@ -142,7 +142,7 @@ class GameRoomManagerCoverageTest {
                 .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
                         inv.getArgument(1), "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
         GameSession created = manager().createRoom("qz", "host-1");
-        assertTrue(created.pinCode().matches("\\d{6}"));
+        assertTrue(created.getPinCode().matches("\\d{6}"));
         verify(sessionRepository).create(eq("qz"), eq("host-1"), anyString(), eq(null), anyString());
     }
 
@@ -179,7 +179,7 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         GameRoom real = roomOf(mgr);
-        GameRoom spy = new GameRoom(real.sessionId(), real.quizId(), "123456", "LOBBY", 500,
+        GameRoom spy = new GameRoom(real.getSessionId(), real.getQuizId(), "123456", "LOBBY", 500,
                 GameRoom.GameMode.STANDARD) {
             int calls;
             @Override public Player getPlayer(String uuid) {
@@ -187,14 +187,14 @@ class GameRoomManagerCoverageTest {
                 return null;
             }
         };
-        for (Player p : real.players()) {
-            spy.addPlayer(new Player(p.uuid(), p.name(), 0, "sess-1", true, "tok"));
+        for (Player p : real.getPlayers()) {
+            spy.addPlayer(new Player(p.getUuid(), p.getName(), 0, "sess-1", true, "tok"));
         }
         spy.setStatus("ACTIVE");
         spy.setCurrentQuestionId("q1");
         spy.setCurrentQuestionStartEpochMs(Instant.now().toEpochMilli());
         registryOf(mgr).put(123456, spy);
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(writeBuffer, never()).offer(any());
     }
 
@@ -206,7 +206,7 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var player = mgr.join("123456", "Cody", "sess-c", "player", null);
         GameRoom real = roomOf(mgr);
-        GameRoom spy = new GameRoom(real.sessionId(), real.quizId(), "123456", "LOBBY", 500,
+        GameRoom spy = new GameRoom(real.getSessionId(), real.getQuizId(), "123456", "LOBBY", 500,
                 GameRoom.GameMode.STANDARD) {
             int calls;
             @Override public Player getPlayer(String uuid) {
@@ -214,14 +214,14 @@ class GameRoomManagerCoverageTest {
                 return null;
             }
         };
-        for (Player p : real.players()) {
-            spy.addPlayer(new Player(p.uuid(), p.name(), 0, "sess-c", true, "tok"));
+        for (Player p : real.getPlayers()) {
+            spy.addPlayer(new Player(p.getUuid(), p.getName(), 0, "sess-c", true, "tok"));
         }
         spy.setStatus("ACTIVE");
         spy.setCurrentQuestionId("oj1");
         spy.setCurrentQuestionStartEpochMs(Instant.now().toEpochMilli());
         registryOf(mgr).put(123456, spy);
-        mgr.submit("123456", "oj1", player.uuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+        mgr.submit("123456", "oj1", player.getUuid(), "python", Json.readTree("{\"source\":\"x\"}"));
         verify(submissionProcessor, never()).processCoding(
                 anyString(), anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyInt(), any(), anyLong(), any());
@@ -238,12 +238,12 @@ class GameRoomManagerCoverageTest {
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
                 .thenAnswer(inv -> {
                     CodingOutcomeConsumer h = inv.getArgument(10);
-                    mgr.kickPlayer("123456", player.uuid());
-                    h.accept(player.uuid(), 100, true, 1, 1, null);
+                    mgr.kickPlayer("123456", player.getUuid());
+                    h.accept(player.getUuid(), 100, true, 1, 1, null);
                     return java.util.concurrent.CompletableFuture.completedFuture(true);
                 });
         armActive(mgr, "oj1");
-        mgr.submit("123456", "oj1", player.uuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+        mgr.submit("123456", "oj1", player.getUuid(), "python", Json.readTree("{\"source\":\"x\"}"));
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws, times(1)).send(eq((String) null), sent.capture());
         assertTrue(sent.getValue() instanceof SubmissionResult);
@@ -260,12 +260,12 @@ class GameRoomManagerCoverageTest {
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
                 .thenAnswer(inv -> {
                     CodingOutcomeConsumer h = inv.getArgument(10);
-                    mgr.kickPlayer("123456", player.uuid());
-                    h.rejected(player.uuid());
+                    mgr.kickPlayer("123456", player.getUuid());
+                    h.rejected(player.getUuid());
                     return java.util.concurrent.CompletableFuture.completedFuture(true);
                 });
         armActive(mgr, "oj1");
-        mgr.submit("123456", "oj1", player.uuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+        mgr.submit("123456", "oj1", player.getUuid(), "python", Json.readTree("{\"source\":\"x\"}"));
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws, times(1)).send(eq((String) null), sent.capture());
         assertTrue(sent.getValue() instanceof SubmissionResult);
@@ -299,7 +299,7 @@ class GameRoomManagerCoverageTest {
         room.setStatus("ACTIVE");
         room.setCurrentQuestionEndEpochMs(Instant.now().toEpochMilli() - 1000);
         callPrivate(mgr, "onTimerExpired", "123456");
-        assertEquals("ACTIVE", room.status());
+        assertEquals("ACTIVE", room.getStatus());
         verify(roundTimer, never()).schedule(anyInt(), anyLong(), any());
     }
 
@@ -338,7 +338,7 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         mgr.join("123456", "A", "sa", "player", null);
         callPrivate(mgr, "transitionToReview", "123456");
-        assertEquals("LOBBY", roomOf(mgr).status());
+        assertEquals("LOBBY", roomOf(mgr).getStatus());
         verify(ws, never()).broadcast(any(), any());
     }
 
@@ -372,7 +372,7 @@ class GameRoomManagerCoverageTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         GameRoomManager mgr = manager();
         mgr.join("123456", "A", "sa", "player", null);
-        roomOf(mgr).softRemove(roomOf(mgr).players().get(0).uuid());
+        roomOf(mgr).softRemove(roomOf(mgr).getPlayers().get(0).getUuid());
         setField(roomOf(mgr), "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
         doThrow(new RuntimeException("db down")).when(sessionRepository).updateStatus(anyString(), anyString());
         mgr.sweepIdleRooms();
@@ -384,7 +384,7 @@ class GameRoomManagerCoverageTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         GameRoomManager mgr = manager();
         mgr.join("123456", "A", "sa", "player", null);
-        roomOf(mgr).softRemove(roomOf(mgr).players().get(0).uuid());
+        roomOf(mgr).softRemove(roomOf(mgr).getPlayers().get(0).getUuid());
         setField(roomOf(mgr), "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
         doThrow(new RuntimeException("db down")).when(writeBuffer).flush();
         mgr.sweepIdleRooms();
@@ -420,7 +420,7 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var player = mgr.join("123456", "A", "sa", "player", null);
         doAnswer(inv -> {
-            roomOf(mgr).applyScore(player.uuid(), 5);
+            roomOf(mgr).applyScore(player.getUuid(), 5);
             return null;
         }).when(ws).broadcastRaw(any(), any());
         mgr.flushLeaderboardDelta("123456");
@@ -454,7 +454,7 @@ class GameRoomManagerCoverageTest {
             registryOf(mgr).put(123456,
                     new GameRoom("s9", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.STANDARD));
             GameSession created = mgr.createRoom("qz", "host-1");
-            assertEquals("654321", created.pinCode());
+            assertEquals("654321", created.getPinCode());
         }
     }
 
@@ -468,11 +468,11 @@ class GameRoomManagerCoverageTest {
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
                 .thenAnswer(inv -> {
-                    mgr.kickPlayer("123456", player.uuid());
+                    mgr.kickPlayer("123456", player.getUuid());
                     return java.util.concurrent.CompletableFuture.completedFuture(false);
                 });
         armActive(mgr, "oj1");
-        mgr.submit("123456", "oj1", player.uuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+        mgr.submit("123456", "oj1", player.getUuid(), "python", Json.readTree("{\"source\":\"x\"}"));
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws, times(1)).send(eq((String) null), sent.capture());
         assertTrue(sent.getValue() instanceof com.sprintjudge.domain.dto.ErrorMessage);
@@ -506,8 +506,8 @@ class GameRoomManagerCoverageTest {
                 .filter(o -> o instanceof com.sprintjudge.domain.dto.GameReview)
                 .findFirst().orElseThrow();
         var gr = (com.sprintjudge.domain.dto.GameReview) review;
-        assertEquals("q1", gr.classStats().easiestQuestionId());
-        assertEquals("q2", gr.classStats().hardestQuestionId());
+        assertEquals("q1", gr.getClassStats().getEasiestQuestionId());
+        assertEquals("q2", gr.getClassStats().getHardestQuestionId());
     }
 
     @Test
@@ -524,8 +524,8 @@ class GameRoomManagerCoverageTest {
         var review = (com.sprintjudge.domain.dto.GameReview) sent.getAllValues().stream()
                 .filter(o -> o instanceof com.sprintjudge.domain.dto.GameReview)
                 .findFirst().orElseThrow();
-        assertEquals(1, review.classStats().totalPlayers());
-        assertEquals(1, review.players().size());
+        assertEquals(1, review.getClassStats().getTotalPlayers());
+        assertEquals(1, review.getPlayers().size());
     }
 
     @Test
@@ -545,7 +545,7 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         mgr.join("123456", "A", "sa", "player", null);
         GameRoom room = roomOf(mgr);
-        room.softRemove(room.players().get(0).uuid());
+        room.softRemove(room.getPlayers().get(0).getUuid());
         room.setStatus("REVIEW");
         setField(room, "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
         mgr.sweepIdleRooms();
@@ -568,7 +568,7 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var player = mgr.join("123456", "A", "sa", "player", null);
         mgr.flushLeaderboardDelta("123456");
-        mgr.kickPlayer("123456", player.uuid());
+        mgr.kickPlayer("123456", player.getUuid());
         org.mockito.Mockito.clearInvocations(ws);
         mgr.flushLeaderboardDelta("123456");
         verify(ws, never()).broadcastRaw(any(), anyString());
@@ -595,10 +595,10 @@ class GameRoomManagerCoverageTest {
                 .filter(o -> o instanceof com.sprintjudge.domain.dto.GameReview)
                 .map(o -> (com.sprintjudge.domain.dto.GameReview) o)
                 .findFirst().orElseThrow();
-        assertEquals(List.of("A", "B"), review.questions().get(0).options());
-        assertEquals(List.of("first"), review.questions().get(1).options());
-        assertEquals(null, review.questions().get(2).options());
-        assertEquals(null, review.questions().get(3).options());
+        assertEquals(List.of("A", "B"), review.getQuestions().get(0).getOptions());
+        assertEquals(List.of("first"), review.getQuestions().get(1).getOptions());
+        assertEquals(null, review.getQuestions().get(2).getOptions());
+        assertEquals(null, review.getQuestions().get(3).getOptions());
     }
 
     @Test
@@ -627,22 +627,22 @@ class GameRoomManagerCoverageTest {
         var alice = mgr.join("123456", "Alice", "sa", "player", null);
         var bob = mgr.join("123456", "Bob", "sb", "player", null);
         mgr.startQuestion("123456");
-        assertEquals("ACTIVE", roomOf(mgr).status());
-        assertEquals("q1", roomOf(mgr).currentQuestionId());
-        mgr.submit("123456", "q1", alice.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", bob.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(100, roomOf(mgr).getPlayer(alice.uuid()).score());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
+        assertEquals("q1", roomOf(mgr).getCurrentQuestionId());
+        mgr.submit("123456", "q1", alice.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", bob.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(100, roomOf(mgr).getPlayer(alice.getUuid()).getScore());
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", roomOf(mgr).status());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
         mgr.nextQuestion("123456");
-        assertEquals("ACTIVE", roomOf(mgr).status());
-        assertEquals("q2", roomOf(mgr).currentQuestionId());
-        mgr.submit("123456", "q2", alice.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q2", bob.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(210, roomOf(mgr).getPlayer(alice.uuid()).score());
-        assertEquals(210, roomOf(mgr).getPlayer(bob.uuid()).score());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
+        assertEquals("q2", roomOf(mgr).getCurrentQuestionId());
+        mgr.submit("123456", "q2", alice.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q2", bob.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(210, roomOf(mgr).getPlayer(alice.getUuid()).getScore());
+        assertEquals(210, roomOf(mgr).getPlayer(bob.getUuid()).getScore());
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", roomOf(mgr).status());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
         mgr.nextQuestion("123456");
         verify(sessionRepository).updateStatus("s1", "ENDED");
         assertThrows(IllegalArgumentException.class, () -> mgr.getRoomState("123456"));
@@ -663,18 +663,18 @@ class GameRoomManagerCoverageTest {
         mgr.join("123456", "C", "s3", "player", null);
         mgr.join("123456", "D", "s4", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", b.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", b.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q2", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q3", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q3", b.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        var lb = roomOf(mgr).leaderboard();
-        assertEquals(a.uuid(), lb.get(0).uuid());
-        assertTrue(roomOf(mgr).getPlayer(a.uuid()).score() >= roomOf(mgr).getPlayer(b.uuid()).score());
+        mgr.submit("123456", "q3", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q3", b.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        var lb = roomOf(mgr).getLeaderboard();
+        assertEquals(a.getUuid(), lb.get(0).getUuid());
+        assertTrue(roomOf(mgr).getPlayer(a.getUuid()).getScore() >= roomOf(mgr).getPlayer(b.getUuid()).getScore());
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
         verify(sessionRepository).updateStatus("s1", "ENDED");
@@ -692,13 +692,13 @@ class GameRoomManagerCoverageTest {
         var alice = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.join("123456", "Bob", "sb", "player", null);
         when(submissionRepository.findBySession("s1")).thenReturn(List.of(
-                new com.sprintjudge.domain.models.Submission("id1", "s1", "q1", "Alice", alice.uuid(), "{}", 100, true, null, 1, java.time.Instant.now()),
-                new com.sprintjudge.domain.models.Submission("id2", "s1", "q2", "Alice", alice.uuid(), "{}", 110, true, null, 1, java.time.Instant.now())));
+                new com.sprintjudge.domain.models.Submission("id1", "s1", "q1", "Alice", alice.getUuid(), "{}", 100, true, null, 1, java.time.Instant.now()),
+                new com.sprintjudge.domain.models.Submission("id2", "s1", "q2", "Alice", alice.getUuid(), "{}", 110, true, null, 1, java.time.Instant.now())));
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", alice.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", alice.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", alice.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q2", alice.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         org.mockito.Mockito.clearInvocations(ws);
         mgr.nextQuestion("123456");
@@ -707,9 +707,9 @@ class GameRoomManagerCoverageTest {
         Object review = sent.getAllValues().stream()
                 .filter(o -> o instanceof com.sprintjudge.domain.dto.GameReview).findFirst().orElseThrow();
         var gr = (com.sprintjudge.domain.dto.GameReview) review;
-        assertEquals(2, gr.questions().size());
-        assertTrue(gr.players().stream().anyMatch(p -> p.totalScore() == 210));
-        assertEquals(2, gr.classStats().totalQuestions());
+        assertEquals(2, gr.getQuestions().size());
+        assertTrue(gr.getPlayers().stream().anyMatch(p -> p.getTotalScore() == 210));
+        assertEquals(2, gr.getClassStats().getTotalQuestions());
     }
 
     @Test
@@ -724,13 +724,13 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var alice = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", alice.uuid(), "python", Json.readTree("{\"selectedIndex\":3}"));
-        assertEquals(0, roomOf(mgr).streakOf(alice.uuid()));
+        mgr.submit("123456", "q1", alice.getUuid(), "python", Json.readTree("{\"selectedIndex\":3}"));
+        assertEquals(0, roomOf(mgr).streakOf(alice.getUuid()));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", alice.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(1, roomOf(mgr).streakOf(alice.uuid()));
-        assertEquals(100, roomOf(mgr).getPlayer(alice.uuid()).score());
+        mgr.submit("123456", "q2", alice.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(1, roomOf(mgr).streakOf(alice.getUuid()));
+        assertEquals(100, roomOf(mgr).getPlayer(alice.getUuid()).getScore());
     }
 
     @Test
@@ -746,17 +746,17 @@ class GameRoomManagerCoverageTest {
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         var b = mgr.join("123456", "Bob", "sb", "player", null);
         mgr.startQuestion("123456");
-        assertEquals("ACTIVE", roomOf(mgr).status());
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", b.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", b.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         org.mockito.Mockito.clearInvocations(scheduler);
         org.mockito.Mockito.clearInvocations(ws);
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", roomOf(mgr).status());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
         verify(scheduler, never()).markDirty(anyInt(), any());
         mgr.nextQuestion("123456");
-        assertEquals("ACTIVE", roomOf(mgr).status());
-        mgr.submit("123456", "q2", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
+        mgr.submit("123456", "q2", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
         verify(sessionRepository).updateStatus("s1", "ENDED");
@@ -776,12 +776,12 @@ class GameRoomManagerCoverageTest {
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(500);
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(500, roomOf(mgr).getPlayer(a.uuid()).score());
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(500, roomOf(mgr).getPlayer(a.getUuid()).getScore());
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(1050, roomOf(mgr).getPlayer(a.uuid()).score());
+        mgr.submit("123456", "q2", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(1050, roomOf(mgr).getPlayer(a.getUuid()).getScore());
     }
 
     @Test
@@ -796,18 +796,18 @@ class GameRoomManagerCoverageTest {
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         var b = mgr.join("123456", "Bob", "sb", "player", null);
         mgr.startQuestion("123456");
-        assertEquals("ACTIVE", roomOf(mgr).status());
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", b.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", b.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(scheduler, org.mockito.Mockito.atLeast(3)).markDirty(eq(123456), any());
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", roomOf(mgr).status());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
         verify(roundTimer, org.mockito.Mockito.atLeastOnce()).schedule(eq(123456), anyLong(), any());
         mgr.nextQuestion("123456");
-        assertEquals("ACTIVE", roomOf(mgr).status());
-        assertEquals("q2", roomOf(mgr).currentQuestionId());
-        mgr.submit("123456", "q2", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(1890, roomOf(mgr).getPlayer(a.uuid()).score());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
+        assertEquals("q2", roomOf(mgr).getCurrentQuestionId());
+        mgr.submit("123456", "q2", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(1890, roomOf(mgr).getPlayer(a.getUuid()).getScore());
     }
 
     @Test
@@ -821,13 +821,13 @@ class GameRoomManagerCoverageTest {
         when(scoringEngine.scoreSelection(eq(0.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(0);
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":3}"));
-        assertEquals(0, roomOf(mgr).getPlayer(a.uuid()).score());
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":3}"));
+        assertEquals(0, roomOf(mgr).getPlayer(a.getUuid()).getScore());
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", a.uuid(), "python", Json.readTree("{\"selectedIndex\":3}"));
-        assertEquals(0, roomOf(mgr).getPlayer(a.uuid()).score());
-        assertEquals(0, roomOf(mgr).streakOf(a.uuid()));
+        mgr.submit("123456", "q2", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":3}"));
+        assertEquals(0, roomOf(mgr).getPlayer(a.getUuid()).getScore());
+        assertEquals(0, roomOf(mgr).streakOf(a.getUuid()));
     }
 
     @Test
@@ -843,14 +843,14 @@ class GameRoomManagerCoverageTest {
         var b = mgr.join("123456", "Bob", "sb", "player", null);
         mgr.startQuestion("123456");
         verify(roundTimer, times(1)).schedule(eq(123456), anyLong(), any());
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", b.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", b.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", roomOf(mgr).status());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
         mgr.nextQuestion("123456");
-        assertEquals("ACTIVE", roomOf(mgr).status());
-        mgr.submit("123456", "q2", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(840, roomOf(mgr).getPlayer(a.uuid()).score());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
+        mgr.submit("123456", "q2", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(840, roomOf(mgr).getPlayer(a.getUuid()).getScore());
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
         verify(sessionRepository).updateStatus("s1", "ENDED");
@@ -872,20 +872,20 @@ class GameRoomManagerCoverageTest {
         room.addPlayer(p1); room.addPlayer(p2); room.addPlayer(p3);
         var alpha = mgr.createTeam("123456", "Alpha");
         var beta = mgr.createTeam("123456", "Beta");
-        mgr.joinTeam("123456", alpha.id(), p1.uuid());
-        mgr.joinTeam("123456", alpha.id(), p2.uuid());
-        mgr.joinTeam("123456", beta.id(), p3.uuid());
+        mgr.joinTeam("123456", alpha.getId(), p1.getUuid());
+        mgr.joinTeam("123456", alpha.getId(), p2.getUuid());
+        mgr.joinTeam("123456", beta.getId(), p3.getUuid());
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", p1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", p2.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", p3.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(400, room.getTeam(alpha.id()).score());
-        assertEquals(200, room.getTeam(beta.id()).score());
+        mgr.submit("123456", "q1", p1.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p2.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p3.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(400, room.getTeam(alpha.getId()).getScore());
+        assertEquals(200, room.getTeam(beta.getId()).getScore());
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", room.status());
+        assertEquals("REVIEW", room.getStatus());
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", p1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(620, room.getTeam(alpha.id()).score());
+        mgr.submit("123456", "q2", p1.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(620, room.getTeam(alpha.getId()).getScore());
         assertEquals(2, mgr.getTeams("123456").size());
     }
 
@@ -903,16 +903,16 @@ class GameRoomManagerCoverageTest {
         var p2 = new Player("uuid-P2", "P2", 0, "s-p2", true);
         room.addPlayer(p1); room.addPlayer(p2);
         mgr.startBattle("123456");
-        assertEquals("ACTIVE", room.status());
+        assertEquals("ACTIVE", room.getStatus());
         assertEquals(1, mgr.getBattleMatches("123456").size());
         assertEquals(1, mgr.getBracket("123456").size());
-        mgr.submit("123456", "q1", p1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", p2.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(300, room.getPlayer(p1.uuid()).score());
+        mgr.submit("123456", "q1", p1.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p2.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(300, room.getPlayer(p1.getUuid()).getScore());
         mgr.forceSubmit("123456");
         // A two-player battle is decided the moment the first round reveals.
-        assertEquals("ENDED", room.status());
-        assertEquals(p1.uuid(), room.championUuid());
+        assertEquals("ENDED", room.getStatus());
+        assertEquals(p1.getUuid(), room.getChampionUuid());
         verify(sessionRepository).updateStatus("s1", "ENDED");
     }
 
@@ -926,14 +926,14 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", roomOf(mgr).status());
-        assertEquals(0, roomOf(mgr).currentQuestionIndex());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
+        assertEquals(0, roomOf(mgr).getCurrentQuestionIndex());
         mgr.nextQuestion("123456");
-        assertEquals("ACTIVE", roomOf(mgr).status());
-        assertEquals(1, roomOf(mgr).currentQuestionIndex());
-        assertEquals("q2", roomOf(mgr).currentQuestionId());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
+        assertEquals(1, roomOf(mgr).getCurrentQuestionIndex());
+        assertEquals("q2", roomOf(mgr).getCurrentQuestionId());
         verify(writeBuffer, org.mockito.Mockito.atLeastOnce()).flush();
     }
 
@@ -947,7 +947,7 @@ class GameRoomManagerCoverageTest {
         mgr.forceSubmit("123456");
         org.mockito.Mockito.clearInvocations(writeBuffer);
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", roomOf(mgr).status());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
         verify(writeBuffer, never()).flush();
     }
 
@@ -961,10 +961,10 @@ class GameRoomManagerCoverageTest {
         mgr.startQuestion("123456");
         mgr.forceSubmit("123456");
         org.mockito.Mockito.clearInvocations(ws);
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq("sa"), sent.capture());
-        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message().contains("Round is locked"));
+        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).getMessage().contains("Round is locked"));
     }
 
     @Test
@@ -973,7 +973,7 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         mgr.join("123456", "Alice", "sa", "player", null);
         mgr.forceSubmit("123456");
-        assertEquals("LOBBY", roomOf(mgr).status());
+        assertEquals("LOBBY", roomOf(mgr).getStatus());
         verify(writeBuffer, never()).flush();
     }
 
@@ -987,14 +987,14 @@ class GameRoomManagerCoverageTest {
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(600);
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        long examEnd = roomOf(mgr).currentQuestionEndEpochMs();
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        long examEnd = roomOf(mgr).getCurrentQuestionEndEpochMs();
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", roomOf(mgr).status());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
         mgr.nextQuestion("123456");
-        assertEquals("ACTIVE", roomOf(mgr).status());
-        assertEquals("q2", roomOf(mgr).currentQuestionId());
-        assertTrue(roomOf(mgr).currentQuestionEndEpochMs() >= examEnd - 1000);
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
+        assertEquals("q2", roomOf(mgr).getCurrentQuestionId());
+        assertTrue(roomOf(mgr).getCurrentQuestionEndEpochMs() >= examEnd - 1000);
     }
 
     @Test
@@ -1005,10 +1005,10 @@ class GameRoomManagerCoverageTest {
         mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", roomOf(mgr).status());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
         verify(roundTimer, times(1)).schedule(eq(123456), anyLong(), any());
         mgr.nextQuestion("123456");
-        assertEquals("ACTIVE", roomOf(mgr).status());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
     }
 
     @Test
@@ -1023,15 +1023,15 @@ class GameRoomManagerCoverageTest {
         var p = new Player("uuid-X", "X", 0, "sx", true);
         room.addPlayer(p);
         var t = mgr.createTeam("123456", "Alpha");
-        mgr.joinTeam("123456", t.id(), p.uuid());
+        mgr.joinTeam("123456", t.getId(), p.getUuid());
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", room.status());
+        assertEquals("REVIEW", room.getStatus());
         mgr.nextQuestion("123456");
-        assertEquals("ACTIVE", room.status());
+        assertEquals("ACTIVE", room.getStatus());
         assertEquals(1, mgr.getTeams("123456").size());
-        assertEquals(t.id(), mgr.getTeams("123456").get(0).id());
+        assertEquals(t.getId(), mgr.getTeams("123456").get(0).getId());
     }
 
     @Test
@@ -1052,10 +1052,10 @@ class GameRoomManagerCoverageTest {
         mgr.submit("123456", "q1", "u1", "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.submit("123456", "q1", "u3", "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", room.status());
+        assertEquals("REVIEW", room.getStatus());
         int matchesBefore = mgr.getBattleMatches("123456").size();
         mgr.nextQuestion("123456");
-        assertEquals("ACTIVE", room.status());
+        assertEquals("ACTIVE", room.getStatus());
         assertEquals(2, mgr.getBracket("123456").size());
         assertEquals(matchesBefore, mgr.getBattleMatches("123456").size());
     }
@@ -1067,17 +1067,17 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        long base = roomOf(mgr).questionEndBaseEpochMs();
+        long base = roomOf(mgr).getQuestionEndBaseEpochMs();
         mgr.extendTimer("123456", 300);
         mgr.extendTimer("123456", 300);
         org.mockito.Mockito.clearInvocations(ws);
         mgr.extendTimer("123456", 300);
-        assertEquals(base + 300_000, roomOf(mgr).currentQuestionEndEpochMs());
+        assertEquals(base + 300_000, roomOf(mgr).getCurrentQuestionEndEpochMs());
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, times(1)).broadcast(anyCollection(), msg.capture());
         Object update = msg.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.TimerUpdate).findFirst().orElseThrow();
-        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) update).extendSec());
+        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) update).getExtendSec());
     }
 
     @Test
@@ -1094,8 +1094,8 @@ class GameRoomManagerCoverageTest {
         verify(ws, times(1)).broadcast(anyCollection(), msg.capture());
         Object update = msg.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.TimerUpdate).findFirst().orElseThrow();
-        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) update).extendSec());
-        assertEquals(roomOf(mgr).questionEndBaseEpochMs() + 300_000, roomOf(mgr).currentQuestionEndEpochMs());
+        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) update).getExtendSec());
+        assertEquals(roomOf(mgr).getQuestionEndBaseEpochMs() + 300_000, roomOf(mgr).getCurrentQuestionEndEpochMs());
     }
 
     @Test
@@ -1105,14 +1105,14 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        long before = roomOf(mgr).currentQuestionEndEpochMs();
+        long before = roomOf(mgr).getCurrentQuestionEndEpochMs();
         mgr.extendTimer("123456", 300);
-        assertEquals(before + 300_000, roomOf(mgr).currentQuestionEndEpochMs());
+        assertEquals(before + 300_000, roomOf(mgr).getCurrentQuestionEndEpochMs());
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, org.mockito.Mockito.atLeastOnce()).broadcast(anyCollection(), msg.capture());
         Object update = msg.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.TimerUpdate).findFirst().orElseThrow();
-        assertEquals(300L, ((com.sprintjudge.domain.dto.TimerUpdate) update).extendSec());
+        assertEquals(300L, ((com.sprintjudge.domain.dto.TimerUpdate) update).getExtendSec());
     }
 
     @Test
@@ -1130,7 +1130,7 @@ class GameRoomManagerCoverageTest {
         verify(ws, times(1)).broadcast(anyCollection(), msg.capture());
         Object update = msg.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.TimerUpdate).findFirst().orElseThrow();
-        assertEquals(60L, ((com.sprintjudge.domain.dto.TimerUpdate) update).extendSec());
+        assertEquals(60L, ((com.sprintjudge.domain.dto.TimerUpdate) update).getExtendSec());
     }
 
     @Test
@@ -1149,7 +1149,7 @@ class GameRoomManagerCoverageTest {
         verify(ws, times(1)).broadcast(anyCollection(), msg.capture());
         Object update = msg.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.TimerUpdate).findFirst().orElseThrow();
-        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) update).extendSec());
+        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) update).getExtendSec());
     }
 
     @Test
@@ -1159,14 +1159,14 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        long before = roomOf(mgr).currentQuestionEndEpochMs();
+        long before = roomOf(mgr).getCurrentQuestionEndEpochMs();
         mgr.extendTimer("123456", 0);
-        assertEquals(before, roomOf(mgr).currentQuestionEndEpochMs());
+        assertEquals(before, roomOf(mgr).getCurrentQuestionEndEpochMs());
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, org.mockito.Mockito.atLeastOnce()).broadcast(anyCollection(), msg.capture());
         Object update = msg.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.TimerUpdate).findFirst().orElseThrow();
-        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) update).extendSec());
+        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) update).getExtendSec());
     }
 
     @Test
@@ -1178,11 +1178,11 @@ class GameRoomManagerCoverageTest {
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.join("123456", "Bob", "sb", "player", null);
         mgr.startQuestion("123456");
-        mgr.kickPlayer("123456", a.uuid());
+        mgr.kickPlayer("123456", a.getUuid());
         org.mockito.Mockito.clearInvocations(ws, writeBuffer);
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(writeBuffer, never()).offer(any());
-        assertEquals(0, roomOf(mgr).attemptCount("q1", a.uuid()));
+        assertEquals(0, roomOf(mgr).attemptCount("q1", a.getUuid()));
         verify(ws, never()).send(eq("sa"), any());
     }
 
@@ -1197,10 +1197,10 @@ class GameRoomManagerCoverageTest {
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         var b = mgr.join("123456", "Bob", "sb", "player", null);
         mgr.startQuestion("123456");
-        mgr.kickPlayer("123456", a.uuid());
-        mgr.submit("123456", "q1", b.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(100, roomOf(mgr).getPlayer(b.uuid()).score());
-        assertNull(roomOf(mgr).getPlayer(a.uuid()));
+        mgr.kickPlayer("123456", a.getUuid());
+        mgr.submit("123456", "q1", b.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(100, roomOf(mgr).getPlayer(b.getUuid()).getScore());
+        assertNull(roomOf(mgr).getPlayer(a.getUuid()));
     }
 
     @Test
@@ -1210,11 +1210,11 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.join("123456", "Bob", "sb", "player", null);
-        assertEquals(2, roomOf(mgr).leaderboard().size());
+        assertEquals(2, roomOf(mgr).getLeaderboard().size());
         mgr.startQuestion("123456");
-        mgr.kickPlayer("123456", a.uuid());
-        assertEquals(1, roomOf(mgr).leaderboard().size());
-        assertEquals(1, mgr.getRoomState("123456").players().size());
+        mgr.kickPlayer("123456", a.getUuid());
+        assertEquals(1, roomOf(mgr).getLeaderboard().size());
+        assertEquals(1, mgr.getRoomState("123456").getPlayers().size());
     }
 
     @Test
@@ -1223,8 +1223,8 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         var b = mgr.join("123456", "Bob", "sb", "player", null);
-        mgr.leave("123456", a.uuid());
-        mgr.leave("123456", b.uuid());
+        mgr.leave("123456", a.getUuid());
+        mgr.leave("123456", b.getUuid());
         assertEquals(0, roomOf(mgr).connectedCount());
         setField(roomOf(mgr), "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
         mgr.sweepIdleRooms();
@@ -1240,8 +1240,8 @@ class GameRoomManagerCoverageTest {
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         var b = mgr.join("123456", "Bob", "sb", "player", null);
         mgr.startQuestion("123456");
-        mgr.leave("123456", a.uuid());
-        mgr.leave("123456", b.uuid());
+        mgr.leave("123456", a.getUuid());
+        mgr.leave("123456", b.getUuid());
         setField(roomOf(mgr), "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
         mgr.sweepIdleRooms();
         assertEquals(0, mgr.activeRooms());
@@ -1253,7 +1253,7 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.join("123456", "Bob", "sb", "player", null);
-        mgr.leave("123456", a.uuid());
+        mgr.leave("123456", a.getUuid());
         setField(roomOf(mgr), "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
         mgr.sweepIdleRooms();
         assertEquals(1, mgr.activeRooms());
@@ -1273,8 +1273,8 @@ class GameRoomManagerCoverageTest {
         mgr.startBattle("123456");
         assertEquals(2, mgr.getBattleMatches("123456").size());
         GameRoom.BattleRound round = mgr.getBracket("123456").get(0);
-        assertEquals(3, round.pairs().size());
-        assertTrue(round.pairs().get(2).bye());
+        assertEquals(3, round.getPairs().size());
+        assertTrue(round.getPairs().get(2).isBye());
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws, times(5)).send(anyString(), sent.capture());
         assertTrue(sent.getAllValues().stream()
@@ -1312,16 +1312,16 @@ class GameRoomManagerCoverageTest {
         var p2 = new Player("u2", "B", 0, "s2", true);
         room.addPlayer(p1); room.addPlayer(p2);
         var t = mgr.createTeam("123456", "Alpha");
-        mgr.joinTeam("123456", t.id(), p1.uuid());
-        mgr.joinTeam("123456", t.id(), p2.uuid());
+        mgr.joinTeam("123456", t.getId(), p1.getUuid());
+        mgr.joinTeam("123456", t.getId(), p2.getUuid());
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", p1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", p2.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p1.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p2.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", p1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q2", p2.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(420, room.getTeam(t.id()).score());
+        mgr.submit("123456", "q2", p1.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q2", p2.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(420, room.getTeam(t.getId()).getScore());
     }
 
     @Test
@@ -1338,7 +1338,7 @@ class GameRoomManagerCoverageTest {
         room.setCurrentQuestionId("q1");
         room.setCurrentQuestionStartEpochMs(java.time.Instant.now().toEpochMilli());
         org.mockito.Mockito.clearInvocations(scheduler);
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(scheduler, times(1)).markDirty(eq(123456), any());
         org.mockito.Mockito.clearInvocations(scheduler);
         room.setStatus("ACTIVE");
@@ -1355,17 +1355,17 @@ class GameRoomManagerCoverageTest {
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(250);
         GameRoomManager mgr = manager();
         var alice = mgr.join("123456", "Alice", "sa", "player", null);
-        String token = alice.token();
+        String token = alice.getToken();
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", alice.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(250, roomOf(mgr).getPlayer(alice.uuid()).score());
-        mgr.leave("123456", alice.uuid());
-        assertFalse(roomOf(mgr).getPlayer(alice.uuid()).connected());
+        mgr.submit("123456", "q1", alice.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(250, roomOf(mgr).getPlayer(alice.getUuid()).getScore());
+        mgr.leave("123456", alice.getUuid());
+        assertFalse(roomOf(mgr).getPlayer(alice.getUuid()).isConnected());
         var back = mgr.join("123456", "Alice", "sa-new", "player", token);
-        assertEquals(alice.uuid(), back.uuid());
-        assertEquals("sa-new", back.sessionId());
-        assertEquals(250, roomOf(mgr).getPlayer(alice.uuid()).score());
-        assertEquals(1, roomOf(mgr).attemptCount("q1", alice.uuid()));
+        assertEquals(alice.getUuid(), back.getUuid());
+        assertEquals("sa-new", back.getSessionId());
+        assertEquals(250, roomOf(mgr).getPlayer(alice.getUuid()).getScore());
+        assertEquals(1, roomOf(mgr).attemptCount("q1", alice.getUuid()));
     }
 
     @Test
@@ -1374,7 +1374,7 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         mgr.join("123456", "Host", "sh", "host", null);
         assertThrows(IllegalStateException.class, () -> mgr.join("123456", "Host2", "sh2", "host", null));
-        assertEquals(1, mgr.getRoomState("123456").players().size());
+        assertEquals(1, mgr.getRoomState("123456").getPlayers().size());
     }
 
     @Test
@@ -1387,7 +1387,7 @@ class GameRoomManagerCoverageTest {
         mgr.endGame("123456");
         org.mockito.Mockito.clearInvocations(writeBuffer, ws);
         try {
-            mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+            mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         } catch (IllegalArgumentException expected) {
             assertTrue(expected.getMessage().contains("No active room"));
         }
@@ -1408,12 +1408,12 @@ class GameRoomManagerCoverageTest {
         mgr.join("123456", "B", "s2", "player", null);
         mgr.join("123456", "C", "s3", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(210, roomOf(mgr).getPlayer(a.uuid()).score());
-        assertEquals(0, roomOf(mgr).getPlayer(mgr.getRoomState("123456").players().get(1).uuid()).score());
+        mgr.submit("123456", "q2", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(210, roomOf(mgr).getPlayer(a.getUuid()).getScore());
+        assertEquals(0, roomOf(mgr).getPlayer(mgr.getRoomState("123456").getPlayers().get(1).getUuid()).getScore());
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
         verify(sessionRepository).updateStatus("s1", "ENDED");
@@ -1431,15 +1431,15 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q2", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q3", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(3, roomOf(mgr).streakOf(a.uuid()));
-        assertEquals(330, roomOf(mgr).getPlayer(a.uuid()).score());
+        mgr.submit("123456", "q3", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(3, roomOf(mgr).streakOf(a.getUuid()));
+        assertEquals(330, roomOf(mgr).getPlayer(a.getUuid()).getScore());
     }
 
     @Test
@@ -1453,13 +1453,13 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        for (int i = 0; i < 5; i++) mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(5, roomOf(mgr).attemptCount("q1", a.uuid()));
+        for (int i = 0; i < 5; i++) mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(5, roomOf(mgr).attemptCount("q1", a.getUuid()));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        assertEquals(0, roomOf(mgr).attemptCount("q2", a.uuid()));
-        mgr.submit("123456", "q2", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(1, roomOf(mgr).attemptCount("q2", a.uuid()));
+        assertEquals(0, roomOf(mgr).attemptCount("q2", a.getUuid()));
+        mgr.submit("123456", "q2", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(1, roomOf(mgr).attemptCount("q2", a.getUuid()));
     }
 
     @Test
@@ -1475,18 +1475,18 @@ class GameRoomManagerCoverageTest {
         var host = mgr.join("123456", "Host", "sh", "host", null);
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q2", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws, org.mockito.Mockito.atLeastOnce()).broadcast(anyCollection(), sent.capture());
         var review = sent.getAllValues().stream().filter(o -> o instanceof com.sprintjudge.domain.dto.GameReview)
                 .map(o -> (com.sprintjudge.domain.dto.GameReview) o).findFirst().orElseThrow();
-        assertTrue(review.players().stream().noneMatch(p -> p.playerUuid().equals(host.uuid())));
-        assertEquals(1, review.classStats().totalPlayers());
+        assertTrue(review.getPlayers().stream().noneMatch(p -> p.getPlayerUuid().equals(host.getUuid())));
+        assertEquals(1, review.getClassStats().getTotalPlayers());
     }
 
     @Test
@@ -1504,16 +1504,16 @@ class GameRoomManagerCoverageTest {
         var c = mgr.join("123456", "C", "s3", "player", null);
         var d = mgr.join("123456", "D", "s4", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", b.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", c.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", d.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", b.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", c.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", d.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q2", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q3", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q3", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
         verify(sessionRepository).updateStatus("s1", "ENDED");
@@ -1533,13 +1533,13 @@ class GameRoomManagerCoverageTest {
         var a = mgr.join("123456", "A", "s1", "player", null);
         var b = mgr.join("123456", "B", "s2", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", b.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q2", b.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q3", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q3", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
         verify(sessionRepository).updateStatus("s1", "ENDED");
@@ -1562,20 +1562,20 @@ class GameRoomManagerCoverageTest {
         room.addPlayer(a1); room.addPlayer(a2); room.addPlayer(b1);
         var alpha = mgr.createTeam("123456", "Alpha");
         var beta = mgr.createTeam("123456", "Beta");
-        mgr.joinTeam("123456", alpha.id(), a1.uuid());
-        mgr.joinTeam("123456", alpha.id(), a2.uuid());
-        mgr.joinTeam("123456", beta.id(), b1.uuid());
+        mgr.joinTeam("123456", alpha.getId(), a1.getUuid());
+        mgr.joinTeam("123456", alpha.getId(), a2.getUuid());
+        mgr.joinTeam("123456", beta.getId(), b1.getUuid());
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", a2.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", b1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        room.applyTeamScore(alpha.id(), 200);
-        room.applyTeamScore(beta.id(), 100);
+        mgr.submit("123456", "q1", a1.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a2.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", b1.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        room.applyTeamScore(alpha.getId(), 200);
+        room.applyTeamScore(beta.getId(), 100);
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        mgr.submit("123456", "q2", a1.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        room.applyTeamScore(alpha.id(), 110);
-        assertTrue(room.getTeam(alpha.id()).score() > room.getTeam(beta.id()).score());
+        mgr.submit("123456", "q2", a1.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        room.applyTeamScore(alpha.getId(), 110);
+        assertTrue(room.getTeam(alpha.getId()).getScore() > room.getTeam(beta.getId()).getScore());
     }
 
     @Test
@@ -1594,14 +1594,14 @@ class GameRoomManagerCoverageTest {
         room.addPlayer(new Player("u4", "D", 0, "s4", true));
         mgr.startBattle("123456");
         assertEquals(2, mgr.getBattleMatches("123456").size());
-        assertEquals(2, mgr.getBracket("123456").get(0).pairs().size());
+        assertEquals(2, mgr.getBracket("123456").get(0).getPairs().size());
         mgr.submit("123456", "q1", "u1", "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.submit("123456", "q1", "u3", "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
         assertEquals(2, mgr.getBracket("123456").size());
         mgr.submit("123456", "q2", "u1", "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(168, room.getPlayer("u1").score());
+        assertEquals(168, room.getPlayer("u1").getScore());
     }
 
     @Test
@@ -1618,7 +1618,7 @@ class GameRoomManagerCoverageTest {
         verify(ws, times(1)).broadcast(anyCollection(), msg.capture());
         Object update = msg.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.TimerUpdate).findFirst().orElseThrow();
-        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) update).extendSec());
+        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) update).getExtendSec());
     }
 
     @Test
@@ -1635,14 +1635,14 @@ class GameRoomManagerCoverageTest {
         verify(ws, times(1)).broadcast(anyCollection(), msg.capture());
         Object update = msg.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.TimerUpdate).findFirst().orElseThrow();
-        assertEquals(150L, ((com.sprintjudge.domain.dto.TimerUpdate) update).extendSec());
+        assertEquals(150L, ((com.sprintjudge.domain.dto.TimerUpdate) update).getExtendSec());
         org.mockito.Mockito.clearInvocations(ws);
         mgr.extendTimer("123456", 150);
         ArgumentCaptor<Object> msg2 = ArgumentCaptor.forClass(Object.class);
         verify(ws, times(1)).broadcast(anyCollection(), msg2.capture());
         Object capped = msg2.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.TimerUpdate).findFirst().orElseThrow();
-        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) capped).extendSec());
+        assertEquals(0L, ((com.sprintjudge.domain.dto.TimerUpdate) capped).getExtendSec());
     }
 
     @Test
@@ -1656,7 +1656,7 @@ class GameRoomManagerCoverageTest {
         org.mockito.Mockito.clearInvocations(roundTimer, ws);
         mgr.extendTimer("123456", 30);
         verify(roundTimer, never()).schedule(anyInt(), anyLong(), any());
-        assertEquals("REVIEW", roomOf(mgr).status());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
     }
 
     @Test
@@ -1669,7 +1669,7 @@ class GameRoomManagerCoverageTest {
         org.mockito.Mockito.clearInvocations(ws);
         mgr.startQuestion("123456");
         verify(ws, never()).broadcast(anyCollection(), any());
-        assertEquals("ACTIVE", roomOf(mgr).status());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
     }
 
     @Test
@@ -1678,11 +1678,11 @@ class GameRoomManagerCoverageTest {
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
         GameRoomManager mgr = manager();
         mgr.join("123456", "Alice", "sa", "player", null);
-        assertEquals(0, roomOf(mgr).currentQuestionIndex());
+        assertEquals(0, roomOf(mgr).getCurrentQuestionIndex());
         mgr.nextQuestion("123456");
-        assertEquals(0, roomOf(mgr).currentQuestionIndex());
-        assertEquals("q1", roomOf(mgr).currentQuestionId());
-        assertEquals("ACTIVE", roomOf(mgr).status());
+        assertEquals(0, roomOf(mgr).getCurrentQuestionIndex());
+        assertEquals("q1", roomOf(mgr).getCurrentQuestionId());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
     }
 
     @Test
@@ -1693,8 +1693,8 @@ class GameRoomManagerCoverageTest {
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", roomOf(mgr).status());
-        mgr.leave("123456", a.uuid());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
+        mgr.leave("123456", a.getUuid());
         setField(roomOf(mgr), "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
         mgr.sweepIdleRooms();
         assertEquals(0, mgr.activeRooms());
@@ -1719,10 +1719,10 @@ class GameRoomManagerCoverageTest {
         room.setStatus("ACTIVE");
         room.setCurrentQuestionId("oj1");
         room.setCurrentQuestionStartEpochMs(java.time.Instant.now().toEpochMilli());
-        mgr.submit("123456", "oj1", p.uuid(), "python", Json.readTree("{\"source\":\"print(1)\"}"));
-        assertEquals(400, room.getPlayer(p.uuid()).score());
+        mgr.submit("123456", "oj1", p.getUuid(), "python", Json.readTree("{\"source\":\"print(1)\"}"));
+        assertEquals(400, room.getPlayer(p.getUuid()).getScore());
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", room.status());
+        assertEquals("REVIEW", room.getStatus());
     }
 
     @Test
@@ -1735,12 +1735,12 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.leave("123456", a.uuid());
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.leave("123456", a.getUuid());
         var fresh = mgr.join("123456", "Bob", "sb", "player", "bogus-token");
-        assertFalse(fresh.uuid().equals(a.uuid()));
-        assertEquals(100, roomOf(mgr).getPlayer(a.uuid()).score());
-        assertEquals(0, roomOf(mgr).getPlayer(fresh.uuid()).score());
+        assertFalse(fresh.getUuid().equals(a.getUuid()));
+        assertEquals(100, roomOf(mgr).getPlayer(a.getUuid()).getScore());
+        assertEquals(0, roomOf(mgr).getPlayer(fresh.getUuid()).getScore());
     }
 
     @Test
@@ -1750,10 +1750,10 @@ class GameRoomManagerCoverageTest {
         var p = new Player("u1", "A", 0, "s1", true);
         roomOf(mgr).addPlayer(p);
         when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq("s1"), sent.capture());
-        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message().contains("Round is locked"));
+        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).getMessage().contains("Round is locked"));
         verify(writeBuffer, never()).offer(any());
     }
 
@@ -1768,11 +1768,11 @@ class GameRoomManagerCoverageTest {
         var host = mgr.join("123456", "Host", "sh", "host", null);
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.kickPlayer("123456", host.uuid());
-        assertNull(roomOf(mgr).hostUuid());
-        assertEquals(100, roomOf(mgr).getPlayer(a.uuid()).score());
-        assertEquals("ACTIVE", roomOf(mgr).status());
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.kickPlayer("123456", host.getUuid());
+        assertNull(roomOf(mgr).getHostUuid());
+        assertEquals(100, roomOf(mgr).getPlayer(a.getUuid()).getScore());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
     }
 
     @Test
@@ -1783,9 +1783,9 @@ class GameRoomManagerCoverageTest {
         var host = mgr.join("123456", "Host", "sh", "host", null);
         mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.leave("123456", host.uuid());
-        assertNull(roomOf(mgr).hostUuid());
-        assertEquals("ACTIVE", roomOf(mgr).status());
+        mgr.leave("123456", host.getUuid());
+        assertNull(roomOf(mgr).getHostUuid());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
     }
 
     @Test
@@ -1798,9 +1798,9 @@ class GameRoomManagerCoverageTest {
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(700);
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         when(submissionRepository.findBySession("s1")).thenReturn(List.of(
-                new com.sprintjudge.domain.models.Submission("id1", "s1", "q1", "Alice", a.uuid(), "{}", 700, true, null, 1, java.time.Instant.now())));
+                new com.sprintjudge.domain.models.Submission("id1", "s1", "q1", "Alice", a.getUuid(), "{}", 700, true, null, 1, java.time.Instant.now())));
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
         org.mockito.Mockito.clearInvocations(ws);
         mgr.endGame("123456");
@@ -1808,10 +1808,10 @@ class GameRoomManagerCoverageTest {
         verify(ws, org.mockito.Mockito.atLeastOnce()).broadcast(anyCollection(), sent.capture());
         var review = sent.getAllValues().stream().filter(o -> o instanceof com.sprintjudge.domain.dto.GameReview)
                 .map(o -> (com.sprintjudge.domain.dto.GameReview) o).findFirst().orElseThrow();
-        assertEquals(1, review.questions().size());
-        assertNotNull(review.questions().get(0).answer());
-        assertEquals(1, review.players().size());
-        assertEquals(700, review.players().get(0).totalScore());
+        assertEquals(1, review.getQuestions().size());
+        assertNotNull(review.getQuestions().get(0).getAnswer());
+        assertEquals(1, review.getPlayers().size());
+        assertEquals(700, review.getPlayers().get(0).getTotalScore());
     }
 
     @Test
@@ -1826,8 +1826,8 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "tf1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":1}"));
-        assertEquals(75, roomOf(mgr).getPlayer(a.uuid()).score());
+        mgr.submit("123456", "tf1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":1}"));
+        assertEquals(75, roomOf(mgr).getPlayer(a.getUuid()).getScore());
         verify(writeBuffer).offer(any());
     }
 
@@ -1843,11 +1843,11 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        roomOf(mgr).bumpStreak(a.uuid());
-        roomOf(mgr).bumpStreak(a.uuid());
-        mgr.submit("123456", "n1", a.uuid(), "python", Json.readTree("{\"value\":0}"));
-        assertEquals(0, roomOf(mgr).streakOf(a.uuid()));
-        assertEquals(0, roomOf(mgr).getPlayer(a.uuid()).score());
+        roomOf(mgr).bumpStreak(a.getUuid());
+        roomOf(mgr).bumpStreak(a.getUuid());
+        mgr.submit("123456", "n1", a.getUuid(), "python", Json.readTree("{\"value\":0}"));
+        assertEquals(0, roomOf(mgr).streakOf(a.getUuid()));
+        assertEquals(0, roomOf(mgr).getPlayer(a.getUuid()).getScore());
     }
 
     @Test
@@ -1860,12 +1860,12 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        for (int i = 0; i < 7; i++) mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(7, roomOf(mgr).streakOf(a.uuid()));
-        int[] round = roomOf(mgr).roundOf(a.uuid());
+        for (int i = 0; i < 7; i++) mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(7, roomOf(mgr).streakOf(a.getUuid()));
+        int[] round = roomOf(mgr).roundOf(a.getUuid());
         assertEquals(100, round[0]);
         assertEquals(50, round[1]);
-        assertEquals(900, roomOf(mgr).getPlayer(a.uuid()).score());
+        assertEquals(900, roomOf(mgr).getPlayer(a.getUuid()).getScore());
     }
 
     @Test
@@ -1874,9 +1874,9 @@ class GameRoomManagerCoverageTest {
         registryOf(mgr).put(123456, new GameRoom("s1", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.TEAM));
         var t1 = mgr.createTeam("123456", "Alpha");
         var t2 = mgr.createTeam("123456", "Alpha");
-        assertFalse(t1.id().equals(t2.id()));
-        assertEquals("Alpha", t1.name());
-        assertEquals("Alpha", t2.name());
+        assertFalse(t1.getId().equals(t2.getId()));
+        assertEquals("Alpha", t1.getName());
+        assertEquals("Alpha", t2.getName());
         assertEquals(2, mgr.getTeams("123456").size());
     }
 
@@ -1889,11 +1889,11 @@ class GameRoomManagerCoverageTest {
         room.addPlayer(p);
         var alpha = mgr.createTeam("123456", "Alpha");
         var beta = mgr.createTeam("123456", "Beta");
-        mgr.joinTeam("123456", alpha.id(), p.uuid());
-        assertEquals(alpha.id(), room.teamIdOf(p.uuid()));
-        mgr.joinTeam("123456", beta.id(), p.uuid());
-        assertEquals(beta.id(), room.teamIdOf(p.uuid()));
-        assertTrue(room.getTeam(beta.id()).memberUuids().contains(p.uuid()));
+        mgr.joinTeam("123456", alpha.getId(), p.getUuid());
+        assertEquals(alpha.getId(), room.teamIdOf(p.getUuid()));
+        mgr.joinTeam("123456", beta.getId(), p.getUuid());
+        assertEquals(beta.getId(), room.teamIdOf(p.getUuid()));
+        assertTrue(room.getTeam(beta.getId()).getMemberUuids().contains(p.getUuid()));
     }
 
     @Test
@@ -1921,14 +1921,14 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        long before = roomOf(mgr).currentQuestionEndEpochMs();
+        long before = roomOf(mgr).getCurrentQuestionEndEpochMs();
         mgr.extendTimer("123456", -120);
-        assertEquals(before - 120_000, roomOf(mgr).currentQuestionEndEpochMs());
+        assertEquals(before - 120_000, roomOf(mgr).getCurrentQuestionEndEpochMs());
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, org.mockito.Mockito.atLeastOnce()).broadcast(anyCollection(), msg.capture());
         Object update = msg.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.TimerUpdate).findFirst().orElseThrow();
-        assertEquals(-120L, ((com.sprintjudge.domain.dto.TimerUpdate) update).extendSec());
+        assertEquals(-120L, ((com.sprintjudge.domain.dto.TimerUpdate) update).getExtendSec());
     }
 
     @Test
@@ -1966,7 +1966,7 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var p = mgr.join("123456", "Alice", "sa", "player", null);
         org.mockito.Mockito.clearInvocations(ws);
-        mgr.sendFullLeaderboard("123456", p.sessionId());
+        mgr.sendFullLeaderboard("123456", p.getSessionId());
         ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
         verify(ws).sendRaw(eq("sa"), payload.capture());
         assertTrue(payload.getValue().contains("\"resync\":true"));
@@ -1987,8 +1987,8 @@ class GameRoomManagerCoverageTest {
         verify(ws, org.mockito.Mockito.atLeastOnce()).broadcast(anyCollection(), sent.capture());
         var review = sent.getAllValues().stream().filter(o -> o instanceof com.sprintjudge.domain.dto.GameReview)
                 .map(o -> (com.sprintjudge.domain.dto.GameReview) o).findFirst().orElseThrow();
-        assertEquals(0, review.classStats().totalPlayers());
-        assertEquals(1, review.questions().size());
+        assertEquals(0, review.getClassStats().getTotalPlayers());
+        assertEquals(1, review.getQuestions().size());
     }
 
     @Test
@@ -2001,8 +2001,8 @@ class GameRoomManagerCoverageTest {
         org.mockito.Mockito.clearInvocations(roundTimer);
         mgr.nextQuestion("123456");
         verify(roundTimer).cancel(123456);
-        assertEquals("ACTIVE", roomOf(mgr).status());
-        assertEquals("q2", roomOf(mgr).currentQuestionId());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
+        assertEquals("q2", roomOf(mgr).getCurrentQuestionId());
     }
 
     @Test
@@ -2012,9 +2012,9 @@ class GameRoomManagerCoverageTest {
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        long base = roomOf(mgr).questionEndBaseEpochMs();
+        long base = roomOf(mgr).getQuestionEndBaseEpochMs();
         mgr.extendTimer("123456", 600);
-        assertEquals(base + 300_000, roomOf(mgr).currentQuestionEndEpochMs());
+        assertEquals(base + 300_000, roomOf(mgr).getCurrentQuestionEndEpochMs());
     }
 
     @Test
@@ -2028,7 +2028,7 @@ class GameRoomManagerCoverageTest {
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
         org.mockito.Mockito.clearInvocations(scheduler);
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(scheduler, never()).markDirty(anyInt(), any());
         GameRoomManager mgr2 = manager();
         registryOf(mgr2).put(123456, new GameRoom("s1", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.PRACTICE));
@@ -2039,7 +2039,7 @@ class GameRoomManagerCoverageTest {
         r2.setCurrentQuestionId("q1");
         r2.setCurrentQuestionStartEpochMs(java.time.Instant.now().toEpochMilli());
         org.mockito.Mockito.clearInvocations(scheduler);
-        mgr2.submit("123456", "q1", b.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr2.submit("123456", "q1", b.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(scheduler, org.mockito.Mockito.atLeastOnce()).markDirty(eq(123456), any());
     }
 
@@ -2055,8 +2055,8 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "ms1", a.uuid(), "python", Json.readTree("{\"selectedIndices\":[0]}"));
-        assertEquals(55, roomOf(mgr).getPlayer(a.uuid()).score());
+        mgr.submit("123456", "ms1", a.getUuid(), "python", Json.readTree("{\"selectedIndices\":[0]}"));
+        assertEquals(55, roomOf(mgr).getPlayer(a.getUuid()).getScore());
         verify(writeBuffer).offer(any());
     }
 
@@ -2072,8 +2072,8 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "fb1", a.uuid(), "python", Json.readTree("{\"text\":\"paris\"}"));
-        assertEquals(85, roomOf(mgr).getPlayer(a.uuid()).score());
+        mgr.submit("123456", "fb1", a.getUuid(), "python", Json.readTree("{\"text\":\"paris\"}"));
+        assertEquals(85, roomOf(mgr).getPlayer(a.getUuid()).getScore());
     }
 
     @Test
@@ -2085,7 +2085,7 @@ class GameRoomManagerCoverageTest {
         mgr.startQuestion("123456");
         assertThrows(IllegalStateException.class, () -> mgr.createTeam("123456", "LateTeam"));
         assertTrue(mgr.getTeams("123456").isEmpty());
-        assertEquals("ACTIVE", roomOf(mgr).status());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
     }
 
     @Test
@@ -2098,8 +2098,8 @@ class GameRoomManagerCoverageTest {
         room.addPlayer(p);
         var t = mgr.createTeam("123456", "Alpha");
         mgr.startQuestion("123456");
-        assertThrows(IllegalStateException.class, () -> mgr.joinTeam("123456", t.id(), p.uuid()));
-        assertNull(room.teamIdOf(p.uuid()));
+        assertThrows(IllegalStateException.class, () -> mgr.joinTeam("123456", t.getId(), p.getUuid()));
+        assertNull(room.teamIdOf(p.getUuid()));
     }
 
     @Test
@@ -2109,7 +2109,7 @@ class GameRoomManagerCoverageTest {
         GameRoom room = roomOf(mgr);
         var host = new Player("host-9", "Host", 0, "sh", true);
         room.addHost(host);
-        room.setHostUuid(host.uuid());
+        room.setHostUuid(host.getUuid());
         room.addPlayer(new Player("u1", "A", 0, "s1", true));
         room.addPlayer(new Player("u2", "B", 0, "s2", true));
         room.addPlayer(new Player("u3", "C", 0, "s3", true));
@@ -2117,8 +2117,8 @@ class GameRoomManagerCoverageTest {
         mgr.startBattle("123456");
         assertEquals(1, mgr.getBattleMatches("123456").size());
         GameRoom.BattleRound round = mgr.getBracket("123456").get(0);
-        assertEquals(2, round.pairs().size());
-        assertTrue(round.pairs().get(1).bye());
+        assertEquals(2, round.getPairs().size());
+        assertTrue(round.getPairs().get(1).isBye());
         // The host never receives an opponent frame: only the three fighters do.
         verify(ws, times(3)).send(anyString(), any());
         verify(ws, never()).send(eq("sh"), any());
@@ -2134,9 +2134,9 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", null);
+        mgr.submit("123456", "q1", a.getUuid(), "python", null);
         verify(writeBuffer).offer(any());
-        assertEquals(0, roomOf(mgr).getPlayer(a.uuid()).score());
+        assertEquals(0, roomOf(mgr).getPlayer(a.getUuid()).getScore());
     }
 
     @Test
@@ -2149,10 +2149,10 @@ class GameRoomManagerCoverageTest {
         GameRoomManager mgr = manager();
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", a.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(420, roomOf(mgr).getPlayer(a.uuid()).score());
-        assertEquals(2, roomOf(mgr).attemptCount("q1", a.uuid()));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(420, roomOf(mgr).getPlayer(a.getUuid()).getScore());
+        assertEquals(2, roomOf(mgr).attemptCount("q1", a.getUuid()));
     }
 
     @Test
@@ -2164,9 +2164,9 @@ class GameRoomManagerCoverageTest {
         mgr.join("123456", "Bob", "sb", "player", null);
         mgr.startQuestion("123456");
         mgr.forceSubmit("123456");
-        mgr.leave("123456", a.uuid());
-        assertEquals("REVIEW", roomOf(mgr).status());
-        assertFalse(roomOf(mgr).getPlayer(a.uuid()).connected());
+        mgr.leave("123456", a.getUuid());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
+        assertFalse(roomOf(mgr).getPlayer(a.getUuid()).isConnected());
     }
 
     @Test
@@ -2178,9 +2178,9 @@ class GameRoomManagerCoverageTest {
         mgr.join("123456", "Bob", "sb", "player", null);
         mgr.startQuestion("123456");
         mgr.forceSubmit("123456");
-        mgr.kickPlayer("123456", a.uuid());
-        assertEquals("REVIEW", roomOf(mgr).status());
-        assertNull(roomOf(mgr).getPlayer(a.uuid()));
+        mgr.kickPlayer("123456", a.getUuid());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
+        assertNull(roomOf(mgr).getPlayer(a.getUuid()));
     }
 
     @Test
@@ -2194,11 +2194,11 @@ class GameRoomManagerCoverageTest {
         var p = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.startQuestion("123456");
         org.mockito.Mockito.clearInvocations(scheduler);
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(scheduler, never()).markDirty(anyInt(), any());
         org.mockito.Mockito.clearInvocations(ws);
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", roomOf(mgr).status());
+        assertEquals("REVIEW", roomOf(mgr).getStatus());
         ArgumentCaptor<Object> reviewMsg = ArgumentCaptor.forClass(Object.class);
         verify(ws, org.mockito.Mockito.atLeastOnce()).broadcast(anyCollection(), reviewMsg.capture());
         assertTrue(reviewMsg.getAllValues().stream().anyMatch(m -> m instanceof com.sprintjudge.domain.dto.RoundResult));
@@ -2217,9 +2217,9 @@ class GameRoomManagerCoverageTest {
         room.setCurrentQuestionId("q1");
         room.setCurrentQuestionStartEpochMs(java.time.Instant.now().toEpochMilli());
         org.mockito.Mockito.clearInvocations(scheduler);
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":3}"));
+        mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":3}"));
         verify(scheduler, times(1)).markDirty(eq(123456), any());
-        assertEquals(0, room.getPlayer(p.uuid()).score());
+        assertEquals(0, room.getPlayer(p.getUuid()).getScore());
     }
 
     @Test
@@ -2242,10 +2242,10 @@ class GameRoomManagerCoverageTest {
         var a = mgr.join("123456", "Alice", "sa", "player", null);
         mgr.join("123456", "Bob", "sb", "player", null);
         mgr.startQuestion("123456");
-        mgr.kickPlayer("123456", a.uuid());
+        mgr.kickPlayer("123456", a.getUuid());
         mgr.leave("123456", "ghost-uuid");
-        assertEquals("ACTIVE", roomOf(mgr).status());
-        assertEquals(1, mgr.getRoomState("123456").players().size());
+        assertEquals("ACTIVE", roomOf(mgr).getStatus());
+        assertEquals(1, mgr.getRoomState("123456").getPlayers().size());
     }
 
     @Test
@@ -2260,9 +2260,9 @@ class GameRoomManagerCoverageTest {
         mgr.startQuestion("123456");
         var late = mgr.join("123456", "Late", "sl", "player", null);
         GameRoom room = roomOf(mgr);
-        mgr.submit("123456", "q1", late.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals(120, room.getPlayer(late.uuid()).score());
-        assertEquals(0, room.getPlayer(early.uuid()).score());
+        mgr.submit("123456", "q1", late.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals(120, room.getPlayer(late.getUuid()).getScore());
+        assertEquals(0, room.getPlayer(early.getUuid()).getScore());
     }
 
     @SuppressWarnings("unchecked")

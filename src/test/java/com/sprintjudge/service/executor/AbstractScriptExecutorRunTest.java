@@ -33,27 +33,27 @@ class AbstractScriptExecutorRunTest {
     @Test
     void runUnsupportedLanguage(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(runReq("ruby", "x", "", 10));
-        assertFalse(r.ok());
-        assertEquals("unsupported_language", r.status());
+        assertFalse(r.isOk());
+        assertEquals("unsupported_language", r.getStatus());
     }
 
     @Test
     void runNullLanguageIsUnsupported(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(runReq(null, "x", "", 10));
-        assertEquals("unsupported_language", r.status());
+        assertEquals("unsupported_language", r.getStatus());
     }
 
     @Test
     void runOversizedSource(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(runReq("python", "x".repeat(65_537), "", 10));
-        assertEquals("source_too_large", r.status());
+        assertEquals("source_too_large", r.getStatus());
     }
 
     @Test
     void runBoundarySizePassesGuard(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         var r = ex.run(runReq("node", "#" + "x".repeat(65_535), "", 10));
-        assertTrue(r.ok() || r.status().equals("ok") || r.status().equals("runtime_error"));
+        assertTrue(r.isOk() || r.getStatus().equals("ok") || r.getStatus().equals("runtime_error"));
     }
 
     @Test
@@ -61,29 +61,29 @@ class AbstractScriptExecutorRunTest {
         Path blocker = tmp.resolve("blocker");
         Files.createFile(blocker);
         StubExecutor ex = new StubExecutor(blocker.toString(), tmp.toString(), 30);
-        assertEquals("io_error", ex.run(runReq("node", "x", "", 10)).status());
+        assertEquals("io_error", ex.run(runReq("node", "x", "", 10)).getStatus());
     }
 
     @Test
     void runSuccessEchoesInput(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(runReq("node", "ignored", "9", 10));
-        assertTrue(r.ok());
-        assertEquals("9", r.output());
-        assertEquals("ok", r.status());
+        assertTrue(r.isOk());
+        assertEquals("9", r.getOutput());
+        assertEquals("ok", r.getStatus());
     }
 
     @Test
     void runCanonicalAlias(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(runReq("javascript", "ignored", "7", 10));
-        assertTrue(r.ok());
-        assertEquals("7", r.output());
+        assertTrue(r.isOk());
+        assertEquals("7", r.getOutput());
     }
 
     @Test
     void runNullSourceAndStdinAreEmpty(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(runReq("python", null, null, 10));
-        assertTrue(r.ok());
-        assertEquals("", r.output());
+        assertTrue(r.isOk());
+        assertEquals("", r.getOutput());
     }
 
     @Test
@@ -101,7 +101,7 @@ class AbstractScriptExecutorRunTest {
             }
         };
         var r = ex.run(runReq("java", "ignored", "zz", 10));
-        assertEquals("zz", r.output());
+        assertEquals("zz", r.getOutput());
     }
 
     @Test
@@ -109,15 +109,15 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "exit 3"));
         var r = ex.run(runReq("node", "x", "", 10));
-        assertFalse(r.ok());
-        assertEquals("runtime_error", r.status());
+        assertFalse(r.isOk());
+        assertEquals("runtime_error", r.getStatus());
     }
 
     @Test
     void runStartFailureIsIoError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("this-program-does-not-exist-xyz123"));
-        assertEquals("io_error", ex.run(runReq("node", "x", "", 10)).status());
+        assertEquals("io_error", ex.run(runReq("node", "x", "", 10)).getStatus());
     }
 
     @Test
@@ -126,7 +126,7 @@ class AbstractScriptExecutorRunTest {
         try {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(List.of("ping", "-n", "6", "127.0.0.1"));
-            assertEquals("timeout", ex.run(runReq("node", "x", "", 0)).status());
+            assertEquals("timeout", ex.run(runReq("node", "x", "", 0)).getStatus());
         } finally {
             Thread.sleep(200);
             com.sprintjudge.util.ExecIo.deleteTree(work);
@@ -138,7 +138,7 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = executor(tmp, tmp);
         String big = "x".repeat(2 * com.sprintjudge.util.ExecIo.STDOUT_CAP_BYTES);
         var r = ex.run(runReq("node", "x", big, 10));
-        assertEquals("stdout_exceeded_1MB", r.status());
+        assertEquals("stdout_exceeded_1MB", r.getStatus());
     }
 
     @Test
@@ -146,7 +146,7 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = executor(tmp, tmp);
         String justOver = "x".repeat(com.sprintjudge.util.ExecIo.STDOUT_CAP_BYTES + 4096);
         var r = ex.run(runReq("node", "x", justOver, 30));
-        assertEquals("stdout_exceeded_1MB", r.status());
+        assertEquals("stdout_exceeded_1MB", r.getStatus());
     }
 
     @Test
@@ -160,7 +160,7 @@ class AbstractScriptExecutorRunTest {
                     .thenCallRealMethod();
             mocked.when(() -> ExecIo.readCappedFile(any(Path.class))).thenReturn(null);
             mocked.when(() -> ExecIo.deleteTree(any(Path.class))).thenCallRealMethod();
-            assertEquals("stdout_exceeded_1MB", ex.run(runReq("node", "x", "", 10)).status());
+            assertEquals("stdout_exceeded_1MB", ex.run(runReq("node", "x", "", 10)).getStatus());
         }
     }
 
@@ -170,7 +170,7 @@ class AbstractScriptExecutorRunTest {
         String justOver = "x".repeat(com.sprintjudge.util.ExecIo.STDOUT_CAP_BYTES + 4096);
         var r = ex.judge(judgeReq("node", "x",
                 List.of(new TestCase(justOver, "out", false)), 30));
-        assertEquals("stdout_exceeded_1MB", r.cases().get(0).error());
+        assertEquals("stdout_exceeded_1MB", r.getCases().get(0).getError());
     }
 
     @Test
@@ -179,7 +179,7 @@ class AbstractScriptExecutorRunTest {
         ex.force(List.of("cmd", "/c", "for /l %i in (1,1,300000) do @echo "
                 + "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"));
         var r = ex.run(runReq("node", "x", "", 30));
-        assertEquals("stdout_exceeded_1MB", r.status());
+        assertEquals("stdout_exceeded_1MB", r.getStatus());
     }
 
     @Test
@@ -188,7 +188,7 @@ class AbstractScriptExecutorRunTest {
         ex.force(List.of("cmd", "/c", "for /l %i in (1,1,300000) do @echo "
                 + "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"));
         var r = ex.judge(judgeReq("node", "x", List.of(new TestCase("in", "out", false)), 30));
-        assertEquals("stdout_exceeded_1MB", r.cases().get(0).error());
+        assertEquals("stdout_exceeded_1MB", r.getCases().get(0).getError());
     }
 
     @Test
@@ -208,8 +208,8 @@ class AbstractScriptExecutorRunTest {
         };
         var r = ex.judge(judgeReq("node", "x",
                 List.of(new TestCase("a", "a", false), new TestCase("b", "b", false)), 10));
-        assertEquals(0, r.passed());
-        assertTrue(r.cases().isEmpty());
+        assertEquals(0, r.getPassed());
+        assertTrue(r.getCases().isEmpty());
     }
 
     @Test
@@ -217,14 +217,14 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = new StubExecutor(tmp.toString(), tmp.toString(), 30);
         var r = ex.judge(judgeReq("node", "x",
                 List.of(new TestCase("5", "5", false)), 0));
-        assertEquals(1, r.passed());
+        assertEquals(1, r.getPassed());
     }
 
     @Test
     void judgeEmptyCasesAllPassed(@TempDir Path tmp) {
         var r = executor(tmp, tmp).judge(judgeReq("node", "x", List.of(), 10));
-        assertTrue(r.allPassed());
-        assertEquals(0, r.total());
+        assertTrue(r.isAllPassed());
+        assertEquals(0, r.getTotal());
     }
 
     @Test
@@ -294,15 +294,15 @@ class AbstractScriptExecutorRunTest {
     @Test
     void mxRunEmptySourcePythonOk(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("python", "", "e1", 10));
-        assertEquals("ok", r.status());
-        assertEquals("e1", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("e1", r.getOutput());
     }
 
     @Test
     void mxRunEmptySourceNodeOk(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("node", "", "e2", 10));
-        assertEquals("ok", r.status());
-        assertEquals("e2", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("e2", r.getOutput());
     }
 
     @Test
@@ -310,56 +310,56 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo c-empty"));
         var r = ex.run(mxRun("c", "", "", 10));
-        assertEquals("ok", r.status());
-        assertTrue(r.output().contains("c-empty"));
+        assertEquals("ok", r.getStatus());
+        assertTrue(r.getOutput().contains("c-empty"));
     }
 
     @Test
     void mxRunEmptySourceCppForcedOk(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo cpp-empty"));
-        assertEquals("ok", ex.run(mxRun("cpp", "", "", 10)).status());
+        assertEquals("ok", ex.run(mxRun("cpp", "", "", 10)).getStatus());
     }
 
     @Test
     void mxRunEmptySourceJavaForcedOk(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo java-empty"));
-        assertEquals("ok", ex.run(mxRun("java", "", "", 10)).status());
+        assertEquals("ok", ex.run(mxRun("java", "", "", 10)).getStatus());
     }
 
     @Test
     void mxRunWhitespaceSourcePythonOk(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("python", "  \n\t ", "w1", 10));
-        assertEquals("ok", r.status());
-        assertEquals("w1", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("w1", r.getOutput());
     }
 
     @Test
     void mxRunWhitespaceSourceNodeOk(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("node", "\n  ", "w2", 10));
-        assertEquals("ok", r.status());
+        assertEquals("ok", r.getStatus());
     }
 
     @Test
     void mxRunWhitespaceSourceCForcedOk(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo c-ws"));
-        assertEquals("ok", ex.run(mxRun("c", "   ", "", 10)).status());
+        assertEquals("ok", ex.run(mxRun("c", "   ", "", 10)).getStatus());
     }
 
     @Test
     void mxRunWhitespaceSourceCppForcedOk(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo cpp-ws"));
-        assertEquals("ok", ex.run(mxRun("cpp", "\t", "", 10)).status());
+        assertEquals("ok", ex.run(mxRun("cpp", "\t", "", 10)).getStatus());
     }
 
     @Test
     void mxRunWhitespaceSourceJavaForcedOk(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo java-ws"));
-        assertEquals("ok", ex.run(mxRun("java", "  ", "", 10)).status());
+        assertEquals("ok", ex.run(mxRun("java", "  ", "", 10)).getStatus());
     }
 
     @Test
@@ -367,36 +367,36 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_EXIT1);
         var r = ex.run(mxRun("python", "def broken(((", "", 10));
-        assertEquals("runtime_error", r.status());
-        assertFalse(r.ok());
+        assertEquals("runtime_error", r.getStatus());
+        assertFalse(r.isOk());
     }
 
     @Test
     void mxRunSyntaxErrorNodeIsRuntimeError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_EXIT1);
-        assertEquals("runtime_error", ex.run(mxRun("node", "const = broken", "", 10)).status());
+        assertEquals("runtime_error", ex.run(mxRun("node", "const = broken", "", 10)).getStatus());
     }
 
     @Test
     void mxRunSyntaxErrorCIsRuntimeError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_EXIT1);
-        assertEquals("runtime_error", ex.run(mxRun("c", "int main( { broken", "", 10)).status());
+        assertEquals("runtime_error", ex.run(mxRun("c", "int main( { broken", "", 10)).getStatus());
     }
 
     @Test
     void mxRunSyntaxErrorCppIsRuntimeError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_EXIT1);
-        assertEquals("runtime_error", ex.run(mxRun("cpp", "int main( { broken", "", 10)).status());
+        assertEquals("runtime_error", ex.run(mxRun("cpp", "int main( { broken", "", 10)).getStatus());
     }
 
     @Test
     void mxRunSyntaxErrorJavaIsRuntimeError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_EXIT1);
-        assertEquals("runtime_error", ex.run(mxRun("java", "not java {{{", "", 10)).status());
+        assertEquals("runtime_error", ex.run(mxRun("java", "not java {{{", "", 10)).getStatus());
     }
 
     @Test
@@ -405,8 +405,8 @@ class AbstractScriptExecutorRunTest {
         ex.force(MX_EXIT1);
         var r = ex.judge(judgeReq("python", "def broken(((",
                 List.of(new TestCase("in", "out", false)), 10));
-        assertEquals("mismatch", r.cases().get(0).error());
-        assertFalse(r.allPassed());
+        assertEquals("mismatch", r.getCases().get(0).getError());
+        assertFalse(r.isAllPassed());
     }
 
     @Test
@@ -415,7 +415,7 @@ class AbstractScriptExecutorRunTest {
         ex.force(MX_EXIT1);
         var r = ex.judge(judgeReq("node", "const = broken",
                 List.of(new TestCase("in", "out", false)), 10));
-        assertEquals("mismatch", r.cases().get(0).error());
+        assertEquals("mismatch", r.getCases().get(0).getError());
     }
 
     @Test
@@ -424,7 +424,7 @@ class AbstractScriptExecutorRunTest {
         ex.force(MX_EXIT1);
         var r = ex.judge(judgeReq("c", "int main( { broken",
                 List.of(new TestCase("in", "out", false)), 10));
-        assertEquals("mismatch", r.cases().get(0).error());
+        assertEquals("mismatch", r.getCases().get(0).getError());
     }
 
     @Test
@@ -433,7 +433,7 @@ class AbstractScriptExecutorRunTest {
         ex.force(MX_EXIT1);
         var r = ex.judge(judgeReq("cpp", "int main( { broken",
                 List.of(new TestCase("in", "out", false)), 10));
-        assertEquals("mismatch", r.cases().get(0).error());
+        assertEquals("mismatch", r.getCases().get(0).getError());
     }
 
     @Test
@@ -442,7 +442,7 @@ class AbstractScriptExecutorRunTest {
         ex.force(MX_EXIT1);
         var r = ex.judge(judgeReq("java", "not java {{{",
                 List.of(new TestCase("in", "out", false)), 10));
-        assertEquals("mismatch", r.cases().get(0).error());
+        assertEquals("mismatch", r.getCases().get(0).getError());
     }
 
     @Test
@@ -450,36 +450,36 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_EXIT3);
         var r = ex.run(mxRun("python", "import sys; sys.exit(3)", "", 10));
-        assertEquals("runtime_error", r.status());
-        assertFalse(r.ok());
+        assertEquals("runtime_error", r.getStatus());
+        assertFalse(r.isOk());
     }
 
     @Test
     void mxRunCrashNodeIsRuntimeError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_EXIT3);
-        assertEquals("runtime_error", ex.run(mxRun("node", "process.exit(3)", "", 10)).status());
+        assertEquals("runtime_error", ex.run(mxRun("node", "process.exit(3)", "", 10)).getStatus());
     }
 
     @Test
     void mxRunCrashCIsRuntimeError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_EXIT3);
-        assertEquals("runtime_error", ex.run(mxRun("c", "int main(){return 3;}", "", 10)).status());
+        assertEquals("runtime_error", ex.run(mxRun("c", "int main(){return 3;}", "", 10)).getStatus());
     }
 
     @Test
     void mxRunCrashCppIsRuntimeError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_EXIT3);
-        assertEquals("runtime_error", ex.run(mxRun("cpp", "int main(){return 3;}", "", 10)).status());
+        assertEquals("runtime_error", ex.run(mxRun("cpp", "int main(){return 3;}", "", 10)).getStatus());
     }
 
     @Test
     void mxRunCrashJavaIsRuntimeError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_EXIT3);
-        assertEquals("runtime_error", ex.run(mxRun("java", "System.exit(3);", "", 10)).status());
+        assertEquals("runtime_error", ex.run(mxRun("java", "System.exit(3);", "", 10)).getStatus());
     }
 
     @Test
@@ -488,7 +488,7 @@ class AbstractScriptExecutorRunTest {
         ex.force(MX_EXIT3);
         var r = ex.judge(judgeReq("python", "sys.exit(3)",
                 List.of(new TestCase("a", "a", false)), 10));
-        assertEquals("mismatch", r.cases().get(0).error());
+        assertEquals("mismatch", r.getCases().get(0).getError());
     }
 
     @Test
@@ -497,7 +497,7 @@ class AbstractScriptExecutorRunTest {
         ex.force(MX_EXIT3);
         var r = ex.judge(judgeReq("java", "System.exit(3);",
                 List.of(new TestCase("a", "a", false)), 10));
-        assertEquals("mismatch", r.cases().get(0).error());
+        assertEquals("mismatch", r.getCases().get(0).getError());
     }
 
     @Test
@@ -505,9 +505,9 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo warn-py 1>&2"));
         var r = ex.run(mxRun("python", "x", "", 10));
-        assertEquals("ok", r.status());
-        assertTrue(r.ok());
-        assertTrue(r.output().contains("warn-py"));
+        assertEquals("ok", r.getStatus());
+        assertTrue(r.isOk());
+        assertTrue(r.getOutput().contains("warn-py"));
     }
 
     @Test
@@ -515,29 +515,29 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo warn-node 1>&2"));
         var r = ex.run(mxRun("node", "x", "", 10));
-        assertEquals("ok", r.status());
-        assertTrue(r.output().contains("warn-node"));
+        assertEquals("ok", r.getStatus());
+        assertTrue(r.getOutput().contains("warn-node"));
     }
 
     @Test
     void mxRunStderrOnlyCForcedOk(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo warn-c 1>&2"));
-        assertEquals("ok", ex.run(mxRun("c", "x", "", 10)).status());
+        assertEquals("ok", ex.run(mxRun("c", "x", "", 10)).getStatus());
     }
 
     @Test
     void mxRunStderrOnlyCppForcedOk(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo warn-cpp 1>&2"));
-        assertEquals("ok", ex.run(mxRun("cpp", "x", "", 10)).status());
+        assertEquals("ok", ex.run(mxRun("cpp", "x", "", 10)).getStatus());
     }
 
     @Test
     void mxRunStderrOnlyJavaForcedOk(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo warn-java 1>&2"));
-        assertEquals("ok", ex.run(mxRun("java", "x", "", 10)).status());
+        assertEquals("ok", ex.run(mxRun("java", "x", "", 10)).getStatus());
     }
 
     @Test
@@ -546,22 +546,22 @@ class AbstractScriptExecutorRunTest {
         ex.force(List.of("cmd", "/c", "echo warn-py 1>&2"));
         var r = ex.judge(judgeReq("python", "x",
                 List.of(new TestCase("ignored-stdin", "warn-py", false)), 10));
-        assertEquals(1, r.passed());
-        assertTrue(r.allPassed());
+        assertEquals(1, r.getPassed());
+        assertTrue(r.isAllPassed());
     }
 
     @Test
     void mxRunUnicodePythonEcho(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("python", "x", MX_UNI, 10));
-        assertEquals("ok", r.status());
-        assertEquals(MX_UNI, r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals(MX_UNI, r.getOutput());
     }
 
     @Test
     void mxRunUnicodeNodeEcho(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("node", "x", MX_UNI, 10));
-        assertEquals("ok", r.status());
-        assertEquals(MX_UNI, r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals(MX_UNI, r.getOutput());
     }
 
     @Test
@@ -570,22 +570,22 @@ class AbstractScriptExecutorRunTest {
         ex.force(List.of("cmd", "/c", "type", "\"PLACEHOLDER\""));
         ex.force(null);
         var r = executor(tmp, tmp).run(mxRun("python", "x", MX_UNI, 10));
-        assertEquals(MX_UNI, r.output());
+        assertEquals(MX_UNI, r.getOutput());
     }
 
     @Test
     void mxJudgeUnicodePythonPass(@TempDir Path tmp) {
         var r = executor(tmp, tmp).judge(judgeReq("python", "x",
                 List.of(new TestCase(MX_UNI, MX_UNI, false)), 10));
-        assertEquals(1, r.passed());
-        assertEquals("", r.cases().get(0).error());
+        assertEquals(1, r.getPassed());
+        assertEquals("", r.getCases().get(0).getError());
     }
 
     @Test
     void mxJudgeUnicodeNodePass(@TempDir Path tmp) {
         var r = executor(tmp, tmp).judge(judgeReq("node", "x",
                 List.of(new TestCase(MX_UNI, MX_UNI, false)), 10));
-        assertEquals(1, r.passed());
+        assertEquals(1, r.getPassed());
     }
 
     @Test
@@ -593,23 +593,23 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = executor(tmp, tmp);
         var r = ex.judge(judgeReq("python", "x",
                 List.of(new TestCase(MX_UNI, MX_UNI, false)), 10));
-        assertTrue(r.allPassed());
+        assertTrue(r.isAllPassed());
     }
 
     @Test
     void mxRun100kPythonUnderCapOk(@TempDir Path tmp) {
         String big = "q".repeat(100 * 1024);
         var r = executor(tmp, tmp).run(mxRun("python", "x", big, 10));
-        assertEquals("ok", r.status());
-        assertEquals(big.length(), r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(big.length(), r.getOutput().length());
     }
 
     @Test
     void mxRun100kNodeUnderCapOk(@TempDir Path tmp) {
         String big = "n".repeat(100 * 1024);
         var r = executor(tmp, tmp).run(mxRun("node", "x", big, 10));
-        assertEquals("ok", r.status());
-        assertEquals(big.length(), r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(big.length(), r.getOutput().length());
     }
 
     @Test
@@ -617,8 +617,8 @@ class AbstractScriptExecutorRunTest {
         String big = "c".repeat(100 * 1024);
         StubExecutor ex = executor(tmp, tmp);
         var r = ex.run(mxRun("python", "x", big, 10));
-        assertEquals("ok", r.status());
-        assertEquals(big.length(), r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(big.length(), r.getOutput().length());
     }
 
     @Test
@@ -626,21 +626,21 @@ class AbstractScriptExecutorRunTest {
         String big = "j".repeat(100 * 1024);
         var r = executor(tmp, tmp).judge(judgeReq("python", "x",
                 List.of(new TestCase(big, big, false)), 10));
-        assertEquals(1, r.passed());
+        assertEquals(1, r.getPassed());
     }
 
     @Test
     void mxRunStdinEchoPython(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("python", "src", "hello-stdin", 10));
-        assertEquals("ok", r.status());
-        assertEquals("hello-stdin", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("hello-stdin", r.getOutput());
     }
 
     @Test
     void mxRunStdinEchoNode(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("node", "src", "node-stdin", 10));
-        assertEquals("ok", r.status());
-        assertEquals("node-stdin", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("node-stdin", r.getOutput());
     }
 
     @Test
@@ -648,40 +648,40 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo c-stdin"));
         var r = ex.run(mxRun("c", "src", "ignored", 10));
-        assertEquals("ok", r.status());
-        assertTrue(r.output().contains("c-stdin"));
+        assertEquals("ok", r.getStatus());
+        assertTrue(r.getOutput().contains("c-stdin"));
     }
 
     @Test
     void mxRunStdinEchoCppForced(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo cpp-stdin"));
-        assertTrue(ex.run(mxRun("cpp", "src", "ignored", 10)).output().contains("cpp-stdin"));
+        assertTrue(ex.run(mxRun("cpp", "src", "ignored", 10)).getOutput().contains("cpp-stdin"));
     }
 
     @Test
     void mxRunStdinEchoJavaForced(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo java-stdin"));
-        assertTrue(ex.run(mxRun("java", "src", "ignored", 10)).output().contains("java-stdin"));
+        assertTrue(ex.run(mxRun("java", "src", "ignored", 10)).getOutput().contains("java-stdin"));
     }
 
     @Test
     void mxJudgeMixedPython(@TempDir Path tmp) {
         var r = executor(tmp, tmp).judge(judgeReq("python", "x",
                 List.of(new TestCase("a", "a", false), new TestCase("b", "WRONG", false)), 10));
-        assertEquals(1, r.passed());
-        assertEquals(2, r.total());
-        assertFalse(r.allPassed());
-        assertEquals("mismatch", r.cases().get(1).error());
+        assertEquals(1, r.getPassed());
+        assertEquals(2, r.getTotal());
+        assertFalse(r.isAllPassed());
+        assertEquals("mismatch", r.getCases().get(1).getError());
     }
 
     @Test
     void mxJudgeMixedNode(@TempDir Path tmp) {
         var r = executor(tmp, tmp).judge(judgeReq("node", "x",
                 List.of(new TestCase("a", "a", false), new TestCase("b", "WRONG", false)), 10));
-        assertEquals(1, r.passed());
-        assertFalse(r.allPassed());
+        assertEquals(1, r.getPassed());
+        assertFalse(r.isAllPassed());
     }
 
     @Test
@@ -690,8 +690,8 @@ class AbstractScriptExecutorRunTest {
         ex.force(List.of("cmd", "/c", "echo a"));
         var r = ex.judge(judgeReq("c", "x",
                 List.of(new TestCase("ignored", "a", false), new TestCase("ignored", "ZZZ", false)), 10));
-        assertEquals(1, r.passed());
-        assertFalse(r.allPassed());
+        assertEquals(1, r.getPassed());
+        assertFalse(r.isAllPassed());
     }
 
     @Test
@@ -700,8 +700,8 @@ class AbstractScriptExecutorRunTest {
         ex.force(List.of("cmd", "/c", "echo a"));
         var r = ex.judge(judgeReq("cpp", "x",
                 List.of(new TestCase("ignored", "a", false), new TestCase("ignored", "ZZZ", false)), 10));
-        assertEquals(1, r.passed());
-        assertFalse(r.allPassed());
+        assertEquals(1, r.getPassed());
+        assertFalse(r.isAllPassed());
     }
 
     @Test
@@ -710,44 +710,44 @@ class AbstractScriptExecutorRunTest {
         ex.force(List.of("cmd", "/c", "echo a"));
         var r = ex.judge(judgeReq("java", "x",
                 List.of(new TestCase("ignored", "a", false), new TestCase("ignored", "ZZZ", false)), 10));
-        assertEquals(1, r.passed());
-        assertFalse(r.allPassed());
+        assertEquals(1, r.getPassed());
+        assertFalse(r.isAllPassed());
     }
 
     @Test
     void mxJudgeZeroCasesPython(@TempDir Path tmp) {
         var r = executor(tmp, tmp).judge(judgeReq("python", "", List.of(), 10));
-        assertTrue(r.allPassed());
-        assertEquals(0, r.total());
-        assertEquals(0, r.passed());
+        assertTrue(r.isAllPassed());
+        assertEquals(0, r.getTotal());
+        assertEquals(0, r.getPassed());
     }
 
     @Test
     void mxJudgeZeroCasesNode(@TempDir Path tmp) {
         var r = executor(tmp, tmp).judge(judgeReq("node", "  ", List.of(), 10));
-        assertTrue(r.allPassed());
-        assertEquals(0, r.passed());
+        assertTrue(r.isAllPassed());
+        assertEquals(0, r.getPassed());
     }
 
     @Test
     void mxJudgeZeroCasesC(@TempDir Path tmp) {
         var r = executor(tmp, tmp).judge(judgeReq("c", "x", List.of(), 10));
-        assertTrue(r.allPassed());
-        assertEquals(0, r.passed());
+        assertTrue(r.isAllPassed());
+        assertEquals(0, r.getPassed());
     }
 
     @Test
     void mxJudgeZeroCasesCpp(@TempDir Path tmp) {
         var r = executor(tmp, tmp).judge(judgeReq("cpp", "x", List.of(), 10));
-        assertTrue(r.allPassed());
-        assertEquals(0, r.passed());
+        assertTrue(r.isAllPassed());
+        assertEquals(0, r.getPassed());
     }
 
     @Test
     void mxJudgeZeroCasesJava(@TempDir Path tmp) {
         var r = executor(tmp, tmp).judge(judgeReq("java", "x", List.of(), 10));
-        assertTrue(r.allPassed());
-        assertEquals(0, r.passed());
+        assertTrue(r.isAllPassed());
+        assertEquals(0, r.getPassed());
     }
 
     @Test
@@ -756,7 +756,7 @@ class AbstractScriptExecutorRunTest {
         try {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(MX_HANG);
-            assertEquals("timeout", ex.run(mxRun("python", "x", "", 0)).status());
+            assertEquals("timeout", ex.run(mxRun("python", "x", "", 0)).getStatus());
         } finally {
             Thread.sleep(200);
             com.sprintjudge.util.ExecIo.deleteTree(work);
@@ -769,7 +769,7 @@ class AbstractScriptExecutorRunTest {
         try {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(MX_HANG);
-            assertEquals("timeout", ex.run(mxRun("node", "x", "", 0)).status());
+            assertEquals("timeout", ex.run(mxRun("node", "x", "", 0)).getStatus());
         } finally {
             Thread.sleep(200);
             com.sprintjudge.util.ExecIo.deleteTree(work);
@@ -782,7 +782,7 @@ class AbstractScriptExecutorRunTest {
         try {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(MX_HANG);
-            assertEquals("timeout", ex.run(mxRun("c", "x", "", 0)).status());
+            assertEquals("timeout", ex.run(mxRun("c", "x", "", 0)).getStatus());
         } finally {
             Thread.sleep(200);
             com.sprintjudge.util.ExecIo.deleteTree(work);
@@ -795,7 +795,7 @@ class AbstractScriptExecutorRunTest {
         try {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(MX_HANG);
-            assertEquals("timeout", ex.run(mxRun("cpp", "x", "", 0)).status());
+            assertEquals("timeout", ex.run(mxRun("cpp", "x", "", 0)).getStatus());
         } finally {
             Thread.sleep(200);
             com.sprintjudge.util.ExecIo.deleteTree(work);
@@ -808,7 +808,7 @@ class AbstractScriptExecutorRunTest {
         try {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(MX_HANG);
-            assertEquals("timeout", ex.run(mxRun("java", "x", "", 0)).status());
+            assertEquals("timeout", ex.run(mxRun("java", "x", "", 0)).getStatus());
         } finally {
             Thread.sleep(200);
             com.sprintjudge.util.ExecIo.deleteTree(work);
@@ -821,7 +821,7 @@ class AbstractScriptExecutorRunTest {
         try {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(MX_HANG);
-            assertEquals("timeout", ex.run(mxRun("python", "x", "", -3)).status());
+            assertEquals("timeout", ex.run(mxRun("python", "x", "", -3)).getStatus());
         } finally {
             Thread.sleep(200);
             com.sprintjudge.util.ExecIo.deleteTree(work);
@@ -834,7 +834,7 @@ class AbstractScriptExecutorRunTest {
         try {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(MX_HANG);
-            assertEquals("timeout", ex.run(mxRun("node", "x", "", -9)).status());
+            assertEquals("timeout", ex.run(mxRun("node", "x", "", -9)).getStatus());
         } finally {
             Thread.sleep(200);
             com.sprintjudge.util.ExecIo.deleteTree(work);
@@ -847,7 +847,7 @@ class AbstractScriptExecutorRunTest {
         try {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(MX_HANG);
-            assertEquals("timeout", ex.run(mxRun("c", "x", "", -1)).status());
+            assertEquals("timeout", ex.run(mxRun("c", "x", "", -1)).getStatus());
         } finally {
             Thread.sleep(200);
             com.sprintjudge.util.ExecIo.deleteTree(work);
@@ -860,7 +860,7 @@ class AbstractScriptExecutorRunTest {
         try {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(MX_HANG);
-            assertEquals("timeout", ex.run(mxRun("cpp", "x", "", -2)).status());
+            assertEquals("timeout", ex.run(mxRun("cpp", "x", "", -2)).getStatus());
         } finally {
             Thread.sleep(200);
             com.sprintjudge.util.ExecIo.deleteTree(work);
@@ -873,7 +873,7 @@ class AbstractScriptExecutorRunTest {
         try {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(MX_HANG);
-            assertEquals("timeout", ex.run(mxRun("java", "x", "", -4)).status());
+            assertEquals("timeout", ex.run(mxRun("java", "x", "", -4)).getStatus());
         } finally {
             Thread.sleep(200);
             com.sprintjudge.util.ExecIo.deleteTree(work);
@@ -882,129 +882,129 @@ class AbstractScriptExecutorRunTest {
 
     @Test
     void mxRunUnsupportedRuby(@TempDir Path tmp) {
-        assertEquals("unsupported_language", executor(tmp, tmp).run(mxRun("ruby", "x", "", 10)).status());
+        assertEquals("unsupported_language", executor(tmp, tmp).run(mxRun("ruby", "x", "", 10)).getStatus());
     }
 
     @Test
     void mxRunUnsupportedBlank(@TempDir Path tmp) {
-        assertEquals("unsupported_language", executor(tmp, tmp).run(mxRun("   ", "x", "", 10)).status());
+        assertEquals("unsupported_language", executor(tmp, tmp).run(mxRun("   ", "x", "", 10)).getStatus());
     }
 
     @Test
     void mxRunUnsupportedGo(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("go", "x", "", 10));
-        assertFalse(r.ok());
-        assertEquals("unsupported_language", r.status());
+        assertFalse(r.isOk());
+        assertEquals("unsupported_language", r.getStatus());
     }
 
     @Test
     void mxRunUnsupportedEmpty(@TempDir Path tmp) {
-        assertEquals("unsupported_language", executor(tmp, tmp).run(mxRun("", "x", "", 10)).status());
+        assertEquals("unsupported_language", executor(tmp, tmp).run(mxRun("", "x", "", 10)).getStatus());
     }
 
     @Test
     void mxRunSource65537Python(@TempDir Path tmp) {
         assertEquals("source_too_large",
-                executor(tmp, tmp).run(mxRun("python", "x".repeat(65_537), "", 10)).status());
+                executor(tmp, tmp).run(mxRun("python", "x".repeat(65_537), "", 10)).getStatus());
     }
 
     @Test
     void mxRunSource65537Node(@TempDir Path tmp) {
         assertEquals("source_too_large",
-                executor(tmp, tmp).run(mxRun("node", "x".repeat(65_537), "", 10)).status());
+                executor(tmp, tmp).run(mxRun("node", "x".repeat(65_537), "", 10)).getStatus());
     }
 
     @Test
     void mxRunSource65537C(@TempDir Path tmp) {
         assertEquals("source_too_large",
-                executor(tmp, tmp).run(mxRun("c", "x".repeat(65_537), "", 10)).status());
+                executor(tmp, tmp).run(mxRun("c", "x".repeat(65_537), "", 10)).getStatus());
     }
 
     @Test
     void mxRunSource65537Cpp(@TempDir Path tmp) {
         assertEquals("source_too_large",
-                executor(tmp, tmp).run(mxRun("cpp", "x".repeat(65_537), "", 10)).status());
+                executor(tmp, tmp).run(mxRun("cpp", "x".repeat(65_537), "", 10)).getStatus());
     }
 
     @Test
     void mxRunSource65537Java(@TempDir Path tmp) {
         assertEquals("source_too_large",
-                executor(tmp, tmp).run(mxRun("java", "x".repeat(65_537), "", 10)).status());
+                executor(tmp, tmp).run(mxRun("java", "x".repeat(65_537), "", 10)).getStatus());
     }
 
     @Test
     void mxRunSource65536BoundaryPython(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("python", "#" + "x".repeat(65_535), "", 10));
-        assertTrue(r.ok() || r.status().equals("runtime_error"));
+        assertTrue(r.isOk() || r.getStatus().equals("runtime_error"));
     }
 
     @Test
     void mxRunSource65536BoundaryNode(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("node", "#" + "x".repeat(65_535), "", 10));
-        assertTrue(r.ok() || r.status().equals("runtime_error"));
+        assertTrue(r.isOk() || r.getStatus().equals("runtime_error"));
     }
 
     @Test
     void mxRunStdin10000Passthrough(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("python", "x", "s".repeat(10000), 10));
-        assertEquals("ok", r.status());
-        assertEquals(10000, r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(10000, r.getOutput().length());
     }
 
     @Test
     void mxRunStdin10001Passthrough(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("python", "x", "s".repeat(10001), 10));
-        assertEquals("ok", r.status());
-        assertEquals(10001, r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(10001, r.getOutput().length());
     }
 
     @Test
     void mxRunTimeout31QuickOk(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("node", "x", "fast31", 31));
-        assertEquals("ok", r.status());
-        assertEquals("fast31", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("fast31", r.getOutput());
     }
 
     @Test
     void mxRunAliasJsEcho(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("js", "x", "alias-js", 10));
-        assertTrue(r.ok());
-        assertEquals("alias-js", r.output());
+        assertTrue(r.isOk());
+        assertEquals("alias-js", r.getOutput());
     }
 
     @Test
     void mxRunAliasPyEcho(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("py", "x", "alias-py", 10));
-        assertTrue(r.ok());
-        assertEquals("alias-py", r.output());
+        assertTrue(r.isOk());
+        assertEquals("alias-py", r.getOutput());
     }
 
     @Test
     void mxRunAliasJavascriptEcho(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("javascript", "x", "alias-full", 10));
-        assertTrue(r.ok());
-        assertEquals("alias-full", r.output());
+        assertTrue(r.isOk());
+        assertEquals("alias-full", r.getOutput());
     }
 
     @Test
     void mxRunAliasUpperPythonEcho(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("PYTHON", "x", "alias-up", 10));
-        assertTrue(r.ok());
-        assertEquals("alias-up", r.output());
+        assertTrue(r.isOk());
+        assertEquals("alias-up", r.getOutput());
     }
 
     @Test
     void mxRunAliasUpperNodeEcho(@TempDir Path tmp) {
         var r = executor(tmp, tmp).run(mxRun("Node", "x", "alias-node", 10));
-        assertTrue(r.ok());
-        assertEquals("alias-node", r.output());
+        assertTrue(r.isOk());
+        assertEquals("alias-node", r.getOutput());
     }
 
     @Test
     void mxJudgeZeroTimeoutPythonPass(@TempDir Path tmp) {
         StubExecutor ex = new StubExecutor(tmp.toString(), tmp.toString(), 30);
         var r = ex.judge(judgeReq("python", "x", List.of(new TestCase("5", "5", false)), 0));
-        assertEquals(1, r.passed());
+        assertEquals(1, r.getPassed());
     }
 
     @Test
@@ -1012,7 +1012,7 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = new StubExecutor(tmp.toString(), tmp.toString(), 30);
         ex.force(List.of("cmd", "/c", "echo 5"));
         var r = ex.judge(judgeReq("c", "x", List.of(new TestCase("ignored", "5", false)), 0));
-        assertEquals(1, r.passed());
+        assertEquals(1, r.getPassed());
     }
 
     @Test
@@ -1020,50 +1020,50 @@ class AbstractScriptExecutorRunTest {
         StubExecutor ex = new StubExecutor(tmp.toString(), tmp.toString(), 30);
         ex.force(List.of("cmd", "/c", "echo 5"));
         var r = ex.judge(judgeReq("java", "x", List.of(new TestCase("ignored", "5", false)), 0));
-        assertEquals(1, r.passed());
+        assertEquals(1, r.getPassed());
     }
 
     @Test
     void mxJudgeNegativeTimeoutNodePass(@TempDir Path tmp) {
         StubExecutor ex = new StubExecutor(tmp.toString(), tmp.toString(), 30);
         var r = ex.judge(judgeReq("node", "x", List.of(new TestCase("5", "5", false)), -2));
-        assertEquals(1, r.passed());
+        assertEquals(1, r.getPassed());
     }
 
     @Test
     void mxRunStartFailureCIsIoError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_BADPROG);
-        assertEquals("io_error", ex.run(mxRun("c", "x", "", 10)).status());
+        assertEquals("io_error", ex.run(mxRun("c", "x", "", 10)).getStatus());
     }
 
     @Test
     void mxRunStartFailureJavaIsIoError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_BADPROG);
-        assertEquals("io_error", ex.run(mxRun("java", "x", "", 10)).status());
+        assertEquals("io_error", ex.run(mxRun("java", "x", "", 10)).getStatus());
     }
 
     @Test
     void mxRunStartFailurePythonIsIoError(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(MX_BADPROG);
-        assertEquals("io_error", ex.run(mxRun("python", "x", "", 10)).status());
+        assertEquals("io_error", ex.run(mxRun("python", "x", "", 10)).getStatus());
     }
 
     @Test
     void mxRunNullSourceCForcedOk(@TempDir Path tmp) {
         StubExecutor ex = executor(tmp, tmp);
         ex.force(List.of("cmd", "/c", "echo null-src"));
-        assertTrue(ex.run(mxRun("c", null, "", 10)).output().contains("null-src"));
+        assertTrue(ex.run(mxRun("c", null, "", 10)).getOutput().contains("null-src"));
     }
 
     @Test
     void mxJudgeNullExpectedMatchesEmpty(@TempDir Path tmp) {
         var r = executor(tmp, tmp).judge(judgeReq("python", "x",
                 List.of(new TestCase("", null, false)), 10));
-        assertEquals(1, r.passed());
-        assertEquals("", r.cases().get(0).error());
+        assertEquals(1, r.getPassed());
+        assertEquals("", r.getCases().get(0).getError());
     }
 
     @Test
@@ -1088,8 +1088,8 @@ class AbstractScriptExecutorRunTest {
                     org.mockito.ArgumentMatchers.any(Path.class))).thenCallRealMethod();
             var r = ex.judge(judgeReq("node", "ignored",
                     List.of(new TestCase("9", "9", false)), 10));
-            assertEquals(0, r.passed());
-            assertEquals("stdout_exceeded_1MB", r.cases().get(0).error());
+            assertEquals(0, r.getPassed());
+            assertEquals("stdout_exceeded_1MB", r.getCases().get(0).getError());
         }
     }
 }

@@ -20,10 +20,13 @@ import java.util.concurrent.TimeUnit;
 public class RoundTimeoutScheduler {
 
     private final ScheduledExecutorService executor =
-            Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = new Thread(r, "oq-round-timer");
-                t.setDaemon(true);
-                return t;
+            Executors.newSingleThreadScheduledExecutor(new java.util.concurrent.ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r, "oq-round-timer");
+                    t.setDaemon(true);
+                    return t;
+                }
             });
     private final Map<Integer, ScheduledFuture<?>> tasks = new ConcurrentHashMap<>();
 
@@ -32,7 +35,10 @@ public class RoundTimeoutScheduler {
         cancelLocked(pinKey);
         long delay = Math.max(0, endEpochMs - System.currentTimeMillis());
         // Small grace so a client auto-submit landing right at zero still scores.
-        tasks.put(pinKey, executor.schedule(fire::run, delay + 500, TimeUnit.MILLISECONDS));
+        tasks.put(pinKey, executor.schedule(new Runnable() {
+            @Override
+            public void run() { fire.run(); }
+        }, delay + 500, TimeUnit.MILLISECONDS));
     }
 
     public synchronized void cancel(int pinKey) {
@@ -46,7 +52,7 @@ public class RoundTimeoutScheduler {
 
     @PreDestroy
     void stop() {
-        tasks.values().forEach(f -> f.cancel(false));
+        for (ScheduledFuture<?> f : tasks.values()) f.cancel(false);
         executor.shutdownNow();
     }
 }

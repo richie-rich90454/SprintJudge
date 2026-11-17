@@ -62,10 +62,10 @@ public class NativeExecutor implements CodeExecutor {
 
     @Override
     public JudgeResult judge(JudgeRequest request) {
-        String language = canonical(request.language());
+        String language = canonical(request.getLanguage());
         if (!SUPPORTED.contains(language)) {
-            log.warn("Rejected unsupported language: {}", request.language());
-            return new JudgeResult(0, request.testCases().size(), false, List.of(
+            log.warn("Rejected unsupported language: {}", request.getLanguage());
+            return new JudgeResult(0, request.getTestCases().size(), false, List.of(
                     new JudgeResult.CaseResult(0, false, "", "", "unsupported_language")));
         }
         Path runDir;
@@ -74,29 +74,34 @@ public class NativeExecutor implements CodeExecutor {
                     "run-" + Thread.currentThread().threadId() + "-" + System.nanoTime()));
         } catch (IOException e) {
             log.error("Could not create run directory under {}", workDirBase, e);
-            return new JudgeResult(0, request.testCases().size(), false, List.of());
+            return new JudgeResult(0, request.getTestCases().size(), false, List.of());
         }
         Process proc = null;
         try {
             // Absolutize before child-process handoff (see AbstractScriptExecutor).
             runDir = runDir.toAbsolutePath();
-            String ext = switch (language) {
-                case "c" -> ".c";
-                case "cpp" -> ".cpp";
-                case "java" -> ".java";
-                case "node" -> ".js";
-                default -> ".py";
-            };
+            String ext;
+            if (language.equals("c")) {
+                ext = ".c";
+            } else if (language.equals("cpp")) {
+                ext = ".cpp";
+            } else if (language.equals("java")) {
+                ext = ".java";
+            } else if (language.equals("node")) {
+                ext = ".js";
+            } else {
+                ext = ".py";
+            }
             // Java requires filename to match the public class name.
             String fileName = language.equals("java") ? "Main" : "solution";
             Path sourceFile = runDir.resolve(fileName + ext).toAbsolutePath();
-            Files.writeString(sourceFile, request.sourceCode() == null ? "" : request.sourceCode());
+            Files.writeString(sourceFile, request.getSourceCode() == null ? "" : request.getSourceCode());
 
-            int timeout = request.timeoutSec() > 0 ? request.timeoutSec() : defaultTimeoutSec;
+            int timeout = request.getTimeoutSec() > 0 ? request.getTimeoutSec() : defaultTimeoutSec;
 
             // Compile phase (c/cpp/java). Fails fast with a distinct judge log so
             // players see "compilation_error" instead of N misleading mismatches.
-            String compileErr = compileOrReuse(language, request.sourceCode(), sourceFile, runDir, timeout);
+            String compileErr = compileOrReuse(language, request.getSourceCode(), sourceFile, runDir, timeout);
             if (compileErr != null) {
                 log.warn("Compile failed ({}): {}", language, truncate(compileErr));
                 return allFailed(request, "compilation_error", compileErr);
@@ -104,10 +109,10 @@ public class NativeExecutor implements CodeExecutor {
 
             List<JudgeResult.CaseResult> results = new ArrayList<>();
             int passed = 0;
-            for (int idx = 0; idx < request.testCases().size(); idx++) {
-                TestCase tc = request.testCases().get(idx);
+            for (int idx = 0; idx < request.getTestCases().size(); idx++) {
+                TestCase tc = request.getTestCases().get(idx);
                 Path inputFile = runDir.resolve("input_" + idx + ".txt").toAbsolutePath();
-                Files.writeString(inputFile, tc.input() == null ? "" : tc.input());
+                Files.writeString(inputFile, tc.getInput() == null ? "" : tc.getInput());
                 Path outputFile = runDir.resolve("out_" + idx + ".txt").toAbsolutePath();
 
                 List<String> cmd = runCommand(language, sourceFile, runDir);
@@ -120,28 +125,28 @@ public class NativeExecutor implements CodeExecutor {
                         .redirectOutput(outputFile.toFile());
                 proc = pb.start();
 
-                ExecIo.WaitOutcome outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
-                if (outcome != ExecIo.WaitOutcome.FINISHED) {
+                String outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
+                if (!"FINISHED".equals(outcome)) {
                     ExecIo.killAndReap(proc);
-                    results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "",
-                            outcome == ExecIo.WaitOutcome.TOO_BIG ? "stdout_exceeded_1MB" : "timeout"));
+                    results.add(new JudgeResult.CaseResult(idx, false, tc.getExpectedOutput(), "",
+                            ExecIo.WaitOutcome.TOO_BIG.equals(outcome) ? "stdout_exceeded_1MB" : "timeout"));
                     continue;
                 }
                 String output = ExecIo.readCappedFile(outputFile);
                 if (output == null) {
-                    results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "stdout_exceeded_1MB"));
+                    results.add(new JudgeResult.CaseResult(idx, false, tc.getExpectedOutput(), "", "stdout_exceeded_1MB"));
                     continue;
                 }
-                boolean ok = output.equals((tc.expectedOutput() == null ? "" : tc.expectedOutput()).strip());
+                boolean ok = output.equals((tc.getExpectedOutput() == null ? "" : tc.getExpectedOutput()).strip());
                 if (ok) passed++;
-                results.add(new JudgeResult.CaseResult(idx, ok, tc.expectedOutput(), output, ok ? "" : "mismatch"));
+                results.add(new JudgeResult.CaseResult(idx, ok, tc.getExpectedOutput(), output, ok ? "" : "mismatch"));
             }
-            return new JudgeResult(passed, request.testCases().size(), passed == request.testCases().size(), results);
+            return new JudgeResult(passed, request.getTestCases().size(), passed == request.getTestCases().size(), results);
         } catch (IOException | InterruptedException e) {
             ExecIo.killAndReap(proc);
             Thread.currentThread().interrupt();
             log.error("Native judge execution failed for language {}", language, e);
-            return new JudgeResult(0, request.testCases().size(), false, List.of());
+            return new JudgeResult(0, request.getTestCases().size(), false, List.of());
         } finally {
             ExecIo.deleteTree(runDir);
         }
@@ -149,12 +154,16 @@ public class NativeExecutor implements CodeExecutor {
 
     /** Returns null for interpreted languages; otherwise the compile argv. */
     private List<String> compileCommand(String language, Path sourceFile, Path runDir) {
-        return switch (language) {
-            case "c" -> List.of("gcc", "-O2", "-o", binary(runDir).toString(), sourceFile.toString());
-            case "cpp" -> List.of("g++", "-O2", "-std=c++17", "-o", binary(runDir).toString(), sourceFile.toString());
-            case "java" -> List.of("javac", "-d", runDir.toString(), sourceFile.toString());
-            default -> null;
-        };
+        if (language.equals("c")) {
+            return List.of("gcc", "-O2", "-o", binary(runDir).toString(), sourceFile.toString());
+        }
+        if (language.equals("cpp")) {
+            return List.of("g++", "-O2", "-std=c++17", "-o", binary(runDir).toString(), sourceFile.toString());
+        }
+        if (language.equals("java")) {
+            return List.of("javac", "-d", runDir.toString(), sourceFile.toString());
+        }
+        return null;
     }
 
     /** Single-artifact languages may reuse a cached binary for identical sources. */
@@ -174,7 +183,7 @@ public class NativeExecutor implements CodeExecutor {
             return runToCompletion(cmd, runDir, timeoutSec);
         }
         String key = CompileArtifactCache.keyFor(language, sourceCode);
-        var cached = compileCache.get(key);
+        java.util.Optional<Path> cached = compileCache.get(key);
         if (cached.isPresent()) {
             try {
                 Files.copy(cached.get(), binary(runDir), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
@@ -197,12 +206,16 @@ public class NativeExecutor implements CodeExecutor {
     }
 
     private List<String> runCommand(String language, Path sourceFile, Path runDir) {
-        return switch (language) {
-            case "c", "cpp" -> List.of(binary(runDir).toString());
-            case "java" -> List.of("java", "-cp", runDir.toString(), mainClass(sourceFile));
-            case "node" -> List.of("node", sourceFile.toString());
-            default -> List.of("python", sourceFile.toString());
-        };
+        if (language.equals("c") || language.equals("cpp")) {
+            return List.of(binary(runDir).toString());
+        }
+        if (language.equals("java")) {
+            return List.of("java", "-cp", runDir.toString(), mainClass(sourceFile));
+        }
+        if (language.equals("node")) {
+            return List.of("node", sourceFile.toString());
+        }
+        return List.of("python", sourceFile.toString());
     }
 
     private Path binary(Path runDir) {
@@ -236,30 +249,30 @@ public class NativeExecutor implements CodeExecutor {
 
     private JudgeResult allFailed(JudgeRequest request, String code, String detail) {
         List<JudgeResult.CaseResult> results = new ArrayList<>();
-        for (int i = 0; i < request.testCases().size(); i++) {
+        for (int i = 0; i < request.getTestCases().size(); i++) {
             results.add(new JudgeResult.CaseResult(i, false,
-                    request.testCases().get(i).expectedOutput(), "", code));
+                    request.getTestCases().get(i).getExpectedOutput(), "", code));
         }
-        return new JudgeResult(0, request.testCases().size(), false, results);
+        return new JudgeResult(0, request.getTestCases().size(), false, results);
     }
 
     private String truncate(String s) {
-        return s.length() <= 2000 ? s : s.substring(0, 2000) + "…";
+        return s.length() <= 2000 ? s : s.substring(0, 1998) + "...";
     }
 
     /**
      * Live execution for the interactive console: compiles (if needed) then runs
      * the program feeding {@code stdin} and capturing combined stdout/stderr.
      * Callers (the player console) get back the merged stream so students can
-     * experiment before submitting — mirroring JuiceMind's in-quiz runner.
+     * experiment before submitting -?mirroring JuiceMind's in-quiz runner.
      */
     @Override
     public RunResult run(RunRequest request) {
-        String language = canonical(request.language());
+        String language = canonical(request.getLanguage());
         if (!SUPPORTED.contains(language)) {
             return new RunResult(false, "", "", "unsupported_language");
         }
-        if (request.sourceCode() != null && request.sourceCode().length() > 65_536) {
+        if (request.getSourceCode() != null && request.getSourceCode().length() > 65_536) {
             return new RunResult(false, "", "", "source_too_large");
         }
         Path runDir;
@@ -273,20 +286,25 @@ public class NativeExecutor implements CodeExecutor {
         Process proc = null;
         try {
             runDir = runDir.toAbsolutePath();
-            String ext = switch (language) {
-                case "c" -> ".c";
-                case "cpp" -> ".cpp";
-                case "java" -> ".java";
-                case "node" -> ".js";
-                default -> ".py";
-            };
+            String ext;
+            if (language.equals("c")) {
+                ext = ".c";
+            } else if (language.equals("cpp")) {
+                ext = ".cpp";
+            } else if (language.equals("java")) {
+                ext = ".java";
+            } else if (language.equals("node")) {
+                ext = ".js";
+            } else {
+                ext = ".py";
+            }
             String runFileName = language.equals("java") ? "Main" : "solution";
             Path sourceFile = runDir.resolve(runFileName + ext).toAbsolutePath();
-            Files.writeString(sourceFile, request.sourceCode() == null ? "" : request.sourceCode());
+            Files.writeString(sourceFile, request.getSourceCode() == null ? "" : request.getSourceCode());
 
-            int timeout = request.timeoutSec() > 0 ? request.timeoutSec() : defaultTimeoutSec;
+            int timeout = request.getTimeoutSec() > 0 ? request.getTimeoutSec() : defaultTimeoutSec;
 
-            String compileErr = compileOrReuse(language, request.sourceCode(), sourceFile, runDir, timeout);
+            String compileErr = compileOrReuse(language, request.getSourceCode(), sourceFile, runDir, timeout);
             if (compileErr != null) {
                 return new RunResult(false, "", compileErr, "compilation_error");
             }
@@ -299,18 +317,18 @@ public class NativeExecutor implements CodeExecutor {
                     // File redirect (not a pipe): a chatty program must not
                     // deadlock the wait the way the old pipe read did.
                     .redirectOutput(outputFile.toFile());
-            if (request.stdin() != null && !request.stdin().isEmpty()) {
+            if (request.getStdin() != null && !request.getStdin().isEmpty()) {
                 Path inputFile = runDir.resolve("stdin.txt").toAbsolutePath();
-                Files.writeString(inputFile, request.stdin());
+                Files.writeString(inputFile, request.getStdin());
                 pb.redirectInput(inputFile.toFile());
             }
             proc = pb.start();
 
-            ExecIo.WaitOutcome outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
-            if (outcome != ExecIo.WaitOutcome.FINISHED) {
+            String outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
+            if (!"FINISHED".equals(outcome)) {
                 ExecIo.killAndReap(proc);
                 return new RunResult(false, "", "",
-                        outcome == ExecIo.WaitOutcome.TOO_BIG ? "stdout_exceeded_1MB" : "timeout");
+                        ExecIo.WaitOutcome.TOO_BIG.equals(outcome) ? "stdout_exceeded_1MB" : "timeout");
             }
             String output = ExecIo.readCappedFile(outputFile);
             if (output == null) {

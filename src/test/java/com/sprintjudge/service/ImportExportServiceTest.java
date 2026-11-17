@@ -32,7 +32,7 @@ class ImportExportServiceTest {
         ImportExportService svc = new ImportExportService(rp.qr(), rp.qnr(), rp.sr());
         String json = svc.exportAll();
         ExportBundle b = Json.read(json, ExportBundle.class);
-        assertTrue(b.quizzes().isEmpty());
+        assertTrue(b.getQuizzes().isEmpty());
     }
 
     @Test
@@ -51,10 +51,10 @@ class ImportExportServiceTest {
 
         String json = svc.exportAll();
         ExportBundle b = Json.read(json, ExportBundle.class);
-        assertEquals(1, b.quizzes().size());
-        assertEquals("qz1", b.quizzes().get(0).id());
-        assertEquals(3, b.quizzes().get(0).questions().size());
-        assertEquals("dark", b.adminSettings().get("theme"));
+        assertEquals(1, b.getQuizzes().size());
+        assertEquals("qz1", b.getQuizzes().get(0).getId());
+        assertEquals(3, b.getQuizzes().get(0).getQuestions().size());
+        assertEquals("dark", b.getAdminSettings().get("theme"));
     }
 
     @Test
@@ -76,7 +76,7 @@ class ImportExportServiceTest {
         assertEquals(2, count);
         assertTrue(rp.qr().findById("q1").isPresent());
         assertEquals(2, rp.qnr().findByQuiz("q1").size());
-        assertEquals("light", rp.sr().findByKey("theme").orElseThrow().value());
+        assertEquals("light", rp.sr().findByKey("theme").orElseThrow().getValue());
     }
 
     @Test
@@ -95,10 +95,10 @@ class ImportExportServiceTest {
         assertEquals(1, count);
         List<Quiz> all = rp.qr().findAll();
         assertEquals(1, all.size());
-        assertNotNull(all.get(0).id());
-        assertFalse(all.get(0).id().isBlank());
-        assertEquals(1, rp.qnr().findByQuiz(all.get(0).id()).size());
-        assertEquals("v", rp.sr().findByKey("k").orElseThrow().value());
+        assertNotNull(all.get(0).getId());
+        assertFalse(all.get(0).getId().isBlank());
+        assertEquals(1, rp.qnr().findByQuiz(all.get(0).getId()).size());
+        assertEquals("v", rp.sr().findByKey("k").orElseThrow().getValue());
     }
 
     @Test
@@ -117,7 +117,7 @@ class ImportExportServiceTest {
         assertEquals(1, count);
         List<Quiz> all = rp.qr().findAll();
         assertEquals(1, all.size());
-        assertFalse(all.get(0).id().isBlank());
+        assertFalse(all.get(0).getId().isBlank());
     }
 
     @Test
@@ -198,7 +198,7 @@ class ImportExportServiceTest {
                 "q1", "Clash", "desc", false, List.of(ex));
         ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qe), null);
         assertThrows(IllegalArgumentException.class, () -> svc.importAll(Json.write(bundle), false));
-        assertEquals("Keep", rp.qr().findById("q1").orElseThrow().title());
+        assertEquals("Keep", rp.qr().findById("q1").orElseThrow().getTitle());
     }
 
     @Test
@@ -391,8 +391,8 @@ class ImportExportServiceTest {
                 List.of(qzex("q1", "Quiz", List.of(qex("qu1", "Q")))), Map.of("a", "1", "b", "2"));
         int n = svc.importAll(Json.write(bundle), false);
         assertEquals(1, n);
-        assertEquals("1", rp.sr().findByKey("a").orElseThrow().value());
-        assertEquals("2", rp.sr().findByKey("b").orElseThrow().value());
+        assertEquals("1", rp.sr().findByKey("a").orElseThrow().getValue());
+        assertEquals("2", rp.sr().findByKey("b").orElseThrow().getValue());
     }
 
     @Test
@@ -436,7 +436,7 @@ class ImportExportServiceTest {
                 qzex("q1", "New", List.of(qex("qu1", "Q")))), null);
         int n = svc.importAll(Json.write(bundle), true);
         assertEquals(1, n);
-        assertEquals("New", rp.qr().findById("q1").orElseThrow().title());
+        assertEquals("New", rp.qr().findById("q1").orElseThrow().getTitle());
     }
 
     @Test
@@ -468,8 +468,8 @@ class ImportExportServiceTest {
         rp.qnr().save(new Question("qu1", "qz1", "Q1", "d", "MCQ", null, 30, 100, "{broken json", 0, Instant.now()));
         String json = svc.exportAll();
         ExportBundle b = Json.read(json, ExportBundle.class);
-        assertEquals(1, b.quizzes().size());
-        assertEquals(1, b.quizzes().get(0).questions().size());
+        assertEquals(1, b.getQuizzes().size());
+        assertEquals(1, b.getQuizzes().get(0).getQuestions().size());
     }
 
     @Test
@@ -493,6 +493,6 @@ class ImportExportServiceTest {
         int n = svc.importAll(Json.write(bundle), false);
         assertEquals(1, n);
         assertEquals(1, rp.qr().findAll().size());
-        assertFalse(rp.qr().findAll().get(0).id().isBlank());
+        assertFalse(rp.qr().findAll().get(0).getId().isBlank());
     }
 }

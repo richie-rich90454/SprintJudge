@@ -34,13 +34,13 @@ class SubmissionRepositoryTest {
     @Test
     void saveInsertGeneratesId() {
         Submission s = repo.save(sub(null, "s1", "q1", "u1", 5, true));
-        assertNotNull(s.id());
+        assertNotNull(s.getId());
     }
 
     @Test
     void saveInsertWithProvidedNewId() {
         Submission s = repo.save(sub("sub-1", "s1", "q1", "u1", 5, true));
-        assertEquals("sub-1", s.id());
+        assertEquals("sub-1", s.getId());
     }
 
     @Test
@@ -48,8 +48,8 @@ class SubmissionRepositoryTest {
         repo.save(sub("sub-1", "s1", "q1", "u1", 5, true));
         repo.save(sub("sub-1", "s1", "q1", "u1", 9, false));
         Submission got = repo.findBest("s1", "q1", "u1").orElseThrow();
-        assertEquals(9, got.scoreEarned());
-        assertFalse(got.correct());
+        assertEquals(9, got.getScoreEarned());
+        assertFalse(got.isCorrect());
     }
 
     @Test
@@ -71,7 +71,7 @@ class SubmissionRepositoryTest {
         repo.save(sub("b", "s1", "q1", "u1", 9, true));
         Optional<Submission> best = repo.findBest("s1", "q1", "u1");
         assertTrue(best.isPresent());
-        assertEquals(9, best.get().scoreEarned());
+        assertEquals(9, best.get().getScoreEarned());
     }
 
     @Test
@@ -108,7 +108,7 @@ class SubmissionRepositoryTest {
         repo.save(sub("b", "s1", "q2", "u1", 8, true));
         Optional<Submission> best = repo.findHighestByPlayer("s1", "u1");
         assertTrue(best.isPresent());
-        assertEquals(8, best.get().scoreEarned());
+        assertEquals(8, best.get().getScoreEarned());
     }
 
     @Test
@@ -125,14 +125,14 @@ class SubmissionRepositoryTest {
                 .values("sc", "s1", "q1", "p", "u", "d", 3, null, 1, null)
                 .execute();
         Submission s = repo.findBySessionQuestion("s1", "q1").get(0);
-        assertFalse(s.correct());
-        assertNull(s.submittedAt());
+        assertFalse(s.isCorrect());
+        assertNull(s.getSubmittedAt());
     }
 
     @Test
     void toSubmissionCorrectFalse() {
         repo.save(sub("cf", "s1", "q1", "u1", 4, false));
         Submission got = repo.findBest("s1", "q1", "u1").orElseThrow();
-        assertFalse(got.correct());
+        assertFalse(got.isCorrect());
     }
 }

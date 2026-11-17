@@ -23,7 +23,12 @@ public class JoinRateLimiter {
 
     /** Production ctor: wall clock. */
     public JoinRateLimiter() {
-        this(System::currentTimeMillis);
+        this(new java.util.function.LongSupplier() {
+            @Override
+            public long getAsLong() {
+                return System.currentTimeMillis();
+            }
+        });
     }
 
     /** Test ctor: injectable clock for deterministic window expiry. */
@@ -35,9 +40,18 @@ public class JoinRateLimiter {
     public boolean tryJoin(String remoteAddr) {
         long now = clock.getAsLong();
         if (windows.size() > MAX_TRACKED) {
-            windows.entrySet().removeIf(e -> now - e.getValue().windowStart > WINDOW_MS);
+            java.util.Iterator<Map.Entry<String, Window>> it = windows.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, Window> e = it.next();
+                if (now - e.getValue().windowStart > WINDOW_MS) it.remove();
+            }
         }
-        Window w = windows.computeIfAbsent(remoteAddr, k -> new Window(now));
+        Window w = windows.computeIfAbsent(remoteAddr, new java.util.function.Function<String, Window>() {
+            @Override
+            public Window apply(String k) {
+                return new Window(now);
+            }
+        });
         synchronized (w) {
             if (now - w.windowStart > WINDOW_MS) {
                 w.windowStart = now;

@@ -173,7 +173,7 @@ class QuestionConfigValidatorTest {
     @Test
     void cleanTextAllowsCodePunctuation() {
         assertDoesNotThrow(() -> QuestionConfigValidator.requireCleanText("title",
-                "#include <stdio.h> — what prints? (a < b)"));
+                "#include <stdio.h>  -  what prints? (a < b)"));
     }
 
     @Test

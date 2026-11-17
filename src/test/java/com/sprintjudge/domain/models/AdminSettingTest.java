@@ -18,9 +18,9 @@ class AdminSettingTest {
     @Test
     void constructorAndAccessors() {
         AdminSetting s = sample();
-        assertEquals("theme", s.key());
-        assertEquals("dark", s.value());
-        assertEquals(Instant.ofEpochSecond(2000), s.updatedAt());
+        assertEquals("theme", s.getKey());
+        assertEquals("dark", s.getValue());
+        assertEquals(Instant.ofEpochSecond(2000), s.getUpdatedAt());
     }
 
     @Test

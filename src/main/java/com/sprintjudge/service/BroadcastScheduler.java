@@ -28,10 +28,13 @@ public class BroadcastScheduler {
     private static final Logger log = LoggerFactory.getLogger(BroadcastScheduler.class);
     private final Map<Integer, Runnable> due = new ConcurrentHashMap<>();
     private final ScheduledExecutorService executor =
-            Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = new Thread(r, "oq-broadcast-tick");
-                t.setDaemon(true);
-                return t;
+            Executors.newSingleThreadScheduledExecutor(new java.util.concurrent.ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r, "oq-broadcast-tick");
+                    t.setDaemon(true);
+                    return t;
+                }
             });
 
     @Value("${sprintjudge.broadcast.coalesce-ms:16}")
@@ -40,7 +43,10 @@ public class BroadcastScheduler {
     @jakarta.annotation.PostConstruct
     void start() {
         long period = Math.max(1, coalesceMs);
-        executor.scheduleWithFixedDelay(this::drain, period, period, TimeUnit.MILLISECONDS);
+        executor.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() { drain(); }
+        }, period, period, TimeUnit.MILLISECONDS);
     }
 
     /** Marks the room for the next tick; latest task wins (idempotent flush). */
@@ -65,7 +71,7 @@ public class BroadcastScheduler {
             Runnable task = due.remove(key);
             if (task != null) batch.add(Map.entry(key, task));
         }
-        for (var entry : batch) {
+        for (Map.Entry<Integer, Runnable> entry : batch) {
             try {
                 entry.getValue().run();
             } catch (RuntimeException e) {

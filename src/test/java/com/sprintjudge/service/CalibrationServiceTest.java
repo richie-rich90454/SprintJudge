@@ -44,8 +44,8 @@ class CalibrationServiceTest {
         insert("m3", "q-mix", true, 3);
         insert("m4", "q-mix", false, 4);
         Map<String, Calibration> out = svc.calibrateAll();
-        assertEquals(0.75, out.get("q-mix").pValue(), 1e-9);
-        assertEquals(4, out.get("q-mix").attempts());
+        assertEquals(0.75, out.get("q-mix").getPValue(), 1e-9);
+        assertEquals(4, out.get("q-mix").getAttempts());
     }
 
     @Test
@@ -59,17 +59,17 @@ class CalibrationServiceTest {
         insert("l3", "q-late", true, 3);
         insert("l4", "q-late", true, 4);
         Map<String, Calibration> out = svc.calibrateAll();
-        assertEquals(1.0, out.get("q-early").discrimination(), 1e-9);
-        assertEquals(-1.0, out.get("q-late").discrimination(), 1e-9);
+        assertEquals(1.0, out.get("q-early").getDiscrimination(), 1e-9);
+        assertEquals(-1.0, out.get("q-late").getDiscrimination(), 1e-9);
     }
 
     @Test
     void singleAttemptHasZeroDiscrimination() {
         insert("s1", "q-solo", true, 1);
         Calibration c = svc.calibrateAll().get("q-solo");
-        assertEquals(1.0, c.pValue(), 1e-9);
-        assertEquals(0.0, c.discrimination(), 1e-9);
-        assertEquals(1, c.attempts());
+        assertEquals(1.0, c.getPValue(), 1e-9);
+        assertEquals(0.0, c.getDiscrimination(), 1e-9);
+        assertEquals(1, c.getAttempts());
     }
 
     @Test

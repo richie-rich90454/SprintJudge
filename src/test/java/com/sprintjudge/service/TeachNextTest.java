@@ -67,10 +67,10 @@ class TeachNextTest {
                 Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 3", "topic", "For Loops"),
                 Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 3", "topic", "More Loops")));
         TeachNextService.Recommendation rec = service().recommendPractice("s1");
-        assertEquals("JAVA_PROGRAMMING", rec.subject());
-        assertEquals("Unit 3", rec.unit());
-        assertEquals("Loops", rec.topic());
-        assertEquals(2, rec.count());
+        assertEquals("JAVA_PROGRAMMING", rec.getSubject());
+        assertEquals("Unit 3", rec.getUnit());
+        assertEquals("Loops", rec.getTopic());
+        assertEquals(2, rec.getCount());
     }
 
     @Test
@@ -86,10 +86,10 @@ class TeachNextTest {
         when(bankRecords.records("JAVA_PROGRAMMING", "Unit 1")).thenReturn(List.of(
                 Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 1", "topic", "Primitive Types")));
         TeachNextService.Recommendation rec = service().recommendPractice("s1");
-        assertEquals("Variables", rec.topic());
-        assertEquals("", rec.subject());
-        assertEquals("", rec.unit());
-        assertEquals(0, rec.count());
+        assertEquals("Variables", rec.getTopic());
+        assertEquals("", rec.getSubject());
+        assertEquals("", rec.getUnit());
+        assertEquals(0, rec.getCount());
         // first question q1 has rate 0, same as q2; q1 wins (first)
     }
 
@@ -107,10 +107,10 @@ class TeachNextTest {
         // topic Zzzz won't match, but loop still scans; need default. However first record topic doesn't contain Zzzz, unit doesn't contain Zzzz, so no match -> default.
         // But our mock returns records for JAVA_PROGRAMMING; scan finds no match, stays default subject/unit JAVA_PROGRAMMING/Unit 1. count from records(default) = above 1 -> min(10,1)=1.
         TeachNextService.Recommendation rec = service().recommendPractice("s1");
-        assertEquals("", rec.subject());
-        assertEquals("", rec.unit());
-        assertEquals("Zzzz", rec.topic());
-        assertEquals(0, rec.count());
+        assertEquals("", rec.getSubject());
+        assertEquals("", rec.getUnit());
+        assertEquals("Zzzz", rec.getTopic());
+        assertEquals(0, rec.getCount());
     }
 
     @Test
@@ -120,10 +120,10 @@ class TeachNextTest {
         when(submissionRepository.findBySession("s1")).thenReturn(List.of());
         when(bankRecords.subjects()).thenReturn(Set.of());
         TeachNextService.Recommendation rec = service().recommendPractice("s1");
-        assertEquals("", rec.topic());
-        assertEquals("", rec.subject());
-        assertEquals("", rec.unit());
-        assertEquals(0, rec.count());
+        assertEquals("", rec.getTopic());
+        assertEquals("", rec.getSubject());
+        assertEquals("", rec.getUnit());
+        assertEquals(0, rec.getCount());
     }
 
     @Test
@@ -134,7 +134,7 @@ class TeachNextTest {
         when(submissionRepository.findBySession("s1")).thenReturn(List.of());
         when(bankRecords.subjects()).thenReturn(Set.of());
         TeachNextService.Recommendation rec = service().recommendPractice("s1");
-        assertEquals("Primitive Types", rec.topic());
+        assertEquals("Primitive Types", rec.getTopic());
     }
 
     @Test
@@ -149,7 +149,7 @@ class TeachNextTest {
         when(bankRecords.records("JAVA_PROGRAMMING", "Unit 1")).thenReturn(
                 java.util.Collections.nCopies(12, Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 1", "topic", "T")));
         TeachNextService.Recommendation rec = service().recommendPractice("s1");
-        assertEquals(10, rec.count());
+        assertEquals(10, rec.getCount());
     }
 
     @Test
@@ -162,9 +162,9 @@ class TeachNextTest {
         when(bankRecords.records("JAVA_PROGRAMMING", null)).thenReturn(List.of(
                 Map.of("subject", "JAVA_PROGRAMMING", "unit", "", "topic", "T")));
         TeachNextService.Recommendation rec = service().recommendPractice("s1");
-        assertEquals("JAVA_PROGRAMMING", rec.subject());
-        assertEquals("", rec.unit());
-        assertEquals("T", rec.topic());
-        assertEquals(1, rec.count());
+        assertEquals("JAVA_PROGRAMMING", rec.getSubject());
+        assertEquals("", rec.getUnit());
+        assertEquals("T", rec.getTopic());
+        assertEquals(1, rec.getCount());
     }
 }

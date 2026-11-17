@@ -22,25 +22,25 @@ class RoomReducerTest {
     void foldCoversEveryEventOnce() {
         RoomReducer.FoldedRoom state = RoomReducer.initial("r1");
         state = apply(state, new RoomEvent.RoomCreated("r1", 1, NOW, "CALIBRATION"));
-        assertEquals("CALIBRATION", state.mode());
+        assertEquals("CALIBRATION", state.getMode());
         state = apply(state, new RoomEvent.PlayerJoined("r1", 2, NOW, "p1", "Ada"));
-        assertEquals("Ada", state.players().get("p1"));
+        assertEquals("Ada", state.getPlayers().get("p1"));
         state = apply(state, new RoomEvent.RoundStarted("r1", 3, NOW, "round1", 0));
-        assertEquals(1, state.roundsStarted());
+        assertEquals(1, state.getRoundsStarted());
         state = apply(state, new RoomEvent.AnswerSubmitted("r1", 4, NOW, "p1", "q1", true, 5.0));
-        assertEquals(1, state.answersSubmitted());
+        assertEquals(1, state.getAnswersSubmitted());
         RoomReducer.FoldResult roundEnd = RoomReducer.apply(state,
                 new RoomEvent.RoundEnded("r1", 5, NOW, "round1"));
-        assertEquals(1, roundEnd.effects().size());
-        state = roundEnd.state();
+        assertEquals(1, roundEnd.getEffects().size());
+        state = roundEnd.getState();
         RoomReducer.FoldResult scored = RoomReducer.apply(state,
                 new RoomEvent.ScoreComputed("r1", 6, NOW, "p1", 80.4));
-        assertTrue(scored.effects().get(0) instanceof RoomEffect.Award);
-        state = apply(scored.state(), new RoomEvent.PlayerLeft("r1", 7, NOW, "p1"));
-        assertTrue(state.players().isEmpty());
+        assertTrue(scored.getEffects().get(0) instanceof RoomEffect.Award);
+        state = apply(scored.getState(), new RoomEvent.PlayerLeft("r1", 7, NOW, "p1"));
+        assertTrue(state.getPlayers().isEmpty());
         state = apply(state, new RoomEvent.GameEnded("r1", 8, NOW));
-        assertTrue(state.ended());
-        assertEquals(8L, state.seq());
+        assertTrue(state.isEnded());
+        assertEquals(8L, state.getSeq());
     }
 
     @Test
@@ -57,15 +57,15 @@ class RoomReducerTest {
     void sharedRecordsInstantiate() {
         RoomState snapshot = new RoomState("r1", "123456", "CALIBRATION", "LOBBY", "Host",
                 java.util.Map.of("p1", "Ada"), List.of(), 0, 1L, NOW);
-        assertEquals("123456", snapshot.pin());
+        assertEquals("123456", snapshot.getPin());
         RoomEffect broadcast = new RoomEffect.Broadcast("r1", "ROOM_STATE", "{}");
         RoomEffect persist = new RoomEffect.Persist("r1", 1L, "ROUND_ENDED", "{}");
         RoomEffect schedule = new RoomEffect.Schedule("r1", "TIMEOUT", 1000L);
         RoomEffect award = new RoomEffect.Award("r1", "p1", 10);
-        assertEquals("r1", broadcast.roomId());
-        assertEquals("r1", persist.roomId());
-        assertEquals("r1", schedule.roomId());
-        assertEquals("r1", award.roomId());
+        assertEquals("r1", broadcast.getRoomId());
+        assertEquals("r1", persist.getRoomId());
+        assertEquals("r1", schedule.getRoomId());
+        assertEquals("r1", award.getRoomId());
     }
 
     private static RoomReducer.FoldedRoom fold(String roomId, List<RoomEvent> events) {
@@ -77,6 +77,6 @@ class RoomReducerTest {
     }
 
     private static RoomReducer.FoldedRoom apply(RoomReducer.FoldedRoom state, RoomEvent event) {
-        return RoomReducer.apply(state, event).state();
+        return RoomReducer.apply(state, event).getState();
     }
 }

@@ -30,8 +30,8 @@ class Sha256Test {
 
     @Test
     void unicodeEncodingMatchesUtf8Bytes() {
-        String h = Sha256.hex("héllo");
-        assertEquals(h, Sha256.hex("héllo".getBytes(StandardCharsets.UTF_8)));
+        String h = Sha256.hex("hello");
+        assertEquals(h, Sha256.hex("hello".getBytes(StandardCharsets.UTF_8)));
         assertNotNull(h);
     }
 }

@@ -80,8 +80,12 @@ public class BankController {
      */
     @GetMapping("/question/{id}")
     public Map<String, Object> question(@PathVariable String id) {
-        return store.headerById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "unknown question id"));
+        return store.headerById(id).orElseThrow(new java.util.function.Supplier<RuntimeException>() {
+            @Override
+            public RuntimeException get() {
+                return new ResponseStatusException(HttpStatus.NOT_FOUND, "unknown question id");
+            }
+        });
     }
 
     /**

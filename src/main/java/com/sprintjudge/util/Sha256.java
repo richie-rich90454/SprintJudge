@@ -9,13 +9,16 @@ import java.security.NoSuchAlgorithmException;
 public final class Sha256 {
 
     private static final char[] HEX = "0123456789abcdef".toCharArray();
-    private static final ThreadLocal<MessageDigest> DIGEST = ThreadLocal.withInitial(() -> {
-        try {
-            return MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 unavailable", e);
+    private static final ThreadLocal<MessageDigest> DIGEST = new ThreadLocal<MessageDigest>() {
+        @Override
+        protected MessageDigest initialValue() {
+            try {
+                return MessageDigest.getInstance("SHA-256");
+            } catch (NoSuchAlgorithmException e) {
+                throw new IllegalStateException("SHA-256 unavailable", e);
+            }
         }
-    });
+    };
 
     private Sha256() {}
 

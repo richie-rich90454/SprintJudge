@@ -94,21 +94,21 @@ class SecureHandshakeExtraTest {
     void realIpFirstSegmentWhenCommaList() {
         Map<String, Object> props = new HashMap<>();
         handshake(props, Map.of("X-Real-IP", List.of("1.1.1.1, 2.2.2.2")), null, null);
-        assertEquals("1.1.1.1", SecureHandshakeConfigurator.consumeStaged(secWith(props)).ip());
+        assertEquals("1.1.1.1", SecureHandshakeConfigurator.consumeStaged(secWith(props)).getIp());
     }
 
     @Test
     void forwardedForUsesLastHeaderValue() {
         Map<String, Object> props = new HashMap<>();
         handshake(props, Map.of("X-Forwarded-For", List.of("9.9.9.9", "5.6.7.8, 6.6.6.6")), null, null);
-        assertEquals("6.6.6.6", SecureHandshakeConfigurator.consumeStaged(secWith(props)).ip());
+        assertEquals("6.6.6.6", SecureHandshakeConfigurator.consumeStaged(secWith(props)).getIp());
     }
 
     @Test
     void forwardedForSingleValueNoComma() {
         Map<String, Object> props = new HashMap<>();
         handshake(props, Map.of("X-Forwarded-For", List.of("8.8.8.8")), null, null);
-        assertEquals("8.8.8.8", SecureHandshakeConfigurator.consumeStaged(secWith(props)).ip());
+        assertEquals("8.8.8.8", SecureHandshakeConfigurator.consumeStaged(secWith(props)).getIp());
     }
 
     @Test
@@ -121,7 +121,7 @@ class SecureHandshakeExtraTest {
         when(http.getAttribute("SPRING_SECURITY_CONTEXT")).thenReturn(security);
         Map<String, Object> props = new HashMap<>();
         handshake(props, Map.of(), null, http);
-        assertTrue(SecureHandshakeConfigurator.consumeStaged(secWith(props)).authed());
+        assertTrue(SecureHandshakeConfigurator.consumeStaged(secWith(props)).isAuthed());
     }
 
     @Test
@@ -134,7 +134,7 @@ class SecureHandshakeExtraTest {
         when(http.getAttribute("SPRING_SECURITY_CONTEXT")).thenReturn(security);
         Map<String, Object> props = new HashMap<>();
         handshake(props, Map.of(), null, http);
-        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).authed());
+        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).isAuthed());
     }
 
     @Test
@@ -145,14 +145,14 @@ class SecureHandshakeExtraTest {
         when(http.getAttribute("SPRING_SECURITY_CONTEXT")).thenReturn(security);
         Map<String, Object> props = new HashMap<>();
         handshake(props, Map.of(), null, http);
-        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).authed());
+        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).isAuthed());
     }
 
     @Test
     void nonHttpSessionIsNotAuthenticated() {
         Map<String, Object> props = new HashMap<>();
         handshake(props, Map.of(), null, "not-a-session");
-        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).authed());
+        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).isAuthed());
     }
 
     @Test
@@ -163,7 +163,7 @@ class SecureHandshakeExtraTest {
         when(req.getHttpSession()).thenThrow(new RuntimeException("no session"));
         Map<String, Object> props = new HashMap<>();
         configurator.modifyHandshake(secWith(props), req, mock(HandshakeResponse.class));
-        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).authed());
+        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).isAuthed());
     }
 
     @Test
@@ -172,7 +172,7 @@ class SecureHandshakeExtraTest {
         when(http.getAttribute("SPRING_SECURITY_CONTEXT")).thenReturn("garbage");
         Map<String, Object> props = new HashMap<>();
         handshake(props, Map.of(), null, http);
-        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).authed());
+        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).isAuthed());
     }
 
     @Test
@@ -204,7 +204,7 @@ class SecureHandshakeExtraTest {
             Map<String, Object> props = new HashMap<>();
             handshake(props, Map.of("X-Forwarded-For", List.of("7.7.7.7")), null, null);
             assertFalse(map.containsKey("stale"));
-            assertEquals("7.7.7.7", SecureHandshakeConfigurator.consumeStaged(secWith(props)).ip());
+            assertEquals("7.7.7.7", SecureHandshakeConfigurator.consumeStaged(secWith(props)).getIp());
         } finally {
             map.clear();
         }
@@ -233,8 +233,8 @@ class SecureHandshakeExtraTest {
         Map<String, Object> props = new HashMap<>();
         props.put(SecureHandshakeConfigurator.REMOTE_ADDR, "no-such-token");
         var staged = SecureHandshakeConfigurator.consumeStaged(secWith(props));
-        assertEquals("unresolved", staged.ip());
-        assertFalse(staged.authed());
+        assertEquals("unresolved", staged.getIp());
+        assertFalse(staged.isAuthed());
     }
 
     @Test
@@ -246,8 +246,8 @@ class SecureHandshakeExtraTest {
             props.put(SecureHandshakeConfigurator.REMOTE_ADDR, "null-ip-token");
             map.put("null-ip-token", staged(null, true, System.nanoTime()));
             var got = SecureHandshakeConfigurator.consumeStaged(secWith(props));
-            assertEquals("unresolved", got.ip());
-            assertTrue(got.authed());
+            assertEquals("unresolved", got.getIp());
+            assertTrue(got.isAuthed());
         } finally {
             map.clear();
         }
@@ -263,7 +263,7 @@ class SecureHandshakeExtraTest {
         when(http.getAttribute("SPRING_SECURITY_CONTEXT")).thenReturn(security);
         Map<String, Object> props = new HashMap<>();
         handshake(props, Map.of(), null, http);
-        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).authed());
+        assertFalse(SecureHandshakeConfigurator.consumeStaged(secWith(props)).isAuthed());
     }
 
     @Test
@@ -272,7 +272,7 @@ class SecureHandshakeExtraTest {
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("X-Forwarded-For", List.of());
         handshake(props, headers, null, null);
-        assertEquals("unresolved", SecureHandshakeConfigurator.consumeStaged(secWith(props)).ip());
+        assertEquals("unresolved", SecureHandshakeConfigurator.consumeStaged(secWith(props)).getIp());
     }
 
     @Test
@@ -281,6 +281,6 @@ class SecureHandshakeExtraTest {
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("X-Real-IP", List.of());
         handshake(props, headers, null, null);
-        assertEquals("unresolved", SecureHandshakeConfigurator.consumeStaged(secWith(props)).ip());
+        assertEquals("unresolved", SecureHandshakeConfigurator.consumeStaged(secWith(props)).getIp());
     }
 }

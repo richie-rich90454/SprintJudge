@@ -107,13 +107,13 @@ class NativeExecutorTest {
     @Test
     void judgeCppBrokenSourceFailsGracefully(@TempDir Path tmp) throws IOException {
         // Toolchain-free: with g++ present this is a compilation_error, without
-        // it an IO failure — either way zero passes and the cpp arm is covered.
+        // it an IO failure  -  either way zero passes and the cpp arm is covered.
         NativeExecutor ex = executor(tmp, Files.createTempDirectory("cache"), 5);
         JudgeResult r = ex.judge(judgeReq("cpp", "int main( { broken",
                 List.of(tc("", "")), 10));
-        assertEquals(1, r.total());
-        assertEquals(0, r.passed());
-        assertFalse(r.allPassed());
+        assertEquals(1, r.getTotal());
+        assertEquals(0, r.getPassed());
+        assertFalse(r.isAllPassed());
     }
 
     @Test
@@ -143,17 +143,17 @@ class NativeExecutorTest {
     void judgeUnsupportedLanguage(@TempDir Path tmp) throws IOException {
         NativeExecutor ex = executor(tmp, tmp, 5);
         JudgeResult r = ex.judge(judgeReq("ruby", "x", List.of(tc("in", "out")), 10));
-        assertEquals(0, r.passed());
-        assertFalse(r.allPassed());
-        assertEquals(1, r.cases().size());
-        assertEquals("unsupported_language", r.cases().get(0).error());
+        assertEquals(0, r.getPassed());
+        assertFalse(r.isAllPassed());
+        assertEquals(1, r.getCases().size());
+        assertEquals("unsupported_language", r.getCases().get(0).getError());
     }
 
     @Test
     void judgeNullLanguageIsUnsupported(@TempDir Path tmp) throws IOException {
         NativeExecutor ex = executor(tmp, tmp, 5);
         JudgeResult r = ex.judge(judgeReq(null, "x", List.of(tc("in", "out")), 10));
-        assertEquals("unsupported_language", r.cases().get(0).error());
+        assertEquals("unsupported_language", r.getCases().get(0).getError());
     }
 
     @Test
@@ -162,8 +162,8 @@ class NativeExecutorTest {
         Files.createFile(blocker);
         NativeExecutor ex = executor(blocker, tmp, 5);
         JudgeResult r = ex.judge(judgeReq("python", "x", List.of(tc("in", "out")), 10));
-        assertEquals(0, r.passed());
-        assertTrue(r.cases().isEmpty());
+        assertEquals(0, r.getPassed());
+        assertTrue(r.getCases().isEmpty());
     }
 
     @Test
@@ -171,9 +171,9 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         JudgeResult r = ex.judge(judgeReq("python", ECHO_PY, List.of(tc("hello", "hello")), 10));
-        assertEquals(1, r.passed());
-        assertTrue(r.allPassed());
-        assertEquals("", r.cases().get(0).error());
+        assertEquals(1, r.getPassed());
+        assertTrue(r.isAllPassed());
+        assertEquals("", r.getCases().get(0).getError());
     }
 
     @Test
@@ -182,8 +182,8 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 10);
         String src = "const fs=require('fs');process.stdout.write(fs.readFileSync(0,'utf8').trim());";
         JudgeResult r = ex.judge(judgeReq("js", src, List.of(tc("abc", "abc")), 10));
-        assertEquals(1, r.passed());
-        assertTrue(r.allPassed());
+        assertEquals(1, r.getPassed());
+        assertTrue(r.isAllPassed());
     }
 
     @Test
@@ -191,9 +191,9 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         JudgeResult r = ex.judge(judgeReq("python", ECHO_PY, List.of(tc("a", "b")), 10));
-        assertEquals(0, r.passed());
-        assertFalse(r.allPassed());
-        assertEquals("mismatch", r.cases().get(0).error());
+        assertEquals(0, r.getPassed());
+        assertFalse(r.isAllPassed());
+        assertEquals("mismatch", r.getCases().get(0).getError());
     }
 
     @Test
@@ -201,8 +201,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         JudgeResult r = ex.judge(judgeReq("python", null, List.of(tc(null, null)), 10));
-        assertEquals(1, r.passed());
-        assertTrue(r.cases().get(0).passed());
+        assertEquals(1, r.getPassed());
+        assertTrue(r.getCases().get(0).isPassed());
     }
 
     @Test
@@ -210,7 +210,7 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         JudgeResult r = ex.judge(judgeReq("python", ECHO_PY, List.of(tc("hi", "  hi  ")), 10));
-        assertEquals(1, r.passed());
+        assertEquals(1, r.getPassed());
     }
 
     @Test
@@ -219,8 +219,8 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 10);
         JudgeResult r = ex.judge(
                 judgeReq("python", "import time; time.sleep(30)", List.of(tc("", "")), 1));
-        assertEquals(0, r.passed());
-        assertEquals("timeout", r.cases().get(0).error());
+        assertEquals(0, r.getPassed());
+        assertEquals("timeout", r.getCases().get(0).getError());
     }
 
     @Test
@@ -229,7 +229,7 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 10);
         JudgeResult r = ex.judge(
                 judgeReq("python", "print('x' * 3000000)", List.of(tc("", "")), 10));
-        assertEquals("stdout_exceeded_1MB", r.cases().get(0).error());
+        assertEquals("stdout_exceeded_1MB", r.getCases().get(0).getError());
     }
 
     @Test
@@ -238,9 +238,9 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 10);
         JudgeResult r = ex.judge(judgeReq("python", ECHO_PY,
                 List.of(tc("a", "a"), tc("b", "WRONG")), 10));
-        assertEquals(1, r.passed());
-        assertEquals(2, r.total());
-        assertFalse(r.allPassed());
+        assertEquals(1, r.getPassed());
+        assertEquals(2, r.getTotal());
+        assertFalse(r.isAllPassed());
     }
 
     @Test
@@ -248,8 +248,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         JudgeResult r = ex.judge(judgeReq("python", "print(1)", List.of(), 10));
-        assertEquals(0, r.passed());
-        assertTrue(r.allPassed());
+        assertEquals(0, r.getPassed());
+        assertTrue(r.isAllPassed());
     }
 
     @Test
@@ -258,7 +258,7 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 1);
         JudgeResult r = ex.judge(
                 judgeReq("python", "import time; time.sleep(30)", List.of(tc("", "")), 0));
-        assertEquals("timeout", r.cases().get(0).error());
+        assertEquals("timeout", r.getCases().get(0).getError());
     }
 
     @Test
@@ -266,8 +266,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         NativeExecutor ex = executor(tmp, tmp, 20);
         JudgeResult r = ex.judge(judgeReq("java", "not java at all {{{", List.of(tc("in", "out")), 20));
-        assertEquals(0, r.passed());
-        assertEquals("compilation_error", r.cases().get(0).error());
+        assertEquals(0, r.getPassed());
+        assertEquals("compilation_error", r.getCases().get(0).getError());
     }
 
     @Test
@@ -275,7 +275,7 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("gcc", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 20);
         JudgeResult r = ex.judge(judgeReq("c", "int main( { broken", List.of(tc("in", "out")), 20));
-        assertEquals("compilation_error", r.cases().get(0).error());
+        assertEquals("compilation_error", r.getCases().get(0).getError());
     }
 
     @Test
@@ -283,7 +283,7 @@ class NativeExecutorTest {
         assumeTrue(canCompileCpp());
         NativeExecutor ex = executor(tmp, tmp, 20);
         JudgeResult r = ex.judge(judgeReq("cpp", "int main( { broken", List.of(tc("in", "out")), 20));
-        assertEquals("compilation_error", r.cases().get(0).error());
+        assertEquals("compilation_error", r.getCases().get(0).getError());
     }
 
     @Test
@@ -293,8 +293,8 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 20);
         String src = "public class Main { public static void main(String[] a) { System.out.println(\"hi\"); } }";
         JudgeResult r = ex.judge(judgeReq("java", src, List.of(tc("", "hi")), 20));
-        assertEquals(1, r.passed());
-        assertTrue(r.allPassed());
+        assertEquals(1, r.getPassed());
+        assertTrue(r.isAllPassed());
     }
 
     @Test
@@ -302,9 +302,9 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         NativeExecutor ex = executor(tmp, tmp, 20);
         JudgeResult r = ex.judge(judgeReq("java", "broken {{{", List.of(), 20));
-        assertEquals(0, r.passed());
-        assertTrue(r.cases().isEmpty());
-        assertFalse(r.allPassed());
+        assertEquals(0, r.getPassed());
+        assertTrue(r.getCases().isEmpty());
+        assertFalse(r.isAllPassed());
     }
 
     @Test
@@ -313,7 +313,7 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 30);
         String src = "import time\nfor i in range(40):\n print('x' * 100000, flush=True)\n time.sleep(0.1)\n";
         JudgeResult r = ex.judge(judgeReq("python", src, List.of(tc("", "")), 30));
-        assertEquals("stdout_exceeded_1MB", r.cases().get(0).error());
+        assertEquals("stdout_exceeded_1MB", r.getCases().get(0).getError());
     }
 
     @Test
@@ -333,7 +333,7 @@ class NativeExecutorTest {
                     org.mockito.ArgumentMatchers.any(Path.class)))
                     .thenCallRealMethod();
             JudgeResult r = ex.judge(judgeReq("python", ECHO_PY, List.of(tc("a", "a")), 10));
-            assertTrue(r.cases().isEmpty());
+            assertTrue(r.getCases().isEmpty());
             assertTrue(Thread.currentThread().isInterrupted());
         } finally {
             Thread.interrupted();
@@ -357,7 +357,7 @@ class NativeExecutorTest {
                     org.mockito.ArgumentMatchers.any(Path.class)))
                     .thenCallRealMethod();
             var r = ex.run(new RunRequest("python", "print(1)", "", 10));
-            assertEquals("io_error", r.status());
+            assertEquals("io_error", r.getStatus());
             assertTrue(Thread.currentThread().isInterrupted());
         } finally {
             Thread.interrupted();
@@ -369,7 +369,7 @@ class NativeExecutorTest {
         assumeTrue(canCompileCpp());
         NativeExecutor ex = executor(tmp, tmp, 20);
         var r = ex.run(new RunRequest("cpp", "int main( { broken", "", 20));
-        assertEquals("compilation_error", r.status());
+        assertEquals("compilation_error", r.getStatus());
     }
 
     @Test
@@ -377,7 +377,7 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("gcc", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 20);
         var r = ex.run(new RunRequest("c", "int main( { broken", "", 20));
-        assertEquals("compilation_error", r.status());
+        assertEquals("compilation_error", r.getStatus());
     }
 
     @Test
@@ -385,8 +385,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("node", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         var r = ex.run(new RunRequest("node", "console.log('node-ok');", "", 10));
-        assertTrue(r.ok());
-        assertEquals("node-ok", r.output());
+        assertTrue(r.isOk());
+        assertEquals("node-ok", r.getOutput());
     }
 
     @Test
@@ -395,7 +395,7 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 20);
         String src = "public class Main {\n" + "  this is not java @#$ line\n".repeat(300) + "}\n";
         JudgeResult r = ex.judge(judgeReq("java", src, List.of(tc("", "")), 20));
-        assertEquals("compilation_error", r.cases().get(0).error());
+        assertEquals("compilation_error", r.getCases().get(0).getError());
     }
 
     @Test
@@ -406,10 +406,10 @@ class NativeExecutorTest {
         Thread.currentThread().interrupt();
         try {
             JudgeResult r = ex.judge(judgeReq("java", src, List.of(tc("", "1")), 20));
-            if (r.cases().isEmpty()) {
+            if (r.getCases().isEmpty()) {
                 assertTrue(Thread.currentThread().isInterrupted());
             } else {
-                String err = r.cases().get(0).error();
+                String err = r.getCases().get(0).getError();
                 assertTrue(err.equals("compilation_error") || err.equals("timeout"), err);
             }
         } finally {
@@ -426,7 +426,7 @@ class NativeExecutorTest {
         Thread.currentThread().interrupt();
         try {
             var r = ex.run(new RunRequest("java", src, "", 20));
-            assertTrue(r.status().equals("io_error") || r.status().equals("compilation_error"), r.status());
+            assertTrue(r.getStatus().equals("io_error") || r.getStatus().equals("compilation_error"), r.getStatus());
         } finally {
             Thread.interrupted();
             awaitRunDirsGone(tmp);
@@ -463,8 +463,8 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 20);
         String src = "public class Main { public static void main(String[] a) { System.out.println(\"ok-java\"); } }";
         var r = ex.run(new RunRequest("java", src, "", 20));
-        assertTrue(r.ok());
-        assertEquals("ok-java", r.output());
+        assertTrue(r.isOk());
+        assertEquals("ok-java", r.getOutput());
     }
 
     @Test
@@ -472,7 +472,7 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 1);
         var r = ex.run(new RunRequest("python", "import time; time.sleep(30)", "", 0));
-        assertEquals("timeout", r.status());
+        assertEquals("timeout", r.getStatus());
     }
 
     @Test
@@ -481,7 +481,7 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 30);
         String src = "import time\nfor i in range(40):\n print('y' * 100000, flush=True)\n time.sleep(0.1)\n";
         var r = ex.run(new RunRequest("python", src, "", 30));
-        assertEquals("stdout_exceeded_1MB", r.status());
+        assertEquals("stdout_exceeded_1MB", r.getStatus());
     }
 
     @Test
@@ -495,9 +495,9 @@ class NativeExecutorTest {
         ReflectionTestUtils.setField(ex, "defaultTimeoutSec", 20);
         String src = "int main(){return 0;}";
         JudgeResult first = ex.judge(judgeReq("c", src, List.of(tc("", "")), 20));
-        assertEquals(1, first.passed());
+        assertEquals(1, first.getPassed());
         JudgeResult second = ex.judge(judgeReq("c", src, List.of(tc("", "")), 20));
-        assertEquals(1, second.passed());
+        assertEquals(1, second.getPassed());
         assertTrue(cache.hits() >= 1);
     }
 
@@ -511,10 +511,10 @@ class NativeExecutorTest {
         ReflectionTestUtils.setField(ex, "workDirBase", tmp.toString());
         ReflectionTestUtils.setField(ex, "defaultTimeoutSec", 20);
         String src = "int main(){return 0;}";
-        assertEquals(1, ex.judge(judgeReq("c", src, List.of(tc("", "")), 20)).passed());
+        assertEquals(1, ex.judge(judgeReq("c", src, List.of(tc("", "")), 20)).getPassed());
         Path cached = cache.get(CompileArtifactCache.keyFor("c", src)).orElseThrow();
         Files.deleteIfExists(cached);
-        assertEquals(1, ex.judge(judgeReq("c", src, List.of(tc("", "")), 20)).passed());
+        assertEquals(1, ex.judge(judgeReq("c", src, List.of(tc("", "")), 20)).getPassed());
     }
 
     @Test
@@ -523,29 +523,29 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 10);
         String src = "console.log('hi');";
         JudgeResult r = ex.judge(judgeReq("node", src, List.of(tc("", "hi")), 10));
-        assertEquals(1, r.passed());
+        assertEquals(1, r.getPassed());
     }
 
     @Test
     void runUnsupportedLanguage(@TempDir Path tmp) throws IOException {
         NativeExecutor ex = executor(tmp, tmp, 5);
         var r = ex.run(new RunRequest("ruby", "x", "", 5));
-        assertFalse(r.ok());
-        assertEquals("unsupported_language", r.status());
+        assertFalse(r.isOk());
+        assertEquals("unsupported_language", r.getStatus());
     }
 
     @Test
     void runNullLanguageIsUnsupported(@TempDir Path tmp) throws IOException {
         NativeExecutor ex = executor(tmp, tmp, 5);
         var r = ex.run(new RunRequest(null, "x", "", 5));
-        assertEquals("unsupported_language", r.status());
+        assertEquals("unsupported_language", r.getStatus());
     }
 
     @Test
     void runOversizedSource(@TempDir Path tmp) throws IOException {
         NativeExecutor ex = executor(tmp, tmp, 5);
         var r = ex.run(new RunRequest("python", "x".repeat(65_537), "", 5));
-        assertEquals("source_too_large", r.status());
+        assertEquals("source_too_large", r.getStatus());
     }
 
     @Test
@@ -554,8 +554,8 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 10);
         String src = "#" + "x".repeat(65_535);
         var r = ex.run(new RunRequest("python", src, "", 10));
-        assertEquals("ok", r.status());
-        assertTrue(r.ok());
+        assertEquals("ok", r.getStatus());
+        assertTrue(r.isOk());
     }
 
     @Test
@@ -564,7 +564,7 @@ class NativeExecutorTest {
         Files.createFile(blocker);
         NativeExecutor ex = executor(blocker, tmp, 5);
         var r = ex.run(new RunRequest("python", "print(1)", "", 5));
-        assertEquals("io_error", r.status());
+        assertEquals("io_error", r.getStatus());
     }
 
     @Test
@@ -572,9 +572,9 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         var r = ex.run(new RunRequest("python", "print('hello')", "", 10));
-        assertTrue(r.ok());
-        assertEquals("hello", r.output());
-        assertEquals("ok", r.status());
+        assertTrue(r.isOk());
+        assertEquals("hello", r.getOutput());
+        assertEquals("ok", r.getStatus());
     }
 
     @Test
@@ -582,8 +582,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         var r = ex.run(new RunRequest("python", ECHO_PY, "stdin-hi", 10));
-        assertTrue(r.ok());
-        assertEquals("stdin-hi", r.output());
+        assertTrue(r.isOk());
+        assertEquals("stdin-hi", r.getOutput());
     }
 
     @Test
@@ -591,8 +591,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         var r = ex.run(new RunRequest("python", "import sys; sys.exit(1)", "", 10));
-        assertFalse(r.ok());
-        assertEquals("runtime_error", r.status());
+        assertFalse(r.isOk());
+        assertEquals("runtime_error", r.getStatus());
     }
 
     @Test
@@ -600,7 +600,7 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         var r = ex.run(new RunRequest("python", "import time; time.sleep(30)", "", 1));
-        assertEquals("timeout", r.status());
+        assertEquals("timeout", r.getStatus());
     }
 
     @Test
@@ -608,7 +608,7 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         var r = ex.run(new RunRequest("python", "print('y' * 3000000)", "", 10));
-        assertEquals("stdout_exceeded_1MB", r.status());
+        assertEquals("stdout_exceeded_1MB", r.getStatus());
     }
 
     @Test
@@ -616,8 +616,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         var r = ex.run(new RunRequest("python", null, "", 10));
-        assertTrue(r.ok());
-        assertEquals("ok", r.status());
+        assertTrue(r.isOk());
+        assertEquals("ok", r.getStatus());
     }
 
     @Test
@@ -625,7 +625,7 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         NativeExecutor ex = executor(tmp, tmp, 10);
         var r = ex.run(new RunRequest("python", "print('nostdin')", null, 10));
-        assertEquals("nostdin", r.output());
+        assertEquals("nostdin", r.getOutput());
     }
 
     @Test
@@ -633,8 +633,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         NativeExecutor ex = executor(tmp, tmp, 20);
         var r = ex.run(new RunRequest("java", "broken {{{", "", 20));
-        assertEquals("compilation_error", r.status());
-        assertFalse(r.error().isBlank());
+        assertEquals("compilation_error", r.getStatus());
+        assertFalse(r.getError().isBlank());
     }
 
     @Test
@@ -710,7 +710,7 @@ class NativeExecutorTest {
         assertEquals("abc", m.invoke(ex, "abc"));
         String cut = (String) m.invoke(ex, "x".repeat(3000));
         assertEquals(2001, cut.length());
-        assertTrue(cut.endsWith("…"));
+        assertTrue(cut.endsWith("..."));
     }
 
     @Test
@@ -758,8 +758,8 @@ class NativeExecutorTest {
         ReflectionTestUtils.setField(ex, "workDirBase", tmp.toString());
         ReflectionTestUtils.setField(ex, "defaultTimeoutSec", 10);
         var r = ex.judge(judgeReq("c", "int x;", List.of(tc("", "never-this")), 10));
-        assertEquals(0, r.passed());
-        assertFalse(r.allPassed());
+        assertEquals(0, r.getPassed());
+        assertFalse(r.isAllPassed());
     }
 
     @Test
@@ -808,7 +808,7 @@ class NativeExecutorTest {
         ReflectionTestUtils.setField(ex, "workDirBase", tmp.toString());
         ReflectionTestUtils.setField(ex, "defaultTimeoutSec", 10);
         var r = ex.judge(judgeReq("c", "int x;", List.of(tc("", "never-this")), 10));
-        assertEquals(0, r.passed());
+        assertEquals(0, r.getPassed());
     }
 
     @Test
@@ -817,8 +817,8 @@ class NativeExecutorTest {
         NativeExecutor ex = executor(tmp, tmp, 20);
         String src = "public class Main { public static void main(String[] a) { System.out.print(\"hi\"); } }";
         var r = ex.judge(judgeReq("java", src, List.of(tc("", "hi")), 20));
-        assertEquals(1, r.passed());
-        assertTrue(r.allPassed());
+        assertEquals(1, r.getPassed());
+        assertTrue(r.isAllPassed());
     }
     @Test
     void compileCapReportedWhenSpewExceeds(@TempDir Path tmp) throws IOException {
@@ -831,8 +831,8 @@ class NativeExecutorTest {
             mocked.when(() -> ExecIo.readCappedFile(any(Path.class)))
                     .thenCallRealMethod();
             var r = ex.run(new RunRequest("java", "broken {{{", "", 20));
-            assertEquals("compilation_error", r.status());
-            assertEquals("stdout_exceeded_1MB", r.error());
+            assertEquals("compilation_error", r.getStatus());
+            assertEquals("stdout_exceeded_1MB", r.getError());
         }
     }
 
@@ -848,10 +848,10 @@ class NativeExecutorTest {
             mocked.when(() -> ExecIo.readCapped(any(Process.class))).thenCallRealMethod();
             mocked.when(() -> ExecIo.deleteTree(any(Path.class))).thenCallRealMethod();
             var jr = ex.judge(judgeReq("java", src, List.of(tc("", "hi")), 20));
-            assertEquals(0, jr.passed());
-            assertEquals("stdout_exceeded_1MB", jr.cases().get(0).error());
+            assertEquals(0, jr.getPassed());
+            assertEquals("stdout_exceeded_1MB", jr.getCases().get(0).getError());
             var rr = ex.run(new RunRequest("java", src, "", 20));
-            assertEquals("stdout_exceeded_1MB", rr.status());
+            assertEquals("stdout_exceeded_1MB", rr.getStatus());
         }
     }
 
@@ -914,62 +914,62 @@ class NativeExecutorTest {
     void mxPythonEmptySourceOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", "", "", 10));
-        assertEquals("ok", r.status());
-        assertTrue(r.ok());
+        assertEquals("ok", r.getStatus());
+        assertTrue(r.isOk());
     }
 
     @Test
     void mxPythonWhitespaceSourceOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", "   \n\t  \n", "", 10));
-        assertEquals("ok", r.status());
+        assertEquals("ok", r.getStatus());
     }
 
     @Test
     void mxPythonSyntaxErrorIsRuntimeError(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", MX_PY_SYNTAX, "", 10));
-        assertEquals("runtime_error", r.status());
-        assertFalse(r.ok());
+        assertEquals("runtime_error", r.getStatus());
+        assertFalse(r.isOk());
     }
 
     @Test
     void mxPythonCrashIsRuntimeError(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", MX_PY_CRASH, "", 10));
-        assertEquals("runtime_error", r.status());
+        assertEquals("runtime_error", r.getStatus());
     }
 
     @Test
     void mxPythonStderrOnlyIsOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", MX_PY_STDERR, "", 10));
-        assertEquals("ok", r.status());
-        assertTrue(r.output().contains("warn-py"));
+        assertEquals("ok", r.getStatus());
+        assertTrue(r.getOutput().contains("warn-py"));
     }
 
     @Test
     void mxPythonUnicodeOutputOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", MX_PY_UNI, "", 10));
-        assertEquals("ok", r.status());
-        assertEquals(MX_EXPECT_UNI, r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals(MX_EXPECT_UNI, r.getOutput());
     }
 
     @Test
     void mxPython100kUnderCapOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", MX_PY_BIG, "", 10));
-        assertEquals("ok", r.status());
-        assertEquals(100000, r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(100000, r.getOutput().length());
     }
 
     @Test
     void mxPythonStdinEchoOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", ECHO_PY, "echo-me", 10));
-        assertEquals("ok", r.status());
-        assertEquals("echo-me", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("echo-me", r.getOutput());
     }
 
     @Test
@@ -977,33 +977,33 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         JudgeResult r = executor(tmp, tmp, 10).judge(
                 judgeReq("python", ECHO_PY, List.of(tc("a", "a"), tc("b", "NOPE")), 10));
-        assertEquals(1, r.passed());
-        assertEquals(2, r.total());
-        assertFalse(r.allPassed());
-        assertEquals("", r.cases().get(0).error());
-        assertEquals("mismatch", r.cases().get(1).error());
+        assertEquals(1, r.getPassed());
+        assertEquals(2, r.getTotal());
+        assertFalse(r.isAllPassed());
+        assertEquals("", r.getCases().get(0).getError());
+        assertEquals("mismatch", r.getCases().get(1).getError());
     }
 
     @Test
     void mxPythonJudgeZeroCasesAllPassed(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         JudgeResult r = executor(tmp, tmp, 10).judge(judgeReq("python", "", List.of(), 10));
-        assertEquals(0, r.passed());
-        assertTrue(r.allPassed());
+        assertEquals(0, r.getPassed());
+        assertTrue(r.isAllPassed());
     }
 
     @Test
     void mxPythonRunZeroTimeoutFallsBack(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 2).run(new RunRequest("python", MX_PY_HANG, "", 0));
-        assertEquals("timeout", r.status());
+        assertEquals("timeout", r.getStatus());
     }
 
     @Test
     void mxPythonRunNegativeTimeoutFallsBack(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 2).run(new RunRequest("python", MX_PY_HANG, "", -5));
-        assertEquals("timeout", r.status());
+        assertEquals("timeout", r.getStatus());
     }
 
     @Test
@@ -1011,68 +1011,68 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         JudgeResult r = executor(tmp, tmp, 2).judge(
                 judgeReq("python", MX_PY_HANG, List.of(tc("", "")), 0));
-        assertEquals("timeout", r.cases().get(0).error());
+        assertEquals("timeout", r.getCases().get(0).getError());
     }
 
     @Test
     void mxNodeEmptySourceOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("node", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("node", "", "", 10));
-        assertEquals("ok", r.status());
+        assertEquals("ok", r.getStatus());
     }
 
     @Test
     void mxNodeWhitespaceSourceOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("node", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("node", "  \n  ", "", 10));
-        assertEquals("ok", r.status());
+        assertEquals("ok", r.getStatus());
     }
 
     @Test
     void mxNodeSyntaxErrorIsRuntimeError(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("node", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_SYNTAX, "", 10));
-        assertEquals("runtime_error", r.status());
+        assertEquals("runtime_error", r.getStatus());
     }
 
     @Test
     void mxNodeCrashIsRuntimeError(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("node", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_CRASH, "", 10));
-        assertEquals("runtime_error", r.status());
-        assertFalse(r.ok());
+        assertEquals("runtime_error", r.getStatus());
+        assertFalse(r.isOk());
     }
 
     @Test
     void mxNodeStderrOnlyIsOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("node", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_STDERR, "", 10));
-        assertEquals("ok", r.status());
-        assertTrue(r.output().contains("warn-node"));
+        assertEquals("ok", r.getStatus());
+        assertTrue(r.getOutput().contains("warn-node"));
     }
 
     @Test
     void mxNodeUnicodeOutputOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("node", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_UNI, "", 10));
-        assertEquals("ok", r.status());
-        assertEquals(MX_EXPECT_UNI, r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals(MX_EXPECT_UNI, r.getOutput());
     }
 
     @Test
     void mxNode100kUnderCapOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("node", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_BIG, "", 10));
-        assertEquals("ok", r.status());
-        assertEquals(100000, r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(100000, r.getOutput().length());
     }
 
     @Test
     void mxNodeStdinEchoOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("node", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("node", MX_NODE_ECHO, "n-echo", 10));
-        assertEquals("ok", r.status());
-        assertEquals("n-echo", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("n-echo", r.getOutput());
     }
 
     @Test
@@ -1080,31 +1080,31 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("node", "--version"));
         JudgeResult r = executor(tmp, tmp, 10).judge(
                 judgeReq("node", MX_NODE_ECHO, List.of(tc("a", "a"), tc("b", "NOPE")), 10));
-        assertEquals(1, r.passed());
-        assertFalse(r.allPassed());
-        assertEquals("mismatch", r.cases().get(1).error());
+        assertEquals(1, r.getPassed());
+        assertFalse(r.isAllPassed());
+        assertEquals("mismatch", r.getCases().get(1).getError());
     }
 
     @Test
     void mxNodeJudgeZeroCasesAllPassed(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("node", "--version"));
         JudgeResult r = executor(tmp, tmp, 10).judge(judgeReq("node", "", List.of(), 10));
-        assertTrue(r.allPassed());
-        assertEquals(0, r.passed());
+        assertTrue(r.isAllPassed());
+        assertEquals(0, r.getPassed());
     }
 
     @Test
     void mxNodeRunZeroTimeoutFallsBack(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("node", "--version"));
         var r = executor(tmp, tmp, 2).run(new RunRequest("node", MX_NODE_HANG, "", 0));
-        assertEquals("timeout", r.status());
+        assertEquals("timeout", r.getStatus());
     }
 
     @Test
     void mxNodeRunNegativeTimeoutFallsBack(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("node", "--version"));
         var r = executor(tmp, tmp, 2).run(new RunRequest("node", MX_NODE_HANG, "", -1));
-        assertEquals("timeout", r.status());
+        assertEquals("timeout", r.getStatus());
     }
 
     @Test
@@ -1112,7 +1112,7 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("node", "--version"));
         JudgeResult r = executor(tmp, tmp, 2).judge(
                 judgeReq("node", MX_NODE_HANG, List.of(tc("", "")), 0));
-        assertEquals("timeout", r.cases().get(0).error());
+        assertEquals("timeout", r.getCases().get(0).getError());
     }
 
     @Test
@@ -1120,8 +1120,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         assumeTrue(toolAvailable("java", "-version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("java", "", "", 20));
-        assertEquals("runtime_error", r.status());
-        assertFalse(r.ok());
+        assertEquals("runtime_error", r.getStatus());
+        assertFalse(r.isOk());
     }
 
     @Test
@@ -1129,15 +1129,15 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         assumeTrue(toolAvailable("java", "-version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("java", "  \n ", "", 20));
-        assertEquals("runtime_error", r.status());
+        assertEquals("runtime_error", r.getStatus());
     }
 
     @Test
     void mxJavaSyntaxErrorIsCompilationError(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("javac", "-version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("java", "public class Main { broken", "", 20));
-        assertEquals("compilation_error", r.status());
-        assertFalse(r.error().isBlank());
+        assertEquals("compilation_error", r.getStatus());
+        assertFalse(r.getError().isBlank());
     }
 
     @Test
@@ -1145,7 +1145,7 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         assumeTrue(toolAvailable("java", "-version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_CRASH, "", 20));
-        assertEquals("runtime_error", r.status());
+        assertEquals("runtime_error", r.getStatus());
     }
 
     @Test
@@ -1153,8 +1153,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         assumeTrue(toolAvailable("java", "-version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_STDERR, "", 20));
-        assertEquals("ok", r.status());
-        assertTrue(r.output().contains("warn-j"));
+        assertEquals("ok", r.getStatus());
+        assertTrue(r.getOutput().contains("warn-j"));
     }
 
     @Test
@@ -1162,8 +1162,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         assumeTrue(toolAvailable("java", "-version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_UNI, "", 20));
-        assertEquals("ok", r.status());
-        assertEquals(MX_EXPECT_UNI, r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals(MX_EXPECT_UNI, r.getOutput());
     }
 
     @Test
@@ -1171,8 +1171,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         assumeTrue(toolAvailable("java", "-version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_BIG, "", 20));
-        assertEquals("ok", r.status());
-        assertEquals(100000, r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(100000, r.getOutput().length());
     }
 
     @Test
@@ -1180,8 +1180,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         assumeTrue(toolAvailable("java", "-version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_ECHO, "j-echo", 20));
-        assertEquals("ok", r.status());
-        assertEquals("j-echo", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("j-echo", r.getOutput());
     }
 
     @Test
@@ -1190,9 +1190,9 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("java", "-version"));
         JudgeResult r = executor(tmp, tmp, 20).judge(
                 judgeReq("java", MX_JAVA_ECHO, List.of(tc("a", "a"), tc("b", "NOPE")), 20));
-        assertEquals(1, r.passed());
-        assertFalse(r.allPassed());
-        assertEquals("mismatch", r.cases().get(1).error());
+        assertEquals(1, r.getPassed());
+        assertFalse(r.isAllPassed());
+        assertEquals("mismatch", r.getCases().get(1).getError());
     }
 
     @Test
@@ -1200,8 +1200,8 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         JudgeResult r = executor(tmp, tmp, 20).judge(judgeReq("java",
                 "public class Main { public static void main(String[] a) { } }", List.of(), 20));
-        assertTrue(r.allPassed());
-        assertEquals(0, r.passed());
+        assertTrue(r.isAllPassed());
+        assertEquals(0, r.getPassed());
     }
 
     @Test
@@ -1209,7 +1209,7 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         assumeTrue(toolAvailable("java", "-version"));
         var r = executor(tmp, tmp, 12).run(new RunRequest("java", MX_JAVA_HANG, "", 0));
-        assertEquals("timeout", r.status());
+        assertEquals("timeout", r.getStatus());
     }
 
     @Test
@@ -1217,67 +1217,67 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("javac", "-version"));
         assumeTrue(toolAvailable("java", "-version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("java", MX_JAVA_UNI, "", -3));
-        assertEquals("ok", r.status());
+        assertEquals("ok", r.getStatus());
     }
 
     @Test
     void mxCEmptySourceIsCompilationError(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("gcc", "--version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("c", "", "", 20));
-        assertEquals("compilation_error", r.status());
+        assertEquals("compilation_error", r.getStatus());
     }
 
     @Test
     void mxCWhitespaceSourceIsCompilationError(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("gcc", "--version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("c", "\n  \n", "", 20));
-        assertEquals("compilation_error", r.status());
+        assertEquals("compilation_error", r.getStatus());
     }
 
     @Test
     void mxCSyntaxErrorIsCompilationError(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("gcc", "--version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_SYNTAX, "", 20));
-        assertEquals("compilation_error", r.status());
+        assertEquals("compilation_error", r.getStatus());
     }
 
     @Test
     void mxCCrashIsRuntimeError(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileC());
         var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_CRASH, "", 20));
-        assertEquals("runtime_error", r.status());
+        assertEquals("runtime_error", r.getStatus());
     }
 
     @Test
     void mxCStderrOnlyIsOk(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileC());
         var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_STDERR, "", 20));
-        assertEquals("ok", r.status());
-        assertTrue(r.output().contains("warn-c"));
+        assertEquals("ok", r.getStatus());
+        assertTrue(r.getOutput().contains("warn-c"));
     }
 
     @Test
     void mxCUnicodeOutputOk(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileC());
         var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_UNI, "", 20));
-        assertEquals("ok", r.status());
-        assertEquals(MX_EXPECT_UNI, r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals(MX_EXPECT_UNI, r.getOutput());
     }
 
     @Test
     void mxC100kUnderCapOk(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileC());
         var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_BIG, "", 20));
-        assertEquals("ok", r.status());
-        assertEquals(100000, r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(100000, r.getOutput().length());
     }
 
     @Test
     void mxCStdinEchoOk(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileC());
         var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_ECHO, "c-echo", 20));
-        assertEquals("ok", r.status());
-        assertEquals("c-echo", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("c-echo", r.getOutput());
     }
 
     @Test
@@ -1285,91 +1285,91 @@ class NativeExecutorTest {
         assumeTrue(canCompileC());
         JudgeResult r = executor(tmp, tmp, 20).judge(
                 judgeReq("c", MX_C_ECHO, List.of(tc("a", "a"), tc("b", "NOPE")), 20));
-        assertEquals(1, r.passed());
-        assertFalse(r.allPassed());
-        assertEquals("mismatch", r.cases().get(1).error());
+        assertEquals(1, r.getPassed());
+        assertFalse(r.isAllPassed());
+        assertEquals("mismatch", r.getCases().get(1).getError());
     }
 
     @Test
     void mxCJudgeZeroCasesAllPassed(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileC());
         JudgeResult r = executor(tmp, tmp, 20).judge(judgeReq("c", MX_C_UNI, List.of(), 20));
-        assertTrue(r.allPassed());
-        assertEquals(0, r.passed());
+        assertTrue(r.isAllPassed());
+        assertEquals(0, r.getPassed());
     }
 
     @Test
     void mxCRunZeroTimeoutFallsBack(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileC());
         var r = executor(tmp, tmp, 8).run(new RunRequest("c", MX_C_HANG, "", 0));
-        assertEquals("timeout", r.status());
+        assertEquals("timeout", r.getStatus());
     }
 
     @Test
     void mxCRunNegativeTimeoutHandled(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileC());
         var r = executor(tmp, tmp, 20).run(new RunRequest("c", MX_C_UNI, "", -2));
-        assertEquals("ok", r.status());
+        assertEquals("ok", r.getStatus());
     }
 
     @Test
     void mxCppEmptySourceIsCompilationError(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("g++", "--version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", "", "", 20));
-        assertEquals("compilation_error", r.status());
+        assertEquals("compilation_error", r.getStatus());
     }
 
     @Test
     void mxCppWhitespaceSourceIsCompilationError(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("g++", "--version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", " \t\n ", "", 20));
-        assertEquals("compilation_error", r.status());
+        assertEquals("compilation_error", r.getStatus());
     }
 
     @Test
     void mxCppSyntaxErrorIsCompilationError(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("g++", "--version"));
         var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_SYNTAX, "", 20));
-        assertEquals("compilation_error", r.status());
+        assertEquals("compilation_error", r.getStatus());
     }
 
     @Test
     void mxCppCrashIsRuntimeError(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileCpp());
         var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_CRASH, "", 20));
-        assertEquals("runtime_error", r.status());
+        assertEquals("runtime_error", r.getStatus());
     }
 
     @Test
     void mxCppStderrOnlyIsOk(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileCpp());
         var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_STDERR, "", 20));
-        assertEquals("ok", r.status());
-        assertTrue(r.output().contains("warn-cpp"));
+        assertEquals("ok", r.getStatus());
+        assertTrue(r.getOutput().contains("warn-cpp"));
     }
 
     @Test
     void mxCppUnicodeOutputOk(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileCpp());
         var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_UNI, "", 20));
-        assertEquals("ok", r.status());
-        assertEquals(MX_EXPECT_UNI, r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals(MX_EXPECT_UNI, r.getOutput());
     }
 
     @Test
     void mxCpp100kUnderCapOk(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileCpp());
         var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_BIG, "", 20));
-        assertEquals("ok", r.status());
-        assertEquals(100000, r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(100000, r.getOutput().length());
     }
 
     @Test
     void mxCppStdinEchoOk(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileCpp());
         var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_ECHO, "p-echo", 20));
-        assertEquals("ok", r.status());
-        assertEquals("p-echo", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("p-echo", r.getOutput());
     }
 
     @Test
@@ -1377,94 +1377,94 @@ class NativeExecutorTest {
         assumeTrue(canCompileCpp());
         JudgeResult r = executor(tmp, tmp, 20).judge(
                 judgeReq("cpp", MX_CPP_ECHO, List.of(tc("a", "a"), tc("b", "NOPE")), 20));
-        assertEquals(1, r.passed());
-        assertFalse(r.allPassed());
-        assertEquals("mismatch", r.cases().get(1).error());
+        assertEquals(1, r.getPassed());
+        assertFalse(r.isAllPassed());
+        assertEquals("mismatch", r.getCases().get(1).getError());
     }
 
     @Test
     void mxCppJudgeZeroCasesAllPassed(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileCpp());
         JudgeResult r = executor(tmp, tmp, 20).judge(judgeReq("cpp", MX_CPP_UNI, List.of(), 20));
-        assertTrue(r.allPassed());
-        assertEquals(0, r.passed());
+        assertTrue(r.isAllPassed());
+        assertEquals(0, r.getPassed());
     }
 
     @Test
     void mxCppRunZeroTimeoutFallsBack(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileCpp());
         var r = executor(tmp, tmp, 10).run(new RunRequest("cpp", MX_CPP_HANG, "", 0));
-        assertEquals("timeout", r.status());
+        assertEquals("timeout", r.getStatus());
     }
 
     @Test
     void mxCppRunNegativeTimeoutHandled(@TempDir Path tmp) throws IOException {
         assumeTrue(canCompileCpp());
         var r = executor(tmp, tmp, 20).run(new RunRequest("cpp", MX_CPP_UNI, "", -4));
-        assertEquals("ok", r.status());
+        assertEquals("ok", r.getStatus());
     }
 
     @Test
     void mxRunBlankLanguageIsUnsupported(@TempDir Path tmp) throws IOException {
         var r = executor(tmp, tmp, 5).run(new RunRequest("  ", "x", "", 5));
-        assertEquals("unsupported_language", r.status());
-        assertFalse(r.ok());
+        assertEquals("unsupported_language", r.getStatus());
+        assertFalse(r.isOk());
     }
 
     @Test
     void mxRunEmptyLanguageIsUnsupported(@TempDir Path tmp) throws IOException {
         var r = executor(tmp, tmp, 5).run(new RunRequest("", "x", "", 5));
-        assertEquals("unsupported_language", r.status());
+        assertEquals("unsupported_language", r.getStatus());
     }
 
     @Test
     void mxRunSource65536ExactAccepted(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", "#" + "x".repeat(65535), "", 10));
-        assertEquals("ok", r.status());
+        assertEquals("ok", r.getStatus());
     }
 
     @Test
     void mxRunSource65537Rejected(@TempDir Path tmp) throws IOException {
         var r = executor(tmp, tmp, 5).run(new RunRequest("python", "x".repeat(65537), "", 5));
-        assertEquals("source_too_large", r.status());
-        assertFalse(r.ok());
+        assertEquals("source_too_large", r.getStatus());
+        assertFalse(r.isOk());
     }
 
     @Test
     void mxRunStdin10000CharsPassesThrough(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", ECHO_PY, "s".repeat(10000), 10));
-        assertEquals("ok", r.status());
-        assertEquals(10000, r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(10000, r.getOutput().length());
     }
 
     @Test
     void mxRunStdin10001CharsPassesThrough(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", ECHO_PY, "s".repeat(10001), 10));
-        assertEquals("ok", r.status());
-        assertEquals(10001, r.output().length());
+        assertEquals("ok", r.getStatus());
+        assertEquals(10001, r.getOutput().length());
     }
 
     @Test
     void mxRunTimeout31QuickProgramOk(@TempDir Path tmp) throws IOException {
         assumeTrue(toolAvailable("python", "--version"));
         var r = executor(tmp, tmp, 10).run(new RunRequest("python", "print('fast')", "", 31));
-        assertEquals("ok", r.status());
-        assertEquals("fast", r.output());
+        assertEquals("ok", r.getStatus());
+        assertEquals("fast", r.getOutput());
     }
 
     @Test
     void mxJudgeBlankLanguageIsUnsupported(@TempDir Path tmp) throws IOException {
         JudgeResult r = executor(tmp, tmp, 5).judge(judgeReq("   ", "x", List.of(tc("i", "o")), 5));
-        assertEquals("unsupported_language", r.cases().get(0).error());
+        assertEquals("unsupported_language", r.getCases().get(0).getError());
     }
 
     @Test
     void mxJudgeEmptyLanguageIsUnsupported(@TempDir Path tmp) throws IOException {
         JudgeResult r = executor(tmp, tmp, 5).judge(judgeReq("", "x", List.of(tc("i", "o")), 5));
-        assertEquals("unsupported_language", r.cases().get(0).error());
+        assertEquals("unsupported_language", r.getCases().get(0).getError());
     }
 
     @Test
@@ -1472,6 +1472,6 @@ class NativeExecutorTest {
         assumeTrue(toolAvailable("python", "--version"));
         JudgeResult r = executor(tmp, tmp, 2).judge(
                 judgeReq("python", MX_PY_HANG, List.of(tc("", "")), -7));
-        assertEquals("timeout", r.cases().get(0).error());
+        assertEquals("timeout", r.getCases().get(0).getError());
     }
 }

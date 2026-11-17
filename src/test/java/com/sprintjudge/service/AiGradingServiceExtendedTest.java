@@ -55,9 +55,9 @@ class AiGradingServiceExtendedTest {
     void disabledReturnsUnavailableWithoutTouchingNetwork() {
         AiGradingService svc = new AiGradingService();
         var r = svc.grade("python", "print(1)", "Q", "D", true, 100, 100);
-        assertFalse(r.available());
-        assertEquals("unavailable", r.status());
-        assertEquals(0, r.suggestedScore());
+        assertFalse(r.isAvailable());
+        assertEquals("unavailable", r.getStatus());
+        assertEquals(0, r.getSuggestedScore());
     }
 
     @Test
@@ -66,8 +66,8 @@ class AiGradingServiceExtendedTest {
         set(svc, "enabled", true);
         set(svc, "endpoint", "   ");
         var r = svc.grade("python", "print(1)", "Q", "D", true, 100, 100);
-        assertFalse(r.available());
-        assertEquals("unavailable", r.status());
+        assertFalse(r.isAvailable());
+        assertEquals("unavailable", r.getStatus());
     }
 
     @Test
@@ -76,7 +76,7 @@ class AiGradingServiceExtendedTest {
         set(svc, "enabled", true);
         set(svc, "endpoint", "");
         var r = svc.grade("python", "print(1)", "Q", "D", true, 100, 100);
-        assertFalse(r.available());
+        assertFalse(r.isAvailable());
     }
 
     @Test
@@ -105,22 +105,22 @@ class AiGradingServiceExtendedTest {
         set(svc, "endpoint", "http://127.0.0.1:1");
         set(svc, "timeoutSec", 1);
         var r = svc.grade("python", "print(1)", "Q-miss-" + System.nanoTime(), "D", true, 100, 100);
-        assertFalse(r.available());
-        assertEquals("unavailable", r.status());
+        assertFalse(r.isAvailable());
+        assertEquals("unavailable", r.getStatus());
     }
 
     @Test
     void parseMalformedJsonReturnsUnavailable() throws Exception {
         AiGradingService svc = new AiGradingService();
         var r = parse(svc, "not-json{{{", 100, 100);
-        assertFalse(r.available());
+        assertFalse(r.isAvailable());
     }
 
     @Test
     void parseMissingChoicesReturnsUnavailable() throws Exception {
         AiGradingService svc = new AiGradingService();
-        assertFalse(parse(svc, "{}", 100, 100).available());
-        assertFalse(parse(svc, "{\"choices\":[]}", 100, 100).available());
+        assertFalse(parse(svc, "{}", 100, 100).isAvailable());
+        assertFalse(parse(svc, "{\"choices\":[]}", 100, 100).isAvailable());
     }
 
     @Test
@@ -128,10 +128,10 @@ class AiGradingServiceExtendedTest {
         AiGradingService svc = new AiGradingService();
         String body = "{\"choices\":[{\"message\":{\"content\":\"{\\\"feedback\\\":\\\"great\\\",\\\"suggestedScore\\\":999}\"}}]}";
         var r = parse(svc, body, 100, 100);
-        assertTrue(r.available());
-        assertEquals("ok", r.status());
-        assertEquals("great", r.feedback());
-        assertEquals(100, r.suggestedScore());
+        assertTrue(r.isAvailable());
+        assertEquals("ok", r.getStatus());
+        assertEquals("great", r.getFeedback());
+        assertEquals(100, r.getSuggestedScore());
     }
 
     @Test
@@ -139,8 +139,8 @@ class AiGradingServiceExtendedTest {
         AiGradingService svc = new AiGradingService();
         String body = "{\"choices\":[{\"message\":{\"content\":\"{\\\"feedback\\\":\\\"bad\\\",\\\"suggestedScore\\\":-5}\"}}]}";
         var r = parse(svc, body, 0, 100);
-        assertTrue(r.available());
-        assertEquals(0, r.suggestedScore());
+        assertTrue(r.isAvailable());
+        assertEquals(0, r.getSuggestedScore());
     }
 
     @Test
@@ -151,7 +151,7 @@ class AiGradingServiceExtendedTest {
         set(svc, "timeoutSec", 1);
         String title = "Q-cache-" + System.nanoTime();
         var r = svc.grade("python", "x=1", title, "D", true, 10, 100);
-        assertFalse(r.available());
+        assertFalse(r.isAvailable());
         assertTrue(cacheOf(svc).isEmpty());
     }
 
@@ -188,10 +188,10 @@ class AiGradingServiceExtendedTest {
         try {
             set(svc, "endpoint", "http://127.0.0.1:" + server.getAddress().getPort());
             var r = svc.grade("python", "print(1)", "Q-ok-" + System.nanoTime(), "D", false, 80, 100);
-            assertTrue(r.available());
-            assertEquals("nice", r.feedback());
-            assertEquals(80, r.suggestedScore());
-            assertEquals("ok", r.status());
+            assertTrue(r.isAvailable());
+            assertEquals("nice", r.getFeedback());
+            assertEquals(80, r.getSuggestedScore());
+            assertEquals("ok", r.getStatus());
         } finally { server.stop(0); }
     }
 
@@ -206,8 +206,8 @@ class AiGradingServiceExtendedTest {
         try {
             set(svc, "endpoint", "http://127.0.0.1:" + server.getAddress().getPort() + "/");
             var r = svc.grade("java", "code", "Q-slash-" + System.nanoTime(), "D", false, 70, 100);
-            assertTrue(r.available());
-            assertEquals("good", r.feedback());
+            assertTrue(r.isAvailable());
+            assertEquals("good", r.getFeedback());
         } finally { server.stop(0); }
     }
 
@@ -223,7 +223,7 @@ class AiGradingServiceExtendedTest {
         try {
             set(svc, "endpoint", "http://127.0.0.1:" + server.getAddress().getPort());
             var r = svc.grade("python", "x", "Q-key-" + System.nanoTime(), "D", false, 50, 100);
-            assertTrue(r.available());
+            assertTrue(r.isAvailable());
             assertTrue(seen.get().contains("test-model"));
         } finally { server.stop(0); }
     }
@@ -239,7 +239,7 @@ class AiGradingServiceExtendedTest {
         try {
             set(svc, "endpoint", "http://127.0.0.1:" + server.getAddress().getPort());
             var r = svc.grade("python", "x", "Q-nokey-" + System.nanoTime(), "D", false, 60, 100);
-            assertTrue(r.available());
+            assertTrue(r.isAvailable());
         } finally { server.stop(0); }
     }
 
@@ -265,7 +265,7 @@ class AiGradingServiceExtendedTest {
             String title = "Q-dup-" + System.nanoTime();
             var first = svc.grade("python", "same", title, "D", false, 33, 100);
             var second = svc.grade("python", "same", title, "D", false, 33, 100);
-            assertTrue(first.available());
+            assertTrue(first.isAvailable());
             assertSame(first, second);
             assertEquals(1, hits.get());
         } finally { server.stop(0); }
@@ -282,7 +282,7 @@ class AiGradingServiceExtendedTest {
         try {
             set(svc, "endpoint", "http://127.0.0.1:" + server.getAddress().getPort());
             var r = svc.grade("python", "x", "Q-garbage-" + System.nanoTime(), "D", false, 10, 100);
-            assertFalse(r.available());
+            assertFalse(r.isAvailable());
         } finally { server.stop(0); }
     }
 
@@ -298,7 +298,7 @@ class AiGradingServiceExtendedTest {
             set(svc, "model", "m");
             set(svc, "endpoint", "http://127.0.0.1:" + server.getAddress().getPort());
             var r = svc.grade("python", "x", "Q-blank-" + System.nanoTime(), "D", false, 10, 100);
-            assertFalse(r.available());
+            assertFalse(r.isAvailable());
         } finally { server.stop(0); }
     }
 
@@ -314,14 +314,14 @@ class AiGradingServiceExtendedTest {
             set(svc, "model", "m");
             set(svc, "endpoint", "http://127.0.0.1:" + server.getAddress().getPort());
             var r = svc.grade("python", "x", "Q-prose-" + System.nanoTime(), "D", false, 10, 100);
-            assertFalse(r.available());
+            assertFalse(r.isAvailable());
         } finally { server.stop(0); }
     }
 
     @Test
     void parseBlankChoicesContentReturnsUnavailable() throws Exception {
         AiGradingService svc = new AiGradingService();
-        assertFalse(parse(svc, "{\"choices\":[{\"message\":{\"content\":\"\"}}]}", 10, 100).available());
+        assertFalse(parse(svc, "{\"choices\":[{\"message\":{\"content\":\"\"}}]}", 10, 100).isAvailable());
     }
 
     @Test
@@ -329,9 +329,9 @@ class AiGradingServiceExtendedTest {
         AiGradingService svc = new AiGradingService();
         String body = "{\"choices\":[{\"message\":{\"content\":\"{\\\"suggestedScore\\\":42}\"}}]}";
         var r = parse(svc, body, 42, 100);
-        assertTrue(r.available());
-        assertEquals("", r.feedback());
-        assertEquals(42, r.suggestedScore());
+        assertTrue(r.isAvailable());
+        assertEquals("", r.getFeedback());
+        assertEquals(42, r.getSuggestedScore());
     }
 
     @Test
@@ -339,15 +339,15 @@ class AiGradingServiceExtendedTest {
         AiGradingService svc = new AiGradingService();
         String body = "{\"choices\":[{\"message\":{\"content\":\"{\\\"feedback\\\":\\\"hi\\\"}\"}}]}";
         var r = parse(svc, body, 10, 100);
-        assertTrue(r.available());
-        assertEquals(0, r.suggestedScore());
+        assertTrue(r.isAvailable());
+        assertEquals(0, r.getSuggestedScore());
     }
 
     @Test
     void parseInnerNonJsonReturnsUnavailable() throws Exception {
         AiGradingService svc = new AiGradingService();
         String body = "{\"choices\":[{\"message\":{\"content\":\"hello world\"}}]}";
-        assertFalse(parse(svc, body, 10, 100).available());
+        assertFalse(parse(svc, body, 10, 100).isAvailable());
     }
 
     @Test
@@ -383,7 +383,7 @@ class AiGradingServiceExtendedTest {
         try {
             set(svc, "endpoint", "http://127.0.0.1:" + server.getAddress().getPort());
             var r = svc.grade("python", "evict-" + System.nanoTime(), "Q-evict-" + System.nanoTime(), "D", false, 90, 100);
-            assertTrue(r.available());
+            assertTrue(r.isAvailable());
             assertTrue(cache.size() <= 3);
         } finally { server.stop(0); }
     }

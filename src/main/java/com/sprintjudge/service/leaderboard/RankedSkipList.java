@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Order-statistic skip list keyed by (score DESC, joinSeq ASC), implementing
  * the classic Redis zskiplist span algorithm: O(log n) insert/remove/rank/
- * select with EXACT spans — no probabilistic drift, no eventual consistency.
+ * select with EXACT spans -?no probabilistic drift, no eventual consistency.
  *
  * <p>Concurrency: single writer via write lock; lock-free-ish readers via read
  * lock. With 10k players updates stay sub-microsecond.
@@ -40,7 +40,49 @@ public final class RankedSkipList {
         }
     }
 
-    public record Entry(String uuid, String name, long score, long joinSeq) {}
+    public static final class Entry {
+        private String uuid;
+        private String name;
+        private long score;
+        private long joinSeq;
+
+        public Entry() {}
+
+        public Entry(String uuid, String name, long score, long joinSeq) {
+            this.uuid = uuid;
+            this.name = name;
+            this.score = score;
+            this.joinSeq = joinSeq;
+        }
+
+        public String getUuid() { return uuid; }
+        public void setUuid(String uuid) { this.uuid = uuid; }
+
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+
+        public long getScore() { return score; }
+        public void setScore(long score) { this.score = score; }
+
+        public long getJoinSeq() { return joinSeq; }
+        public void setJoinSeq(long joinSeq) { this.joinSeq = joinSeq; }
+
+        @Override public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Entry)) return false;
+            Entry other = (Entry) o;
+            return score == other.score && joinSeq == other.joinSeq
+                    && java.util.Objects.equals(uuid, other.uuid)
+                    && java.util.Objects.equals(name, other.name);
+        }
+
+        @Override public int hashCode() { return java.util.Objects.hash(uuid, name, score, joinSeq); }
+
+        @Override public String toString() {
+            return "Entry[uuid=" + uuid + ", name=" + name + ", score=" + score
+                    + ", joinSeq=" + joinSeq + "]";
+        }
+    }
 
     /** True when A strictly precedes B (higher score first, then earlier join). */
     private static boolean precedes(long scoreA, long seqA, long scoreB, long seqB) {
@@ -76,7 +118,7 @@ public final class RankedSkipList {
             for (int i = MAX_LEVEL - 1; i >= 0; i--) {
                 rank[i] = (i == MAX_LEVEL - 1) ? 0 : rank[i + 1];
                 while (x.next[i] != null
-                        && precedes(x.next[i].entry.score(), x.next[i].seq, score, joinSeq)) {
+                        && precedes(x.next[i].entry.getScore(), x.next[i].seq, score, joinSeq)) {
                     rank[i] += x.span[i];
                     x = x.next[i];
                 }
@@ -102,7 +144,7 @@ public final class RankedSkipList {
     }
 
     /**
-     * Removes a player whose current score and join sequence are known — O(log n).
+     * Removes a player whose current score and join sequence are known -?O(log n).
      * The joinSeq tie-breaker is required: with seq=MIN_VALUE the traversal stops
      * at the first node of an equal-score group and silently fails to unlink.
      */
@@ -115,7 +157,7 @@ public final class RankedSkipList {
         }
     }
 
-    /** Removes by identity only — O(n); used when the score is unknown. */
+    /** Removes by identity only -?O(n); used when the score is unknown. */
     public boolean removeByIdentity(String uuid) {
         lock.writeLock().lock();
         try {
@@ -130,8 +172,8 @@ public final class RankedSkipList {
         Node x = head;
         for (int i = MAX_LEVEL - 1; i >= 0; i--) {
             while (x.next[i] != null
-                    && !uuid.equals(x.next[i].entry.uuid())
-                    && precedes(x.next[i].entry.score(), x.next[i].seq, score, seq)) {
+                    && !uuid.equals(x.next[i].entry.getUuid())
+                    && precedes(x.next[i].entry.getScore(), x.next[i].seq, score, seq)) {
                 x = x.next[i];
             }
             update[i] = x;
@@ -143,7 +185,7 @@ public final class RankedSkipList {
         Node[] update = new Node[MAX_LEVEL];
         Node x = head;
         for (int i = MAX_LEVEL - 1; i >= 0; i--) {
-            while (x.next[i] != null && !uuid.equals(x.next[i].entry.uuid())) {
+            while (x.next[i] != null && !uuid.equals(x.next[i].entry.getUuid())) {
                 x = x.next[i];
             }
             update[i] = x;
@@ -153,7 +195,7 @@ public final class RankedSkipList {
 
     private boolean unlink(Node[] update, String uuid) {
         Node target = update[0].next[0];
-        if (target == null || !uuid.equals(target.entry.uuid())) return false;
+        if (target == null || !uuid.equals(target.entry.getUuid())) return false;
         for (int i = 0; i < MAX_LEVEL; i++) {
             if (update[i].next[i] == target) {
                 update[i].span[i] += target.span[i] - 1;
@@ -174,17 +216,17 @@ public final class RankedSkipList {
             // Locate the target at level 0 to learn its (score, joinSeq) tie-break.
             Node target = null;
             for (Node n = head.next[0]; n != null; n = n.next[0]) {
-                if (uuid.equals(n.entry.uuid())) { target = n; break; }
+                if (uuid.equals(n.entry.getUuid())) { target = n; break; }
             }
             if (target == null) return -1;
-            long tScore = target.entry.score();
+            long tScore = target.entry.getScore();
             long tSeq = target.seq;
             // Traverse using ordering so we never skip over the target at higher levels.
             Node x = head;
             int rank = 0;
             for (int i = MAX_LEVEL - 1; i >= 0; i--) {
                 while (x.next[i] != null
-                        && precedes(x.next[i].entry.score(), x.next[i].seq, tScore, tSeq)) {
+                        && precedes(x.next[i].entry.getScore(), x.next[i].seq, tScore, tSeq)) {
                     rank += x.span[i];
                     x = x.next[i];
                 }

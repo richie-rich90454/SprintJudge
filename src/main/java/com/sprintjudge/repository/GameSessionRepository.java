@@ -37,28 +37,48 @@ public class GameSessionRepository {
 
     public Optional<GameSession> findByPin(String pin) {
         return dsl.selectFrom(Tables.GAME_SESSIONS).where(Tables.SESS_PIN.eq(pin))
-                .fetchOptional(this::toSession);
+                .fetchOptional(new org.jooq.RecordMapper<org.jooq.Record, GameSession>() {
+                    @Override
+                    public GameSession map(org.jooq.Record r) {
+                        return toSession(r);
+                    }
+                });
     }
 
     public List<GameSession> findAllNonEnded() {
         return dsl.selectFrom(Tables.GAME_SESSIONS)
                 .where(Tables.SESS_STATUS.ne("ENDED"))
-                .fetch(this::toSession);
+                .fetch(new org.jooq.RecordMapper<org.jooq.Record, GameSession>() {
+                    @Override
+                    public GameSession map(org.jooq.Record r) {
+                        return toSession(r);
+                    }
+                });
     }
 
     public Optional<GameSession> findById(String id) {
         return dsl.selectFrom(Tables.GAME_SESSIONS).where(Tables.SESS_ID.eq(id))
-                .fetchOptional(this::toSession);
+                .fetchOptional(new org.jooq.RecordMapper<org.jooq.Record, GameSession>() {
+                    @Override
+                    public GameSession map(org.jooq.Record r) {
+                        return toSession(r);
+                    }
+                });
     }
 
     public void updateStatus(String id, String status) {
-        var update = dsl.update(Tables.GAME_SESSIONS).set(Tables.SESS_STATUS, status);
         if ("ACTIVE".equals(status)) {
-            update.set(Tables.SESS_STARTED, Instant.now().getEpochSecond());
+            dsl.update(Tables.GAME_SESSIONS).set(Tables.SESS_STATUS, status)
+                    .set(Tables.SESS_STARTED, Instant.now().getEpochSecond())
+                    .where(Tables.SESS_ID.eq(id)).execute();
         } else if ("ENDED".equals(status)) {
-            update.set(Tables.SESS_ENDED, Instant.now().getEpochSecond());
+            dsl.update(Tables.GAME_SESSIONS).set(Tables.SESS_STATUS, status)
+                    .set(Tables.SESS_ENDED, Instant.now().getEpochSecond())
+                    .where(Tables.SESS_ID.eq(id)).execute();
+        } else {
+            dsl.update(Tables.GAME_SESSIONS).set(Tables.SESS_STATUS, status)
+                    .where(Tables.SESS_ID.eq(id)).execute();
         }
-        update.where(Tables.SESS_ID.eq(id)).execute();
     }
 
     public void setCurrentIndex(String id, int index) {

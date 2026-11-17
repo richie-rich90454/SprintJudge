@@ -55,12 +55,16 @@ public class ScoringController {
     }
 
     static String copyOf(String signal) {
-        return switch (signal) {
-            case "FLUENT" -> "You know this cold.";
-            case "GUESSING" -> "You are fast but guessing on this topic. Try slowing down.";
-            case "CAREFUL" -> "You know it, but fluency needs work.";
-            case "STRUGGLING" -> "This topic needs reteaching. Try practice mode.";
-            default -> "This topic needs reteaching. Try practice mode.";
-        };
+        if ("FLUENT".equals(signal)) {
+            return "You know this cold.";
+        } else if ("GUESSING".equals(signal)) {
+            return "You are fast but guessing on this topic. Try slowing down.";
+        } else if ("CAREFUL".equals(signal)) {
+            return "You know it, but fluency needs work.";
+        } else if ("STRUGGLING".equals(signal)) {
+            return "This topic needs reteaching. Try practice mode.";
+        } else {
+            return "This topic needs reteaching. Try practice mode.";
+        }
     }
 }

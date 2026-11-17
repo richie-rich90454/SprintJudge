@@ -11,7 +11,7 @@ public class ExecutorSizingConfig {
 
     /**
      * Judge concurrency budget: explicit count, or "auto" to derive from CPU
-     * cores × factor (floor 8, cap 512). Q28: auto-derived sizing.
+     * cores x factor (floor 8, cap 512). Q28: auto-derived sizing.
      */
     @Bean
     public Semaphore executionSlots(

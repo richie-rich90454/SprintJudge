@@ -22,8 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Write-coalescing buffer for submissions (250 ms default).
  *
  * <p>Score truth lives in the room's in-memory leaderboard; this only batches
- * the durable audit trail. A crash loses at most one flush window of history —
- * never correctness of live rankings. Round boundaries call {@link #flush()}
+ * the durable audit trail. A crash loses at most one flush window of history -? * never correctness of live rankings. Round boundaries call {@link #flush()}
  * synchronously so results screens are always fully persisted.
  */
 @Component
@@ -35,10 +34,13 @@ public class SubmissionWriteBuffer {
     private final BlockingQueue<Submission> queue;
     private final long flushMs;
     private final ScheduledExecutorService flusher =
-            Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = new Thread(r, "oq-write-flusher");
-                t.setDaemon(true);
-                return t;
+            Executors.newSingleThreadScheduledExecutor(new java.util.concurrent.ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r, "oq-write-flusher");
+                    t.setDaemon(true);
+                    return t;
+                }
             });
 
     private final AtomicLong flushed = new AtomicLong();
@@ -56,7 +58,10 @@ public class SubmissionWriteBuffer {
 
     @PostConstruct
     void startFlusher() {
-        flusher.scheduleWithFixedDelay(this::flushSafely, flushMs, flushMs, TimeUnit.MILLISECONDS);
+        flusher.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() { flushSafely(); }
+        }, flushMs, flushMs, TimeUnit.MILLISECONDS);
     }
 
     /** Non-blocking; warns when the bound is hit so drops are never silent. */
@@ -64,12 +69,12 @@ public class SubmissionWriteBuffer {
         offered.incrementAndGet();
         boolean accepted = queue.offer(s);
         if (!accepted) {
-            log.warn("Write buffer full ({} queued) — submission audit row dropped", queue.size());
+            log.warn("Write buffer full ({} queued) -?submission audit row dropped", queue.size());
         }
         return accepted;
     }
 
-    /** Synchronous drain — used at accuracy boundaries (force-submit, game end). */
+    /** Synchronous drain -?used at accuracy boundaries (force-submit, game end). */
     public synchronized int flush() {
         if (queue.isEmpty()) return 0;
         List<Submission> batch = new ArrayList<>(queue.size());
@@ -79,7 +84,7 @@ public class SubmissionWriteBuffer {
         } catch (RuntimeException ex) {
             for (Submission s : batch) {
                 if (!queue.offer(s)) {
-                    log.warn("Write buffer full — dropped {} submissions on DB failure", batch.size() - batch.indexOf(s));
+                    log.warn("Write buffer full -?dropped {} submissions on DB failure", batch.size() - batch.indexOf(s));
                     break;
                 }
             }

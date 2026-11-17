@@ -30,8 +30,8 @@ class RoomEventRepositoryTest {
         repo.append("r1", 2, "PlayerJoined", "p1", "{\"nickname\":\"Ada\"}");
         List<RoomEventRepository.StoredEvent> after = repo.eventsAfter("r1", 1);
         assertEquals(1, after.size());
-        assertEquals(2L, after.get(0).seq());
-        assertEquals("PlayerJoined", after.get(0).type());
+        assertEquals(2L, after.get(0).getSeq());
+        assertEquals("PlayerJoined", after.get(0).getType());
     }
 
     @Test

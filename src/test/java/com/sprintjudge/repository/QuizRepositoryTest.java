@@ -29,16 +29,16 @@ class QuizRepositoryTest {
     @Test
     void createGeneratesId() {
         Quiz q = repo.create(new Quiz(null, "T", "D", "u1", Instant.now(), false));
-        assertNotNull(q.id());
-        assertEquals("T", q.title());
-        assertFalse(q.template());
+        assertNotNull(q.getId());
+        assertEquals("T", q.getTitle());
+        assertFalse(q.isTemplate());
     }
 
     @Test
     void createWithProvidedId() {
         Quiz q = repo.create(new Quiz("qid-1", "T", "D", "u1", Instant.now(), true));
-        assertEquals("qid-1", q.id());
-        assertTrue(q.template());
+        assertEquals("qid-1", q.getId());
+        assertTrue(q.isTemplate());
     }
 
     @Test
@@ -46,7 +46,7 @@ class QuizRepositoryTest {
         repo.create(new Quiz("q1", "T", "D", "u1", Instant.now(), true));
         Optional<Quiz> o = repo.findById("q1");
         assertTrue(o.isPresent());
-        assertTrue(o.get().template());
+        assertTrue(o.get().isTemplate());
     }
 
     @Test
@@ -80,16 +80,16 @@ class QuizRepositoryTest {
         var sessions = new GameSessionRepository(dsl);
         var questions = new QuestionRepository(dsl);
         var submissions = new SubmissionRepository(dsl);
-        var s = sessions.create(q.id(), "host", "123321", null);
-        questions.save(new com.sprintjudge.domain.models.Question("qq", q.id(), "T", null,
+        var s = sessions.create(q.getId(), "host", "123321", null);
+        questions.save(new com.sprintjudge.domain.models.Question("qq", q.getId(), "T", null,
                 "MCQ", null, 30, 100, "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, Instant.now()));
-        submissions.save(new com.sprintjudge.domain.models.Submission(null, s.id(), "qq",
+        submissions.save(new com.sprintjudge.domain.models.Submission(null, s.getId(), "qq",
                 "Ann", "uuid-1", "{}", 10, true, "", 1, Instant.now()));
-        repo.delete(q.id());
-        assertTrue(repo.findById(q.id()).isEmpty());
+        repo.delete(q.getId());
+        assertTrue(repo.findById(q.getId()).isEmpty());
         assertTrue(sessions.findByPin("123321").isEmpty());
         assertTrue(questions.findById("qq").isEmpty());
-        assertTrue(submissions.findBySession(s.id()).isEmpty());
+        assertTrue(submissions.findBySession(s.getId()).isEmpty());
     }
 
     @Test
@@ -99,7 +99,7 @@ class QuizRepositoryTest {
                 .values("qn", "T", 123L, null)
                 .execute();
         Quiz q = repo.findById("qn").orElseThrow();
-        assertFalse(q.template());
+        assertFalse(q.isTemplate());
     }
 
     @Test
@@ -117,11 +117,11 @@ class QuizRepositoryTest {
     @Test
     void updateTitleAndDescription() {
         Quiz created = repo.create(new Quiz(null, "Old", "olddesc", "u1", Instant.now(), false));
-        Quiz updated = new Quiz(created.id(), "New", "newdesc", "u1", created.createdAt(), false);
+        Quiz updated = new Quiz(created.getId(), "New", "newdesc", "u1", created.getCreatedAt(), false);
         repo.update(updated);
-        Quiz got = repo.findById(created.id()).orElseThrow();
-        assertEquals("New", got.title());
-        assertEquals("newdesc", got.description());
+        Quiz got = repo.findById(created.getId()).orElseThrow();
+        assertEquals("New", got.getTitle());
+        assertEquals("newdesc", got.getDescription());
     }
 
     @Test
@@ -133,10 +133,10 @@ class QuizRepositoryTest {
     @Test
     void createPreservesCreatedByAndDescription() {
         Quiz q = repo.create(new Quiz(null, "T", "D", "author-9", Instant.now(), false));
-        Quiz got = repo.findById(q.id()).orElseThrow();
-        assertEquals("author-9", got.createdBy());
-        assertEquals("D", got.description());
-        assertNotNull(got.createdAt());
+        Quiz got = repo.findById(q.getId()).orElseThrow();
+        assertEquals("author-9", got.getCreatedBy());
+        assertEquals("D", got.getDescription());
+        assertNotNull(got.getCreatedAt());
     }
 
     @Test
@@ -149,14 +149,14 @@ class QuizRepositoryTest {
     void countReflectsDelete() {
         Quiz q = repo.create(new Quiz(null, "T", null, null, Instant.now(), false));
         assertEquals(1, repo.count());
-        repo.delete(q.id());
+        repo.delete(q.getId());
         assertEquals(0, repo.count());
     }
 
     @Test
     void templateRoundTrip() {
         repo.create(new Quiz("tpl", "T", null, null, Instant.now(), true));
-        assertTrue(repo.findById("tpl").orElseThrow().template());
+        assertTrue(repo.findById("tpl").orElseThrow().isTemplate());
     }
 
     @Test
@@ -183,13 +183,13 @@ class QuizRepositoryTest {
             thrown = true;
         }
         assertTrue(thrown);
-        assertEquals("A", repo.findById("dup").orElseThrow().title());
+        assertEquals("A", repo.findById("dup").orElseThrow().getTitle());
     }
 
     @Test
     void mxCreateEmptyTitleRoundTrips() {
         Quiz q = repo.create(mxQuiz(null, ""));
-        assertEquals("", repo.findById(q.id()).orElseThrow().title());
+        assertEquals("", repo.findById(q.getId()).orElseThrow().getTitle());
     }
 
     @Test
@@ -197,25 +197,25 @@ class QuizRepositoryTest {
         Quiz q = repo.create(new Quiz(null, "h\u00e9llo \u4e2d\u6587 \ud83c\udf89", "d", null,
                 Instant.now(), false));
         assertEquals("h\u00e9llo \u4e2d\u6587 \ud83c\udf89",
-                repo.findById(q.id()).orElseThrow().title());
+                repo.findById(q.getId()).orElseThrow().getTitle());
     }
 
     @Test
     void mxCreateUnicodeDescriptionRoundTrips() {
         Quiz q = repo.create(new Quiz(null, "T", "d-\u00fc-\u4e2d\u6587", null, Instant.now(), false));
-        assertEquals("d-\u00fc-\u4e2d\u6587", repo.findById(q.id()).orElseThrow().description());
+        assertEquals("d-\u00fc-\u4e2d\u6587", repo.findById(q.getId()).orElseThrow().getDescription());
     }
 
     @Test
     void mxCreateEmptyDescriptionRoundTrips() {
         Quiz q = repo.create(new Quiz(null, "T", "", null, Instant.now(), false));
-        assertEquals("", repo.findById(q.id()).orElseThrow().description());
+        assertEquals("", repo.findById(q.getId()).orElseThrow().getDescription());
     }
 
     @Test
     void mxCreateNullCreatedByRoundTrips() {
         Quiz q = repo.create(new Quiz(null, "T", "D", null, Instant.now(), false));
-        assertTrue(repo.findById(q.id()).isPresent());
+        assertTrue(repo.findById(q.getId()).isPresent());
     }
 
     @Test
@@ -228,22 +228,22 @@ class QuizRepositoryTest {
     @Test
     void mxBulk30SpotReadById() {
         for (int i = 0; i < 30; i++) repo.create(mxQuiz("s" + i, "T" + i));
-        assertEquals("T17", repo.findById("s17").orElseThrow().title());
+        assertEquals("T17", repo.findById("s17").orElseThrow().getTitle());
         assertTrue(repo.findById("s99").isEmpty());
     }
 
     @Test
     void mxUpdateSetsNullDescription() {
         Quiz created = repo.create(mxQuiz(null, "T"));
-        repo.update(new Quiz(created.id(), "T", null, "u1", created.createdAt(), false));
-        assertTrue(repo.findById(created.id()).orElseThrow().description() == null);
+        repo.update(new Quiz(created.getId(), "T", null, "u1", created.getCreatedAt(), false));
+        assertTrue(repo.findById(created.getId()).orElseThrow().getDescription() == null);
     }
 
     @Test
     void mxUpdateKeepsCreatedByColumn() {
         Quiz created = repo.create(new Quiz(null, "T", "D", "author-1", Instant.now(), false));
-        repo.update(new Quiz(created.id(), "New", "D2", "hacker", created.createdAt(), false));
-        assertEquals("author-1", repo.findById(created.id()).orElseThrow().createdBy());
+        repo.update(new Quiz(created.getId(), "New", "D2", "hacker", created.getCreatedAt(), false));
+        assertEquals("author-1", repo.findById(created.getId()).orElseThrow().getCreatedBy());
     }
 
     @Test
@@ -251,7 +251,7 @@ class QuizRepositoryTest {
         repo.create(new Quiz("cycle", "A", null, null, Instant.now(), false));
         repo.delete("cycle");
         repo.create(new Quiz("cycle", "B", null, null, Instant.now(), false));
-        assertEquals("B", repo.findById("cycle").orElseThrow().title());
+        assertEquals("B", repo.findById("cycle").orElseThrow().getTitle());
         assertEquals(1, repo.count());
     }
 
@@ -259,7 +259,7 @@ class QuizRepositoryTest {
     void mxFindAllContainsBothIds() {
         repo.create(new Quiz("fa", "A", null, null, Instant.now(), false));
         repo.create(new Quiz("fb", "B", null, null, Instant.now(), false));
-        List<String> ids = repo.findAll().stream().map((Quiz q) -> q.id()).toList();
+        List<String> ids = repo.findAll().stream().map((Quiz q) -> q.getId()).toList();
         assertTrue(ids.contains("fa"));
         assertTrue(ids.contains("fb"));
     }
@@ -281,34 +281,34 @@ class QuizRepositoryTest {
     @Test
     void mxUpdateTitleToEmptyString() {
         Quiz created = repo.create(mxQuiz(null, "Old"));
-        repo.update(new Quiz(created.id(), "", "D", "u1", created.createdAt(), false));
-        assertEquals("", repo.findById(created.id()).orElseThrow().title());
+        repo.update(new Quiz(created.getId(), "", "D", "u1", created.getCreatedAt(), false));
+        assertEquals("", repo.findById(created.getId()).orElseThrow().getTitle());
     }
 
     @Test
     void mxUpdateTitleToUnicode() {
         Quiz created = repo.create(mxQuiz(null, "Old"));
-        repo.update(new Quiz(created.id(), "\u4e2d\u6587 title", "D", "u1", created.createdAt(), false));
-        assertEquals("\u4e2d\u6587 title", repo.findById(created.id()).orElseThrow().title());
+        repo.update(new Quiz(created.getId(), "\u4e2d\u6587 title", "D", "u1", created.getCreatedAt(), false));
+        assertEquals("\u4e2d\u6587 title", repo.findById(created.getId()).orElseThrow().getTitle());
     }
 
     @Test
     void mxFindByIdMissingAfterDelete() {
         Quiz created = repo.create(mxQuiz(null, "T"));
-        repo.delete(created.id());
-        assertTrue(repo.findById(created.id()).isEmpty());
+        repo.delete(created.getId());
+        assertTrue(repo.findById(created.getId()).isEmpty());
     }
 
     @Test
     void mxCreatePreservesTemplateTrue() {
         repo.create(new Quiz("tt", "T", null, null, Instant.now(), true));
-        assertTrue(repo.findById("tt").orElseThrow().template());
+        assertTrue(repo.findById("tt").orElseThrow().isTemplate());
     }
 
     @Test
     void mxCreatePreservesTemplateFalse() {
         repo.create(new Quiz("tf", "T", null, null, Instant.now(), false));
-        assertFalse(repo.findById("tf").orElseThrow().template());
+        assertFalse(repo.findById("tf").orElseThrow().isTemplate());
     }
 
     @Test
@@ -317,19 +317,19 @@ class QuizRepositoryTest {
         repo.create(new Quiz("k2", "B", null, null, Instant.now(), false));
         repo.delete("k1");
         assertTrue(repo.findById("k1").isEmpty());
-        assertEquals("B", repo.findById("k2").orElseThrow().title());
+        assertEquals("B", repo.findById("k2").orElseThrow().getTitle());
         assertEquals(1, repo.count());
     }
 
     @Test
     void mxLongTitle200RoundTrips() {
         Quiz q = repo.create(mxQuiz(null, "t".repeat(200)));
-        assertEquals(200, repo.findById(q.id()).orElseThrow().title().length());
+        assertEquals(200, repo.findById(q.getId()).orElseThrow().getTitle().length());
     }
 
     @Test
     void mxCreatedAtAutoSetOnCreate() {
         Quiz q = repo.create(new Quiz(null, "T", null, null, null, false));
-        assertNotNull(repo.findById(q.id()).orElseThrow().createdAt());
+        assertNotNull(repo.findById(q.getId()).orElseThrow().getCreatedAt());
     }
 }

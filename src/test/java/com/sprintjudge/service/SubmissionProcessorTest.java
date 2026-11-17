@@ -39,12 +39,12 @@ class SubmissionProcessorTest {
 
     private Question codingQuestion(String config) {
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("OJ_FULL");
-        when(q.config()).thenReturn(config);
-        lenient().when(q.pointsBase()).thenReturn(100);
-        when(q.timeLimitSec()).thenReturn(10);
-        lenient().when(q.title()).thenReturn("T");
-        lenient().when(q.description()).thenReturn("D");
+        when(q.getQuestionType()).thenReturn("OJ_FULL");
+        when(q.getConfig()).thenReturn(config);
+        lenient().when(q.getPointsBase()).thenReturn(100);
+        when(q.getTimeLimitSec()).thenReturn(10);
+        lenient().when(q.getTitle()).thenReturn("T");
+        lenient().when(q.getDescription()).thenReturn("D");
         return q;
     }
 
@@ -79,7 +79,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("MCQ");
+        when(q.getQuestionType()).thenReturn("MCQ");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -95,7 +95,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("OJ_FULL");
+        when(q.getQuestionType()).thenReturn("OJ_FULL");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -137,7 +137,7 @@ class SubmissionProcessorTest {
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
                 .thenReturn(10);
         Submission best = mock(Submission.class);
-        when(best.scoreEarned()).thenReturn(50);
+        when(best.getScoreEarned()).thenReturn(50);
         when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.of(best));
 
         int[] received = {-1};
@@ -152,7 +152,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("OJ_FULL");
+        when(q.getQuestionType()).thenReturn("OJ_FULL");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -193,7 +193,7 @@ class SubmissionProcessorTest {
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
                 .thenReturn(50);
         Submission best = mock(Submission.class);
-        when(best.scoreEarned()).thenReturn(10); // existing best is lower -> overwrite
+        when(best.getScoreEarned()).thenReturn(10); // existing best is lower -> overwrite
         when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.of(best));
 
         int[] received = {-1};
@@ -321,7 +321,7 @@ class SubmissionProcessorTest {
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
                 .thenReturn(40);
         Submission best = mock(Submission.class);
-        when(best.scoreEarned()).thenReturn(40);
+        when(best.getScoreEarned()).thenReturn(40);
         when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.of(best));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -346,10 +346,10 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
         verify(executor).judge(cap.capture());
-        assertEquals(2, cap.getValue().testCases().size());
-        assertTrue(cap.getValue().testCases().get(0).hidden());
-        assertFalse(cap.getValue().testCases().get(1).hidden());
-        assertEquals(512, cap.getValue().memoryLimitMb());
+        assertEquals(2, cap.getValue().getTestCases().size());
+        assertTrue(cap.getValue().getTestCases().get(0).isHidden());
+        assertFalse(cap.getValue().getTestCases().get(1).isHidden());
+        assertEquals(512, cap.getValue().getMemoryLimitMb());
         assertEquals(100, received[0]);
     }
 
@@ -358,10 +358,10 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question tiny = mock(Question.class);
-        when(tiny.questionType()).thenReturn("OJ_FULL");
-        when(tiny.config()).thenReturn("{}");
-        when(tiny.pointsBase()).thenReturn(100);
-        when(tiny.timeLimitSec()).thenReturn(1);
+        when(tiny.getQuestionType()).thenReturn("OJ_FULL");
+        when(tiny.getConfig()).thenReturn("{}");
+        when(tiny.getPointsBase()).thenReturn(100);
+        when(tiny.getTimeLimitSec()).thenReturn(1);
         when(questionRepository.findById("q")).thenReturn(Optional.of(tiny));
         when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(1, 1, true, List.of()));
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any()))
@@ -371,8 +371,8 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
         verify(executor).judge(cap.capture());
-        assertEquals(256, cap.getValue().memoryLimitMb());
-        assertEquals(5, cap.getValue().timeoutSec());
+        assertEquals(256, cap.getValue().getMemoryLimitMb());
+        assertEquals(5, cap.getValue().getTimeoutSec());
     }
 
     @Test
@@ -397,7 +397,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("OJ_FULL");
+        when(q.getQuestionType()).thenReturn("OJ_FULL");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -513,7 +513,7 @@ class SubmissionProcessorTest {
         when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(1, 1, true, List.of()));
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any())).thenReturn(51);
         Submission best = mock(Submission.class);
-        when(best.scoreEarned()).thenReturn(50);
+        when(best.getScoreEarned()).thenReturn(50);
         when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.of(best));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -531,7 +531,7 @@ class SubmissionProcessorTest {
         when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(1, 1, true, List.of()));
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any())).thenReturn(49);
         Submission best = mock(Submission.class);
-        when(best.scoreEarned()).thenReturn(50);
+        when(best.getScoreEarned()).thenReturn(50);
         when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.of(best));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -549,7 +549,7 @@ class SubmissionProcessorTest {
         when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(0, 2, false, List.of()));
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any())).thenReturn(30);
         Submission best = mock(Submission.class);
-        when(best.scoreEarned()).thenReturn(30);
+        when(best.getScoreEarned()).thenReturn(30);
         when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.of(best));
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> {};
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 2, Map.of(), 0L, handler).get());
@@ -699,7 +699,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("OJ_FULL");
+        when(q.getQuestionType()).thenReturn("OJ_FULL");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -730,7 +730,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("OJ_FULL");
+        when(q.getQuestionType()).thenReturn("OJ_FULL");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -738,7 +738,7 @@ class SubmissionProcessorTest {
         assertEquals(0, received[0]);
         org.mockito.ArgumentCaptor<Submission> cap = org.mockito.ArgumentCaptor.forClass(Submission.class);
         verify(writeBuffer).offer(cap.capture());
-        assertTrue(cap.getValue().judgeLog().contains("source_too_large"));
+        assertTrue(cap.getValue().getJudgeLog().contains("source_too_large"));
     }
 
     @Test
@@ -746,10 +746,10 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("OJ_PATCH");
-        when(q.config()).thenReturn("{\"testCases\":[]}");
-        when(q.pointsBase()).thenReturn(200);
-        when(q.timeLimitSec()).thenReturn(15);
+        when(q.getQuestionType()).thenReturn("OJ_PATCH");
+        when(q.getConfig()).thenReturn("{\"testCases\":[]}");
+        when(q.getPointsBase()).thenReturn(200);
+        when(q.getTimeLimitSec()).thenReturn(15);
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(1, 1, true, List.of()));
         when(scoringEngine.scoreCoding(eq(1), eq(1), eq(200), eq(true), anyLong(), eq(15L), eq(1), any())).thenReturn(180);
@@ -765,7 +765,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("TRUE_FALSE");
+        when(q.getQuestionType()).thenReturn("TRUE_FALSE");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -780,14 +780,14 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("FILL_BLANK");
+        when(q.getQuestionType()).thenReturn("FILL_BLANK");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> {};
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<Submission> cap = org.mockito.ArgumentCaptor.forClass(Submission.class);
         verify(writeBuffer).offer(cap.capture());
-        assertEquals(0, cap.getValue().scoreEarned());
-        assertFalse(cap.getValue().correct());
+        assertEquals(0, cap.getValue().getScoreEarned());
+        assertFalse(cap.getValue().isCorrect());
     }
 
     @Test
@@ -803,8 +803,8 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "python", "print(42)", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
         verify(executor).judge(cap.capture());
-        assertEquals("python", cap.getValue().language());
-        assertEquals("print(42)", cap.getValue().sourceCode());
+        assertEquals("python", cap.getValue().getLanguage());
+        assertEquals("print(42)", cap.getValue().getSourceCode());
     }
 
     @Test
@@ -821,7 +821,7 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "python", src, 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
         verify(executor).judge(cap.capture());
-        assertEquals(src, cap.getValue().sourceCode());
+        assertEquals(src, cap.getValue().getSourceCode());
     }
 
     @Test
@@ -829,10 +829,10 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question tiny = mock(Question.class);
-        when(tiny.questionType()).thenReturn("OJ_FULL");
-        when(tiny.config()).thenReturn("{\"testCases\":[]}");
-        when(tiny.pointsBase()).thenReturn(100);
-        when(tiny.timeLimitSec()).thenReturn(2);
+        when(tiny.getQuestionType()).thenReturn("OJ_FULL");
+        when(tiny.getConfig()).thenReturn("{\"testCases\":[]}");
+        when(tiny.getPointsBase()).thenReturn(100);
+        when(tiny.getTimeLimitSec()).thenReturn(2);
         when(questionRepository.findById("q")).thenReturn(Optional.of(tiny));
         when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(1, 1, true, List.of()));
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any())).thenReturn(50);
@@ -841,7 +841,7 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
         verify(executor).judge(cap.capture());
-        assertEquals(5, cap.getValue().timeoutSec());
+        assertEquals(5, cap.getValue().getTimeoutSec());
     }
 
     @Test
@@ -849,10 +849,10 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question big = mock(Question.class);
-        when(big.questionType()).thenReturn("OJ_FULL");
-        when(big.config()).thenReturn("{\"testCases\":[]}");
-        when(big.pointsBase()).thenReturn(100);
-        when(big.timeLimitSec()).thenReturn(30);
+        when(big.getQuestionType()).thenReturn("OJ_FULL");
+        when(big.getConfig()).thenReturn("{\"testCases\":[]}");
+        when(big.getPointsBase()).thenReturn(100);
+        when(big.getTimeLimitSec()).thenReturn(30);
         when(questionRepository.findById("q")).thenReturn(Optional.of(big));
         when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(1, 1, true, List.of()));
         when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(), any())).thenReturn(90);
@@ -861,7 +861,7 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
         verify(executor).judge(cap.capture());
-        assertEquals(30, cap.getValue().timeoutSec());
+        assertEquals(30, cap.getValue().getTimeoutSec());
     }
 
     @Test
@@ -877,7 +877,7 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
         verify(executor).judge(cap.capture());
-        assertEquals(512, cap.getValue().memoryLimitMb());
+        assertEquals(512, cap.getValue().getMemoryLimitMb());
     }
 
     @Test
@@ -893,7 +893,7 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
         verify(executor).judge(cap.capture());
-        assertEquals(256, cap.getValue().memoryLimitMb());
+        assertEquals(256, cap.getValue().getMemoryLimitMb());
     }
 
     @Test
@@ -909,9 +909,9 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
         verify(executor).judge(cap.capture());
-        assertEquals(2, cap.getValue().testCases().size());
-        assertFalse(cap.getValue().testCases().get(0).hidden());
-        assertFalse(cap.getValue().testCases().get(1).hidden());
+        assertEquals(2, cap.getValue().getTestCases().size());
+        assertFalse(cap.getValue().getTestCases().get(0).isHidden());
+        assertFalse(cap.getValue().getTestCases().get(1).isHidden());
     }
 
     @Test
@@ -927,9 +927,9 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
         verify(executor).judge(cap.capture());
-        assertEquals("hello", cap.getValue().testCases().get(0).input());
-        assertEquals("world", cap.getValue().testCases().get(0).expectedOutput());
-        assertTrue(cap.getValue().testCases().get(0).hidden());
+        assertEquals("hello", cap.getValue().getTestCases().get(0).getInput());
+        assertEquals("world", cap.getValue().getTestCases().get(0).getExpectedOutput());
+        assertTrue(cap.getValue().getTestCases().get(0).isHidden());
     }
 
     @Test
@@ -937,10 +937,10 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("OJ_FULL");
-        when(q.config()).thenReturn("{\"testCases\":[]}");
-        when(q.pointsBase()).thenReturn(250);
-        when(q.timeLimitSec()).thenReturn(10);
+        when(q.getQuestionType()).thenReturn("OJ_FULL");
+        when(q.getConfig()).thenReturn("{\"testCases\":[]}");
+        when(q.getPointsBase()).thenReturn(250);
+        when(q.getTimeLimitSec()).thenReturn(10);
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         when(executor.judge(any(JudgeRequest.class))).thenReturn(new JudgeResult(1, 1, true, List.of()));
         when(scoringEngine.scoreCoding(eq(1), eq(1), eq(250), eq(true), anyLong(), eq(10L), eq(1), any())).thenReturn(200);
@@ -1035,9 +1035,9 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "python", "my-src", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<Submission> cap = org.mockito.ArgumentCaptor.forClass(Submission.class);
         verify(writeBuffer).offer(cap.capture());
-        assertTrue(cap.getValue().responseData().contains("python"));
-        assertTrue(cap.getValue().responseData().contains("my-src"));
-        assertEquals(66, cap.getValue().scoreEarned());
+        assertTrue(cap.getValue().getResponseData().contains("python"));
+        assertTrue(cap.getValue().getResponseData().contains("my-src"));
+        assertEquals(66, cap.getValue().getScoreEarned());
     }
 
     @Test
@@ -1079,7 +1079,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("NUMERIC");
+        when(q.getQuestionType()).thenReturn("NUMERIC");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -1212,13 +1212,13 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("MCQ");
+        when(q.getQuestionType()).thenReturn("MCQ");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> {};
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<Submission> cap = org.mockito.ArgumentCaptor.forClass(Submission.class);
         verify(writeBuffer).offer(cap.capture());
-        assertTrue(cap.getValue().judgeLog().contains("not_a_coding_question"));
+        assertTrue(cap.getValue().getJudgeLog().contains("not_a_coding_question"));
     }
 
     @Test
@@ -1226,13 +1226,13 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("OJ_FULL");
+        when(q.getQuestionType()).thenReturn("OJ_FULL");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> {};
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", null, 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<Submission> cap = org.mockito.ArgumentCaptor.forClass(Submission.class);
         verify(writeBuffer).offer(cap.capture());
-        assertTrue(cap.getValue().judgeLog().contains("source_missing"));
+        assertTrue(cap.getValue().getJudgeLog().contains("source_missing"));
     }
 
     @Test
@@ -1248,9 +1248,9 @@ class SubmissionProcessorTest {
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
         org.mockito.ArgumentCaptor<JudgeRequest> cap = org.mockito.ArgumentCaptor.forClass(JudgeRequest.class);
         verify(executor).judge(cap.capture());
-        assertEquals(1, cap.getValue().testCases().size());
-        assertTrue(cap.getValue().testCases().get(0).hidden());
-        assertEquals(1024, cap.getValue().memoryLimitMb());
+        assertEquals(1, cap.getValue().getTestCases().size());
+        assertTrue(cap.getValue().getTestCases().get(0).isHidden());
+        assertEquals(1024, cap.getValue().getMemoryLimitMb());
     }
 
     @Test
@@ -1258,8 +1258,8 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("OJ_FULL");
-        when(q.config()).thenReturn(null);
+        when(q.getQuestionType()).thenReturn("OJ_FULL");
+        when(q.getConfig()).thenReturn(null);
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -1306,7 +1306,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("OUTPUT_PRED");
+        when(q.getQuestionType()).thenReturn("OUTPUT_PRED");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> {};
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
@@ -1319,7 +1319,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("COMPLEXITY");
+        when(q.getQuestionType()).thenReturn("COMPLEXITY");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -1332,7 +1332,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("DRAG_SORT");
+        when(q.getQuestionType()).thenReturn("DRAG_SORT");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> {};
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
@@ -1344,7 +1344,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("CLICK_BUG");
+        when(q.getQuestionType()).thenReturn("CLICK_BUG");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> {};
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
@@ -1357,7 +1357,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("CODE_COMPLETION");
+        when(q.getQuestionType()).thenReturn("CODE_COMPLETION");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> {};
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "code", 1, Map.of(), 0L, handler).get());
@@ -1369,7 +1369,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("MULTIPLE_SELECT");
+        when(q.getQuestionType()).thenReturn("MULTIPLE_SELECT");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-1};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;
@@ -1446,7 +1446,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("FILL_BLANK");
+        when(q.getQuestionType()).thenReturn("FILL_BLANK");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> {};
         assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", "answer", 1, Map.of(), 0L, handler).get());
@@ -1459,7 +1459,7 @@ class SubmissionProcessorTest {
         Semaphore slot = new Semaphore(2);
         SubmissionProcessor p = processor(slot);
         Question q = mock(Question.class);
-        when(q.questionType()).thenReturn("TRUE_FALSE");
+        when(q.getQuestionType()).thenReturn("TRUE_FALSE");
         when(questionRepository.findById("q")).thenReturn(Optional.of(q));
         int[] received = {-5};
         CodingOutcomeConsumer handler = (u, s, ap, passed, total, ai) -> received[0] = s;

@@ -92,7 +92,7 @@ class QuestionAnswersTest {
 
     @Test
     void answerPayloadPerTypeWithAllKeys() throws Exception {
-        for (QuestionType t : new QuestionType[]{QuestionType.MCQ, QuestionType.OUTPUT_PRED, QuestionType.COMPLEXITY,
+        for (String t : new String[]{QuestionType.MCQ, QuestionType.OUTPUT_PRED, QuestionType.COMPLEXITY,
                 QuestionType.TRUE_FALSE, QuestionType.MULTIPLE_SELECT, QuestionType.NUMERIC,
                 QuestionType.FILL_BLANK, QuestionType.DRAG_SORT, QuestionType.CLICK_BUG, QuestionType.CODE_COMPLETION}) {
             ObjectNode raw = mapper.createObjectNode();

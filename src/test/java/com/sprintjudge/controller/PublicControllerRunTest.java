@@ -52,9 +52,9 @@ class PublicControllerRunTest {
 
         RunResult result = controller.run(req("python", "print('hello')"), http);
 
-        assertTrue(result.ok());
-        assertEquals("hello", result.output());
-        assertEquals("ok", result.status());
+        assertTrue(result.isOk());
+        assertEquals("hello", result.getOutput());
+        assertEquals("ok", result.getStatus());
         verify(executor).run(any());
     }
 
@@ -88,8 +88,8 @@ class PublicControllerRunTest {
         runWindowMap().get("10.0.0.2")[0] = System.currentTimeMillis() - 61_000;
 
         RunResult afterReset = controller.run(req("python", "x"), http);
-        assertTrue(afterReset.ok());
-        assertEquals("ok", afterReset.status());
+        assertTrue(afterReset.isOk());
+        assertEquals("ok", afterReset.getStatus());
     }
 
     @Test
@@ -235,8 +235,8 @@ class PublicControllerRunTest {
         when(http.getRemoteAddr()).thenReturn("vr-1");
         when(executor.run(any())).thenReturn(new RunResult(true, "z", "", "ok"));
         RunResult r = controller.run(vr("python", "x", "", 0), http);
-        assertEquals("ok", r.status());
-        verify(executor).run(argThat(q -> q.timeoutSec() == 0));
+        assertEquals("ok", r.getStatus());
+        verify(executor).run(argThat(q -> q.getTimeoutSec() == 0));
     }
 
     @Test
@@ -244,8 +244,8 @@ class PublicControllerRunTest {
         when(http.getRemoteAddr()).thenReturn("vr-2");
         when(executor.run(any())).thenReturn(new RunResult(true, "z", "", "ok"));
         RunResult r = controller.run(vr("python", "x", "", 31), http);
-        assertEquals("ok", r.status());
-        verify(executor).run(argThat(q -> q.timeoutSec() == 31));
+        assertEquals("ok", r.getStatus());
+        verify(executor).run(argThat(q -> q.getTimeoutSec() == 31));
     }
 
     @Test
@@ -253,7 +253,7 @@ class PublicControllerRunTest {
         when(http.getRemoteAddr()).thenReturn("vr-3");
         when(executor.run(any())).thenReturn(new RunResult(false, "", "", "timeout"));
         RunResult r = controller.run(vr("python", "x", "", -5), http);
-        assertEquals("timeout", r.status());
+        assertEquals("timeout", r.getStatus());
     }
 
     @Test
@@ -261,7 +261,7 @@ class PublicControllerRunTest {
         when(http.getRemoteAddr()).thenReturn("vr-4");
         when(executor.run(any())).thenReturn(new RunResult(false, "", "", "unsupported_language"));
         RunResult r = controller.run(vr("  ", "x", "", 5), http);
-        assertEquals("unsupported_language", r.status());
+        assertEquals("unsupported_language", r.getStatus());
     }
 
     @Test
@@ -269,7 +269,7 @@ class PublicControllerRunTest {
         when(http.getRemoteAddr()).thenReturn("vr-5");
         when(executor.run(any())).thenReturn(new RunResult(false, "", "", "unsupported_language"));
         RunResult r = controller.run(vr(null, "x", "", 5), http);
-        assertEquals("unsupported_language", r.status());
+        assertEquals("unsupported_language", r.getStatus());
     }
 
     @Test
@@ -277,8 +277,8 @@ class PublicControllerRunTest {
         when(http.getRemoteAddr()).thenReturn("vr-6");
         when(executor.run(any())).thenReturn(new RunResult(true, "big", "", "ok"));
         RunResult r = controller.run(vr("python", "x", "s".repeat(10001), 5), http);
-        assertEquals("ok", r.status());
-        verify(executor).run(argThat(q -> q.stdin().length() == 10001));
+        assertEquals("ok", r.getStatus());
+        verify(executor).run(argThat(q -> q.getStdin().length() == 10001));
     }
 
     @Test
@@ -286,7 +286,7 @@ class PublicControllerRunTest {
         when(http.getRemoteAddr()).thenReturn("vr-7");
         when(executor.run(any())).thenReturn(new RunResult(true, "uni", "", "ok"));
         RunResult r = controller.run(vr("python", "print('h\u00e9llo')", "", 5), http);
-        assertEquals("uni", r.output());
+        assertEquals("uni", r.getOutput());
     }
 
     @Test
@@ -323,7 +323,7 @@ class PublicControllerRunTest {
 
         RunResult result = controller.run(req("python", "print(1)"), http);
 
-        assertEquals("prod", result.output());
+        assertEquals("prod", result.getOutput());
     }
 
     @Test
@@ -332,6 +332,6 @@ class PublicControllerRunTest {
         when(http.getRemoteAddr()).thenReturn("dev-ip");
         when(executor.run(any())).thenReturn(new RunResult(true, "dev", "", "ok"));
 
-        assertEquals("dev", controller.run(req("python", "print(1)"), http).output());
+        assertEquals("dev", controller.run(req("python", "print(1)"), http).getOutput());
     }
 }

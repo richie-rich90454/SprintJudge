@@ -64,23 +64,50 @@ public class MetricsService {
     void registerGauges() {
         // Gauges are registered after construction so 'this' never escapes
         // through a gauge callback before the bean is fully initialised.
-        Gauge.builder("sprintjudge.rooms.active", roomManager, r -> r.activeRooms())
+        Gauge.builder("sprintjudge.rooms.active", roomManager, new java.util.function.ToDoubleFunction<Object>() {
+            @Override
+            public double applyAsDouble(Object r) { return ((GameRoomManager) r).activeRooms(); }
+        })
                 .description("Number of active game rooms").register(meterRegistry);
-        Gauge.builder("sprintjudge.judge.permits.available", judgeSlots, s -> s.availablePermits())
+        Gauge.builder("sprintjudge.judge.permits.available", judgeSlots, new java.util.function.ToDoubleFunction<Object>() {
+            @Override
+            public double applyAsDouble(Object s) { return ((java.util.concurrent.Semaphore) s).availablePermits(); }
+        })
                 .description("Available judge execution permits").register(meterRegistry);
-        Gauge.builder("sprintjudge.judge.runs.total", this, m -> m.judgeCount.get())
+        Gauge.builder("sprintjudge.judge.runs.total", this, new java.util.function.ToDoubleFunction<MetricsService>() {
+            @Override
+            public double applyAsDouble(MetricsService m) { return m.judgeCount.get(); }
+        })
                 .description("Total judge runs").register(meterRegistry);
-        Gauge.builder("sprintjudge.judge.timeouts.total", this, m -> m.judgeTimeouts.get())
+        Gauge.builder("sprintjudge.judge.timeouts.total", this, new java.util.function.ToDoubleFunction<MetricsService>() {
+            @Override
+            public double applyAsDouble(MetricsService m) { return m.judgeTimeouts.get(); }
+        })
                 .description("Total judge timeouts").register(meterRegistry);
-        Gauge.builder("sprintjudge.persistence.buffer.depth", writeBuffer, w -> w.depth())
+        Gauge.builder("sprintjudge.persistence.buffer.depth", writeBuffer, new java.util.function.ToDoubleFunction<Object>() {
+            @Override
+            public double applyAsDouble(Object w) { return ((SubmissionWriteBuffer) w).depth(); }
+        })
                 .description("Write buffer depth").register(meterRegistry);
-        Gauge.builder("sprintjudge.compile.cache.entries", compileCache, c -> c.entries())
+        Gauge.builder("sprintjudge.compile.cache.entries", compileCache, new java.util.function.ToDoubleFunction<Object>() {
+            @Override
+            public double applyAsDouble(Object c) { return ((com.sprintjudge.service.executor.CompileArtifactCache) c).entries(); }
+        })
                 .description("Compile cache entries").register(meterRegistry);
-        Gauge.builder("sprintjudge.broadcast.pending.rooms", scheduler, s -> s.pendingRooms())
+        Gauge.builder("sprintjudge.broadcast.pending.rooms", scheduler, new java.util.function.ToDoubleFunction<Object>() {
+            @Override
+            public double applyAsDouble(Object s) { return ((BroadcastScheduler) s).pendingRooms(); }
+        })
                 .description("Rooms pending broadcast").register(meterRegistry);
-        Gauge.builder("sprintjudge.memory.heap.used.mb", this, m -> m.memory.getHeapMemoryUsage().getUsed() >> 20)
+        Gauge.builder("sprintjudge.memory.heap.used.mb", this, new java.util.function.ToDoubleFunction<MetricsService>() {
+            @Override
+            public double applyAsDouble(MetricsService m) { return m.memory.getHeapMemoryUsage().getUsed() >> 20; }
+        })
                 .description("Heap memory used (MB)").register(meterRegistry);
-        Gauge.builder("sprintjudge.threads.active", this, m -> m.threads.getThreadCount())
+        Gauge.builder("sprintjudge.threads.active", this, new java.util.function.ToDoubleFunction<MetricsService>() {
+            @Override
+            public double applyAsDouble(MetricsService m) { return m.threads.getThreadCount(); }
+        })
                 .description("Active thread count").register(meterRegistry);
     }
 

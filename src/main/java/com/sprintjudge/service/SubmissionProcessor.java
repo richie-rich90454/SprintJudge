@@ -95,23 +95,57 @@ public class SubmissionProcessor {
         }
         // AI grading: when tests fail and AI is enabled, get feedback.
         String aiFeedback = null;
-        if (!core.allPassed() && aiGradingService.isEnabled()) {
+        if (!core.isAllPassed() && aiGradingService.isEnabled()) {
             try {
-                var aiResult = aiGradingService.grade(language, sourceCode,
-                        core.title(), core.description(),
-                        core.allPassed(), core.score(), core.pointsBase());
-                if (aiResult.available()) aiFeedback = aiResult.feedback();
+        AiGradingService.AiGradeResult aiResult = aiGradingService.grade(language, sourceCode,
+                core.getTitle(), core.getDescription(),
+                core.isAllPassed(), core.getScore(), core.getPointsBase());
+        if (aiResult.isAvailable()) aiFeedback = aiResult.getFeedback();
             } catch (Exception e) {
                 log.debug("AI grading failed for question {}: {}", questionId, e.getMessage());
             }
         }
-        handler.accept(playerUuid, core.score(), core.allPassed(), core.passed(), core.total(), aiFeedback);
+        handler.accept(playerUuid, core.getScore(), core.isAllPassed(), core.getPassed(), core.getTotal(), aiFeedback);
         return CompletableFuture.completedFuture(true);
     }
 
-    /** Judge outcome that survived to need scoring + notification. Null = rejected. */
-    private record Core(String title, String description, int score, boolean allPassed, int passed, int total,
-                        int pointsBase) {}
+    private static final class Core {
+        private String title;
+        private String description;
+        private int score;
+        private boolean allPassed;
+        private int passed;
+        private int total;
+        private int pointsBase;
+
+        public Core() {}
+
+        public Core(String title, String description, int score, boolean allPassed, int passed, int total,
+                    int pointsBase) {
+            this.title = title;
+            this.description = description;
+            this.score = score;
+            this.allPassed = allPassed;
+            this.passed = passed;
+            this.total = total;
+            this.pointsBase = pointsBase;
+        }
+
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
+        public int getScore() { return score; }
+        public void setScore(int score) { this.score = score; }
+        public boolean isAllPassed() { return allPassed; }
+        public void setAllPassed(boolean allPassed) { this.allPassed = allPassed; }
+        public int getPassed() { return passed; }
+        public void setPassed(int passed) { this.passed = passed; }
+        public int getTotal() { return total; }
+        public void setTotal(int total) { this.total = total; }
+        public int getPointsBase() { return pointsBase; }
+        public void setPointsBase(int pointsBase) { this.pointsBase = pointsBase; }
+    }
 
     private Core judgeCore(String sessionId, String questionId, String playerName,
                            String playerUuid, String language, String sourceCode,
@@ -123,10 +157,10 @@ public class SubmissionProcessor {
             // a row for a deleted question would poison the write buffer.
             return null;
         }
-        QuestionType type = QuestionType.from(question.questionType());
+        String type = QuestionType.from(question.getQuestionType());
 
         // Async-boundary guard: misrouted selection answers must never reach tools.
-        if (!type.isCoding()) {
+        if (!QuestionType.isCoding(type)) {
             recordRejected(sessionId, questionId, playerName, playerUuid, "not_a_coding_question");
             return null;
         }
@@ -138,7 +172,7 @@ public class SubmissionProcessor {
             return null;
         }
 
-        JsonNode config = Json.readTree(question.config());
+        JsonNode config = Json.readTree(question.getConfig());
         List<com.sprintjudge.service.executor.TestCase> cases = new ArrayList<>();
         if (config.has("testCases")) {
             for (JsonNode tc : config.get("testCases")) {
@@ -149,24 +183,24 @@ public class SubmissionProcessor {
             }
         }
         int memMb = config.path("memoryLimitMb").asInt(256);
-        int timeout = Math.max(5, question.timeLimitSec());
+        int timeout = Math.max(5, question.getTimeLimitSec());
 
         JudgeRequest req = new JudgeRequest(language, sourceCode, cases, timeout, memMb);
         JudgeResult result = executor.judge(req);
 
         int score = scoringEngine.scoreCoding(
-                result.passed(), result.total(), question.pointsBase(),
-                result.allPassed(), timeTakenSec, question.timeLimitSec(), attemptsUsed, settings);
+                result.getPassed(), result.getTotal(), question.getPointsBase(),
+                result.isAllPassed(), timeTakenSec, question.getTimeLimitSec(), attemptsUsed, settings);
 
         Submission best = submissionRepository.findBest(sessionId, questionId, playerUuid).orElse(null);
-        if (best == null || score > best.scoreEarned()) {
+        if (best == null || score > best.getScoreEarned()) {
             writeBuffer.offer(new Submission(
                     Ids.uuid(), sessionId, questionId, playerName, playerUuid,
                     Json.write(Map.of("language", language, "source", sourceCode)),
-                    score, result.allPassed(), Json.write(result), attemptsUsed, Instant.now()));
+                    score, result.isAllPassed(), Json.write(result), attemptsUsed, Instant.now()));
         }
-        return new Core(question.title(), question.description(), score,
-                result.allPassed(), result.passed(), result.total(), question.pointsBase());
+        return new Core(question.getTitle(), question.getDescription(), score,
+                result.isAllPassed(), result.getPassed(), result.getTotal(), question.getPointsBase());
     }
 
     private void recordRejected(String sessionId, String questionId, String playerName,

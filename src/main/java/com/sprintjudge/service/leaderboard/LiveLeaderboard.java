@@ -93,13 +93,13 @@ public final class LiveLeaderboard {
         DeltaLedger.Batch b = ledger.drain(forceResync);
         // drain guarantees resync batches carry no upserts, so resync alone
         // selects the early return.
-        if (b.resync()) return b;
-        List<DeltaLedger.Delta> fresh = new java.util.ArrayList<>(b.upserts().size());
-        for (DeltaLedger.Delta d : b.upserts()) {
-            int rank = ordered.rankOf(d.uuid());
-            fresh.add(new DeltaLedger.Delta(d.uuid(), d.name(), d.score(), rank < 0 ? d.rank() : rank));
+        if (b.isResync()) return b;
+        List<DeltaLedger.Delta> fresh = new java.util.ArrayList<>(b.getUpserts().size());
+        for (DeltaLedger.Delta d : b.getUpserts()) {
+            int rank = ordered.rankOf(d.getUuid());
+            fresh.add(new DeltaLedger.Delta(d.getUuid(), d.getName(), d.getScore(), rank < 0 ? d.getRank() : rank));
         }
-        return new DeltaLedger.Batch(b.seq(), false, fresh);
+        return new DeltaLedger.Batch(b.getSeq(), false, fresh);
     }
 
     // ---------- broadcast plumbing ----------
@@ -113,7 +113,7 @@ public final class LiveLeaderboard {
         List<DeltaLedger.Delta> all = new java.util.ArrayList<>(players.size());
         int rank = 1;
         for (RankedSkipList.Entry e : ordered.snapshot()) {
-            all.add(new DeltaLedger.Delta(e.uuid(), e.name(), e.score(), rank++));
+            all.add(new DeltaLedger.Delta(e.getUuid(), e.getName(), e.getScore(), rank++));
         }
         // resync=true tells clients to REPLACE their local ranking wholesale.
         return new DeltaLedger.Batch(ledger.currentSeq(), true, all);

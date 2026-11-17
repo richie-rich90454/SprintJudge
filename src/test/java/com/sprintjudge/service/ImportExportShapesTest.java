@@ -66,9 +66,9 @@ class ImportExportShapesTest {
         Repos rp = repos();
         rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qx("a", "Q")))), null)), false);
-        assertFalse(rp.qr().findById("q1").orElseThrow().template());
+        assertFalse(rp.qr().findById("q1").orElseThrow().isTemplate());
         ExportBundle back = Json.read(rp.svc().exportAll(), ExportBundle.class);
-        assertFalse(back.quizzes().get(0).template());
+        assertFalse(back.getQuizzes().get(0).isTemplate());
     }
 
     @Test
@@ -77,8 +77,8 @@ class ImportExportShapesTest {
         rp.svc().importAll(Json.write(bundle(List.of(
                 new ExportBundle.QuizExport("t1", "A", "d", true, List.of(qx("a", "Q"))),
                 new ExportBundle.QuizExport("t2", "B", "d", false, List.of(qx("b", "Q")))), null)), false);
-        assertTrue(rp.qr().findById("t1").orElseThrow().template());
-        assertFalse(rp.qr().findById("t2").orElseThrow().template());
+        assertTrue(rp.qr().findById("t1").orElseThrow().isTemplate());
+        assertFalse(rp.qr().findById("t2").orElseThrow().isTemplate());
     }
 
     @Test
@@ -90,7 +90,7 @@ class ImportExportShapesTest {
         rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qe))), null)), false);
         ExportBundle back = Json.read(rp.svc().exportAll(), ExportBundle.class);
-        assertNull(back.quizzes().get(0).questions().get(0).languagesAllowed());
+        assertNull(back.getQuizzes().get(0).getQuestions().get(0).getLanguagesAllowed());
     }
 
     @Test
@@ -104,7 +104,7 @@ class ImportExportShapesTest {
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qe))), null)), false);
         ExportBundle back = Json.read(rp.svc().exportAll(), ExportBundle.class);
         assertEquals(List.of("python", "java", "c"),
-                back.quizzes().get(0).questions().get(0).languagesAllowed());
+                back.getQuizzes().get(0).getQuestions().get(0).getLanguagesAllowed());
     }
 
     @Test
@@ -113,8 +113,8 @@ class ImportExportShapesTest {
         rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("lonely", "L", "d", false, List.of())), null)), false);
         ExportBundle back = Json.read(rp.svc().exportAll(), ExportBundle.class);
-        assertEquals(1, back.quizzes().size());
-        assertTrue(back.quizzes().get(0).questions().isEmpty());
+        assertEquals(1, back.getQuizzes().size());
+        assertTrue(back.getQuizzes().get(0).getQuestions().isEmpty());
         assertEquals(0, rp.qnr().findByQuiz("lonely").size());
     }
 
@@ -140,7 +140,7 @@ class ImportExportShapesTest {
         int count = db2.svc().importAll(db1.svc().exportAll(), false);
         assertEquals(50, count);
         assertEquals(50, db2.qnr().findByQuiz("big").size());
-        assertTrue(db2.qr().findById("big").orElseThrow().template());
+        assertTrue(db2.qr().findById("big").orElseThrow().isTemplate());
     }
 
     @Test
@@ -153,9 +153,9 @@ class ImportExportShapesTest {
         incoming.put("added", "yes");
         rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qx("a", "Q")))), incoming)), false);
-        assertEquals("old", rp.sr().findByKey("keep").orElseThrow().value());
-        assertEquals("new", rp.sr().findByKey("overwrite").orElseThrow().value());
-        assertEquals("yes", rp.sr().findByKey("added").orElseThrow().value());
+        assertEquals("old", rp.sr().findByKey("keep").orElseThrow().getValue());
+        assertEquals("new", rp.sr().findByKey("overwrite").orElseThrow().getValue());
+        assertEquals("yes", rp.sr().findByKey("added").orElseThrow().getValue());
     }
 
     @Test
@@ -164,7 +164,7 @@ class ImportExportShapesTest {
         rp.sr().put("keep", "v");
         rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qx("a", "Q")))), null)), false);
-        assertEquals("v", rp.sr().findByKey("keep").orElseThrow().value());
+        assertEquals("v", rp.sr().findByKey("keep").orElseThrow().getValue());
     }
 
     @Test
@@ -215,8 +215,8 @@ class ImportExportShapesTest {
         db2.svc().importAll(db1.svc().exportAll(), false);
         ExportBundle e1 = Json.read(db1.svc().exportAll(), ExportBundle.class);
         ExportBundle e2 = Json.read(db2.svc().exportAll(), ExportBundle.class);
-        assertEquals(e1.quizzes(), e2.quizzes());
-        assertEquals(e1.adminSettings(), e2.adminSettings());
+        assertEquals(e1.getQuizzes(), e2.getQuizzes());
+        assertEquals(e1.getAdminSettings(), e2.getAdminSettings());
     }
 
     @Test
@@ -231,7 +231,7 @@ class ImportExportShapesTest {
         rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qe))), null)), false);
         ExportBundle back = Json.read(rp.svc().exportAll(), ExportBundle.class);
-        Map<String, Object> cfg = back.quizzes().get(0).questions().get(0).config();
+        Map<String, Object> cfg = back.getQuizzes().get(0).getQuestions().get(0).getConfig();
         assertEquals(2, ((Number) cfg.get("correctIndex")).intValue());
         assertEquals("think", cfg.get("hint"));
     }
@@ -244,7 +244,7 @@ class ImportExportShapesTest {
                 Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         assertEquals(1, rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qe))), null)), false));
-        assertEquals(0, rp.qnr().findByQuiz("q1").get(0).pointsBase());
+        assertEquals(0, rp.qnr().findByQuiz("q1").get(0).getPointsBase());
     }
 
     @Test
@@ -271,8 +271,8 @@ class ImportExportShapesTest {
     void exportOfEmptyBankHasNoQuizzes() throws Exception {
         Repos rp = repos();
         ExportBundle back = Json.read(rp.svc().exportAll(), ExportBundle.class);
-        assertTrue(back.quizzes().isEmpty());
-        assertEquals("1.0", back.version());
+        assertTrue(back.getQuizzes().isEmpty());
+        assertEquals("1.0", back.getVersion());
     }
 
     @Test
@@ -296,7 +296,7 @@ class ImportExportShapesTest {
         Repos rp = repos();
         ExportBundle.QuizExport qe = new ExportBundle.QuizExport("q1", "T", null, false, List.of(qx("a", "Q")));
         assertEquals(1, rp.svc().importAll(Json.write(bundle(List.of(qe), null)), false));
-        assertNull(rp.qr().findById("q1").orElseThrow().description());
+        assertNull(rp.qr().findById("q1").orElseThrow().getDescription());
     }
 
     @Test
@@ -327,7 +327,7 @@ class ImportExportShapesTest {
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qx("a", "Q")))),
                 Map.of("mode", "blitz"))), false);
         ExportBundle back = Json.read(rp.svc().exportAll(), ExportBundle.class);
-        assertEquals("blitz", back.adminSettings().get("mode"));
+        assertEquals("blitz", back.getAdminSettings().get("mode"));
     }
 
     @Test
@@ -337,9 +337,9 @@ class ImportExportShapesTest {
                 new ExportBundle.QuizExport("first", "First", "d", false, List.of(qx("a", "Q"))),
                 new ExportBundle.QuizExport("second", "Second", "d", false, List.of(qx("b", "Q")))), null)), false);
         ExportBundle back = Json.read(rp.svc().exportAll(), ExportBundle.class);
-        assertEquals(2, back.quizzes().size());
-        assertTrue(back.quizzes().stream().anyMatch(z -> z.id().equals("first")));
-        assertTrue(back.quizzes().stream().anyMatch(z -> z.id().equals("second")));
+        assertEquals(2, back.getQuizzes().size());
+        assertTrue(back.getQuizzes().stream().anyMatch(z -> z.getId().equals("first")));
+        assertTrue(back.getQuizzes().stream().anyMatch(z -> z.getId().equals("second")));
     }
 
     @Test
@@ -348,7 +348,7 @@ class ImportExportShapesTest {
         rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qx("a", "Q")))),
                 Map.of("s", "1"))), true);
-        assertEquals("1", rp.sr().findByKey("s").orElseThrow().value());
+        assertEquals("1", rp.sr().findByKey("s").orElseThrow().getValue());
     }
 
     @Test
@@ -359,7 +359,7 @@ class ImportExportShapesTest {
                 Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
         assertEquals(1, rp.svc().importAll(Json.write(bundle(
                 List.of(new ExportBundle.QuizExport("q1", "T", "d", false, List.of(qe))), null)), false));
-        assertFalse(rp.qnr().findByQuiz("q1").get(0).id().isBlank());
+        assertFalse(rp.qnr().findByQuiz("q1").get(0).getId().isBlank());
     }
 
     @Test

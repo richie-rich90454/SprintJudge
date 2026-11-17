@@ -81,19 +81,19 @@ class BankQuizBuilderTest {
         BankQuizBuilder.BuildResult result = builder.build(
                 new BankQuizBuilder.BuildRequest("JAVA_PROGRAMMING", null, 1, 5, null, 2, false));
 
-        assertEquals(4, result.questions());
-        assertEquals(2, result.skipped());
+        assertEquals(4, result.getQuestions());
+        assertEquals(2, result.getSkipped());
         ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
         verify(importer).importAll(json.capture(), eq(false));
         ExportBundle bundle = Json.read(json.getValue(), ExportBundle.class);
-        List<ExportBundle.QuestionExport> questions = bundle.quizzes().get(0).questions();
-        Set<String> types = questions.stream().map(ExportBundle.QuestionExport::type)
+        List<ExportBundle.QuestionExport> questions = bundle.getQuizzes().get(0).getQuestions();
+        Set<String> types = questions.stream().map(new java.util.function.Function<ExportBundle.QuestionExport, String>() { @Override public String apply(ExportBundle.QuestionExport q) { return q.getType(); } })
                 .collect(Collectors.toSet());
         assertTrue(types.contains("MCQ"));
         assertTrue(types.contains("MULTIPLE_SELECT"));
         assertTrue(types.contains("NUMERIC"));
-        assertTrue(questions.stream().allMatch(q -> q.config().containsKey("explanation")));
-        assertTrue(questions.stream().allMatch(q -> "CSA 1".equals(q.config().get("csaUnit"))));
+        assertTrue(questions.stream().allMatch(q -> q.getConfig().containsKey("explanation")));
+        assertTrue(questions.stream().allMatch(q -> "CSA 1".equals(q.getConfig().get("csaUnit"))));
     }
 
     @Test
@@ -113,12 +113,12 @@ class BankQuizBuilderTest {
         BankQuizBuilder builder = new BankQuizBuilder(source(body), importer);
         BankQuizBuilder.BuildResult result = builder.build(
                 new BankQuizBuilder.BuildRequest(null, null, 5, 4, null, 3, false));
-        assertEquals(4, result.questions());
+        assertEquals(4, result.getQuestions());
         ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
         verify(importer).importAll(json.capture(), eq(false));
         ExportBundle bundle = Json.read(json.getValue(), ExportBundle.class);
-        Set<Object> units = bundle.quizzes().get(0).questions().stream()
-                .map(q -> q.config().get("csaUnit")).collect(Collectors.toSet());
+        Set<Object> units = bundle.getQuizzes().get(0).getQuestions().stream()
+                .map(q -> q.getConfig().get("csaUnit")).collect(Collectors.toSet());
         assertEquals(Set.of("CSA 1", "CSA 2", "CSA 3", "CSA 4"), units);
     }
 
@@ -130,12 +130,12 @@ class BankQuizBuilderTest {
                 source(javaRecords()), importer, "seed/coding-bundle.json");
         BankQuizBuilder.BuildResult result = builder.build(
                 new BankQuizBuilder.BuildRequest("JAVA_PROGRAMMING", null, 0, 3, null, 4, true));
-        assertEquals(3, result.questions());
+        assertEquals(3, result.getQuestions());
         ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
         verify(importer).importAll(json.capture(), eq(false));
         ExportBundle bundle = Json.read(json.getValue(), ExportBundle.class);
-        assertTrue(bundle.quizzes().get(0).questions().stream()
-                .anyMatch(q -> "OJ_FULL".equals(q.type())));
+        assertTrue(bundle.getQuizzes().get(0).getQuestions().stream()
+                .anyMatch(q -> "OJ_FULL".equals(q.getType())));
     }
 
     @Test
@@ -146,14 +146,14 @@ class BankQuizBuilderTest {
                 source(javaRecords()), importer, "seed/coding-fallback.json");
         BankQuizBuilder.BuildResult result = builder.build(
                 new BankQuizBuilder.BuildRequest("JAVA_PROGRAMMING", null, 0, 2, null, 8, true));
-        assertEquals(2, result.questions());
+        assertEquals(2, result.getQuestions());
         builder.build(new BankQuizBuilder.BuildRequest(
                 "JAVA_PROGRAMMING", null, 0, 2, null, 8, true));
         ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
         verify(importer, times(2)).importAll(json.capture(), eq(false));
         ExportBundle bundle = Json.read(json.getValue(), ExportBundle.class);
-        assertTrue(bundle.quizzes().get(0).questions().stream()
-                .anyMatch(q -> "OJ_FULL".equals(q.type())));
+        assertTrue(bundle.getQuizzes().get(0).getQuestions().stream()
+                .anyMatch(q -> "OJ_FULL".equals(q.getType())));
     }
 
     @Test
@@ -166,7 +166,7 @@ class BankQuizBuilderTest {
                 source(body), importer, "seed/coding-bundle.json");
         BankQuizBuilder.BuildResult result = builder.build(
                 new BankQuizBuilder.BuildRequest("PYTHON", null, 0, 1, null, 5, true));
-        assertEquals(1, result.questions());
+        assertEquals(1, result.getQuestions());
     }
 
     @Test
@@ -177,7 +177,7 @@ class BankQuizBuilderTest {
                 source(javaRecords()), importer, "seed/does-not-exist.json");
         BankQuizBuilder.BuildResult result = builder.build(
                 new BankQuizBuilder.BuildRequest("JAVA_PROGRAMMING", "Unit 1", 0, 1, null, 6, true));
-        assertEquals(1, result.questions());
+        assertEquals(1, result.getQuestions());
     }
 
     @Test
@@ -324,8 +324,8 @@ class BankQuizBuilderTest {
         ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
         verify(importer).importAll(json.capture(), eq(false));
         ExportBundle bundle = Json.read(json.getValue(), ExportBundle.class);
-        List<Map<String, Object>> configs = bundle.quizzes().get(0).questions().stream()
-                .map(ExportBundle.QuestionExport::config).toList();
+        List<Map<String, Object>> configs = bundle.getQuizzes().get(0).getQuestions().stream()
+                .map(new java.util.function.Function<ExportBundle.QuestionExport, Map<String, Object>>() { @Override public Map<String, Object> apply(ExportBundle.QuestionExport q) { return q.getConfig(); } }).collect(java.util.stream.Collectors.toList());
         assertTrue(configs.stream().anyMatch(c -> c.containsKey("correctIndex")));
         assertTrue(configs.stream().anyMatch(c -> c.containsKey("correctIndices")));
     }
@@ -333,8 +333,8 @@ class BankQuizBuilderTest {
     @Test
     void csaManifestLoadsFromResources() {
         BankQuizBuilder.LoadedManifest m = BankQuizBuilder.loadCsaManifest();
-        org.junit.jupiter.api.Assertions.assertFalse(m.presets().isEmpty());
-        org.junit.jupiter.api.Assertions.assertTrue(m.units().containsKey(1));
+        org.junit.jupiter.api.Assertions.assertFalse(m.getPresets().isEmpty());
+        org.junit.jupiter.api.Assertions.assertTrue(m.getUnits().containsKey(1));
     }
 
     @Test

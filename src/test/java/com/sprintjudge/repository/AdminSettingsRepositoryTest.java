@@ -24,14 +24,14 @@ class AdminSettingsRepositoryTest {
     @Test
     void putInsertsWhenAbsent() {
         repo.put("k1", "v1");
-        assertEquals("v1", repo.findByKey("k1").orElseThrow().value());
+        assertEquals("v1", repo.findByKey("k1").orElseThrow().getValue());
     }
 
     @Test
     void putUpdatesWhenPresent() {
         repo.put("k1", "v1");
         repo.put("k1", "v2");
-        assertEquals("v2", repo.findByKey("k1").orElseThrow().value());
+        assertEquals("v2", repo.findByKey("k1").orElseThrow().getValue());
     }
 
     @Test

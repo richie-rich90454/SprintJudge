@@ -51,16 +51,23 @@ public class CalibrationController {
         return dsl.select(Tables.CAL_QID, Tables.CAL_PVALUE, Tables.CAL_DISC, Tables.CAL_ATTEMPTS)
                 .from(Tables.CALIBRATION)
                 .where(Tables.CAL_QID.eq(questionId))
-                .fetchOptional(row -> {
-                    Map<String, Object> out = new LinkedHashMap<>();
-                    out.put("questionId", row.get(Tables.CAL_QID));
-                    out.put("pValue", row.get(Tables.CAL_PVALUE));
-                    out.put("discrimination", row.get(Tables.CAL_DISC));
-                    out.put("attempts", row.get(Tables.CAL_ATTEMPTS));
-                    return out;
+                .fetchOptional(new org.jooq.RecordMapper<org.jooq.Record, Map<String, Object>>() {
+                    @Override
+                    public Map<String, Object> map(org.jooq.Record row) {
+                        Map<String, Object> out = new LinkedHashMap<>();
+                        out.put("questionId", row.get(Tables.CAL_QID));
+                        out.put("pValue", row.get(Tables.CAL_PVALUE));
+                        out.put("discrimination", row.get(Tables.CAL_DISC));
+                        out.put("attempts", row.get(Tables.CAL_ATTEMPTS));
+                        return out;
+                    }
                 })
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "unknown question id"));
+                .orElseThrow(new java.util.function.Supplier<RuntimeException>() {
+                    @Override
+                    public RuntimeException get() {
+                        return new ResponseStatusException(HttpStatus.NOT_FOUND, "unknown question id");
+                    }
+                });
     }
 
     /**

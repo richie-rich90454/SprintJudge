@@ -72,10 +72,10 @@ class AbstractScriptExecutorTest {
     void unsupportedLanguageReturnsErrorCase() {
         StubExecutor ex = new StubExecutor("wd", "sd", 30);
         JudgeResult r = ex.judge(req("ruby", "x", List.of(tc("in", "out")), 10));
-        assertEquals(0, r.passed());
-        assertFalse(r.allPassed());
-        assertEquals(1, r.cases().size());
-        assertEquals("unsupported_language", r.cases().get(0).error());
+        assertEquals(0, r.getPassed());
+        assertFalse(r.isAllPassed());
+        assertEquals(1, r.getCases().size());
+        assertEquals("unsupported_language", r.getCases().get(0).getError());
     }
 
     @Test
@@ -84,9 +84,9 @@ class AbstractScriptExecutorTest {
         Files.createFile(blocker); // a regular file blocks createDirectories underneath it
         StubExecutor ex = new StubExecutor(blocker.toString(), tempDir.toString(), 30);
         JudgeResult r = ex.judge(req("node", "x", List.of(tc("in", "out")), 10));
-        assertEquals(0, r.passed());
-        assertFalse(r.allPassed());
-        assertEquals(0, r.cases().size());
+        assertEquals(0, r.getPassed());
+        assertFalse(r.isAllPassed());
+        assertEquals(0, r.getCases().size());
     }
 
     @Test
@@ -94,27 +94,27 @@ class AbstractScriptExecutorTest {
         StubExecutor ex = new StubExecutor(tempDir.toString(), tempDir.toString(), 30);
         JudgeResult r = ex.judge(req("node", "print(5)",
                 List.of(tc("5", "5"), tc("42", "42")), 10));
-        assertEquals(2, r.passed());
-        assertTrue(r.allPassed());
-        assertEquals(2, r.cases().size());
-        assertTrue(r.cases().get(0).passed());
+        assertEquals(2, r.getPassed());
+        assertTrue(r.isAllPassed());
+        assertEquals(2, r.getCases().size());
+        assertTrue(r.getCases().get(0).isPassed());
     }
 
     @Test
     void canonicalAliasRunsThroughCommandFor(@TempDir Path tempDir) {
         StubExecutor ex = new StubExecutor(tempDir.toString(), tempDir.toString(), 30);
         JudgeResult r = ex.judge(req("javascript", "ignored", List.of(tc("9", "9")), 10));
-        assertEquals(1, r.passed());
-        assertTrue(r.allPassed());
+        assertEquals(1, r.getPassed());
+        assertTrue(r.isAllPassed());
     }
 
     @Test
     void mismatchRecordsError(@TempDir Path tempDir) {
         StubExecutor ex = new StubExecutor(tempDir.toString(), tempDir.toString(), 30);
         JudgeResult r = ex.judge(req("python", "x", List.of(tc("5", "6")), 10));
-        assertEquals(0, r.passed());
-        assertFalse(r.allPassed());
-        assertEquals("mismatch", r.cases().get(0).error());
+        assertEquals(0, r.getPassed());
+        assertFalse(r.isAllPassed());
+        assertEquals("mismatch", r.getCases().get(0).getError());
     }
 
     @Test
@@ -123,8 +123,8 @@ class AbstractScriptExecutorTest {
         JudgeResult r = ex.judge(req("node", null,
                 List.of(tc(null, null)), 10));
         // empty output vs empty expected -> passes
-        assertEquals(1, r.passed());
-        assertTrue(r.cases().get(0).passed());
+        assertEquals(1, r.getPassed());
+        assertTrue(r.getCases().get(0).isPassed());
     }
 
     @Test
@@ -134,8 +134,8 @@ class AbstractScriptExecutorTest {
             StubExecutor ex = new StubExecutor(work.toString(), work.toString(), 1);
             ex.force(List.of("ping", "-n", "6", "127.0.0.1"));
             JudgeResult r = ex.judge(req("node", "x", List.of(tc("in", "out")), 0));
-            assertEquals(0, r.passed());
-            assertEquals("timeout", r.cases().get(0).error());
+            assertEquals(0, r.getPassed());
+            assertEquals("timeout", r.getCases().get(0).getError());
         } finally {
             Thread.sleep(200); // let the killed process release its output-file handle
             ExecIo.deleteTree(work);
@@ -147,8 +147,8 @@ class AbstractScriptExecutorTest {
         StubExecutor ex = new StubExecutor(tempDir.toString(), tempDir.toString(), 30);
         String big = "x".repeat(2 * ExecIo.STDOUT_CAP_BYTES);
         JudgeResult r = ex.judge(req("node", "x", List.of(tc(big, "out")), 10));
-        assertEquals(0, r.passed());
-        assertEquals("stdout_exceeded_1MB", r.cases().get(0).error());
+        assertEquals(0, r.getPassed());
+        assertEquals("stdout_exceeded_1MB", r.getCases().get(0).getError());
     }
 
     @Test
@@ -165,9 +165,9 @@ class AbstractScriptExecutorTest {
         StubExecutor ex = new StubExecutor(tempDir.toString(), tempDir.toString(), 30);
         ex.force(List.of("this-program-does-not-exist-xyz123"));
         JudgeResult r = ex.judge(req("node", "x", List.of(tc("in", "out")), 10));
-        assertEquals(0, r.passed());
-        assertFalse(r.allPassed());
-        assertEquals(0, r.cases().size());
+        assertEquals(0, r.getPassed());
+        assertFalse(r.isAllPassed());
+        assertEquals(0, r.getCases().size());
     }
 
     @Test

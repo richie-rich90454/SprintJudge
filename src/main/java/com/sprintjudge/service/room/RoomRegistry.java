@@ -76,8 +76,13 @@ public final class RoomRegistry {
     public java.util.List<GameRoom> snapshot() {
         lock.readLock().lock();
         try {
-            java.util.List<GameRoom> out = new java.util.ArrayList<>(rooms.size());
-            rooms.forEach((k, v) -> out.add(v));
+            final java.util.List<GameRoom> out = new java.util.ArrayList<>(rooms.size());
+            rooms.forEach(new IntObjectMap.IntObjectConsumer<GameRoom>() {
+                @Override
+                public void accept(int key, GameRoom value) {
+                    out.add(value);
+                }
+            });
             return out;
         } finally {
             lock.readLock().unlock();

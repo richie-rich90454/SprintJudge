@@ -74,7 +74,7 @@ class JsonBreadthTest {
                 Map.of("theme", "dark"));
         ExportBundle back = Json.read(Json.write(bundle), ExportBundle.class);
         assertEquals(bundle, back);
-        assertEquals("dark", back.adminSettings().get("theme"));
+        assertEquals("dark", back.getAdminSettings().get("theme"));
     }
 
     @Test

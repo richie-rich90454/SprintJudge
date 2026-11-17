@@ -17,10 +17,87 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public final class DeltaLedger {
 
-    public record Delta(String uuid, String name, long score, int rank) {}
+    /** A single player's pending leaderboard change. */
+    public static final class Delta {
+        private String uuid;
+        private String name;
+        private long score;
+        private int rank;
+
+        public Delta() {}
+
+        public Delta(String uuid, String name, long score, int rank) {
+            this.uuid = uuid;
+            this.name = name;
+            this.score = score;
+            this.rank = rank;
+        }
+
+        public String getUuid() { return uuid; }
+        public void setUuid(String uuid) { this.uuid = uuid; }
+
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+
+        public long getScore() { return score; }
+        public void setScore(long score) { this.score = score; }
+
+        public int getRank() { return rank; }
+        public void setRank(int rank) { this.rank = rank; }
+
+        @Override public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Delta)) return false;
+            Delta other = (Delta) o;
+            return score == other.score && rank == other.rank
+                    && java.util.Objects.equals(uuid, other.uuid)
+                    && java.util.Objects.equals(name, other.name);
+        }
+
+        @Override public int hashCode() { return java.util.Objects.hash(uuid, name, score, rank); }
+
+        @Override public String toString() {
+            return "Delta[uuid=" + uuid + ", name=" + name + ", score=" + score + ", rank=" + rank + "]";
+        }
+    }
 
     /** One broadcast unit: apply upserts; empty list means "full resync". */
-    public record Batch(long seq, boolean resync, List<Delta> upserts) {}
+    public static final class Batch {
+        private long seq;
+        private boolean resync;
+        private List<Delta> upserts;
+
+        public Batch() {}
+
+        public Batch(long seq, boolean resync, List<Delta> upserts) {
+            this.seq = seq;
+            this.resync = resync;
+            this.upserts = upserts;
+        }
+
+        public long getSeq() { return seq; }
+        public void setSeq(long seq) { this.seq = seq; }
+
+        public boolean isResync() { return resync; }
+        public void setResync(boolean resync) { this.resync = resync; }
+
+        public List<Delta> getUpserts() { return upserts; }
+        public void setUpserts(List<Delta> upserts) { this.upserts = upserts; }
+
+        @Override public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Batch)) return false;
+            Batch other = (Batch) o;
+            return seq == other.seq && resync == other.resync
+                    && java.util.Objects.equals(upserts, other.upserts);
+        }
+
+        @Override public int hashCode() { return java.util.Objects.hash(seq, resync, upserts); }
+
+        @Override public String toString() {
+            return "Batch[seq=" + seq + ", resync=" + resync + ", upserts=" + upserts + "]";
+        }
+    }
 
     private final ReentrantLock lock = new ReentrantLock();
     private long seq;

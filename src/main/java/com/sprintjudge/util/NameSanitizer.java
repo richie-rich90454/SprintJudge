@@ -7,7 +7,7 @@ import org.springframework.util.StringUtils;
  * underscores. They are truncated to 20 characters and rejected (empty result)
  * if nothing valid remains. The whitelist already excludes every HTML
  * metacharacter, so no escaping pass is needed (and escaping would corrupt
- * legitimate non-ASCII letters such as é).
+ * legitimate non-ASCII letters such as e).
  */
 public final class NameSanitizer {
 

@@ -28,8 +28,8 @@ class RankedSkipListTest {
         assertEquals(1, sl.rankOf("a"));
         RankedSkipList.Entry e = sl.at(1);
         assertNotNull(e);
-        assertEquals("a", e.uuid());
-        assertEquals(100, e.score());
+        assertEquals("a", e.getUuid());
+        assertEquals(100, e.getScore());
         assertNull(sl.at(2));
     }
 
@@ -123,9 +123,9 @@ class RankedSkipListTest {
         sl.upsert("second", "Second", 100, 2, Long.MIN_VALUE);
         sl.upsert("third", "Third", 100, 3, Long.MIN_VALUE);
         var snap = sl.snapshot();
-        assertEquals("first", snap.get(0).uuid());
-        assertEquals("second", snap.get(1).uuid());
-        assertEquals("third", snap.get(2).uuid());
+        assertEquals("first", snap.get(0).getUuid());
+        assertEquals("second", snap.get(1).getUuid());
+        assertEquals("third", snap.get(2).getUuid());
         assertEquals(1, sl.rankOf("first"));
         assertEquals(2, sl.rankOf("second"));
         assertEquals(3, sl.rankOf("third"));
@@ -136,7 +136,7 @@ class RankedSkipListTest {
         RankedSkipList sl = new RankedSkipList();
         sl.upsert("early", "Early", 50, 1, Long.MIN_VALUE);
         sl.upsert("late", "Late", 200, 99, Long.MIN_VALUE);
-        assertEquals("late", sl.snapshot().get(0).uuid());
+        assertEquals("late", sl.snapshot().get(0).getUuid());
         assertEquals(1, sl.rankOf("late"));
         assertEquals(2, sl.rankOf("early"));
     }
@@ -148,9 +148,9 @@ class RankedSkipListTest {
         sl.upsert("b", "B", 300, 2, Long.MIN_VALUE);
         sl.upsert("c", "C", 200, 3, Long.MIN_VALUE);
         var snap = sl.snapshot();
-        assertEquals("b", snap.get(0).uuid());
-        assertEquals("c", snap.get(1).uuid());
-        assertEquals("a", snap.get(2).uuid());
+        assertEquals("b", snap.get(0).getUuid());
+        assertEquals("c", snap.get(1).getUuid());
+        assertEquals("a", snap.get(2).getUuid());
         assertEquals(1, sl.rankOf("b"));
         assertEquals(2, sl.rankOf("c"));
         assertEquals(3, sl.rankOf("a"));
@@ -173,8 +173,8 @@ class RankedSkipListTest {
         assertTrue(sl.remove("b", 100, 2));
         assertEquals(2, sl.size());
         var snap = sl.snapshot();
-        assertEquals("a", snap.get(0).uuid());
-        assertEquals("c", snap.get(1).uuid());
+        assertEquals("a", snap.get(0).getUuid());
+        assertEquals("c", snap.get(1).getUuid());
         assertEquals(1, sl.rankOf("a"));
         assertEquals(2, sl.rankOf("c"));
         assertEquals(-1, sl.rankOf("b"));
@@ -187,7 +187,7 @@ class RankedSkipListTest {
         sl.upsert("b", "B", 100, 2, Long.MIN_VALUE);
         assertTrue(sl.remove("a", 100, 1));
         assertEquals(1, sl.size());
-        assertEquals("b", sl.snapshot().get(0).uuid());
+        assertEquals("b", sl.snapshot().get(0).getUuid());
         assertEquals(1, sl.rankOf("b"));
     }
 
@@ -216,7 +216,7 @@ class RankedSkipListTest {
         sl.upsert("b", "B", 50, 2, Long.MIN_VALUE);
         sl.upsert("b", "B", 150, 2, 50);
         assertEquals(1, sl.size() - 1);
-        assertEquals("b", sl.snapshot().get(0).uuid());
+        assertEquals("b", sl.snapshot().get(0).getUuid());
         assertEquals(1, sl.rankOf("b"));
         assertEquals(2, sl.rankOf("a"));
     }
@@ -228,7 +228,7 @@ class RankedSkipListTest {
         sl.upsert("b", "B", 100, 6, Long.MIN_VALUE);
         sl.upsert("a", "A-renamed", 100, 5, 100);
         assertEquals(2, sl.size());
-        assertEquals("a", sl.snapshot().get(0).uuid());
+        assertEquals("a", sl.snapshot().get(0).getUuid());
     }
 
     @Test
@@ -237,9 +237,9 @@ class RankedSkipListTest {
         sl.upsert("a", "A", 10, 1, Long.MIN_VALUE);
         sl.upsert("b", "B", 30, 2, Long.MIN_VALUE);
         sl.upsert("c", "C", 20, 3, Long.MIN_VALUE);
-        assertEquals("b", sl.at(1).uuid());
-        assertEquals("c", sl.at(2).uuid());
-        assertEquals("a", sl.at(3).uuid());
+        assertEquals("b", sl.at(1).getUuid());
+        assertEquals("c", sl.at(2).getUuid());
+        assertEquals("a", sl.at(3).getUuid());
     }
 
     @Test
@@ -248,8 +248,8 @@ class RankedSkipListTest {
         sl.upsert("a", "A", -10, 1, Long.MIN_VALUE);
         sl.upsert("b", "B", -5, 2, Long.MIN_VALUE);
         sl.upsert("c", "C", 0, 3, Long.MIN_VALUE);
-        assertEquals("c", sl.snapshot().get(0).uuid());
-        assertEquals("b", sl.snapshot().get(1).uuid());
-        assertEquals("a", sl.snapshot().get(2).uuid());
+        assertEquals("c", sl.snapshot().get(0).getUuid());
+        assertEquals("b", sl.snapshot().get(1).getUuid());
+        assertEquals("a", sl.snapshot().get(2).getUuid());
     }
 }

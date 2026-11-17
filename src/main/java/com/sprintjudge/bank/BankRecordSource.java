@@ -46,7 +46,12 @@ public class BankRecordSource {
      */
     public List<Map<String, Object>> records(String subject, String unit) {
         String key = subject + "|" + (unit == null ? "" : unit);
-        return cache.computeIfAbsent(key, ignored -> load(subject, unit));
+        return cache.computeIfAbsent(key, new java.util.function.Function<String, List<Map<String, Object>>>() {
+            @Override
+            public List<Map<String, Object>> apply(String ignored) {
+                return load(subject, unit);
+            }
+        });
     }
 
     private List<Map<String, Object>> load(String subject, String unit) {

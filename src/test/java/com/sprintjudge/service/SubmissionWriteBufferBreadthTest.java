@@ -67,9 +67,9 @@ class SubmissionWriteBufferBreadthTest {
             assertEquals(3, b.flush());
             ArgumentCaptor<List<Submission>> cap = ArgumentCaptor.forClass((Class) List.class);
             verify(repository).saveAll(cap.capture());
-            assertEquals("first", cap.getValue().get(0).id());
-            assertEquals("second", cap.getValue().get(1).id());
-            assertEquals("third", cap.getValue().get(2).id());
+            assertEquals("first", cap.getValue().get(0).getId());
+            assertEquals("second", cap.getValue().get(1).getId());
+            assertEquals("third", cap.getValue().get(2).getId());
         } finally {
             b.shutdown();
         }
@@ -91,8 +91,8 @@ class SubmissionWriteBufferBreadthTest {
             ArgumentCaptor<List<Submission>> cap = ArgumentCaptor.forClass((Class) List.class);
             verify(repository, times(2)).saveAll(cap.capture());
             List<Submission> retried = cap.getAllValues().get(1);
-            assertEquals("one", retried.get(0).id());
-            assertEquals("two", retried.get(1).id());
+            assertEquals("one", retried.get(0).getId());
+            assertEquals("two", retried.get(1).getId());
         } finally {
             b.shutdown();
         }

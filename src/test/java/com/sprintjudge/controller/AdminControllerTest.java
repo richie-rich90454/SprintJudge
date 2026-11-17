@@ -109,7 +109,7 @@ class AdminControllerTest {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         Question body = new Question("qid", "evil-quiz", "Q", null, "MCQ", null, 30, 10,
                 "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, null);
-        assertEquals("q1", controller.updateQuestion("qid", body).quizId());
+        assertEquals("q1", controller.updateQuestion("qid", body).getQuizId());
     }
 
     @Test
@@ -270,9 +270,9 @@ class AdminControllerTest {
         when(quizRepository.findById("q1")).thenReturn(Optional.of(existing));
         when(quizRepository.update(any())).thenAnswer(inv -> inv.getArgument(0));
         Quiz got = controller.updateQuiz("q1", Map.of("title", "New", "description", "newdesc"));
-        assertEquals("New", got.title());
-        assertEquals("newdesc", got.description());
-        assertEquals("q1", got.id());
+        assertEquals("New", got.getTitle());
+        assertEquals("newdesc", got.getDescription());
+        assertEquals("q1", got.getId());
     }
 
     @Test
@@ -281,8 +281,8 @@ class AdminControllerTest {
         when(quizRepository.findById("q1")).thenReturn(Optional.of(existing));
         when(quizRepository.update(any())).thenAnswer(inv -> inv.getArgument(0));
         Quiz got = controller.updateQuiz("q1", Map.of());
-        assertEquals("Old", got.title());
-        assertEquals("olddesc", got.description());
+        assertEquals("Old", got.getTitle());
+        assertEquals("olddesc", got.getDescription());
     }
 
     @Test
@@ -323,7 +323,7 @@ class AdminControllerTest {
         Quiz existing = new Quiz("q1", "Old", null, "u1", null, false);
         when(quizRepository.findById("q1")).thenReturn(Optional.of(existing));
         when(quizRepository.update(any())).thenAnswer(inv -> inv.getArgument(0));
-        assertEquals(200, controller.updateQuiz("q1", Map.of("title", "t".repeat(200))).title().length());
+        assertEquals(200, controller.updateQuiz("q1", Map.of("title", "t".repeat(200))).getTitle().length());
     }
 
     @Test
@@ -338,13 +338,13 @@ class AdminControllerTest {
     void createQuizWithFreshIdCreates() {
         when(quizRepository.findById("fresh")).thenReturn(Optional.empty());
         when(quizRepository.create(any())).thenReturn(new Quiz("fresh", "T", null, null, null, false));
-        assertEquals("fresh", controller.createQuiz(new Quiz("fresh", "T", null, null, null, false)).id());
+        assertEquals("fresh", controller.createQuiz(new Quiz("fresh", "T", null, null, null, false)).getId());
     }
 
     @Test
     void createQuizNullIdSkipsConflictCheck() {
         when(quizRepository.create(any())).thenReturn(new Quiz("gen", "T", null, null, null, false));
-        assertEquals("gen", controller.createQuiz(new Quiz(null, "T", null, null, null, false)).id());
+        assertEquals("gen", controller.createQuiz(new Quiz(null, "T", null, null, null, false)).getId());
         verify(quizRepository, org.mockito.Mockito.never()).findById(anyString());
     }
 
@@ -361,7 +361,7 @@ class AdminControllerTest {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         Question in = new Question(null, "other", "Q", null, "MCQ", null, 30, 10,
                 "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, null);
-        assertEquals("q1", controller.addQuestion("q1", in).quizId());
+        assertEquals("q1", controller.addQuestion("q1", in).getQuizId());
     }
 
     @Test
@@ -564,7 +564,7 @@ class AdminControllerTest {
     @Test
     void mxUpdateQuizTitle199Ok() {
         mxStubQuiz(mxExisting("Old", null));
-        assertEquals(199, controller.updateQuiz("q1", Map.of("title", "t".repeat(199))).title().length());
+        assertEquals(199, controller.updateQuiz("q1", Map.of("title", "t".repeat(199))).getTitle().length());
     }
 
     @Test
@@ -577,7 +577,7 @@ class AdminControllerTest {
     @Test
     void mxUpdateQuizTitleSingleCharOk() {
         mxStubQuiz(mxExisting("Old", null));
-        assertEquals("x", controller.updateQuiz("q1", Map.of("title", "x")).title());
+        assertEquals("x", controller.updateQuiz("q1", Map.of("title", "x")).getTitle());
     }
 
     @Test
@@ -611,27 +611,27 @@ class AdminControllerTest {
     @Test
     void mxUpdateQuizTitleUnicode199Ok() {
         mxStubQuiz(mxExisting("Old", null));
-        assertEquals("h\u00e9llo", controller.updateQuiz("q1", Map.of("title", "h\u00e9llo")).title());
+        assertEquals("h\u00e9llo", controller.updateQuiz("q1", Map.of("title", "h\u00e9llo")).getTitle());
     }
 
     @Test
     void mxUpdateQuizDescription3999Ok() {
         mxStubQuiz(mxExisting("Old", null));
         assertEquals(3999,
-                controller.updateQuiz("q1", Map.of("description", "d".repeat(3999))).description().length());
+                controller.updateQuiz("q1", Map.of("description", "d".repeat(3999))).getDescription().length());
     }
 
     @Test
     void mxUpdateQuizDescription4000Ok() {
         mxStubQuiz(mxExisting("Old", null));
         assertEquals(4000,
-                controller.updateQuiz("q1", Map.of("description", "d".repeat(4000))).description().length());
+                controller.updateQuiz("q1", Map.of("description", "d".repeat(4000))).getDescription().length());
     }
 
     @Test
     void mxUpdateQuizDescriptionEmptyStringOk() {
         mxStubQuiz(mxExisting("Old", "keep"));
-        assertEquals("", controller.updateQuiz("q1", Map.of("description", "")).description());
+        assertEquals("", controller.updateQuiz("q1", Map.of("description", "")).getDescription());
     }
 
     @Test
@@ -640,140 +640,140 @@ class AdminControllerTest {
         when(quizRepository.update(any())).thenAnswer(inv -> inv.getArgument(0));
         java.util.Map<String, String> body = new java.util.HashMap<>();
         body.put("description", null);
-        assertEquals(null, controller.updateQuiz("q1", body).description());
+        assertEquals(null, controller.updateQuiz("q1", body).getDescription());
     }
 
     @Test
     void mxUpdateQuizKeepsIdAndAuthor() {
         mxStubQuiz(mxExisting("Old", "D"));
         Quiz got = controller.updateQuiz("q1", Map.of("title", "New"));
-        assertEquals("q1", got.id());
-        assertEquals("u1", got.createdBy());
+        assertEquals("q1", got.getId());
+        assertEquals("u1", got.getCreatedBy());
     }
 
     @Test
     void mxAddQuestionTimeLimitZeroDelegates() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        assertEquals(0, controller.addQuestion("q1", mxQuestion("MCQ", 0, 10)).timeLimitSec());
+        assertEquals(0, controller.addQuestion("q1", mxQuestion("MCQ", 0, 10)).getTimeLimitSec());
     }
 
     @Test
     void mxAddQuestionTimeLimitOneDelegates() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        assertEquals(1, controller.addQuestion("q1", mxQuestion("MCQ", 1, 10)).timeLimitSec());
+        assertEquals(1, controller.addQuestion("q1", mxQuestion("MCQ", 1, 10)).getTimeLimitSec());
     }
 
     @Test
     void mxAddQuestionTimeLimitNegativeDelegates() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        assertEquals(-5, controller.addQuestion("q1", mxQuestion("MCQ", -5, 10)).timeLimitSec());
+        assertEquals(-5, controller.addQuestion("q1", mxQuestion("MCQ", -5, 10)).getTimeLimitSec());
     }
 
     @Test
     void mxAddQuestionTimeLimitLargeDelegates() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        assertEquals(3600, controller.addQuestion("q1", mxQuestion("MCQ", 3600, 10)).timeLimitSec());
+        assertEquals(3600, controller.addQuestion("q1", mxQuestion("MCQ", 3600, 10)).getTimeLimitSec());
     }
 
     @Test
     void mxAddQuestionPointsBaseZeroDelegates() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        assertEquals(0, controller.addQuestion("q1", mxQuestion("MCQ", 30, 0)).pointsBase());
+        assertEquals(0, controller.addQuestion("q1", mxQuestion("MCQ", 30, 0)).getPointsBase());
     }
 
     @Test
     void mxAddQuestionPointsBaseNegativeDelegates() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        assertEquals(-10, controller.addQuestion("q1", mxQuestion("MCQ", 30, -10)).pointsBase());
+        assertEquals(-10, controller.addQuestion("q1", mxQuestion("MCQ", 30, -10)).getPointsBase());
     }
 
     @Test
     void mxAddQuestionPointsBaseLargeDelegates() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        assertEquals(1000000, controller.addQuestion("q1", mxQuestion("MCQ", 30, 1000000)).pointsBase());
+        assertEquals(1000000, controller.addQuestion("q1", mxQuestion("MCQ", 30, 1000000)).getPointsBase());
     }
 
     @Test
     void mxAddQuestionTypeMcq() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        assertEquals("MCQ", controller.addQuestion("q1", mxQuestion("MCQ", 30, 10)).questionType());
+        assertEquals("MCQ", controller.addQuestion("q1", mxQuestion("MCQ", 30, 10)).getQuestionType());
     }
 
     @Test
     void mxAddQuestionTypeTrueFalse() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertEquals("TRUE_FALSE",
-                controller.addQuestion("q1", mxQuestion("TRUE_FALSE", 30, 10)).questionType());
+                controller.addQuestion("q1", mxQuestion("TRUE_FALSE", 30, 10)).getQuestionType());
     }
 
     @Test
     void mxAddQuestionTypeMultipleSelect() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertEquals("MULTIPLE_SELECT",
-                controller.addQuestion("q1", mxQuestion("MULTIPLE_SELECT", 30, 10)).questionType());
+                controller.addQuestion("q1", mxQuestion("MULTIPLE_SELECT", 30, 10)).getQuestionType());
     }
 
     @Test
     void mxAddQuestionTypeNumeric() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertEquals("NUMERIC",
-                controller.addQuestion("q1", mxQuestion("NUMERIC", 30, 10)).questionType());
+                controller.addQuestion("q1", mxQuestion("NUMERIC", 30, 10)).getQuestionType());
     }
 
     @Test
     void mxAddQuestionTypeOutputPred() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertEquals("OUTPUT_PRED",
-                controller.addQuestion("q1", mxQuestion("OUTPUT_PRED", 30, 10)).questionType());
+                controller.addQuestion("q1", mxQuestion("OUTPUT_PRED", 30, 10)).getQuestionType());
     }
 
     @Test
     void mxAddQuestionTypeFillBlank() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertEquals("FILL_BLANK",
-                controller.addQuestion("q1", mxQuestion("FILL_BLANK", 30, 10)).questionType());
+                controller.addQuestion("q1", mxQuestion("FILL_BLANK", 30, 10)).getQuestionType());
     }
 
     @Test
     void mxAddQuestionTypeDragSort() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertEquals("DRAG_SORT",
-                controller.addQuestion("q1", mxQuestion("DRAG_SORT", 30, 10)).questionType());
+                controller.addQuestion("q1", mxQuestion("DRAG_SORT", 30, 10)).getQuestionType());
     }
 
     @Test
     void mxAddQuestionTypeClickBug() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertEquals("CLICK_BUG",
-                controller.addQuestion("q1", mxQuestion("CLICK_BUG", 30, 10)).questionType());
+                controller.addQuestion("q1", mxQuestion("CLICK_BUG", 30, 10)).getQuestionType());
     }
 
     @Test
     void mxAddQuestionTypeCodeCompletion() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertEquals("CODE_COMPLETION",
-                controller.addQuestion("q1", mxQuestion("CODE_COMPLETION", 30, 10)).questionType());
+                controller.addQuestion("q1", mxQuestion("CODE_COMPLETION", 30, 10)).getQuestionType());
     }
 
     @Test
     void mxAddQuestionTypeComplexity() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertEquals("COMPLEXITY",
-                controller.addQuestion("q1", mxQuestion("COMPLEXITY", 30, 10)).questionType());
+                controller.addQuestion("q1", mxQuestion("COMPLEXITY", 30, 10)).getQuestionType());
     }
 
     @Test
     void mxAddQuestionTypeOjFull() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertEquals("OJ_FULL",
-                controller.addQuestion("q1", mxQuestion("OJ_FULL", 30, 10)).questionType());
+                controller.addQuestion("q1", mxQuestion("OJ_FULL", 30, 10)).getQuestionType());
     }
 
     @Test
     void mxAddQuestionTypeOjPatch() {
         when(questionRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         assertEquals("OJ_PATCH",
-                controller.addQuestion("q1", mxQuestion("OJ_PATCH", 30, 10)).questionType());
+                controller.addQuestion("q1", mxQuestion("OJ_PATCH", 30, 10)).getQuestionType());
     }
 
     @Test
@@ -796,8 +796,8 @@ class AdminControllerTest {
         Question body = new Question("qid", "q1", "Q", null, "MCQ", null, 0, 0,
                 "{\"options\":[\"a\",\"b\"],\"correctIndex\":0}", 0, null);
         Question got = controller.updateQuestion("qid", body);
-        assertEquals(0, got.timeLimitSec());
-        assertEquals(0, got.pointsBase());
+        assertEquals(0, got.getTimeLimitSec());
+        assertEquals(0, got.getPointsBase());
     }
 
     @Test
@@ -892,7 +892,7 @@ class AdminControllerTest {
         return new GameSession("gs", "q1", "123", "host", "LOBBY", "STANDARD", 0, null, null, null, null);
     }
 
-    private void mxStubGame(com.sprintjudge.service.GameRoom.GameMode mode) {
+    private void mxStubGame(String mode) {
         User host = new User("host", "a@b.c", "Al", null, null, null);
         when(userRepository.upsertByEmail(anyString(), anyString(), any())).thenReturn(host);
         when(roomManager.createRoom(eq("q1"), eq("host"), eq(mode))).thenReturn(mxGameSession());

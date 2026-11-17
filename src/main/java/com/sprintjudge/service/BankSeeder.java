@@ -10,11 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * Seeds the bundled question library on first boot — ONLY when the bank is
+ * Seeds the bundled question library on first boot -?ONLY when the bank is
  * completely empty, so existing installs are never touched.
  */
 @Component
@@ -46,16 +47,16 @@ public class BankSeeder implements org.springframework.boot.ApplicationRunner {
         if (force) {
             // Wipe once up front: per-chunk replace would erase earlier chunks.
             for (Quiz q : quizRepository.findAll()) {
-                questionRepository.deleteByQuiz(q.id());
-                quizRepository.delete(q.id());
+                questionRepository.deleteByQuiz(q.getId());
+                quizRepository.delete(q.getId());
             }
         }
-        try (var in = new ClassPathResource(BUNDLE).getInputStream()) {
+        try (InputStream in = new ClassPathResource(BUNDLE).getInputStream()) {
             String json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             // ponytail: chunked import keeps the endpoint abuse cap intact
             ExportBundle bundle = Json.read(json, ExportBundle.class);
             int imported = 0;
-            for (List<ExportBundle.QuizExport> slice : partition(bundle.quizzes())) {
+            for (List<ExportBundle.QuizExport> slice : partition(bundle.getQuizzes())) {
                 imported += importExportService.importAll(chunkJson(bundle, slice), false);
             }
             log.info("Seeded bundled question library: {} questions", imported);
@@ -75,6 +76,6 @@ public class BankSeeder implements org.springframework.boot.ApplicationRunner {
 
     private static String chunkJson(ExportBundle bundle, List<ExportBundle.QuizExport> slice) {
         return Json.write(new ExportBundle(
-                bundle.version(), bundle.exportedAt(), slice, bundle.adminSettings()));
+                bundle.getVersion(), bundle.getExportedAt(), slice, bundle.getAdminSettings()));
     }
 }

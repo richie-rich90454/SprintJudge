@@ -35,17 +35,27 @@ public class UserRepository {
     public Optional<User> findByEmail(String email) {
         return dsl.selectFrom(Tables.USERS)
                 .where(Tables.USERS_EMAIL.eq(email))
-                .fetchOptional(r -> new User(
-                        r.get(Tables.USERS_ID), r.get(Tables.USERS_EMAIL),
-                        r.get(Tables.USERS_NAME), r.get(Tables.USERS_AVATAR),
-                        r.get(Tables.USERS_ROLE), Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.USERS_CREATED_AT)))));
+                .fetchOptional(new org.jooq.RecordMapper<org.jooq.Record, User>() {
+                    @Override
+                    public User map(org.jooq.Record r) {
+                        return new User(
+                                r.get(Tables.USERS_ID), r.get(Tables.USERS_EMAIL),
+                                r.get(Tables.USERS_NAME), r.get(Tables.USERS_AVATAR),
+                                r.get(Tables.USERS_ROLE), Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.USERS_CREATED_AT))));
+                    }
+                });
     }
 
     public List<User> findAll() {
         return dsl.selectFrom(Tables.USERS)
-                .fetch(r -> new User(
-                        r.get(Tables.USERS_ID), r.get(Tables.USERS_EMAIL),
-                        r.get(Tables.USERS_NAME), r.get(Tables.USERS_AVATAR),
-                        r.get(Tables.USERS_ROLE), Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.USERS_CREATED_AT)))));
+                .fetch(new org.jooq.RecordMapper<org.jooq.Record, User>() {
+                    @Override
+                    public User map(org.jooq.Record r) {
+                        return new User(
+                                r.get(Tables.USERS_ID), r.get(Tables.USERS_EMAIL),
+                                r.get(Tables.USERS_NAME), r.get(Tables.USERS_AVATAR),
+                                r.get(Tables.USERS_ROLE), Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.USERS_CREATED_AT))));
+                    }
+                });
     }
 }

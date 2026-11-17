@@ -79,10 +79,10 @@ class GameReviewTest {
 
         GameReview review = invokeBuildReview(mgr, r);
 
-        assertEquals("GAME_REVIEW", review.type());
-        assertNotNull(review.questions());
-        assertNotNull(review.players());
-        assertNotNull(review.classStats());
+        assertEquals("GAME_REVIEW", review.getType());
+        assertNotNull(review.getQuestions());
+        assertNotNull(review.getPlayers());
+        assertNotNull(review.getClassStats());
     }
 
     @Test
@@ -99,13 +99,13 @@ class GameReviewTest {
 
         GameReview review = invokeBuildReview(mgr, r);
 
-        assertEquals(1, review.players().size());
-        GameReview.PlayerReview pr = review.players().get(0);
-        assertEquals("p1", pr.playerUuid());
-        assertEquals(800, pr.totalScore());
-        assertEquals(1, pr.answers().size());
-        assertTrue(pr.answers().get(0).correct());
-        assertEquals(800, pr.answers().get(0).scoreEarned());
+        assertEquals(1, review.getPlayers().size());
+        GameReview.PlayerReview pr = review.getPlayers().get(0);
+        assertEquals("p1", pr.getPlayerUuid());
+        assertEquals(800, pr.getTotalScore());
+        assertEquals(1, pr.getAnswers().size());
+        assertTrue(pr.getAnswers().get(0).isCorrect());
+        assertEquals(800, pr.getAnswers().get(0).getScoreEarned());
     }
 
     @Test
@@ -128,17 +128,17 @@ class GameReviewTest {
 
         GameReview review = invokeBuildReview(mgr, r);
 
-        GameReview.ClassStats stats = review.classStats();
-        assertEquals(2, stats.totalPlayers());
-        assertEquals(2, stats.totalQuestions());
-        assertEquals(3, stats.totalCorrect());
-        assertEquals(5, stats.totalAttempts());  // 1+2+1+1
+        GameReview.ClassStats stats = review.getClassStats();
+        assertEquals(2, stats.getTotalPlayers());
+        assertEquals(2, stats.getTotalQuestions());
+        assertEquals(3, stats.getTotalCorrect());
+        assertEquals(5, stats.getTotalAttempts());  // 1+2+1+1
         // avgScore = (800+0+900+700) / 2 = 1200.0
-        assertEquals(1200.0, stats.avgScore(), 0.1);
+        assertEquals(1200.0, stats.getAvgScore(), 0.1);
         // q1 correctRate = 1/2 = 0.5, q2 correctRate = 2/2 = 1.0
         // hardest = q1 (0.5), easiest = q2 (1.0)
-        assertEquals("q1", stats.hardestQuestionId());
-        assertEquals("q2", stats.easiestQuestionId());
+        assertEquals("q1", stats.getHardestQuestionId());
+        assertEquals("q2", stats.getEasiestQuestionId());
     }
 
     @Test
@@ -150,11 +150,11 @@ class GameReviewTest {
 
         GameReview review = invokeBuildReview(mgr, r);
 
-        assertTrue(review.questions().isEmpty());
-        assertTrue(review.players().isEmpty());
-        assertEquals(0, review.classStats().totalPlayers());
-        assertEquals(0, review.classStats().avgScore());
-        assertNull(review.classStats().hardestQuestionId());
-        assertNull(review.classStats().easiestQuestionId());
+        assertTrue(review.getQuestions().isEmpty());
+        assertTrue(review.getPlayers().isEmpty());
+        assertEquals(0, review.getClassStats().getTotalPlayers());
+        assertEquals(0, review.getClassStats().getAvgScore());
+        assertNull(review.getClassStats().getHardestQuestionId());
+        assertNull(review.getClassStats().getEasiestQuestionId());
     }
 }

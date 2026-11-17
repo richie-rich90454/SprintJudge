@@ -15,6 +15,7 @@ import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,7 +33,7 @@ public class GameWebSocket {
     private static final String AUTHED_KEY = SecureHandshakeConfigurator.AUTHENTICATED;
     private static final String IP_KEY = SecureHandshakeConfigurator.REMOTE_ADDR;
 
-    /** Whitelist — also prevents script-path traversal via a crafted language value. */
+    /** Whitelist -?also prevents script-path traversal via a crafted language value. */
     private static final Set<String> LANGUAGES = Set.of("c", "cpp", "java", "node", "python");
     private static final int MAX_SOURCE_CHARS = 65_536;
 
@@ -49,10 +50,12 @@ public class GameWebSocket {
         // principal is a fallback for tests and non-standard containers.
         boolean authed;
         String addr;
-        if (config instanceof jakarta.websocket.server.ServerEndpointConfig sec) {
-            var staged = SecureHandshakeConfigurator.consumeStaged(sec);
-            addr = staged.ip();
-            authed = staged.authed() || session.getUserPrincipal() != null;
+        if (config instanceof jakarta.websocket.server.ServerEndpointConfig) {
+            jakarta.websocket.server.ServerEndpointConfig sec =
+                    (jakarta.websocket.server.ServerEndpointConfig) config;
+            SecureHandshakeConfigurator.StagedConnection staged = SecureHandshakeConfigurator.consumeStaged(sec);
+            addr = staged.getIp();
+            authed = staged.isAuthed() || session.getUserPrincipal() != null;
         } else {
             authed = session.getUserPrincipal() != null;
             addr = "unresolved";
@@ -74,64 +77,102 @@ public class GameWebSocket {
                 return;
             }
             String type = msg.path("type").asText("");
-            switch (type) {
-                case "JOIN" -> handleJoin(session, msg);
-                case "SUBMIT" -> handleSubmit(session, msg);
-                case "NEXT_QUESTION" -> asHost(session, () -> roomManager.nextQuestion(pinOf(session)));
-                case "FORCE_SUBMIT" -> asHost(session, () -> roomManager.forceSubmit(pinOf(session)));
-                case "END_GAME" -> asHost(session, () -> roomManager.endGame(pinOf(session)));
-                case "EXTEND_TIMER" -> asHost(session, () ->
-                        roomManager.extendTimer(pinOf(session), clampSeconds(msg.path("seconds").asInt(30))));
-                case "KICK_PLAYER" -> asHost(session, () ->
-                        roomManager.kickPlayer(pinOf(session), msg.path("playerUuid").asText()));
-                case "RESYNC_LEADERBOARD" -> resyncLeaderboard(session);
-                case "PING" -> send(session, new ErrorMessage("PONG", ""));
-                case "CREATE_TEAM" -> asHost(session, () -> {
-                    String name = msg.path("name").asText("Team");
-                    var team = roomManager.createTeam(pinOf(session), name);
-                    send(session, Map.of("type", "TEAM_CREATED", "teamId", team.id(), "name", team.name()));
+            if ("JOIN".equals(type)) {
+                handleJoin(session, msg);
+            } else if ("SUBMIT".equals(type)) {
+                handleSubmit(session, msg);
+            } else if ("NEXT_QUESTION".equals(type)) {
+                asHost(session, new Runnable() {
+                    @Override
+                    public void run() {
+                        roomManager.nextQuestion(pinOf(session));
+                    }
                 });
-                case "JOIN_TEAM" -> {
-                    String teamId = msg.path("teamId").asText("");
-                    String uuid = (String) session.getUserProperties().get(UUID_KEY);
-                    if (uuid != null && !teamId.isBlank()) {
-                        try {
-                            var team = roomManager.joinTeam(pinOf(session), teamId, uuid);
-                            if (team != null) send(session, Map.of("type", "TEAM_JOINED", "teamId", team.id()));
-                        } catch (IllegalArgumentException | IllegalStateException e) {
-                            send(session, new ErrorMessage("ERROR", e.getMessage()));
-                        }
+            } else if ("FORCE_SUBMIT".equals(type)) {
+                asHost(session, new Runnable() {
+                    @Override
+                    public void run() {
+                        roomManager.forceSubmit(pinOf(session));
+                    }
+                });
+            } else if ("END_GAME".equals(type)) {
+                asHost(session, new Runnable() {
+                    @Override
+                    public void run() {
+                        roomManager.endGame(pinOf(session));
+                    }
+                });
+            } else if ("EXTEND_TIMER".equals(type)) {
+                asHost(session, new Runnable() {
+                    @Override
+                    public void run() {
+                        roomManager.extendTimer(pinOf(session), clampSeconds(msg.path("seconds").asInt(30)));
+                    }
+                });
+            } else if ("KICK_PLAYER".equals(type)) {
+                asHost(session, new Runnable() {
+                    @Override
+                    public void run() {
+                        roomManager.kickPlayer(pinOf(session), msg.path("playerUuid").asText());
+                    }
+                });
+            } else if ("RESYNC_LEADERBOARD".equals(type)) {
+                resyncLeaderboard(session);
+            } else if ("PING".equals(type)) {
+                send(session, new ErrorMessage("PONG", ""));
+            } else if ("CREATE_TEAM".equals(type)) {
+                asHost(session, new Runnable() {
+                    @Override
+                    public void run() {
+                        String name = msg.path("name").asText("Team");
+                        com.sprintjudge.service.GameRoom.Team team = roomManager.createTeam(pinOf(session), name);
+                        send(session, Map.of("type", "TEAM_CREATED", "teamId", team.getId(), "name", team.getName()));
+                    }
+                });
+            } else if ("JOIN_TEAM".equals(type)) {
+                String teamId = msg.path("teamId").asText("");
+                String uuid = (String) session.getUserProperties().get(UUID_KEY);
+                if (uuid != null && !teamId.isBlank()) {
+                    try {
+                        com.sprintjudge.service.GameRoom.Team team = roomManager.joinTeam(pinOf(session), teamId, uuid);
+                        if (team != null) send(session, Map.of("type", "TEAM_JOINED", "teamId", team.getId()));
+                    } catch (IllegalArgumentException | IllegalStateException e) {
+                        send(session, new ErrorMessage("ERROR", e.getMessage()));
                     }
                 }
-                case "LEAVE_TEAM" -> {
-                    String uuid = (String) session.getUserProperties().get(UUID_KEY);
-                    if (uuid != null) {
-                        try {
-                            roomManager.leaveTeam(pinOf(session), uuid);
-                        } catch (IllegalArgumentException | IllegalStateException e) {
-                            send(session, new ErrorMessage("ERROR", e.getMessage()));
-                        }
+            } else if ("LEAVE_TEAM".equals(type)) {
+                String uuid = (String) session.getUserProperties().get(UUID_KEY);
+                if (uuid != null) {
+                    try {
+                        roomManager.leaveTeam(pinOf(session), uuid);
+                    } catch (IllegalArgumentException | IllegalStateException e) {
+                        send(session, new ErrorMessage("ERROR", e.getMessage()));
                     }
                 }
-                case "GET_TEAMS" -> {
-                    String pin = pinOf(session);
-                    if (pin == null) {
-                        send(session, new ErrorMessage("ERROR", "Join a room first"));
-                        break;
-                    }
-                    var teams = roomManager.getTeams(pin);
+            } else if ("GET_TEAMS".equals(type)) {
+                String pin = pinOf(session);
+                if (pin == null) {
+                    send(session, new ErrorMessage("ERROR", "Join a room first"));
+                } else {
+                    List<com.sprintjudge.service.GameRoom.Team> teams = roomManager.getTeams(pin);
                     send(session, Map.of("type", "TEAM_LIST", "teams", teams));
                 }
-                case "START_BATTLE" -> asHost(session, () -> roomManager.startBattle(pinOf(session)));
-                case "GET_BRACKET" -> {
-                    String pin = pinOf(session);
-                    if (pin == null) {
-                        send(session, new ErrorMessage("ERROR", "Join a room first"));
-                        break;
+            } else if ("START_BATTLE".equals(type)) {
+                asHost(session, new Runnable() {
+                    @Override
+                    public void run() {
+                        roomManager.startBattle(pinOf(session));
                     }
+                });
+            } else if ("GET_BRACKET".equals(type)) {
+                String pin = pinOf(session);
+                if (pin == null) {
+                    send(session, new ErrorMessage("ERROR", "Join a room first"));
+                } else {
                     send(session, roomManager.getBracketView(pin));
                 }
-                default -> send(session, new ErrorMessage("ERROR", "Unknown message type: " + type));
+            } else {
+                send(session, new ErrorMessage("ERROR", "Unknown message type: " + type));
             }
         } catch (Exception e) {
             // Never leak internal stack traces to clients; log server-side only.
@@ -170,9 +211,8 @@ public class GameWebSocket {
         }
         String rejoinToken = msg.path("rejoinToken").asText(null);
         try {
-            var player = roomManager.join(pin, name, session.getId(), role, rejoinToken);
-            // ponytail: only leave old room AFTER new join succeeds AND pin changed —
-            // the old code left before join, so a failed join destroyed
+            com.sprintjudge.service.Player player = roomManager.join(pin, name, session.getId(), role, rejoinToken);
+            // ponytail: only leave old room AFTER new join succeeds AND pin changed -?            // the old code left before join, so a failed join destroyed
             // the player's seat in the previous room.
             if (prevPin != null && prevUuid != null && !prevPin.equals(pin)) {
                 try { roomManager.leave(prevPin, prevUuid); } catch (RuntimeException e) {
@@ -180,11 +220,11 @@ public class GameWebSocket {
                 }
             }
             rateLimiter.recordSuccess(ip);
-            session.getUserProperties().put(UUID_KEY, player.uuid());
+            session.getUserProperties().put(UUID_KEY, player.getUuid());
             session.getUserProperties().put(PIN_KEY, pin);
             session.getUserProperties().put(ROLE_KEY, role.toLowerCase());
             RoomState state = roomManager.getRoomState(pin);
-            send(session, new JoinedMessage("JOINED", player.uuid(), player.token(), state));
+            send(session, new JoinedMessage("JOINED", player.getUuid(), player.getToken(), state));
             // Late join into a live round (refresh, second device): resend the
             // current question or the newcomer waits on standby forever.
             roomManager.sendCurrentQuestion(pin, session.getId());
@@ -283,7 +323,7 @@ public class GameWebSocket {
     public void onError(Session session, Throwable error) {
         org.slf4j.LoggerFactory.getLogger(GameWebSocket.class)
                 .warn("WebSocket error on session {}", idOf(session), error);
-        // Some containers don't call onClose after onError — ensure cleanup.
+        // Some containers don't call onClose after onError -?ensure cleanup.
         onClose(session);
     }
 
@@ -298,7 +338,10 @@ public class GameWebSocket {
     private static String propOf(Session session, String key) {
         try {
             Object value = session.getUserProperties().get(key);
-            return value instanceof String s ? s : null;
+            if (value instanceof String) {
+                return (String) value;
+            }
+            return null;
         } catch (RuntimeException e) {
             return null;
         }

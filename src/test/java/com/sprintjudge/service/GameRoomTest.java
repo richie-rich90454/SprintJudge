@@ -33,7 +33,7 @@ class GameRoomTest {
         r.softRemove("u1");
         Player gp = r.getPlayer("u1");
         assertNotNull(gp);
-        assertFalse(gp.connected());
+        assertFalse(gp.isConnected());
         r.softRemove("missing");
     }
 
@@ -57,10 +57,10 @@ class GameRoomTest {
         r.addPlayer(new Player("u1", "a", 0, "old", false, "tok"));
         Player reclaimed = r.reclaim("tok", "news");
         assertNotNull(reclaimed);
-        assertTrue(reclaimed.connected());
-        assertEquals("news", reclaimed.sessionId());
+        assertTrue(reclaimed.isConnected());
+        assertEquals("news", reclaimed.getSessionId());
         // player is in the players map but not the board -> exercises players() second loop
-        List<Player> list = r.players();
+        List<Player> list = r.getPlayers();
         assertEquals(3, list.size());
         assertNull(r.reclaim("wrong", "x"));
     }
@@ -70,11 +70,11 @@ class GameRoomTest {
         GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
         r.addPlayer(new Player("u1", "a", 0, "ss", true));
         // board row with no matching players-map entry -> exercises players() null check
-        r.board().join("ghost", "ghost");
-        r.board().remove("u1");
-        List<Player> list = r.players();
+        r.getBoard().join("ghost", "ghost");
+        r.getBoard().remove("u1");
+        List<Player> list = r.getPlayers();
         assertEquals(1, list.size());
-        assertEquals("u1", list.get(0).uuid());
+        assertEquals("u1", list.get(0).getUuid());
     }
 
     @Test
@@ -88,9 +88,9 @@ class GameRoomTest {
         GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
         r.addPlayer(new Player("u1", "a", 0, "ss", true));
         r.applyScore("u1", 100);
-        List<LeaderboardEntry> lb = r.leaderboard();
+        List<LeaderboardEntry> lb = r.getLeaderboard();
         assertEquals(1, lb.size());
-        assertEquals(100, lb.get(0).score());
+        assertEquals(100, lb.get(0).getScore());
     }
 
     @Test
@@ -128,15 +128,15 @@ class GameRoomTest {
         assertTrue(r.idleMs(System.currentTimeMillis() + 1000) > 0);
         assertEquals(10, r.capacity());
         r.setStatus("ENDED");
-        assertEquals("ENDED", r.status());
+        assertEquals("ENDED", r.getStatus());
         r.setHostUuid("h");
-        assertEquals("h", r.hostUuid());
+        assertEquals("h", r.getHostUuid());
         r.setCurrentQuestionIndex(2);
-        assertEquals(2, r.currentQuestionIndex());
+        assertEquals(2, r.getCurrentQuestionIndex());
         r.setCurrentQuestionId("q");
-        assertEquals("q", r.currentQuestionId());
+        assertEquals("q", r.getCurrentQuestionId());
         r.setCurrentQuestionEndEpochMs(123L);
-        assertEquals(123L, r.currentQuestionEndEpochMs());
+        assertEquals(123L, r.getCurrentQuestionEndEpochMs());
     }
 
     @Test
@@ -151,9 +151,9 @@ class GameRoomTest {
     void addHostOccupiesSeatWithoutBoardRow() {
         GameRoom r = new GameRoom("s", "q", "pin", "LOBBY", 10);
         assertTrue(r.addHost(new Player("h", "Host", 0, "sh", true)));
-        assertEquals(0, r.leaderboard().size());
-        assertEquals(1, r.players().size());
-        assertEquals("h", r.players().get(0).uuid());
+        assertEquals(0, r.getLeaderboard().size());
+        assertEquals(1, r.getPlayers().size());
+        assertEquals("h", r.getPlayers().get(0).getUuid());
     }
 
     @Test
@@ -225,7 +225,7 @@ class GameRoomTest {
         GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
         r.addPlayer(new Player("u1", "a", 0, "s1", true));
         r.applyScore("u1", 250);
-        assertEquals(250, r.getPlayer("u1").score());
+        assertEquals(250, r.getPlayer("u1").getScore());
     }
 
     @Test
@@ -239,10 +239,10 @@ class GameRoomTest {
         GameRoom r = new GameRoom("s", "q", "pin", "LOBBY", 10);
         r.addHost(new Player("h", "Host", 0, "sh", true));
         r.addPlayer(new Player("u1", "a", 0, "s1", true));
-        List<Player> all = r.players();
+        List<Player> all = r.getPlayers();
         assertEquals(2, all.size());
-        assertTrue(all.stream().anyMatch(p -> p.uuid().equals("h")));
-        assertTrue(all.stream().anyMatch(p -> p.uuid().equals("u1")));
+        assertTrue(all.stream().anyMatch(p -> p.getUuid().equals("h")));
+        assertTrue(all.stream().anyMatch(p -> p.getUuid().equals("u1")));
     }
 
     @Test
@@ -250,8 +250,8 @@ class GameRoomTest {
         GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
         r.addPlayer(new Player("u1", "a", 0, "s1", true));
         r.softRemove("ghost");
-        assertEquals(1, r.players().size());
-        assertTrue(r.getPlayer("u1").connected());
+        assertEquals(1, r.getPlayers().size());
+        assertTrue(r.getPlayer("u1").isConnected());
     }
 
     @Test
@@ -285,7 +285,7 @@ class GameRoomTest {
         org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
-        assertEquals(8 * 150 * 4, r.getPlayer("solo").score());
+        assertEquals(8 * 150 * 4, r.getPlayer("solo").getScore());
     }
 
     @Test
@@ -307,8 +307,8 @@ class GameRoomTest {
         org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
-        assertEquals(12, r.players().size());
-        assertEquals(12, r.leaderboard().size());
+        assertEquals(12, r.getPlayers().size());
+        assertEquals(12, r.getLeaderboard().size());
     }
 
     @Test
@@ -332,7 +332,7 @@ class GameRoomTest {
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
         assertEquals(0, r.connectedCount());
-        assertEquals(10, r.players().size());
+        assertEquals(10, r.getPlayers().size());
     }
 
     @Test
@@ -361,8 +361,8 @@ class GameRoomTest {
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
         assertEquals(1, wins.get());
-        assertEquals(winnerSess[0], r.getPlayer("rc").sessionId());
-        assertEquals(123, r.getPlayer("rc").score());
+        assertEquals(winnerSess[0], r.getPlayer("rc").getSessionId());
+        assertEquals(123, r.getPlayer("rc").getScore());
     }
 
     @Test
@@ -429,8 +429,8 @@ class GameRoomTest {
         org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
-        assertEquals(12, r.leaderboard().size());
-        for (int i = 0; i < 12; i++) assertEquals(200, r.getPlayer("m" + i).score());
+        assertEquals(12, r.getLeaderboard().size());
+        for (int i = 0; i < 12; i++) assertEquals(200, r.getPlayer("m" + i).getScore());
     }
 
     @Test
@@ -453,7 +453,7 @@ class GameRoomTest {
             pool.submit(() -> {
                 try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
                 for (int i = 0; i < 200; i++) {
-                    int s = r.getPlayer("g").score();
+                    int s = r.getPlayer("g").getScore();
                     maxSeen.accumulateAndGet(s, Math::max);
                 }
                 done.countDown();
@@ -463,7 +463,7 @@ class GameRoomTest {
         org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
-        assertEquals(8 * 80 * 10, r.getPlayer("g").score());
+        assertEquals(8 * 80 * 10, r.getPlayer("g").getScore());
         org.junit.jupiter.api.Assertions.assertTrue(maxSeen.get() <= 8 * 80 * 10);
         org.junit.jupiter.api.Assertions.assertTrue(maxSeen.get() >= 0);
     }
@@ -488,7 +488,7 @@ class GameRoomTest {
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
         assertTrue(r.isFull());
-        assertEquals(6, r.players().size());
+        assertEquals(6, r.getPlayers().size());
     }
 
     @Test
@@ -506,8 +506,8 @@ class GameRoomTest {
                 try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
                 for (int i = 0; i < 60; i++) {
                     if (idx % 2 == 0) r.applyScore("p" + (i % 10), 3);
-                    else if (r.players() == null) nulls.incrementAndGet();
-                    else r.players().size();
+                    else if (r.getPlayers() == null) nulls.incrementAndGet();
+                    else r.getPlayers().size();
                 }
                 done.countDown();
             });
@@ -543,7 +543,7 @@ class GameRoomTest {
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
         org.junit.jupiter.api.Assertions.assertTrue(r.attemptCount("qa", "ar") <= 200);
-        assertEquals((long) 8 * 50 * 7, r.getPlayer("ar").score());
+        assertEquals((long) 8 * 50 * 7, r.getPlayer("ar").getScore());
     }
 
     @Test
@@ -566,8 +566,8 @@ class GameRoomTest {
         org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
-        assertEquals(250, r.getPlayer("keep").score());
-        assertEquals(1, r.leaderboard().size());
+        assertEquals(250, r.getPlayer("keep").getScore());
+        assertEquals(1, r.getLeaderboard().size());
     }
 
     @Test
@@ -613,8 +613,8 @@ class GameRoomTest {
         org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
-        assertEquals(10, r.leaderboard().size());
-        for (int i = 0; i < 10; i++) assertEquals(770, r.getPlayer("sz" + i).score());
+        assertEquals(10, r.getLeaderboard().size());
+        for (int i = 0; i < 10; i++) assertEquals(770, r.getPlayer("sz" + i).getScore());
     }
 
     @Test
@@ -630,7 +630,7 @@ class GameRoomTest {
             final String uuid = "tj" + t;
             pool.submit(() -> {
                 try { start.await(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-                r.joinTeam(team.id(), uuid);
+                r.joinTeam(team.getId(), uuid);
                 done.countDown();
             });
         }
@@ -638,8 +638,8 @@ class GameRoomTest {
         org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
-        org.junit.jupiter.api.Assertions.assertTrue(r.getTeam(team.id()).memberUuids().size() <= 10);
-        org.junit.jupiter.api.Assertions.assertTrue(r.getTeam(team.id()).memberUuids().size() >= 1);
+        org.junit.jupiter.api.Assertions.assertTrue(r.getTeam(team.getId()).getMemberUuids().size() <= 10);
+        org.junit.jupiter.api.Assertions.assertTrue(r.getTeam(team.getId()).getMemberUuids().size() >= 1);
     }
 
     @Test
@@ -662,8 +662,8 @@ class GameRoomTest {
         org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
-        assertEquals(threads * 50, r.bracketRounds().size());
-        org.junit.jupiter.api.Assertions.assertNotNull(r.bracketRounds().get(0));
+        assertEquals(threads * 50, r.getBracketRounds().size());
+        org.junit.jupiter.api.Assertions.assertNotNull(r.getBracketRounds().get(0));
     }
 
     @Test
@@ -750,7 +750,7 @@ class GameRoomTest {
         org.junit.jupiter.api.Assertions.assertTrue(done.await(9, java.util.concurrent.TimeUnit.SECONDS));
         pool.shutdown();
         pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
-        assertEquals(4, r.players().size());
+        assertEquals(4, r.getPlayers().size());
         assertTrue(r.isFull());
     }
 }

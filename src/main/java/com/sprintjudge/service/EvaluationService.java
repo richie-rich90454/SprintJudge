@@ -18,34 +18,57 @@ import java.util.Set;
 public class EvaluationService {
 
     public double evaluateCorrectness(Question question, JsonNode response) {
-        QuestionType type = QuestionType.from(question.questionType());
-        JsonNode config = Json.readTree(question.config());
+        String type = QuestionType.from(question.getQuestionType());
+        JsonNode config = Json.readTree(question.getConfig());
         if (response == null || response.isNull()) return 0.0;
-        return switch (type) {
-            case MCQ, OUTPUT_PRED, COMPLEXITY ->
-                    response.path("selectedIndex").asInt(-1) == config.path("correctIndex").asInt(-2) ? 1.0 : 0.0;
-            case TRUE_FALSE -> {
+        double result;
+        switch (type) {
+            case "MCQ":
+            case "OUTPUT_PRED":
+            case "COMPLEXITY":
+                result = response.path("selectedIndex").asInt(-1) == config.path("correctIndex").asInt(-2) ? 1.0 : 0.0;
+                break;
+            case "TRUE_FALSE": {
                 // Sentinel mismatch: a missing/empty value must not coincidentally
                 // match a `false` answer. Require the field to be present.
-                if (!response.has("value")) yield 0.0;
+                if (!response.has("value")) { result = 0.0; break; }
                 boolean ans = config.path("correct").asBoolean();
-                yield response.path("value").asBoolean() == ans ? 1.0 : 0.0;
+                result = response.path("value").asBoolean() == ans ? 1.0 : 0.0;
+                break;
             }
-            case MULTIPLE_SELECT -> evaluateMulti(config, response);
-            case NUMERIC -> evaluateNumeric(config, response);
-            case FILL_BLANK -> normalize(response.path("text").asText()).equals(normalize(config.path("answer").asText())) ? 1.0 : 0.0;
-            case CLICK_BUG -> response.path("line").asInt(-1) == config.path("bugLine").asInt(-2) ? 1.0 : 0.0;
-            case DRAG_SORT -> evaluateOrder(config, response);
-            case CODE_COMPLETION -> normalize(response.path("code").asText()).equals(normalize(config.path("expected").asText())) ? 1.0 : 0.0;
-            case OJ_FULL, OJ_PATCH -> 1.0; // judged by executor
-        };
+            case "MULTIPLE_SELECT":
+                result = evaluateMulti(config, response);
+                break;
+            case "NUMERIC":
+                result = evaluateNumeric(config, response);
+                break;
+            case "FILL_BLANK":
+                result = normalize(response.path("text").asText()).equals(normalize(config.path("answer").asText())) ? 1.0 : 0.0;
+                break;
+            case "CLICK_BUG":
+                result = response.path("line").asInt(-1) == config.path("bugLine").asInt(-2) ? 1.0 : 0.0;
+                break;
+            case "DRAG_SORT":
+                result = evaluateOrder(config, response);
+                break;
+            case "CODE_COMPLETION":
+                result = normalize(response.path("code").asText()).equals(normalize(config.path("expected").asText())) ? 1.0 : 0.0;
+                break;
+            case "OJ_FULL":
+            case "OJ_PATCH":
+                result = 1.0; // judged by executor
+                break;
+            default:
+                result = 0.0;
+        }
+        return result;
     }
 
     private double evaluateMulti(JsonNode config, JsonNode response) {
         Set<Integer> correct = new HashSet<>();
-        config.path("correctIndices").forEach(n -> correct.add(n.asInt()));
+        for (JsonNode n : config.path("correctIndices")) correct.add(n.asInt());
         Set<Integer> chosen = new HashSet<>();
-        response.path("selectedIndices").forEach(n -> chosen.add(n.asInt()));
+        for (JsonNode n : response.path("selectedIndices")) chosen.add(n.asInt());
         if (correct.isEmpty() || chosen.isEmpty()) return 0.0;
         int intersect = 0;
         for (int c : chosen) if (correct.contains(c)) intersect++;

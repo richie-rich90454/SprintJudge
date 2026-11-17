@@ -173,8 +173,8 @@ class BankStoreTest {
                 "{\"questions\":[{\"id\":\"x\"}]}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         BankStore.Loaded loaded = BankStore.loadAll(
                 new org.springframework.core.io.Resource[]{clean}, new ObjectMapper());
-        assertEquals(0, loaded.skipped());
-        assertEquals(1, loaded.headers().size());
+        assertEquals(0, loaded.getSkipped());
+        assertEquals(1, loaded.getHeaders().size());
     }
 
     @Test
@@ -194,7 +194,7 @@ class BankStoreTest {
                 "{\"questions\":[{\"id\":\"y\"}]}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         BankStore.Loaded loaded = BankStore.loadAll(
                 new org.springframework.core.io.Resource[]{broken, clean}, new ObjectMapper());
-        assertEquals(1, loaded.skipped());
-        assertEquals(1, loaded.headers().size());
+        assertEquals(1, loaded.getSkipped());
+        assertEquals(1, loaded.getHeaders().size());
     }
 }

@@ -72,20 +72,20 @@ class GameRoomTeamBattleTest {
         GameRoom room = new GameRoom("s", "q", "pin", "LOBBY");
         var t1 = room.createTeam("Alpha");
         var t2 = room.createTeam("Beta");
-        assertTrue(t1.id().startsWith("team-"));
-        assertTrue(t2.id().startsWith("team-"));
-        assertTrue(t1.memberUuids().isEmpty());
-        assertEquals(0, t1.score());
+        assertTrue(t1.getId().startsWith("team-"));
+        assertTrue(t2.getId().startsWith("team-"));
+        assertTrue(t1.getMemberUuids().isEmpty());
+        assertEquals(0, t1.getScore());
     }
 
     @Test
     void roomJoinTeamAddsMember() {
         GameRoom room = new GameRoom("s", "q", "pin", "LOBBY");
         var t = room.createTeam("Alpha");
-        var updated = room.joinTeam(t.id(), "uuid-1");
+        var updated = room.joinTeam(t.getId(), "uuid-1");
         assertNotNull(updated);
-        assertTrue(updated.memberUuids().contains("uuid-1"));
-        assertEquals(t.id(), room.teamIdOf("uuid-1"));
+        assertTrue(updated.getMemberUuids().contains("uuid-1"));
+        assertEquals(t.getId(), room.teamIdOf("uuid-1"));
     }
 
     @Test
@@ -105,7 +105,7 @@ class GameRoomTeamBattleTest {
     void roomGetTeamAndAllTeams() {
         GameRoom room = new GameRoom("s", "q", "pin", "LOBBY");
         var t = room.createTeam("Alpha");
-        assertEquals("Alpha", room.getTeam(t.id()).name());
+        assertEquals("Alpha", room.getTeam(t.getId()).getName());
         assertNull(room.getTeam("ghost"));
         assertEquals(1, room.allTeams().size());
     }
@@ -119,13 +119,13 @@ class GameRoomTeamBattleTest {
     @Test
     void roomBracketRoundTrip() {
         GameRoom room = new GameRoom("s", "q", "pin", "LOBBY");
-        assertTrue(room.bracketRounds().isEmpty());
-        assertTrue(room.battleMatches().isEmpty());
+        assertTrue(room.getBracketRounds().isEmpty());
+        assertTrue(room.getBattleMatches().isEmpty());
         room.addBattleMatch(new GameRoom.BattleMatch("m1", "a", "b", "q1", null, null, false, false, null));
-        assertEquals(1, room.battleMatches().size());
+        assertEquals(1, room.getBattleMatches().size());
         room.beginBattleRound(java.util.List.of(new GameRoom.BattlePair("a", "b", null, false)));
-        assertEquals(1, room.bracketRounds().size());
-        assertEquals(1, room.currentBattleRound().number());
+        assertEquals(1, room.getBracketRounds().size());
+        assertEquals(1, room.currentBattleRound().getNumber());
     }
 
     @Test
@@ -136,7 +136,7 @@ class GameRoomTeamBattleTest {
         assertTrue(mgr.getTeams("123456").isEmpty());
         var team = mgr.createTeam("123456", "Alpha");
         assertNotNull(team);
-        assertEquals("Alpha", team.name());
+        assertEquals("Alpha", team.getName());
         assertEquals(1, mgr.getTeams("123456").size());
     }
 
@@ -146,8 +146,8 @@ class GameRoomTeamBattleTest {
         lenient().when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         var player = mgr.join("123456", "Alice", "s1", "player", null);
         var team = mgr.createTeam("123456", "Alpha");
-        var updated = mgr.joinTeam("123456", team.id(), player.uuid());
-        assertTrue(updated.memberUuids().contains(player.uuid()));
+        var updated = mgr.joinTeam("123456", team.getId(), player.getUuid());
+        assertTrue(updated.getMemberUuids().contains(player.getUuid()));
     }
 
     @Test
@@ -212,6 +212,6 @@ class GameRoomTeamBattleTest {
         GameRoomManager mgr = manager();
         lenient().when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         var player = mgr.join("123456", "Alice", "s1", "player", null);
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", "ghost", player.uuid()));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", "ghost", player.getUuid()));
     }
 }

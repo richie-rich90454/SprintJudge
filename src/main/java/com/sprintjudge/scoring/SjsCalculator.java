@@ -13,13 +13,14 @@ public final class SjsCalculator {
 
     /** Difficulty weight from DOK, calibrated p-value, and format. */
     public static double difficultyWeight(int dok, double pValue, String format) {
-        double dokWeight = switch (dok) {
-            case 1 -> 1.0;
-            case 2 -> 1.5;
-            case 3 -> 2.5;
-            case 4 -> 4.0;
-            default -> 1.0;
-        };
+        double dokWeight;
+        switch (dok) {
+            case 1: dokWeight = 1.0; break;
+            case 2: dokWeight = 1.5; break;
+            case 3: dokWeight = 2.5; break;
+            case 4: dokWeight = 4.0; break;
+            default: dokWeight = 1.0; break;
+        }
         double difficulty = 1.0 + (0.5 - clamp(pValue, 0.0, 1.0));
         difficulty = clamp(difficulty, 0.5, 1.5);
         return dokWeight * difficulty * formatMultiplier(format);
@@ -84,13 +85,20 @@ public final class SjsCalculator {
         if (format == null) {
             return 1.0;
         }
-        return switch (format) {
-            case "MULTI_SELECT", "NUMERIC" -> 1.2;
-            case "ORDERING" -> 1.3;
-            case "CODE", "OJ_FULL", "OJ_PATCH", "CODE_COMPLETION" -> 1.5;
-            case "FREE_RESPONSE", "COMPOSITION", "PROOF" -> 2.0;
-            default -> 1.0;
-        };
+        if (format.equals("MULTI_SELECT") || format.equals("NUMERIC")) {
+            return 1.2;
+        }
+        if (format.equals("ORDERING")) {
+            return 1.3;
+        }
+        if (format.equals("CODE") || format.equals("OJ_FULL") || format.equals("OJ_PATCH")
+                || format.equals("CODE_COMPLETION")) {
+            return 1.5;
+        }
+        if (format.equals("FREE_RESPONSE") || format.equals("COMPOSITION") || format.equals("PROOF")) {
+            return 2.0;
+        }
+        return 1.0;
     }
 
     private static double clamp(double value, double min, double max) {

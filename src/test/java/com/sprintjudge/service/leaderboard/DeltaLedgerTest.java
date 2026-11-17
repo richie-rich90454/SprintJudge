@@ -25,9 +25,9 @@ class DeltaLedgerTest {
         l.record("u1", "A", 10, 1);
         l.record("u2", "B", 20, 2);
         DeltaLedger.Batch b = l.drain(false);
-        assertFalse(b.resync());
-        assertEquals(2, b.seq());
-        assertEquals(2, b.upserts().size());
+        assertFalse(b.isResync());
+        assertEquals(2, b.getSeq());
+        assertEquals(2, b.getUpserts().size());
         assertEquals(0, l.pendingCount());
     }
 
@@ -36,8 +36,8 @@ class DeltaLedgerTest {
         DeltaLedger l = new DeltaLedger();
         l.record("u1", "A", 10, 1);
         DeltaLedger.Batch b = l.drain(true);
-        assertTrue(b.resync());
-        assertTrue(b.upserts().isEmpty());
+        assertTrue(b.isResync());
+        assertTrue(b.getUpserts().isEmpty());
         assertEquals(1, l.pendingCount());
     }
 
@@ -45,7 +45,7 @@ class DeltaLedgerTest {
     void drainEmptyReturnsResyncBatch() {
         DeltaLedger l = new DeltaLedger();
         DeltaLedger.Batch b = l.drain(false);
-        assertTrue(b.resync());
-        assertTrue(b.upserts().isEmpty());
+        assertTrue(b.isResync());
+        assertTrue(b.getUpserts().isEmpty());
     }
 }

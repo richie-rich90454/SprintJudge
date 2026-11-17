@@ -28,7 +28,7 @@ public class ScoringEngine {
     /**
      * Selection scoring driven by correctness FRACTION (0..1) so MULTIPLE_SELECT
      * partial credit flows through the same speed-decay pipeline. Fraction 0
-     * hard-zeroes; otherwise speed decay × attempt multiplier × base points,
+     * hard-zeroes; otherwise speed decay x attempt multiplier x base points,
      * scaled by the fraction. {@code basePoints} &le; 0 falls back to 1000 so
      * the fixed 0..1000 scale is preserved when a question omits it.
      */
@@ -59,8 +59,10 @@ public class ScoringEngine {
     private double attemptMultiplier(int attemptsUsed, Map<String, Object> settings) {
         Object v = settings.get("mcq_max_attempts");
         int allowed = 1;
-        if (v instanceof Number n) allowed = n.intValue();
-        else if (v != null) {
+        if (v instanceof Number) {
+            Number n = (Number) v;
+            allowed = n.intValue();
+        } else if (v != null) {
             try { allowed = Integer.parseInt(v.toString()); } catch (NumberFormatException ignored) {}
         }
         if (allowed <= 1) return 1.0;

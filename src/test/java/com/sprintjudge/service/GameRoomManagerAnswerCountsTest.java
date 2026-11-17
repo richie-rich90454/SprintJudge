@@ -45,8 +45,8 @@ class GameRoomManagerAnswerCountsTest {
                 mock(ApplicationEventPublisher.class));
     }
 
-    private static Question question(QuestionType type) {
-        return new Question("q", "quiz", "title", "desc", type.name(), null, 60, 100, "{}", 0, Instant.now());
+    private static Question question(String type) {
+        return new Question("q", "quiz", "title", "desc", type, null, 60, 100, "{}", 0, Instant.now());
     }
 
     private static RoundResult.PlayerScore score(boolean correct) {
@@ -64,7 +64,7 @@ class GameRoomManagerAnswerCountsTest {
                 submission("p5", "{}"),
                 submission("p6", null)));
         GameRoom room = mock(GameRoom.class);
-        when(room.sessionId()).thenReturn("s");
+        when(room.getSessionId()).thenReturn("s");
         Map<String, Integer> counts = manager(repo).answerCounts(
                 room, question(QuestionType.MCQ), QuestionType.MCQ, List.of(score(false)));
         assertEquals(2, counts.get("B"));
@@ -73,12 +73,12 @@ class GameRoomManagerAnswerCountsTest {
 
     @Test
     void outputPredictionAndComplexityUseTheMcqDistributionPath() {
-        for (QuestionType type : List.of(QuestionType.OUTPUT_PRED, QuestionType.COMPLEXITY)) {
+        for (String type : List.of(QuestionType.OUTPUT_PRED, QuestionType.COMPLEXITY)) {
             SubmissionRepository repo = mock(SubmissionRepository.class);
             when(repo.findBySessionQuestion("s", "q"))
                     .thenReturn(List.of(submission("p1", "{\"selectedIndex\":0}")));
             GameRoom room = mock(GameRoom.class);
-            when(room.sessionId()).thenReturn("s");
+            when(room.getSessionId()).thenReturn("s");
             Map<String, Integer> counts = manager(repo).answerCounts(
                     room, question(type), type, List.of());
             assertEquals(1, counts.get("A"));
@@ -95,7 +95,7 @@ class GameRoomManagerAnswerCountsTest {
                 submission("p4", "not json"),
                 submission("p5", null)));
         GameRoom room = mock(GameRoom.class);
-        when(room.sessionId()).thenReturn("s");
+        when(room.getSessionId()).thenReturn("s");
         Map<String, Integer> counts = manager(repo).answerCounts(
                 room, question(QuestionType.TRUE_FALSE), QuestionType.TRUE_FALSE, List.of());
         assertEquals(1, counts.get("True"));
@@ -113,7 +113,7 @@ class GameRoomManagerAnswerCountsTest {
                 submission("p5", "{\"selectedIndices\":[-1]}"),
                 submission("p6", null)));
         GameRoom room = mock(GameRoom.class);
-        when(room.sessionId()).thenReturn("s");
+        when(room.getSessionId()).thenReturn("s");
         Map<String, Integer> counts = manager(repo).answerCounts(
                 room, question(QuestionType.MULTIPLE_SELECT), QuestionType.MULTIPLE_SELECT, List.of());
         assertEquals(1, counts.get("A"));
@@ -125,7 +125,7 @@ class GameRoomManagerAnswerCountsTest {
         SubmissionRepository repo = mock(SubmissionRepository.class);
         when(repo.findBySessionQuestion("s", "q")).thenReturn(List.of());
         GameRoom room = mock(GameRoom.class);
-        when(room.sessionId()).thenReturn("s");
+        when(room.getSessionId()).thenReturn("s");
         Map<String, Integer> counts = manager(repo).answerCounts(
                 room, question(QuestionType.NUMERIC), QuestionType.NUMERIC,
                 List.of(score(true), score(false), score(false)));

@@ -22,14 +22,14 @@ class LeaderboardSagaTest {
         for (int r = 1; r <= snap.size(); r++) {
             RankedSkipList.Entry e = sl.at(r);
             assertNotNull(e);
-            assertTrue(seen.add(e.uuid()), "dup " + e.uuid());
-            assertEquals(r, sl.rankOf(e.uuid()));
+            assertTrue(seen.add(e.getUuid()), "dup " + e.getUuid());
+            assertEquals(r, sl.rankOf(e.getUuid()));
         }
         for (int i = 1; i < snap.size(); i++) {
             RankedSkipList.Entry prev = snap.get(i - 1);
             RankedSkipList.Entry cur = snap.get(i);
-            assertTrue(prev.score() > cur.score()
-                    || (prev.score() == cur.score() && prev.joinSeq() < cur.joinSeq()));
+            assertTrue(prev.getScore() > cur.getScore()
+                    || (prev.getScore() == cur.getScore() && prev.getJoinSeq() < cur.getJoinSeq()));
         }
     }
 
@@ -41,9 +41,9 @@ class LeaderboardSagaTest {
             sl.upsert("p" + i, "P" + i, scores[i], i + 1, Long.MIN_VALUE);
         }
         assertEquals(8, sl.size());
-        assertEquals("p7", sl.at(1).uuid());
-        assertEquals(300, sl.at(1).score());
-        assertEquals("p4", sl.at(8).uuid());
+        assertEquals("p7", sl.at(1).getUuid());
+        assertEquals(300, sl.at(1).getScore());
+        assertEquals("p4", sl.at(8).getUuid());
         assertBoardConsistent(sl);
     }
 
@@ -55,7 +55,7 @@ class LeaderboardSagaTest {
             sl.upsert("t" + i, "T" + i, scores[i], i + 1, Long.MIN_VALUE);
         }
         for (int r = 1; r <= 6; r++) {
-            assertEquals("t" + (r - 1), sl.at(r).uuid());
+            assertEquals("t" + (r - 1), sl.at(r).getUuid());
             assertEquals(r, sl.rankOf("t" + (r - 1)));
         }
     }
@@ -68,7 +68,7 @@ class LeaderboardSagaTest {
         assertEquals(15, sl.size());
         for (int i = 31; i <= 40; i++) sl.upsert("u" + i, "N" + i, i * 10L, i, Long.MIN_VALUE);
         assertEquals(25, sl.size());
-        assertEquals("u40", sl.at(1).uuid());
+        assertEquals("u40", sl.at(1).getUuid());
         assertBoardConsistent(sl);
     }
 
@@ -77,7 +77,7 @@ class LeaderboardSagaTest {
         RankedSkipList sl = new RankedSkipList();
         for (int i = 1; i <= 5; i++) sl.upsert("u" + i, "N", i * 10L, i, Long.MIN_VALUE);
         assertEquals(1, sl.upsert("u1", "N", 999L, 1, 10L));
-        assertEquals("u1", sl.at(1).uuid());
+        assertEquals("u1", sl.at(1).getUuid());
         assertEquals(5, sl.size());
         assertBoardConsistent(sl);
     }
@@ -87,7 +87,7 @@ class LeaderboardSagaTest {
         RankedSkipList sl = new RankedSkipList();
         for (int i = 1; i <= 5; i++) sl.upsert("u" + i, "N", i * 10L, i, Long.MIN_VALUE);
         sl.upsert("u5", "N", 5L, 5, 50L);
-        assertEquals("u5", sl.at(5).uuid());
+        assertEquals("u5", sl.at(5).getUuid());
         assertEquals(5, sl.rankOf("u5"));
         assertBoardConsistent(sl);
     }
@@ -107,7 +107,7 @@ class LeaderboardSagaTest {
             sb = sa + 10;
             assertEquals(1, sl.upsert("b", "B", sb, 2, prevB));
         }
-        assertEquals("b", sl.at(1).uuid());
+        assertEquals("b", sl.at(1).getUuid());
         assertEquals(1, sl.rankOf("b"));
         assertEquals(2, sl.rankOf("a"));
         assertBoardConsistent(sl);
@@ -118,9 +118,9 @@ class LeaderboardSagaTest {
         RankedSkipList sl = new RankedSkipList();
         for (int i = 1; i <= 6; i++) sl.upsert("u" + i, "N", i * 10L, i, Long.MIN_VALUE);
         assertTrue(sl.remove("u6", 60, 6));
-        assertEquals("u5", sl.at(1).uuid());
+        assertEquals("u5", sl.at(1).getUuid());
         assertTrue(sl.remove("u5", 50, 5));
-        assertEquals("u4", sl.at(1).uuid());
+        assertEquals("u4", sl.at(1).getUuid());
         assertEquals(4, sl.size());
         assertBoardConsistent(sl);
     }
@@ -130,8 +130,8 @@ class LeaderboardSagaTest {
         RankedSkipList sl = new RankedSkipList();
         for (int i = 1; i <= 5; i++) sl.upsert("u" + i, "N", i * 10L, i, Long.MIN_VALUE);
         assertTrue(sl.remove("u3", 30, 3));
-        assertEquals("u4", sl.at(2).uuid());
-        assertEquals("u2", sl.at(3).uuid());
+        assertEquals("u4", sl.at(2).getUuid());
+        assertEquals("u2", sl.at(3).getUuid());
         assertBoardConsistent(sl);
     }
 
@@ -175,9 +175,9 @@ class LeaderboardSagaTest {
         sl.upsert("pos", "P", 10, 1, Long.MIN_VALUE);
         sl.upsert("zero", "Z", 0, 2, Long.MIN_VALUE);
         sl.upsert("neg", "N", -10, 3, Long.MIN_VALUE);
-        assertEquals("pos", sl.at(1).uuid());
-        assertEquals("zero", sl.at(2).uuid());
-        assertEquals("neg", sl.at(3).uuid());
+        assertEquals("pos", sl.at(1).getUuid());
+        assertEquals("zero", sl.at(2).getUuid());
+        assertEquals("neg", sl.at(3).getUuid());
         assertBoardConsistent(sl);
     }
 
@@ -188,7 +188,7 @@ class LeaderboardSagaTest {
         sl.upsert("b", "B", 50, 2, Long.MIN_VALUE);
         sl.upsert("a", "New", 40, 1, 40L);
         assertEquals("New", sl.snapshot().stream()
-                .filter(e -> e.uuid().equals("a")).findFirst().orElseThrow().name());
+                .filter(e -> e.getUuid().equals("a")).findFirst().orElseThrow().getName());
         assertEquals(2, sl.rankOf("a"));
         assertBoardConsistent(sl);
     }
@@ -197,9 +197,9 @@ class LeaderboardSagaTest {
     void ledgerRapidRecordsPreserveInsertionOrder() {
         DeltaLedger l = new DeltaLedger();
         for (int i = 0; i < 50; i++) l.record("u" + i, "N" + i, i, i + 1);
-        List<DeltaLedger.Delta> out = l.drain(false).upserts();
+        List<DeltaLedger.Delta> out = l.drain(false).getUpserts();
         assertEquals(50, out.size());
-        for (int i = 0; i < 50; i++) assertEquals("u" + i, out.get(i).uuid());
+        for (int i = 0; i < 50; i++) assertEquals("u" + i, out.get(i).getUuid());
         assertEquals(0, l.pendingCount());
     }
 
@@ -211,12 +211,12 @@ class LeaderboardSagaTest {
         l.record("a", "A", 2, 1);
         l.record("c", "C", 1, 3);
         l.record("b", "B", 5, 1);
-        List<DeltaLedger.Delta> out = l.drain(false).upserts();
+        List<DeltaLedger.Delta> out = l.drain(false).getUpserts();
         assertEquals(3, out.size());
-        assertEquals("a", out.get(0).uuid());
-        assertEquals(2, out.get(0).score());
-        assertEquals("b", out.get(1).uuid());
-        assertEquals(5, out.get(1).score());
+        assertEquals("a", out.get(0).getUuid());
+        assertEquals(2, out.get(0).getScore());
+        assertEquals("b", out.get(1).getUuid());
+        assertEquals(5, out.get(1).getScore());
         assertEquals(5, l.currentSeq());
     }
 
@@ -226,7 +226,7 @@ class LeaderboardSagaTest {
         long prev = -1;
         for (int i = 0; i < 20; i++) {
             l.record("u" + i, "N", i, 1);
-            long seq = l.drain(false).seq();
+            long seq = l.drain(false).getSeq();
             assertTrue(seq > prev);
             prev = seq;
         }
@@ -239,9 +239,9 @@ class LeaderboardSagaTest {
         DeltaLedger l = new DeltaLedger();
         l.record("a", "A", 1, 1);
         l.record("b", "B", 2, 2);
-        assertTrue(l.drain(true).resync());
+        assertTrue(l.drain(true).isResync());
         assertEquals(2, l.pendingCount());
-        assertEquals(2, l.drain(false).upserts().size());
+        assertEquals(2, l.drain(false).getUpserts().size());
         assertEquals(0, l.pendingCount());
     }
 
@@ -249,9 +249,9 @@ class LeaderboardSagaTest {
     void ledgerEmptyDrainIsResyncWithZeroUpserts() {
         DeltaLedger l = new DeltaLedger();
         DeltaLedger.Batch b = l.drain(false);
-        assertTrue(b.resync());
-        assertTrue(b.upserts().isEmpty());
-        assertEquals(0, b.seq());
+        assertTrue(b.isResync());
+        assertTrue(b.getUpserts().isEmpty());
+        assertEquals(0, b.getSeq());
     }
 
     @Test
@@ -264,9 +264,9 @@ class LeaderboardSagaTest {
         lb.applyScore("e", 250);
         lb.applyScore("b", 100);
         lb.applyScore("d", 50);
-        assertEquals("c", lb.snapshot().get(0).uuid());
-        assertEquals("e", lb.snapshot().get(1).uuid());
-        assertEquals("a", lb.snapshot().get(2).uuid());
+        assertEquals("c", lb.snapshot().get(0).getUuid());
+        assertEquals("e", lb.snapshot().get(1).getUuid());
+        assertEquals("a", lb.snapshot().get(2).getUuid());
         assertEquals(1, lb.rankOf("c"));
         assertEquals(5, lb.rankOf("d"));
         assertEquals(5, lb.size());
@@ -277,7 +277,7 @@ class LeaderboardSagaTest {
         LiveLeaderboard lb = new LiveLeaderboard();
         for (int i = 0; i < 6; i++) lb.join("p" + i, "P" + i);
         List<RankedSkipList.Entry> snap = lb.snapshot();
-        for (int i = 0; i < 6; i++) assertEquals("p" + i, snap.get(i).uuid());
+        for (int i = 0; i < 6; i++) assertEquals("p" + i, snap.get(i).getUuid());
     }
 
     @Test
@@ -314,13 +314,13 @@ class LeaderboardSagaTest {
         lb.applyScore("fast", 10);
         lb.applyScore("fast", 200);
         DeltaLedger.Batch b = lb.drainDeltas(false);
-        assertEquals(2, b.upserts().size());
-        for (DeltaLedger.Delta d : b.upserts()) {
-            if (d.uuid().equals("fast")) {
-                assertEquals(1, d.rank());
-                assertEquals(210, d.score());
+        assertEquals(2, b.getUpserts().size());
+        for (DeltaLedger.Delta d : b.getUpserts()) {
+            if (d.getUuid().equals("fast")) {
+                assertEquals(1, d.getRank());
+                assertEquals(210, d.getScore());
             } else {
-                assertEquals(2, d.rank());
+                assertEquals(2, d.getRank());
             }
         }
     }
@@ -333,12 +333,12 @@ class LeaderboardSagaTest {
         lb.join("c", "C");
         lb.applyScore("b", 30);
         DeltaLedger.Batch full = lb.fullBatch();
-        assertTrue(full.resync());
-        assertEquals(3, full.upserts().size());
-        assertEquals("b", full.upserts().get(0).uuid());
-        assertEquals(1, full.upserts().get(0).rank());
-        assertEquals(2, full.upserts().get(1).rank());
-        assertEquals(3, full.upserts().get(2).rank());
+        assertTrue(full.isResync());
+        assertEquals(3, full.getUpserts().size());
+        assertEquals("b", full.getUpserts().get(0).getUuid());
+        assertEquals(1, full.getUpserts().get(0).getRank());
+        assertEquals(2, full.getUpserts().get(1).getRank());
+        assertEquals(3, full.getUpserts().get(2).getRank());
     }
 
     @Test
@@ -414,9 +414,9 @@ class LeaderboardSagaTest {
         DeltaLedger l = new DeltaLedger();
         l.record("a", "A", 1, 1);
         DeltaLedger.Batch b = l.drain(false);
-        List<DeltaLedger.Delta> copy = new ArrayList<>(b.upserts());
+        List<DeltaLedger.Delta> copy = new ArrayList<>(b.getUpserts());
         copy.clear();
-        assertEquals(1, b.upserts().size());
+        assertEquals(1, b.getUpserts().size());
     }
 
     @Test
@@ -428,7 +428,7 @@ class LeaderboardSagaTest {
         lb.remove("b");
         List<RankedSkipList.Entry> snap = lb.snapshot();
         assertEquals(2, snap.size());
-        assertTrue(snap.stream().noneMatch(e -> e.uuid().equals("b")));
+        assertTrue(snap.stream().noneMatch(e -> e.getUuid().equals("b")));
     }
 
     @Test

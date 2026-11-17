@@ -137,7 +137,7 @@ class GameRoomManagerTest {
     void joinSanitizesHostileNicknames() {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         Player p = manager().join("123456", "<script>x</script>", "sess", "player", null);
-        assertTrue(p.name().matches("[A-Za-z0-9 _\\-]*"));
+        assertTrue(p.getName().matches("[A-Za-z0-9 _\\-]*"));
     }
 
     @Test
@@ -146,16 +146,16 @@ class GameRoomManagerTest {
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         GameRoomManager mgr = manager();
         mgr.join("123456", "Solo", "sess-1", "player", null);
-        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
-        assertEquals("q1", liveRoom(mgr, "123456").currentQuestionId());
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").getStatus());
+        assertEquals("q1", liveRoom(mgr, "123456").getCurrentQuestionId());
         // The client renders off the broadcast payload: prove Q1 (untimed
         // marker -1) actually goes out on join, not just internal state.
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         QuestionStart start = (QuestionStart) msg.getAllValues().stream()
                 .filter(m -> m instanceof QuestionStart).findFirst().orElseThrow();
-        assertEquals("q1", start.question().id());
-        assertEquals(-1, start.timeLimitSec());
+        assertEquals("q1", start.getQuestion().getId());
+        assertEquals(-1, start.getTimeLimitSec());
     }
 
     @Test
@@ -165,13 +165,13 @@ class GameRoomManagerTest {
         GameRoomManager mgr = manager();
         mgr.join("123456", "Solo", "sess-1", "player", null);
         mgr.join("123456", "Late", "sess-2", "player", null);
-        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
-        assertEquals("q1", liveRoom(mgr, "123456").currentQuestionId());
-        assertEquals(0, liveRoom(mgr, "123456").currentQuestionIndex());
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").getStatus());
+        assertEquals("q1", liveRoom(mgr, "123456").getCurrentQuestionId());
+        assertEquals(0, liveRoom(mgr, "123456").getCurrentQuestionIndex());
     }
 
     private Player joinPracticeSolo(GameRoomManager mgr, String name, String sess) {
-        // NOTE: no sessionRepository stub — createRoomWithMode seeds the
+        // NOTE: no sessionRepository stub  -  createRoomWithMode seeds the
         // registry directly, so join never hits the session lookup.
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
         lenient().when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
@@ -186,11 +186,11 @@ class GameRoomManagerTest {
         GameRoomManager mgr = manager();
         createRoomWithMode(mgr, GameRoom.GameMode.PRACTICE);
         Player p = joinPracticeSolo(mgr, "Solo", "sess-1");
-        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").getStatus());
 
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
 
-        assertEquals("REVIEW", liveRoom(mgr, "123456").status());
+        assertEquals("REVIEW", liveRoom(mgr, "123456").getStatus());
         verify(roundTimer).schedule(eq(123456), anyLong(), any());
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq("sess-1"), sent.capture());
@@ -202,16 +202,16 @@ class GameRoomManagerTest {
         GameRoomManager mgr = manager();
         createRoomWithMode(mgr, GameRoom.GameMode.PRACTICE);
         Player p = joinPracticeSolo(mgr, "Solo", "sess-1");
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
 
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
 
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).send(eq("sess-1"), sent.capture());
         assertTrue(sent.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.ErrorMessage)
                 .map(m -> (com.sprintjudge.domain.dto.ErrorMessage) m)
-                .anyMatch(e -> e.message().contains("locked")));
+                .anyMatch(e -> e.getMessage().contains("locked")));
     }
 
     @Test
@@ -225,8 +225,8 @@ class GameRoomManagerTest {
                 .thenReturn(900);
         Player p = mgr.join("123456", "Solo", "sess-1", "player", null);
         mgr.startQuestion("123456");
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
+        mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").getStatus());
         // Only startQuestion's own per-question timer: no review transition.
         verify(roundTimer, times(1)).schedule(anyInt(), anyLong(), any());
     }
@@ -239,20 +239,20 @@ class GameRoomManagerTest {
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(oj));
         when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
         Player p = mgr.join("123456", "Cody", "sess-c", "player", null);
-        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").getStatus());
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
                 .thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
 
-        mgr.submit("123456", "oj1", p.uuid(), "python",
+        mgr.submit("123456", "oj1", p.getUuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
         ArgumentCaptor<com.sprintjudge.service.CodingOutcomeConsumer> cap =
                 ArgumentCaptor.forClass(com.sprintjudge.service.CodingOutcomeConsumer.class);
         verify(submissionProcessor).processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), cap.capture());
 
-        cap.getValue().accept(p.uuid(), 100, true, 1, 1, null);
-        assertEquals("REVIEW", liveRoom(mgr, "123456").status());
+        cap.getValue().accept(p.getUuid(), 100, true, 1, 1, null);
+        assertEquals("REVIEW", liveRoom(mgr, "123456").getStatus());
         verify(roundTimer).schedule(eq(123456), anyLong(), any());
     }
 
@@ -268,17 +268,17 @@ class GameRoomManagerTest {
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
                 .thenReturn(java.util.concurrent.CompletableFuture.completedFuture(false));
 
-        mgr.submit("123456", "oj1", p.uuid(), "python",
+        mgr.submit("123456", "oj1", p.getUuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
 
-        assertEquals("ACTIVE", liveRoom(mgr, "123456").status());
+        assertEquals("ACTIVE", liveRoom(mgr, "123456").getStatus());
         verify(roundTimer, never()).schedule(anyInt(), anyLong(), any());
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).send(eq("sess-c"), sent.capture());
         assertTrue(sent.getAllValues().stream()
                 .filter(m -> m instanceof com.sprintjudge.domain.dto.ErrorMessage)
                 .map(m -> (com.sprintjudge.domain.dto.ErrorMessage) m)
-                .anyMatch(e -> e.message().contains("busy")));
+                .anyMatch(e -> e.getMessage().contains("busy")));
     }
 
     @Test
@@ -292,7 +292,7 @@ class GameRoomManagerTest {
 
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq("late-sess"), sent.capture());
-        assertTrue(sent.getValue() instanceof QuestionStart s && s.question().id().equals("q1"));
+        assertTrue(sent.getValue() instanceof QuestionStart s && s.getQuestion().getId().equals("q1"));
     }
 
     @Test
@@ -341,7 +341,7 @@ class GameRoomManagerTest {
 
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq("late-sess"), sent.capture());
-        assertTrue(sent.getValue() instanceof QuestionStart s && s.timeLimitSec() == -1);
+        assertTrue(sent.getValue() instanceof QuestionStart s && s.getTimeLimitSec() == -1);
     }
 
     @Test
@@ -365,7 +365,7 @@ class GameRoomManagerTest {
     void joinWithOnlyInvalidCharsFallsBackToPlayer() {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         var p = manager().join("123456", "###", "sess-1", "player", null);
-        assertEquals("Player", p.name());
+        assertEquals("Player", p.getName());
     }
 
     @Test
@@ -393,10 +393,10 @@ class GameRoomManagerTest {
         var host = mgr.join("123456", "Host", "sess-h", "host", null);
         var player = mgr.join("123456", "Alice", "sess-a", "player", null);
 
-        var lb = roomOf(mgr).leaderboard();
+        var lb = roomOf(mgr).getLeaderboard();
         assertEquals(1, lb.size());
-        assertEquals(player.uuid(), lb.get(0).uuid());
-        assertTrue(roomOf(mgr).players().stream().anyMatch(p -> p.uuid().equals(host.uuid())));
+        assertEquals(player.getUuid(), lb.get(0).getUuid());
+        assertTrue(roomOf(mgr).getPlayers().stream().anyMatch(p -> p.getUuid().equals(host.getUuid())));
     }
 
     @Test
@@ -426,14 +426,14 @@ class GameRoomManagerTest {
 
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", player.uuid(), "python",
+        mgr.submit("123456", "q1", player.getUuid(), "python",
                 Json.readTree("{\"selectedIndex\":0}"));
 
         ArgumentCaptor<com.sprintjudge.domain.models.Submission> saved =
                 ArgumentCaptor.forClass(com.sprintjudge.domain.models.Submission.class);
         verify(writeBuffer).offer(saved.capture());
-        assertEquals(900, saved.getValue().scoreEarned());
-        assertTrue(saved.getValue().correct());
+        assertEquals(900, saved.getValue().getScoreEarned());
+        assertTrue(saved.getValue().isCorrect());
 
         // submit does not broadcast ROOM_STATE immediately; the leaderboard delta is coalesced.
         verify(ws, never()).broadcast(any(), any());
@@ -464,14 +464,14 @@ class GameRoomManagerTest {
 
         var player = mgr.join("123456", "Bob", "sess-b", "player", null);
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", player.uuid(), "python",
+        mgr.submit("123456", "q1", player.getUuid(), "python",
                 Json.readTree("{\"selectedIndex\":3}"));
 
         ArgumentCaptor<com.sprintjudge.domain.models.Submission> saved =
                 ArgumentCaptor.forClass(com.sprintjudge.domain.models.Submission.class);
         verify(writeBuffer).offer(saved.capture());
-        assertEquals(0, saved.getValue().scoreEarned());
-        assertEquals(false, saved.getValue().correct());
+        assertEquals(0, saved.getValue().getScoreEarned());
+        assertEquals(false, saved.getValue().isCorrect());
         // Fraction flows into the engine, which hard-zeroes it internally.
         verify(scoringEngine).scoreSelection(eq(0.0), anyLong(), anyLong(), anyInt(), anyInt(), any());
         // STANDARD delays the public board mid-round: only the join armed a flush.
@@ -491,14 +491,14 @@ class GameRoomManagerTest {
 
         var player = mgr.join("123456", "Cara", "sess-p", "player", null);
         armRound(mgr, "m1");
-        mgr.submit("123456", "m1", player.uuid(), "python",
+        mgr.submit("123456", "m1", player.getUuid(), "python",
                 Json.readTree("{\"selectedIndices\":[0]}"));
 
         ArgumentCaptor<com.sprintjudge.domain.models.Submission> saved =
                 ArgumentCaptor.forClass(com.sprintjudge.domain.models.Submission.class);
         verify(writeBuffer).offer(saved.capture());
-        assertEquals(800, saved.getValue().scoreEarned());
-        assertEquals(false, saved.getValue().correct());
+        assertEquals(800, saved.getValue().getScoreEarned());
+        assertEquals(false, saved.getValue().isCorrect());
     }
 
     @Test
@@ -512,11 +512,11 @@ class GameRoomManagerTest {
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
         armRound(mgr, "oj1");
 
-        mgr.submit("123456", "oj1", player.uuid(), "python",
+        mgr.submit("123456", "oj1", player.getUuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
 
         verify(submissionProcessor).processCoding(eq("s1"), eq("123456"), eq("oj1"), eq("Cody"),
-                eq(player.uuid()), eq("python"), eq("print(1)"), anyInt(), any(), anyLong(), any());
+                eq(player.getUuid()), eq("python"), eq("print(1)"), anyInt(), any(), anyLong(), any());
         verify(writeBuffer, never()).offer(any());
         verify(ws, never()).send(anyString(), any());
     }
@@ -532,12 +532,12 @@ class GameRoomManagerTest {
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(false));
         armRound(mgr, "oj1");
 
-        mgr.submit("123456", "oj1", player.uuid(), "python",
+        mgr.submit("123456", "oj1", player.getUuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\",\"language\":\"python\"}"));
 
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws).send(eq(player.sessionId()), sent.capture());
-        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message()
+        verify(ws).send(eq(player.getSessionId()), sent.capture());
+        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).getMessage()
                 .contains("Judge queue is busy"));
     }
 
@@ -556,8 +556,8 @@ class GameRoomManagerTest {
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         QuestionStart start = (QuestionStart) msg.getAllValues().stream()
                 .filter(m -> m instanceof QuestionStart).findFirst().orElseThrow();
-        assertEquals("q1", start.question().id());
-        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+        assertEquals("q1", start.getQuestion().getId());
+        assertEquals("ACTIVE", mgr.getRoomState("123456").getStatus());
         verify(sessionRepository).updateStatus("s1", "ACTIVE");
     }
 
@@ -609,8 +609,8 @@ class GameRoomManagerTest {
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         TimerUpdate update = (TimerUpdate) msg.getAllValues().stream()
                 .filter(m -> m instanceof TimerUpdate).findFirst().orElseThrow();
-        assertEquals(30, update.extendSec());
-        assertTrue(update.newEndEpochMs() > System.currentTimeMillis());
+        assertEquals(30, update.getExtendSec());
+        assertTrue(update.getNewEndEpochMs() > System.currentTimeMillis());
     }
 
     @Test
@@ -628,7 +628,7 @@ class GameRoomManagerTest {
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         assertTrue(msg.getAllValues().stream()
-                .anyMatch(m -> m instanceof RoundResult r && "ROUND_RESULT".equals(r.type())));
+                .anyMatch(m -> m instanceof RoundResult r && "ROUND_RESULT".equals(r.getType())));
     }
 
     @Test
@@ -638,10 +638,10 @@ class GameRoomManagerTest {
         var p = mgr.join("123456", "Bad", "sess-k", "player", null);
         org.mockito.Mockito.clearInvocations(ws);
 
-        mgr.kickPlayer("123456", p.uuid());
+        mgr.kickPlayer("123456", p.getUuid());
 
         verify(ws).send(eq("sess-k"), any());
-        assertEquals(0, mgr.getRoomState("123456").players().size());
+        assertEquals(0, mgr.getRoomState("123456").getPlayers().size());
     }
 
     @Test
@@ -651,11 +651,11 @@ class GameRoomManagerTest {
         var p = mgr.join("123456", "Ghost", "sess-g", "player", null);
         org.mockito.Mockito.clearInvocations(ws);
 
-        mgr.leave("123456", p.uuid());
+        mgr.leave("123456", p.getUuid());
 
         var state = mgr.getRoomState("123456");
-        assertEquals(1, state.players().size());
-        assertTrue(state.players().stream().noneMatch(pi -> pi.connected()));
+        assertEquals(1, state.getPlayers().size());
+        assertTrue(state.getPlayers().stream().noneMatch(pi -> pi.isConnected()));
     }
 
     // ---------- creation ----------
@@ -671,8 +671,8 @@ class GameRoomManagerTest {
 
         GameSession created = manager().createRoom("qz", "host-1");
 
-        assertEquals("LOBBY", created.status());
-        assertTrue(created.pinCode().matches("\\d{6}"));
+        assertEquals("LOBBY", created.getStatus());
+        assertTrue(created.getPinCode().matches("\\d{6}"));
     }
 
     @Test
@@ -690,7 +690,7 @@ class GameRoomManagerTest {
 
         GameSession created = manager().createRoom("qz", "host-1");
 
-        assertTrue(created.pinCode().matches("\\d{6}"));
+        assertTrue(created.getPinCode().matches("\\d{6}"));
         verify(sessionRepository).deleteByPin(anyString());
     }
 
@@ -706,10 +706,10 @@ class GameRoomManagerTest {
 
         var state = mgr.getRoomState("123456");
 
-        assertEquals("ROOM_STATE", state.type());
-        assertEquals("LOBBY", state.status());
-        assertEquals(2, state.questionCount());
-        assertEquals(2, state.players().size());
+        assertEquals("ROOM_STATE", state.getType());
+        assertEquals("LOBBY", state.getStatus());
+        assertEquals(2, state.getQuestionCount());
+        assertEquals(2, state.getPlayers().size());
     }
 
     @Test
@@ -731,7 +731,7 @@ class GameRoomManagerTest {
         var p = mgr.join("123456", "Sync", "sess-r", "player", null);
         org.mockito.Mockito.clearInvocations(ws);
 
-        mgr.sendFullLeaderboard("123456", p.sessionId());
+        mgr.sendFullLeaderboard("123456", p.getSessionId());
 
         ArgumentCaptor<String> payload = ArgumentCaptor.forClass(String.class);
         verify(ws).sendRaw(eq("sess-r"), payload.capture());
@@ -762,7 +762,7 @@ class GameRoomManagerTest {
         } catch (Exception e) { throw new RuntimeException(e); }
     }
 
-    private void createRoomWithMode(GameRoomManager mgr, GameRoom.GameMode mode) {
+    private void createRoomWithMode(GameRoomManager mgr, String mode) {
         registryOf(mgr).put(123456,
                 new GameRoom("s1", "qz", "123456", "LOBBY", 500, mode));
     }
@@ -791,9 +791,9 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         GameRoomManager mgr = manager();
         var p = mgr.join("123456", "Alice", "sess-a", "player", null);
-        roomOf(mgr).softRemove(p.uuid());                 // simulate disconnect
-        var reclaimed = mgr.join("123456", "Alice", "sess-b", "player", p.token());
-        assertEquals(p.uuid(), reclaimed.uuid());
+        roomOf(mgr).softRemove(p.getUuid());                 // simulate disconnect
+        var reclaimed = mgr.join("123456", "Alice", "sess-b", "player", p.getToken());
+        assertEquals(p.getUuid(), reclaimed.getUuid());
     }
 
     @Test
@@ -809,7 +809,7 @@ class GameRoomManagerTest {
     void joinEmptySanitizedNameFallsBackToPlayer() {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         Player p = manager().join("123456", "###", "sess", "player", null);
-        assertEquals("Player", p.name());
+        assertEquals("Player", p.getName());
     }
 
     // ---------- submit: lock / missing / limit branches ----------
@@ -821,10 +821,10 @@ class GameRoomManagerTest {
         when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         // status is LOBBY (round not armed) -> lock gate fires
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(anyString(), sent.capture());
-        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message().contains("Round is locked"));
+        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).getMessage().contains("Round is locked"));
     }
 
     @Test
@@ -834,11 +834,11 @@ class GameRoomManagerTest {
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         armRound(mgr, "q1");
         // questionRepository.findById("q1") defaults to empty -> q == null -> error to sender
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(writeBuffer, never()).offer(any());
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(anyString(), sent.capture());
-        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message().contains("Unknown question"));
+        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).getMessage().contains("Unknown question"));
     }
 
     @Test
@@ -847,11 +847,11 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         var host = mgr.join("123456", "Host", "sess-h", "host", null);
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", host.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", host.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(writeBuffer, never()).offer(any());
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq("sess-h"), sent.capture());
-        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message().contains("Hosts can't submit"));
+        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).getMessage().contains("Hosts can't submit"));
     }
 
     @Test
@@ -861,11 +861,11 @@ class GameRoomManagerTest {
         when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         armRound(mgr, "q1");
-        mgr.leave("123456", player.uuid());
+        mgr.leave("123456", player.getUuid());
         org.mockito.Mockito.clearInvocations(ws);
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(writeBuffer, never()).offer(any());
-        assertEquals(0, roomOf(mgr).attemptCount("q1", player.uuid()));
+        assertEquals(0, roomOf(mgr).attemptCount("q1", player.getUuid()));
     }
 
     @Test
@@ -882,12 +882,12 @@ class GameRoomManagerTest {
             @SuppressWarnings("unchecked")
             java.util.concurrent.ConcurrentHashMap<String, Integer> map =
                     (java.util.concurrent.ConcurrentHashMap<String, Integer>) af.get(roomOf(mgr));
-            map.put("q1 " + player.uuid(), 50);
+            map.put("q1 " + player.getUuid(), 50);
         } catch (Exception e) { throw new RuntimeException(e); }
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(anyString(), sent.capture());
-        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message().contains("Attempt limit reached"));
+        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).getMessage().contains("Attempt limit reached"));
     }
 
     @Test
@@ -900,14 +900,14 @@ class GameRoomManagerTest {
 
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
 
         ArgumentCaptor<com.sprintjudge.domain.models.Submission> saved =
                 ArgumentCaptor.forClass(com.sprintjudge.domain.models.Submission.class);
         verify(writeBuffer, org.mockito.Mockito.times(2)).offer(saved.capture());
-        assertEquals(900, saved.getAllValues().get(0).scoreEarned());   // no streak yet
-        assertEquals(990, saved.getAllValues().get(1).scoreEarned());   // +10% streak bonus
+        assertEquals(900, saved.getAllValues().get(0).getScoreEarned());   // no streak yet
+        assertEquals(990, saved.getAllValues().get(1).getScoreEarned());   // +10% streak bonus
     }
 
     @Test
@@ -921,12 +921,12 @@ class GameRoomManagerTest {
 
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
 
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws).send(eq(player.sessionId()), sent.capture());
-        assertTrue(sent.getValue() instanceof SubmissionResult r && r.score() == 900
-                && r.allPassed());
+        verify(ws).send(eq(player.getSessionId()), sent.capture());
+        assertTrue(sent.getValue() instanceof SubmissionResult r && r.getScore() == 900
+                && r.isAllPassed());
         // Host-led STANDARD: the public board stays frozen (join armed the only flush).
         verify(scheduler, times(1)).markDirty(eq(123456), any());
     }
@@ -943,10 +943,10 @@ class GameRoomManagerTest {
 
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
 
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws).send(eq(player.sessionId()), sent.capture());
+        verify(ws).send(eq(player.getSessionId()), sent.capture());
         assertTrue(sent.getValue() instanceof SubmissionResult);
         // PRACTICE keeps the historical live board: join + submit both arm a flush.
         verify(scheduler, times(2)).markDirty(eq(123456), any());
@@ -963,11 +963,11 @@ class GameRoomManagerTest {
         when(questionRepository.findById("oj1")).thenReturn(Optional.of(oj));
         var player = mgr.join("123456", "Cody", "sess-c", "player", null);
         armRound(mgr, "oj1");
-        mgr.submit("123456", "oj1", player.uuid(), "python",
+        mgr.submit("123456", "oj1", player.getUuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\"}"));
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws).send(eq(player.sessionId()), sent.capture());
-        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).message().contains("Language not allowed"));
+        verify(ws).send(eq(player.getSessionId()), sent.capture());
+        assertTrue(((com.sprintjudge.domain.dto.ErrorMessage) sent.getValue()).getMessage().contains("Language not allowed"));
         verify(submissionProcessor, never()).processCoding(anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any());
     }
@@ -983,10 +983,10 @@ class GameRoomManagerTest {
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
         armRound(mgr, "oj1");
-        mgr.submit("123456", "oj1", player.uuid(), "python",
+        mgr.submit("123456", "oj1", player.getUuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\"}"));
         verify(submissionProcessor).processCoding(eq("s1"), eq("123456"), eq("oj1"), eq("Cody"),
-                eq(player.uuid()), eq("python"), eq("print(1)"), anyInt(), any(), anyLong(), any());
+                eq(player.getUuid()), eq("python"), eq("print(1)"), anyInt(), any(), anyLong(), any());
     }
 
     @Test
@@ -999,9 +999,9 @@ class GameRoomManagerTest {
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
         armRound(mgr, "oj1");
-        mgr.submit("123456", "oj1", player.uuid(), "python", null);
+        mgr.submit("123456", "oj1", player.getUuid(), "python", null);
         verify(submissionProcessor).processCoding(eq("s1"), eq("123456"), eq("oj1"), eq("Cody"),
-                eq(player.uuid()), eq("python"), eq(""), anyInt(), any(), anyLong(), any());
+                eq(player.getUuid()), eq("python"), eq(""), anyInt(), any(), anyLong(), any());
     }
 
     // ---------- host / leave / kick branches ----------
@@ -1011,8 +1011,8 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         GameRoomManager mgr = manager();
         var host = mgr.join("123456", "Host", "sess-h", "host", null);
-        mgr.leave("123456", host.uuid());
-        assertNull(roomOf(mgr).hostUuid());
+        mgr.leave("123456", host.getUuid());
+        assertNull(roomOf(mgr).getHostUuid());
     }
 
     @Test
@@ -1020,8 +1020,8 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         GameRoomManager mgr = manager();
         var host = mgr.join("123456", "Host", "sess-h", "host", null);
-        mgr.kickPlayer("123456", host.uuid());
-        assertNull(roomOf(mgr).hostUuid());
+        mgr.kickPlayer("123456", host.getUuid());
+        assertNull(roomOf(mgr).getHostUuid());
     }
 
     @Test
@@ -1058,7 +1058,7 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         GameRoomManager mgr = manager();
         var p = mgr.join("123456", "A", "sa", "player", null);
-        roomOf(mgr).softRemove(p.uuid());           // disconnect -> connectedCount 0
+        roomOf(mgr).softRemove(p.getUuid());           // disconnect -> connectedCount 0
         setField(roomOf(mgr), "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
         assertEquals(1, mgr.activeRooms());
         mgr.sweepIdleRooms();
@@ -1094,7 +1094,7 @@ class GameRoomManagerTest {
                         "host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
         GameRoomManager mgr = manager();
         GameSession created = mgr.createRoom("qz", "host");
-        mgr.sendFullLeaderboard(created.pinCode(), "sess");
+        mgr.sendFullLeaderboard(created.getPinCode(), "sess");
         verify(ws, never()).sendRaw(anyString(), anyString());
     }
 
@@ -1108,7 +1108,7 @@ class GameRoomManagerTest {
         mgr.startQuestion("123456");
         verify(roundTimer).schedule(eq(123456), anyLong(), runnableCaptor.capture());
         runnableCaptor.getValue().run();            // now < end -> returns early
-        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+        assertEquals("ACTIVE", mgr.getRoomState("123456").getStatus());
     }
 
     @Test
@@ -1120,7 +1120,7 @@ class GameRoomManagerTest {
         verify(roundTimer).schedule(eq(123456), anyLong(), runnableCaptor.capture());
         setField(roomOf(mgr), "status", "REVIEW");
         runnableCaptor.getValue().run();            // status != ACTIVE -> returns
-        assertEquals("REVIEW", mgr.getRoomState("123456").status());
+        assertEquals("REVIEW", mgr.getRoomState("123456").getStatus());
     }
 
     @Test
@@ -1134,10 +1134,10 @@ class GameRoomManagerTest {
         runnableCaptor.getValue().run();            // now >= end -> async transition
         // Timer expiry hands blocking DB work to the sweeper; await the transition.
         long deadline = System.currentTimeMillis() + 5000;
-        while (!"REVIEW".equals(roomOf(mgr).status()) && System.currentTimeMillis() < deadline) {
+        while (!"REVIEW".equals(roomOf(mgr).getStatus()) && System.currentTimeMillis() < deadline) {
             try { Thread.sleep(25); } catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
         }
-        assertEquals("REVIEW", mgr.getRoomState("123456").status());
+        assertEquals("REVIEW", mgr.getRoomState("123456").getStatus());
         verify(sessionRepository, org.mockito.Mockito.timeout(5000)).updateStatus("s1", "REVIEW");
     }
 
@@ -1175,8 +1175,8 @@ class GameRoomManagerTest {
 
         GameSession created = manager().createRoom("qz", "host");
 
-        assertEquals("LOBBY", created.status());
-        assertTrue(created.pinCode().matches("\\d{6}"));
+        assertEquals("LOBBY", created.getStatus());
+        assertTrue(created.getPinCode().matches("\\d{6}"));
         verify(sessionRepository, atLeast(2)).findByPin(anyString());   // loop re-ran
     }
 
@@ -1216,7 +1216,7 @@ class GameRoomManagerTest {
                 Json.readTree("{\"selectedIndex\":0}"));   // wrong qid, unknown player
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(any(), sent.capture());
-        assertTrue(((ErrorMessage) sent.getValue()).message().contains("Round is locked"));
+        assertTrue(((ErrorMessage) sent.getValue()).getMessage().contains("Round is locked"));
         verify(writeBuffer, never()).offer(any());
     }
 
@@ -1250,20 +1250,20 @@ class GameRoomManagerTest {
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
                 .thenAnswer(inv -> {
                     CodingOutcomeConsumer h = inv.getArgument(10);
-                    h.accept(player.uuid(), 500, true, 5, 5, null);    // correct path -> streak bonus 0, score 500
-                    h.accept(player.uuid(), 100, false, 2, 5, null);   // wrong path -> resetStreak, score 100
+                    h.accept(player.getUuid(), 500, true, 5, 5, null);    // correct path -> streak bonus 0, score 500
+                    h.accept(player.getUuid(), 100, false, 2, 5, null);   // wrong path -> resetStreak, score 100
                     return java.util.concurrent.CompletableFuture.completedFuture(true);
                 });
         armRound(mgr, "oj1");
-        mgr.submit("123456", "oj1", player.uuid(), "python",
+        mgr.submit("123456", "oj1", player.getUuid(), "python",
                 Json.readTree("{\"source\":\"x\"}"));
 
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws, org.mockito.Mockito.times(2)).send(eq(player.sessionId()), sent.capture());
+        verify(ws, org.mockito.Mockito.times(2)).send(eq(player.getSessionId()), sent.capture());
         java.util.List<Object> all = sent.getAllValues();
-        assertTrue(all.stream().anyMatch(o -> o instanceof SubmissionResult r && r.score() == 500));
-        assertTrue(all.stream().anyMatch(o -> o instanceof SubmissionResult r && r.score() == 100
-                && !r.allPassed()));
+        assertTrue(all.stream().anyMatch(o -> o instanceof SubmissionResult r && r.getScore() == 500));
+        assertTrue(all.stream().anyMatch(o -> o instanceof SubmissionResult r && r.getScore() == 100
+                && !r.isAllPassed()));
         // STANDARD delays the public board mid-round (join armed the only flush).
         verify(scheduler, times(1)).markDirty(eq(123456), any());
     }
@@ -1317,9 +1317,9 @@ class GameRoomManagerTest {
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         RoundResult rr = (RoundResult) msg.getAllValues().stream()
                 .filter(x -> x instanceof RoundResult).findFirst().orElseThrow();
-        assertEquals(false, rr.revealed());
-        assertNull(rr.correctAnswer());
-        assertTrue(rr.scores().stream().anyMatch(s -> s.uuid().equals(p.uuid())));
+        assertEquals(false, rr.isRevealed());
+        assertNull(rr.getCorrectAnswer());
+        assertTrue(rr.getScores().stream().anyMatch(s -> s.getUuid().equals(p.getUuid())));
     }
 
     @Test
@@ -1381,7 +1381,7 @@ class GameRoomManagerTest {
         mgr.extendTimer("123456", 30);
         verify(roundTimer, times(2)).schedule(eq(123456), anyLong(), runnableCaptor.capture());
         runnableCaptor.getValue().run();        // fire the timer's onTimerExpired lambda
-        assertEquals("ACTIVE", mgr.getRoomState("123456").status());  // now < end -> no-op
+        assertEquals("ACTIVE", mgr.getRoomState("123456").getStatus());  // now < end -> no-op
     }
 
     /** toDto must handle a question whose config is null (falls back to Map.of()). */
@@ -1420,10 +1420,10 @@ class GameRoomManagerTest {
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any())).thenReturn(java.util.concurrent.CompletableFuture.completedFuture(true));
         armRound(mgr, "oj1");
-        mgr.submit("123456", "oj1", player.uuid(), "python",
+        mgr.submit("123456", "oj1", player.getUuid(), "python",
                 Json.readTree("{\"source\":\"print(1)\"}"));
         verify(submissionProcessor).processCoding(eq("s1"), eq("123456"), eq("oj1"), eq("Cody"),
-                eq(player.uuid()), eq("python"), eq("print(1)"), anyInt(), any(), anyLong(), any());
+                eq(player.getUuid()), eq("python"), eq("print(1)"), anyInt(), any(), anyLong(), any());
         verify(ws, never()).send(anyString(), any());
     }
 
@@ -1438,13 +1438,13 @@ class GameRoomManagerTest {
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");   // -> transitionToReview -> sendRoundResult(true)
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         RoundResult rr = (RoundResult) msg.getAllValues().stream()
                 .filter(m -> m instanceof RoundResult).findFirst().orElseThrow();
-        assertTrue(rr.scores().stream().anyMatch(s -> s.uuid().equals(player.uuid()) && s.correct()));
+        assertTrue(rr.getScores().stream().anyMatch(s -> s.getUuid().equals(player.getUuid()) && s.isCorrect()));
     }
 
     /** A LOBBY room whose players disconnected but have not yet idled out survives the sweep. */
@@ -1453,7 +1453,7 @@ class GameRoomManagerTest {
         GameRoomManager mgr = manager();
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         var p = mgr.join("123456", "A", "sa", "player", null);
-        roomOf(mgr).softRemove(p.uuid());          // connectedCount() == 0
+        roomOf(mgr).softRemove(p.getUuid());          // connectedCount() == 0
         mgr.sweepIdleRooms();                      // idleMs still < TTL -> keep
         assertEquals(1, mgr.activeRooms());
     }
@@ -1471,8 +1471,8 @@ class GameRoomManagerTest {
 
         GameSession created = manager().createRoom("qz", "host", GameRoom.GameMode.PRACTICE);
 
-        assertEquals("LOBBY", created.status());
-        assertTrue(created.pinCode().matches("\\d{6}"));
+        assertEquals("LOBBY", created.getStatus());
+        assertTrue(created.getPinCode().matches("\\d{6}"));
     }
 
     @Test
@@ -1486,7 +1486,7 @@ class GameRoomManagerTest {
 
         verify(roundTimer, never()).schedule(anyInt(), anyLong(), any());
         verify(ws, atLeastOnce()).broadcast(any(), any());
-        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+        assertEquals("ACTIVE", mgr.getRoomState("123456").getStatus());
     }
 
     @Test
@@ -1501,14 +1501,14 @@ class GameRoomManagerTest {
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         armRound(mgr, "q1");
 
-        mgr.submit("123456", "q1", player.uuid(), "python",
+        mgr.submit("123456", "q1", player.getUuid(), "python",
                 Json.readTree("{\"selectedIndex\":0}"));
 
         // PRACTICE sends immediate feedback to the player
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq("sess-1"), sent.capture());
         assertTrue(sent.getAllValues().stream()
-                .anyMatch(m -> m instanceof SubmissionResult sr && sr.score() == 900));
+                .anyMatch(m -> m instanceof SubmissionResult sr && sr.getScore() == 900));
     }
 
     @Test
@@ -1524,7 +1524,7 @@ class GameRoomManagerTest {
 
         mgr.startQuestion("123456");
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", mgr.join("123456", "P", "s1", "player", null).uuid(),
+        mgr.submit("123456", "q1", mgr.join("123456", "P", "s1", "player", null).getUuid(),
                 "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456"); // -> transitionToReview -> schedules auto-advance
 
@@ -1533,7 +1533,7 @@ class GameRoomManagerTest {
         Runnable autoAdvance = runnableCaptor.getValue();
         autoAdvance.run();
         // After auto-advance, should have moved to question 2
-        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+        assertEquals("ACTIVE", mgr.getRoomState("123456").getStatus());
     }
 
     // ==================== EXAM MODE ====================
@@ -1549,7 +1549,7 @@ class GameRoomManagerTest {
 
         GameSession created = manager().createRoom("qz", "host", GameRoom.GameMode.EXAM);
 
-        assertEquals("LOBBY", created.status());
+        assertEquals("LOBBY", created.getStatus());
     }
 
     @Test
@@ -1565,7 +1565,7 @@ class GameRoomManagerTest {
 
         // EXAM uses totalEndEpochMs, not per-question timer
         verify(roundTimer).schedule(eq(123456), eq(totalEnd), any());
-        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+        assertEquals("ACTIVE", mgr.getRoomState("123456").getStatus());
     }
 
     @Test
@@ -1579,14 +1579,14 @@ class GameRoomManagerTest {
         var player = mgr.join("123456", "Alice", "sess-1", "player", null);
         armRound(mgr, "q1");
 
-        mgr.submit("123456", "q1", player.uuid(), "python",
+        mgr.submit("123456", "q1", player.getUuid(), "python",
                 Json.readTree("{\"selectedIndex\":0}"));
 
         // EXAM sends immediate feedback
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq("sess-1"), sent.capture());
         assertTrue(sent.getAllValues().stream()
-                .anyMatch(m -> m instanceof SubmissionResult sr && sr.score() == 900));
+                .anyMatch(m -> m instanceof SubmissionResult sr && sr.getScore() == 900));
     }
 
     @Test
@@ -1630,10 +1630,10 @@ class GameRoomManagerTest {
         GameRoom.Team team = mgr.createTeam("123456", "Alpha");
 
         assertNotNull(team);
-        assertEquals("Alpha", team.name());
-        assertTrue(team.id().startsWith("team-"));
-        assertTrue(team.memberUuids().isEmpty());
-        assertEquals(0, team.score());
+        assertEquals("Alpha", team.getName());
+        assertTrue(team.getId().startsWith("team-"));
+        assertTrue(team.getMemberUuids().isEmpty());
+        assertEquals(0, team.getScore());
     }
 
     @Test
@@ -1643,9 +1643,9 @@ class GameRoomManagerTest {
         var player = mgr.join("123456", "Alice", "sess-a", "player", null);
         GameRoom.Team team = mgr.createTeam("123456", "Alpha");
 
-        GameRoom.Team updated = mgr.joinTeam("123456", team.id(), player.uuid());
+        GameRoom.Team updated = mgr.joinTeam("123456", team.getId(), player.getUuid());
 
-        assertTrue(updated.memberUuids().contains(player.uuid()));
+        assertTrue(updated.getMemberUuids().contains(player.getUuid()));
     }
 
     @Test
@@ -1655,8 +1655,8 @@ class GameRoomManagerTest {
         mgr.join("123456", "Host", "sess-h", "host", null);
         GameRoom.Team team = mgr.createTeam("123456", "Alpha");
 
-        long result1 = roomOf(mgr).applyTeamScore(team.id(), 500);
-        long result2 = roomOf(mgr).applyTeamScore(team.id(), 300);
+        long result1 = roomOf(mgr).applyTeamScore(team.getId(), 500);
+        long result2 = roomOf(mgr).applyTeamScore(team.getId(), 300);
 
         assertEquals(500, result1);
         assertEquals(800, result2);
@@ -1670,16 +1670,16 @@ class GameRoomManagerTest {
         var p2 = mgr.join("123456", "Bob", "s2", "player", null);
         GameRoom.Team team1 = mgr.createTeam("123456", "Alpha");
         GameRoom.Team team2 = mgr.createTeam("123456", "Beta");
-        mgr.joinTeam("123456", team1.id(), p1.uuid());
-        mgr.joinTeam("123456", team2.id(), p2.uuid());
-        roomOf(mgr).applyTeamScore(team1.id(), 1000);
-        roomOf(mgr).applyTeamScore(team2.id(), 500);
+        mgr.joinTeam("123456", team1.getId(), p1.getUuid());
+        mgr.joinTeam("123456", team2.getId(), p2.getUuid());
+        roomOf(mgr).applyTeamScore(team1.getId(), 1000);
+        roomOf(mgr).applyTeamScore(team2.getId(), 500);
 
         java.util.List<GameRoom.Team> teams = mgr.getTeams("123456");
 
         assertEquals(2, teams.size());
-        assertTrue(teams.stream().anyMatch(t -> "Alpha".equals(t.name()) && t.score() == 1000));
-        assertTrue(teams.stream().anyMatch(t -> "Beta".equals(t.name()) && t.score() == 500));
+        assertTrue(teams.stream().anyMatch(t -> "Alpha".equals(t.getName()) && t.getScore() == 1000));
+        assertTrue(teams.stream().anyMatch(t -> "Beta".equals(t.getName()) && t.getScore() == 500));
     }
 
     @Test
@@ -1688,9 +1688,9 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         var player = mgr.join("123456", "Alice", "s1", "player", null);
         GameRoom.Team team = mgr.createTeam("123456", "Alpha");
-        mgr.joinTeam("123456", team.id(), player.uuid());
+        mgr.joinTeam("123456", team.getId(), player.getUuid());
 
-        assertEquals(team.id(), roomOf(mgr).teamIdOf(player.uuid()));
+        assertEquals(team.getId(), roomOf(mgr).teamIdOf(player.getUuid()));
     }
 
     // ==================== BATTLE MODE ====================
@@ -1708,7 +1708,7 @@ class GameRoomManagerTest {
 
         java.util.List<GameRoom.BattleMatch> matches = mgr.getBattleMatches("123456");
         assertEquals(1, matches.size());
-        assertEquals("q1", matches.get(0).questionId());
+        assertEquals("q1", matches.get(0).getQuestionId());
     }
 
     @Test
@@ -1725,8 +1725,8 @@ class GameRoomManagerTest {
         java.util.List<GameRoom.BattleMatch> matches = mgr.getBattleMatches("123456");
         GameRoom.BattleMatch m = matches.get(0);
         // Both players should be in the match (order may vary due to shuffle)
-        assertTrue(m.p1Uuid().equals(p1.uuid()) || m.p1Uuid().equals(p2.uuid()));
-        assertTrue(m.p2Uuid().equals(p1.uuid()) || m.p2Uuid().equals(p2.uuid()));
+        assertTrue(m.getP1Uuid().equals(p1.getUuid()) || m.getP1Uuid().equals(p2.getUuid()));
+        assertTrue(m.getP2Uuid().equals(p1.getUuid()) || m.getP2Uuid().equals(p2.getUuid()));
     }
 
     @Test
@@ -1743,7 +1743,7 @@ class GameRoomManagerTest {
         java.util.List<GameRoom.BattleRound> bracket = mgr.getBracket("123456");
         assertEquals(1, bracket.size());
         assertNotNull(bracket.get(0));
-        assertEquals(1, bracket.get(0).pairs().size());
+        assertEquals(1, bracket.get(0).getPairs().size());
     }
 
     @Test
@@ -1771,7 +1771,7 @@ class GameRoomManagerTest {
 
         java.util.List<GameRoom.BattleMatch> matches = mgr.getBattleMatches("123456");
         assertEquals(2, matches.size());
-        assertEquals(2, mgr.getBracket("123456").get(0).pairs().size());
+        assertEquals(2, mgr.getBracket("123456").get(0).getPairs().size());
     }
 
     // ==================== AUTO_PILOT MODE ====================
@@ -1789,7 +1789,7 @@ class GameRoomManagerTest {
 
         mgr.startQuestion("123456");
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", mgr.join("123456", "P", "s1", "player", null).uuid(),
+        mgr.submit("123456", "q1", mgr.join("123456", "P", "s1", "player", null).getUuid(),
                 "python", Json.readTree("{\"selectedIndex\":0}"));
         mgr.forceSubmit("123456");
 
@@ -1797,7 +1797,7 @@ class GameRoomManagerTest {
         verify(roundTimer, times(2)).schedule(eq(123456), anyLong(), runnableCaptor.capture());
         Runnable autoAdvance = runnableCaptor.getAllValues().get(runnableCaptor.getAllValues().size() - 1);
         autoAdvance.run();
-        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+        assertEquals("ACTIVE", mgr.getRoomState("123456").getStatus());
     }
 
     @Test
@@ -1834,10 +1834,10 @@ class GameRoomManagerTest {
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
         mgr.startQuestion("123456");
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", mgr.getRoomState("123456").status());
+        assertEquals("REVIEW", mgr.getRoomState("123456").getStatus());
         org.mockito.Mockito.clearInvocations(ws);
         mgr.startQuestion("123456");
-        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
+        assertEquals("ACTIVE", mgr.getRoomState("123456").getStatus());
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         assertTrue(msg.getAllValues().stream().anyMatch(m -> m instanceof QuestionStart));
@@ -1853,8 +1853,8 @@ class GameRoomManagerTest {
         mgr.nextQuestion("123456");
         verify(sessionRepository).updateStatus("s1", "REVIEW");
         verify(sessionRepository).updateStatus("s1", "ACTIVE");
-        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
-        assertEquals("q2", roomOf(mgr).currentQuestionId());
+        assertEquals("ACTIVE", mgr.getRoomState("123456").getStatus());
+        assertEquals("q2", roomOf(mgr).getCurrentQuestionId());
     }
 
     @Test
@@ -1863,8 +1863,8 @@ class GameRoomManagerTest {
         seedRoom(mgr);
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
         mgr.nextQuestion("123456");
-        assertEquals(0, roomOf(mgr).currentQuestionIndex());
-        assertEquals("q1", roomOf(mgr).currentQuestionId());
+        assertEquals(0, roomOf(mgr).getCurrentQuestionIndex());
+        assertEquals("q1", roomOf(mgr).getCurrentQuestionId());
     }
 
     @Test
@@ -1875,8 +1875,8 @@ class GameRoomManagerTest {
         mgr.startQuestion("123456");
         mgr.forceSubmit("123456");
         mgr.nextQuestion("123456");
-        assertEquals(1, roomOf(mgr).currentQuestionIndex());
-        assertEquals("q2", roomOf(mgr).currentQuestionId());
+        assertEquals(1, roomOf(mgr).getCurrentQuestionIndex());
+        assertEquals("q2", roomOf(mgr).getCurrentQuestionId());
     }
 
     @Test
@@ -1920,17 +1920,17 @@ class GameRoomManagerTest {
         seedRoom(mgr);
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         mgr.startQuestion("123456");
-        long base = roomOf(mgr).questionEndBaseEpochMs();
-        long cur = roomOf(mgr).currentQuestionEndEpochMs();
+        long base = roomOf(mgr).getQuestionEndBaseEpochMs();
+        long cur = roomOf(mgr).getCurrentQuestionEndEpochMs();
         mgr.extendTimer("123456", 10_000);
-        long after = roomOf(mgr).currentQuestionEndEpochMs();
+        long after = roomOf(mgr).getCurrentQuestionEndEpochMs();
         assertEquals(base + 300_000, after);
         assertTrue(after - cur < 10_000_000L);
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         TimerUpdate tu = (TimerUpdate) msg.getAllValues().stream()
                 .filter(m -> m instanceof TimerUpdate).findFirst().orElseThrow();
-        assertTrue(tu.extendSec() < 10_000);
+        assertTrue(tu.getExtendSec() < 10_000);
     }
 
     @Test
@@ -1940,9 +1940,9 @@ class GameRoomManagerTest {
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         mgr.startQuestion("123456");
         setField(roomOf(mgr), "questionEndBaseEpochMs", 0L);
-        long cur = roomOf(mgr).currentQuestionEndEpochMs();
+        long cur = roomOf(mgr).getCurrentQuestionEndEpochMs();
         mgr.extendTimer("123456", 20);
-        assertEquals(cur + 20_000, roomOf(mgr).currentQuestionEndEpochMs());
+        assertEquals(cur + 20_000, roomOf(mgr).getCurrentQuestionEndEpochMs());
     }
 
     @Test
@@ -1951,14 +1951,14 @@ class GameRoomManagerTest {
         seedRoom(mgr);
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         mgr.startQuestion("123456");
-        long cur = roomOf(mgr).currentQuestionEndEpochMs();
+        long cur = roomOf(mgr).getCurrentQuestionEndEpochMs();
         mgr.extendTimer("123456", -10);
-        assertEquals(cur - 10_000, roomOf(mgr).currentQuestionEndEpochMs());
+        assertEquals(cur - 10_000, roomOf(mgr).getCurrentQuestionEndEpochMs());
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         TimerUpdate tu = (TimerUpdate) msg.getAllValues().stream()
                 .filter(m -> m instanceof TimerUpdate).findFirst().orElseThrow();
-        assertEquals(-10, tu.extendSec());
+        assertEquals(-10, tu.getExtendSec());
     }
 
     @Test
@@ -1970,7 +1970,7 @@ class GameRoomManagerTest {
         setField(roomOf(mgr), "questionEndBaseEpochMs", Long.MAX_VALUE);
         setField(roomOf(mgr), "currentQuestionEndEpochMs", Long.MAX_VALUE);
         mgr.extendTimer("123456", 30);
-        assertEquals(Long.MAX_VALUE, roomOf(mgr).currentQuestionEndEpochMs());
+        assertEquals(Long.MAX_VALUE, roomOf(mgr).getCurrentQuestionEndEpochMs());
     }
 
     @Test
@@ -1978,7 +1978,7 @@ class GameRoomManagerTest {
         GameRoomManager mgr = manager();
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         var p = mgr.join("123456", "Bad", "sess-k", "player", null);
-        mgr.kickPlayer("123456", p.uuid());
+        mgr.kickPlayer("123456", p.getUuid());
         verify(ws).close("sess-k");
     }
 
@@ -1999,8 +1999,8 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         var p = mgr.join("123456", "A", "sa", "player", null);
         mgr.leave("123456", "ghost-uuid");
-        assertEquals(1, mgr.getRoomState("123456").players().size());
-        assertTrue(roomOf(mgr).getPlayer(p.uuid()).connected());
+        assertEquals(1, mgr.getRoomState("123456").getPlayers().size());
+        assertTrue(roomOf(mgr).getPlayer(p.getUuid()).isConnected());
     }
 
     @Test
@@ -2024,10 +2024,10 @@ class GameRoomManagerTest {
         mgr.startBattle("123456");
         var matches = mgr.getBattleMatches("123456");
         assertEquals(1, matches.size());
-        String pair = matches.get(0).p1Uuid() + matches.get(0).p2Uuid();
-        assertTrue(pair.contains(p1.uuid()) && pair.contains(p2.uuid()));
-        assertTrue(!matches.get(0).p1Uuid().equals(host.uuid())
-                && !matches.get(0).p2Uuid().equals(host.uuid()));
+        String pair = matches.get(0).getP1Uuid() + matches.get(0).getP2Uuid();
+        assertTrue(pair.contains(p1.getUuid()) && pair.contains(p2.getUuid()));
+        assertTrue(!matches.get(0).getP1Uuid().equals(host.getUuid())
+                && !matches.get(0).getP2Uuid().equals(host.getUuid()));
     }
 
     @Test
@@ -2114,12 +2114,12 @@ class GameRoomManagerTest {
         mgr.join("123456", "H", "sh", "host", null);
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         mgr.startQuestion("123456");
-        assertEquals(Long.MAX_VALUE, roomOf(mgr).currentQuestionEndEpochMs());
+        assertEquals(Long.MAX_VALUE, roomOf(mgr).getCurrentQuestionEndEpochMs());
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         QuestionStart qs = (QuestionStart) msg.getAllValues().stream()
                 .filter(m -> m instanceof QuestionStart).findFirst().orElseThrow();
-        assertEquals(-1, qs.timeLimitSec());
+        assertEquals(-1, qs.getTimeLimitSec());
     }
 
     @Test
@@ -2131,7 +2131,7 @@ class GameRoomManagerTest {
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(700);
         var player = mgr.join("123456", "E", "se", "player", null);
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         verify(scheduler, times(2)).markDirty(eq(123456), any());
     }
 
@@ -2143,7 +2143,7 @@ class GameRoomManagerTest {
         mgr.startQuestion("123456");
         org.mockito.Mockito.doThrow(new RuntimeException("flush down")).when(writeBuffer).flush();
         mgr.forceSubmit("123456");
-        assertEquals("REVIEW", mgr.getRoomState("123456").status());
+        assertEquals("REVIEW", mgr.getRoomState("123456").getStatus());
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         assertTrue(msg.getAllValues().stream().anyMatch(m -> m instanceof RoundResult));
@@ -2196,16 +2196,16 @@ class GameRoomManagerTest {
         var p1 = mgr.join("123456", "A", "s1", "player", null);
         when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         com.sprintjudge.domain.models.Submission sub = new com.sprintjudge.domain.models.Submission(
-                "sub1", "s1", "q1", "A", p1.uuid(), "{}", 900, true, null, 1, Instant.now());
+                "sub1", "s1", "q1", "A", p1.getUuid(), "{}", 900, true, null, 1, Instant.now());
         when(submissionRepository.findBySession("s1")).thenReturn(List.of(sub));
         mgr.endGame("123456");
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         GameReview review = (GameReview) msg.getAllValues().stream()
                 .filter(m -> m instanceof GameReview).findFirst().orElseThrow();
-        assertTrue(review.players().stream().noneMatch(pr -> pr.playerUuid().equals(host.uuid())));
-        assertTrue(review.players().stream().anyMatch(pr -> pr.playerUuid().equals(p1.uuid())));
-        assertEquals(1, review.classStats().totalPlayers());
+        assertTrue(review.getPlayers().stream().noneMatch(pr -> pr.getPlayerUuid().equals(host.getUuid())));
+        assertTrue(review.getPlayers().stream().anyMatch(pr -> pr.getPlayerUuid().equals(p1.getUuid())));
+        assertEquals(1, review.getClassStats().getTotalPlayers());
     }
 
     @Test
@@ -2220,8 +2220,8 @@ class GameRoomManagerTest {
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         GameReview review = (GameReview) msg.getAllValues().stream()
                 .filter(m -> m instanceof GameReview).findFirst().orElseThrow();
-        assertEquals(0, review.classStats().totalPlayers());
-        assertTrue(review.players().isEmpty());
+        assertEquals(0, review.getClassStats().getTotalPlayers());
+        assertTrue(review.getPlayers().isEmpty());
     }
 
     @Test
@@ -2281,15 +2281,15 @@ class GameRoomManagerTest {
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(500);
         var p = mgr.join("123456", "A", "sa", "player", null);
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         org.mockito.Mockito.clearInvocations(ws);
         mgr.forceSubmit("123456");
         ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
         verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
         RoundResult rr = (RoundResult) msg.getAllValues().stream()
                 .filter(m -> m instanceof RoundResult).findFirst().orElseThrow();
-        assertTrue(rr.scores().stream().noneMatch(s -> s.uuid().equals(host.uuid())));
-        assertTrue(rr.scores().stream().anyMatch(s -> s.uuid().equals(p.uuid())));
+        assertTrue(rr.getScores().stream().noneMatch(s -> s.getUuid().equals(host.getUuid())));
+        assertTrue(rr.getScores().stream().anyMatch(s -> s.getUuid().equals(p.getUuid())));
     }
 
     @Test
@@ -2302,13 +2302,13 @@ class GameRoomManagerTest {
         when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(800);
         var player = mgr.join("123456", "A", "sa", "player", null);
         armRound(mgr, "q1");
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         ArgumentCaptor<com.sprintjudge.domain.models.Submission> saved =
                 ArgumentCaptor.forClass(com.sprintjudge.domain.models.Submission.class);
         verify(writeBuffer, times(2)).offer(saved.capture());
-        assertEquals(0, saved.getAllValues().get(0).scoreEarned());
-        assertEquals(800, saved.getAllValues().get(1).scoreEarned());
+        assertEquals(0, saved.getAllValues().get(0).getScoreEarned());
+        assertEquals(800, saved.getAllValues().get(1).getScoreEarned());
     }
 
     @Test
@@ -2321,16 +2321,16 @@ class GameRoomManagerTest {
         var player = mgr.join("123456", "A", "sa", "player", null);
         armRound(mgr, "q1");
         for (int i = 0; i < 8; i++) {
-            mgr.submit("123456", "q1", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+            mgr.submit("123456", "q1", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         }
         ArgumentCaptor<com.sprintjudge.domain.models.Submission> saved =
                 ArgumentCaptor.forClass(com.sprintjudge.domain.models.Submission.class);
         verify(writeBuffer, times(8)).offer(saved.capture());
-        assertEquals(100, saved.getAllValues().get(0).scoreEarned());
-        assertEquals(110, saved.getAllValues().get(1).scoreEarned());
-        assertEquals(150, saved.getAllValues().get(5).scoreEarned());
-        assertEquals(150, saved.getAllValues().get(6).scoreEarned());
-        assertEquals(150, saved.getAllValues().get(7).scoreEarned());
+        assertEquals(100, saved.getAllValues().get(0).getScoreEarned());
+        assertEquals(110, saved.getAllValues().get(1).getScoreEarned());
+        assertEquals(150, saved.getAllValues().get(5).getScoreEarned());
+        assertEquals(150, saved.getAllValues().get(6).getScoreEarned());
+        assertEquals(150, saved.getAllValues().get(7).getScoreEarned());
     }
 
     @Test
@@ -2340,10 +2340,10 @@ class GameRoomManagerTest {
         when(questionRepository.findById("q2")).thenReturn(Optional.of(mcq("q2")));
         var player = mgr.join("123456", "A", "sa", "player", null);
         armRound(mgr, "q1");
-        mgr.submit("123456", "q2", player.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+        mgr.submit("123456", "q2", player.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq("sa"), sent.capture());
-        assertTrue(((ErrorMessage) sent.getValue()).message().contains("Round is locked"));
+        assertTrue(((ErrorMessage) sent.getValue()).getMessage().contains("Round is locked"));
         verify(writeBuffer, never()).offer(any());
     }
 
@@ -2357,15 +2357,15 @@ class GameRoomManagerTest {
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any())).thenAnswer(inv -> {
             CodingOutcomeConsumer h = inv.getArgument(10);
-            h.rejected(player.uuid());
+            h.rejected(player.getUuid());
             return java.util.concurrent.CompletableFuture.completedFuture(true);
         });
         armRound(mgr, "oj1");
-        mgr.submit("123456", "oj1", player.uuid(), "python", Json.readTree("{\"source\":\"x\"}"));
-        assertEquals(0, roomOf(mgr).attemptCount("oj1", player.uuid()));
+        mgr.submit("123456", "oj1", player.getUuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+        assertEquals(0, roomOf(mgr).attemptCount("oj1", player.getUuid()));
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq("sess-c"), sent.capture());
-        assertTrue(sent.getValue() instanceof SubmissionResult r && r.score() == 0 && !r.allPassed());
+        assertTrue(sent.getValue() instanceof SubmissionResult r && r.getScore() == 0 && !r.isAllPassed());
     }
 
     @Test
@@ -2378,16 +2378,16 @@ class GameRoomManagerTest {
         when(submissionProcessor.processCoding(anyString(), anyString(), anyString(), anyString(),
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any())).thenAnswer(inv -> {
             CodingOutcomeConsumer h = inv.getArgument(10);
-            h.accept(player.uuid(), 400, false, 3, 5, "fix edge cases");
+            h.accept(player.getUuid(), 400, false, 3, 5, "fix edge cases");
             return java.util.concurrent.CompletableFuture.completedFuture(true);
         });
         armRound(mgr, "oj1");
-        mgr.submit("123456", "oj1", player.uuid(), "python", Json.readTree("{\"source\":\"x\"}"));
-        assertEquals(1, roomOf(mgr).attemptCount("oj1", player.uuid()));
+        mgr.submit("123456", "oj1", player.getUuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+        assertEquals(1, roomOf(mgr).attemptCount("oj1", player.getUuid()));
         ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
         verify(ws).send(eq("sess-c"), sent.capture());
         assertTrue(sent.getValue() instanceof SubmissionResult r
-                && r.score() == 400 && "fix edge cases".equals(r.aiFeedback()));
+                && r.getScore() == 400 && "fix edge cases".equals(r.getAiFeedback()));
     }
 
     @Test
@@ -2401,8 +2401,8 @@ class GameRoomManagerTest {
                 anyString(), anyString(), anyString(), anyInt(), any(), anyLong(), any()))
                 .thenReturn(java.util.concurrent.CompletableFuture.completedFuture(false));
         armRound(mgr, "oj1");
-        mgr.submit("123456", "oj1", player.uuid(), "python", Json.readTree("{\"source\":\"x\"}"));
-        assertEquals(0, roomOf(mgr).attemptCount("oj1", player.uuid()));
+        mgr.submit("123456", "oj1", player.getUuid(), "python", Json.readTree("{\"source\":\"x\"}"));
+        assertEquals(0, roomOf(mgr).attemptCount("oj1", player.getUuid()));
     }
 
     @Test
@@ -2412,7 +2412,7 @@ class GameRoomManagerTest {
         var p = mgr.join("123456", "A", "sa", "player", null);
         lenient().when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
         roomOf(mgr).setStatus("ACTIVE");
-        roomOf(mgr).softRemove(p.uuid());
+        roomOf(mgr).softRemove(p.getUuid());
         setField(roomOf(mgr), "lastActivityMs", System.currentTimeMillis() - 31L * 60_000);
         mgr.sweepIdleRooms();
         assertEquals(0, mgr.activeRooms());
@@ -2434,9 +2434,9 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         var p = mgr.join("123456", "A", "sa", "player", null);
         var team = mgr.createTeam("123456", "Alpha");
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", "  ", p.uuid()));
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.id(), "  "));
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", null, p.uuid()));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", "  ", p.getUuid()));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.getId(), "  "));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", null, p.getUuid()));
     }
 
     @Test
@@ -2445,6 +2445,6 @@ class GameRoomManagerTest {
         when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
         mgr.join("123456", "A", "sa", "player", null);
         var team = mgr.createTeam("123456", "Alpha");
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.id(), "ghost"));
+        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", team.getId(), "ghost"));
     }
 }

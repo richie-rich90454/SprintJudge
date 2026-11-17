@@ -15,11 +15,11 @@ import java.util.Set;
  *
  * <p>Questions carry answer keys in their {@code config} (correctIndex,
  * correct, correctIndices, answer, correctOrder, bugLine, expected, hidden
- * test cases). Those must never reach players during a round — only the
+ * test cases). Those must never reach players during a round -?only the
  * public reveal (after the round ends) gets the answer-bearing subset, built
  * by {@link #answerPayload}. {@link #sanitize} strips all answer keys plus
  * hidden OJ test cases, leaving the rendering fields (options, lines, code,
- * starter, …) intact.
+ * starter, -? intact.
  */
 public final class QuestionAnswers {
 
@@ -30,7 +30,7 @@ public final class QuestionAnswers {
             "expected", "explanation", "hint", "optionMeta");
 
     // Answer-bearing keys revealed post-round, per (non-coding) question type.
-    private static final Map<QuestionType, String[]> REVEAL_KEYS = Map.of(
+    private static final Map<String, String[]> REVEAL_KEYS = Map.of(
             QuestionType.MCQ, new String[]{"correctIndex"},
             QuestionType.OUTPUT_PRED, new String[]{"correctIndex"},
             QuestionType.COMPLEXITY, new String[]{"correctIndex"},
@@ -43,26 +43,26 @@ public final class QuestionAnswers {
             QuestionType.CODE_COMPLETION, new String[]{"expected"});
 
     /** Player-facing config: answer keys + hidden OJ test cases removed. */
-    public static JsonNode sanitize(QuestionType type, JsonNode raw) {
+    public static JsonNode sanitize(String type, JsonNode raw) {
         if (raw == null || raw.isNull()) return raw;
         ObjectNode out = raw.deepCopy();
-        ANSWER_KEYS.forEach(out::remove);
-        if (type.isCoding() && out.has("testCases")) {
+        for (String key : ANSWER_KEYS) out.remove(key);
+        if (QuestionType.isCoding(type) && out.has("testCases")) {
             // Keep only sample (non-hidden) test cases; expected output stays
             // hidden so later games reusing this question can't be pre-solved.
             ArrayNode visible = out.arrayNode();
-            out.get("testCases").forEach(tc -> {
+            for (JsonNode tc : out.get("testCases")) {
                 if (!tc.path("isHidden").asBoolean(false)) visible.add(tc);
-            });
+            }
             out.set("testCases", visible);
         }
         return out;
     }
 
     /** Reveal payload (post-round): only the answer-bearing keys, never test cases. */
-    public static JsonNode answerPayload(QuestionType type, JsonNode raw) {
+    public static JsonNode answerPayload(String type, JsonNode raw) {
         if (raw == null || raw.isNull()) return null;
-        if (type.isCoding()) return null; // OJ results are per-player, never a shared key
+        if (QuestionType.isCoding(type)) return null; // OJ results are per-player, never a shared key
         String[] keys = REVEAL_KEYS.getOrDefault(type, new String[0]);
         ObjectNode out = Json.MAPPER.createObjectNode();
         for (String key : keys) copy(out, raw, key);

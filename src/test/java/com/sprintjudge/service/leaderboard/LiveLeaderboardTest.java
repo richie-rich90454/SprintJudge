@@ -77,15 +77,15 @@ class LiveLeaderboardTest {
         LiveLeaderboard lb = new LiveLeaderboard();
         assertEquals(0, lb.snapshot().size());
         var empty = lb.fullBatch();
-        assertTrue(empty.resync());
-        assertTrue(empty.upserts().isEmpty());
+        assertTrue(empty.isResync());
+        assertTrue(empty.getUpserts().isEmpty());
 
         lb.join("u1", "Alice");
         lb.join("u2", "Bob");
         lb.applyScore("u1", 100);
         var full = lb.fullBatch();
-        assertTrue(full.resync());
-        assertEquals(2, full.upserts().size());
+        assertTrue(full.isResync());
+        assertEquals(2, full.getUpserts().size());
     }
 
     @Test
@@ -95,10 +95,10 @@ class LiveLeaderboardTest {
         lb.applyScore("u1", 10);
         assertEquals(1, lb.pendingDeltaCount());
         var b = lb.drainDeltas(false);
-        assertFalse(b.resync());
+        assertFalse(b.isResync());
         assertEquals(0, lb.pendingDeltaCount());
         var r = lb.drainDeltas(true);
-        assertTrue(r.resync());
+        assertTrue(r.isResync());
     }
 
     @Test
@@ -118,10 +118,10 @@ class LiveLeaderboardTest {
         lb.applyScore("u1", 10);
         lb.applyScore("u2", 50);
         var batch = lb.drainDeltas(false);
-        assertFalse(batch.resync());
-        assertEquals(2, batch.upserts().size());
+        assertFalse(batch.isResync());
+        assertEquals(2, batch.getUpserts().size());
         var byUuid = new java.util.HashMap<String, Integer>();
-        for (var d : batch.upserts()) byUuid.put(d.uuid(), d.rank());
+        for (var d : batch.getUpserts()) byUuid.put(d.getUuid(), d.getRank());
         assertEquals(2, (int) byUuid.get("u1"));
         assertEquals(1, (int) byUuid.get("u2"));
         assertEquals(1, lb.rankOf("u2"));
@@ -136,9 +136,9 @@ class LiveLeaderboardTest {
         lb.applyScore("u1", 30);
         lb.remove("u1");
         var batch = lb.drainDeltas(false);
-        assertFalse(batch.resync());
-        var fallen = batch.upserts().stream().filter(d -> d.uuid().equals("u1")).findFirst().orElseThrow();
-        assertTrue(fallen.rank() >= 1);
+        assertFalse(batch.isResync());
+        var fallen = batch.getUpserts().stream().filter(d -> d.getUuid().equals("u1")).findFirst().orElseThrow();
+        assertTrue(fallen.getRank() >= 1);
         assertEquals(-1, lb.rankOf("u1"));
     }
 
@@ -147,16 +147,16 @@ class LiveLeaderboardTest {
         LiveLeaderboard lb = new LiveLeaderboard();
         lb.join("u1", "Alice");
         var batch = lb.drainDeltas(true);
-        assertTrue(batch.resync());
-        assertTrue(batch.upserts().isEmpty());
+        assertTrue(batch.isResync());
+        assertTrue(batch.getUpserts().isEmpty());
     }
 
     @Test
     void drainEmptyLedgerReturnsResyncBatch() {
         LiveLeaderboard lb = new LiveLeaderboard();
         var batch = lb.drainDeltas(false);
-        assertTrue(batch.resync());
-        assertTrue(batch.upserts().isEmpty());
+        assertTrue(batch.isResync());
+        assertTrue(batch.getUpserts().isEmpty());
     }
 
     @Test
@@ -171,8 +171,8 @@ class LiveLeaderboardTest {
         lb.applyScore("u1", 50);
         var batch = lb.drainDeltas(false);
         var ranks = new java.util.HashMap<String, Integer>();
-        for (var d : batch.upserts()) ranks.put(d.uuid(), d.rank());
-        assertEquals(2, batch.upserts().size());
+        for (var d : batch.getUpserts()) ranks.put(d.getUuid(), d.getRank());
+        assertEquals(2, batch.getUpserts().size());
         assertEquals(1, (int) ranks.get("u3"));
         assertEquals(2, (int) ranks.get("u1"));
         assertEquals(1, lb.rankOf("u3"));
@@ -188,12 +188,12 @@ class LiveLeaderboardTest {
         lb.applyScore("u2", 70);
         lb.applyScore("u1", 20);
         var full = lb.fullBatch();
-        assertTrue(full.resync());
-        assertEquals(2, full.upserts().size());
-        assertEquals("u2", full.upserts().get(0).uuid());
-        assertEquals(1, full.upserts().get(0).rank());
-        assertEquals("u1", full.upserts().get(1).uuid());
-        assertEquals(2, full.upserts().get(1).rank());
+        assertTrue(full.isResync());
+        assertEquals(2, full.getUpserts().size());
+        assertEquals("u2", full.getUpserts().get(0).getUuid());
+        assertEquals(1, full.getUpserts().get(0).getRank());
+        assertEquals("u1", full.getUpserts().get(1).getUuid());
+        assertEquals(2, full.getUpserts().get(1).getRank());
     }
 
     @Test
@@ -204,7 +204,7 @@ class LiveLeaderboardTest {
         lb.fullBatch();
         assertEquals(1, lb.pendingDeltaCount());
         var drained = lb.drainDeltas(false);
-        assertFalse(drained.resync());
+        assertFalse(drained.isResync());
         assertEquals(0, lb.pendingDeltaCount());
     }
 
@@ -218,7 +218,7 @@ class LiveLeaderboardTest {
         lb.applyScore("u1", -90);
         var batch = lb.drainDeltas(false);
         var ranks = new java.util.HashMap<String, Integer>();
-        for (var d : batch.upserts()) ranks.put(d.uuid(), d.rank());
+        for (var d : batch.getUpserts()) ranks.put(d.getUuid(), d.getRank());
         assertEquals(1, (int) ranks.get("u1"));
         assertEquals(10L, lb.scoreOf("u1"));
     }
@@ -230,8 +230,8 @@ class LiveLeaderboardTest {
         lb.drainDeltas(false);
         lb.join("u2", "Bob");
         var batch = lb.drainDeltas(false);
-        assertEquals(1, batch.upserts().size());
-        assertEquals("u2", batch.upserts().get(0).uuid());
-        assertEquals(2, batch.upserts().get(0).rank());
+        assertEquals(1, batch.getUpserts().size());
+        assertEquals("u2", batch.getUpserts().get(0).getUuid());
+        assertEquals(2, batch.getUpserts().get(0).getRank());
     }
 }

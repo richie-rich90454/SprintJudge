@@ -51,21 +51,26 @@ public class AdminController {
 
     @PostMapping("/quizzes")
     public Quiz createQuiz(@Valid @RequestBody Quiz quiz) {
-        if (quiz.id() != null && quizRepository.findById(quiz.id()).isPresent()) {
+        if (quiz.getId() != null && quizRepository.findById(quiz.getId()).isPresent()) {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.CONFLICT, "Quiz id already exists");
         }
-        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("title", quiz.title());
-        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("description", quiz.description());
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("title", quiz.getTitle());
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("description", quiz.getDescription());
         return quizRepository.create(quiz);
     }
 
     @PutMapping("/quizzes/{id}")
     public Quiz updateQuiz(@PathVariable String id, @RequestBody Map<String, String> body) {
-        var existing = quizRepository.findById(id)
-                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
-                        org.springframework.http.HttpStatus.NOT_FOUND, "Quiz not found"));
-        String title = body.getOrDefault("title", existing.title());
+        Quiz existing = quizRepository.findById(id)
+                .orElseThrow(new java.util.function.Supplier<RuntimeException>() {
+                    @Override
+                    public RuntimeException get() {
+                        return new org.springframework.web.server.ResponseStatusException(
+                                org.springframework.http.HttpStatus.NOT_FOUND, "Quiz not found");
+                    }
+                });
+        String title = body.getOrDefault("title", existing.getTitle());
         if (title == null || title.isBlank()) {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.BAD_REQUEST, "Title must not be blank");
@@ -74,7 +79,7 @@ public class AdminController {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.BAD_REQUEST, "Title exceeds 200 characters");
         }
-        String description = body.getOrDefault("description", existing.description());
+        String description = body.getOrDefault("description", existing.getDescription());
         if (description != null && description.length() > 4000) {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.BAD_REQUEST, "Description exceeds 4000 characters");
@@ -82,7 +87,7 @@ public class AdminController {
         com.sprintjudge.service.QuestionConfigValidator.requireCleanText("title", title);
         com.sprintjudge.service.QuestionConfigValidator.requireCleanText("description", description);
         com.sprintjudge.domain.models.Quiz updated = new com.sprintjudge.domain.models.Quiz(
-                id, title, description, existing.createdBy(), existing.createdAt(), existing.template());
+                id, title, description, existing.getCreatedBy(), existing.getCreatedAt(), existing.isTemplate());
         return quizRepository.update(updated);
     }
 
@@ -99,29 +104,34 @@ public class AdminController {
 
     @PostMapping("/quizzes/{id}/questions")
     public Question addQuestion(@PathVariable String id, @Valid @RequestBody Question question) {
-        requireKnownType(question.questionType());
-        com.sprintjudge.service.QuestionConfigValidator.requireValid(question.questionType(), question.config());
-        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("title", question.title());
-        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("description", question.description());
-        Question q = new Question(question.id(), id, question.title(), question.description(),
-                question.questionType(), question.languagesAllowed(), question.timeLimitSec(),
-                question.pointsBase(), question.config(), question.orderIndex(), question.createdAt());
+        requireKnownType(question.getQuestionType());
+        com.sprintjudge.service.QuestionConfigValidator.requireValid(question.getQuestionType(), question.getConfig());
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("title", question.getTitle());
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("description", question.getDescription());
+        Question q = new Question(question.getId(), id, question.getTitle(), question.getDescription(),
+                question.getQuestionType(), question.getLanguagesAllowed(), question.getTimeLimitSec(),
+                question.getPointsBase(), question.getConfig(), question.getOrderIndex(), question.getCreatedAt());
         return questionRepository.save(q);
     }
 
     @PutMapping("/questions/{id}")
     public Question updateQuestion(@PathVariable String id, @Valid @RequestBody Question question) {
         Question existing = questionRepository.findById(id)
-                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
-                        org.springframework.http.HttpStatus.NOT_FOUND, "Question not found"));
-        requireKnownType(question.questionType());
-        com.sprintjudge.service.QuestionConfigValidator.requireValid(question.questionType(), question.config());
-        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("title", question.title());
-        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("description", question.description());
+                .orElseThrow(new java.util.function.Supplier<RuntimeException>() {
+                    @Override
+                    public RuntimeException get() {
+                        return new org.springframework.web.server.ResponseStatusException(
+                                org.springframework.http.HttpStatus.NOT_FOUND, "Question not found");
+                    }
+                });
+        requireKnownType(question.getQuestionType());
+        com.sprintjudge.service.QuestionConfigValidator.requireValid(question.getQuestionType(), question.getConfig());
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("title", question.getTitle());
+        com.sprintjudge.service.QuestionConfigValidator.requireCleanText("description", question.getDescription());
         // The quiz home comes from the stored record, never the client body.
-        Question q = new Question(id, existing.quizId(), question.title(), question.description(),
-                question.questionType(), question.languagesAllowed(), question.timeLimitSec(),
-                question.pointsBase(), question.config(), question.orderIndex(), question.createdAt());
+        Question q = new Question(id, existing.getQuizId(), question.getTitle(), question.getDescription(),
+                question.getQuestionType(), question.getLanguagesAllowed(), question.getTimeLimitSec(),
+                question.getPointsBase(), question.getConfig(), question.getOrderIndex(), question.getCreatedAt());
         return questionRepository.save(q);
     }
 
@@ -147,7 +157,7 @@ public class AdminController {
 
     /**
      * Host attribution is resolved server-side from the authenticated login
-     * session — the client never gets to declare who the host is.
+     * session -?the client never gets to declare who the host is.
      */
     @PostMapping("/games")
     public com.sprintjudge.domain.models.GameSession createGame(@RequestBody Map<String, String> body) {
@@ -157,10 +167,8 @@ public class AdminController {
                     org.springframework.http.HttpStatus.BAD_REQUEST, "quizId is required");
         }
         String gameModeStr = body.getOrDefault("gameMode", "STANDARD");
-        com.sprintjudge.service.GameRoom.GameMode gameMode;
-        try {
-            gameMode = com.sprintjudge.service.GameRoom.GameMode.valueOf(gameModeStr.toUpperCase());
-        } catch (IllegalArgumentException e) {
+        String gameMode = gameModeStr.toUpperCase(java.util.Locale.ROOT);
+        if (!com.sprintjudge.service.GameRoom.GameMode.isValid(gameMode)) {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.BAD_REQUEST, "Unknown gameMode: " + gameModeStr);
         }
@@ -168,31 +176,40 @@ public class AdminController {
                 org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         String email = "system@sprintjudge.local";
         String name = "System";
-        if (auth != null && auth.getPrincipal() instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth) {
+        if (auth != null && auth.getPrincipal() instanceof org.springframework.security.oauth2.core.user.OAuth2User) {
+            org.springframework.security.oauth2.core.user.OAuth2User oauth =
+                    (org.springframework.security.oauth2.core.user.OAuth2User) auth.getPrincipal();
             String e = oauth.<String>getAttribute("email");
             if (e != null && !e.isBlank()) email = e;
             String n = oauth.<String>getAttribute("name");
             if (n != null && !n.isBlank()) name = n;
-        } else if (auth != null && auth.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails user) {
+        } else if (auth != null && auth.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            org.springframework.security.core.userdetails.UserDetails user =
+                    (org.springframework.security.core.userdetails.UserDetails) auth.getPrincipal();
             email = user.getUsername();
             name = user.getUsername();
-        } else if (auth != null && auth.getPrincipal() instanceof String s && !s.isBlank()) {
-            email = s;
-            name = s;
+        } else if (auth != null && auth.getPrincipal() instanceof String) {
+            String s = (String) auth.getPrincipal();
+            if (!s.isBlank()) {
+                email = s;
+                name = s;
+            }
         }
         com.sprintjudge.domain.models.User host = userRepository.upsertByEmail(email, name, null);
-        return roomManager.createRoom(quizId, host.id(), gameMode);
+        return roomManager.createRoom(quizId, host.getId(), gameMode);
     }
 
     @PutMapping("/settings")
     public void updateSettings(@RequestBody Map<String, String> body) {
-        body.forEach((k, v) -> {
+        for (Map.Entry<String, String> entry : body.entrySet()) {
+            String k = entry.getKey();
+            String v = entry.getValue();
             if (v == null) {
                 throw new org.springframework.web.server.ResponseStatusException(
                         org.springframework.http.HttpStatus.BAD_REQUEST, "Setting value must not be null: " + k);
             }
             settingsService.set(k, v);
-        });
+        }
     }
 
     @GetMapping("/export")
@@ -203,7 +220,12 @@ public class AdminController {
     @PostMapping("/import")
     public Map<String, Object> importBank(@RequestBody Map<String, Object> body) {
         Object raw = body.get("json");
-        if (!(raw instanceof String json) || json.isBlank()) {
+        if (!(raw instanceof String)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "Missing or invalid 'json' field");
+        }
+        String json = (String) raw;
+        if (json.isBlank()) {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.BAD_REQUEST, "Missing or invalid 'json' field");
         }
@@ -212,8 +234,12 @@ public class AdminController {
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.BAD_REQUEST, "Import too large (max 2MB)");
         }
-        boolean replace = Boolean.TRUE.equals(body.get("replace"))
-                || (body.get("replace") instanceof String s && s.equalsIgnoreCase("true"));
+        boolean replace = Boolean.TRUE.equals(body.get("replace"));
+        Object replaceRaw = body.get("replace");
+        if (replaceRaw instanceof String) {
+            String s = (String) replaceRaw;
+            if (s.equalsIgnoreCase("true")) replace = true;
+        }
         int imported = importExportService.importAll(json, replace);
         if (imported < 0) imported = 0;
         return Map.of("importedQuestions", imported);

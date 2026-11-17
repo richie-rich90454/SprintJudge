@@ -111,7 +111,7 @@ class JsonCorpusTest {
         ExportBundle bundle = new ExportBundle("1.0", 5L, List.of(), null);
         ExportBundle back = Json.read(Json.write(bundle), ExportBundle.class);
         assertEquals(bundle, back);
-        assertNull(back.adminSettings());
+        assertNull(back.getAdminSettings());
     }
 
     @Test
@@ -123,14 +123,14 @@ class JsonCorpusTest {
                 Map.of("k", "v"));
         ExportBundle back = Json.read(Json.write(bundle), ExportBundle.class);
         assertEquals(bundle, back);
-        assertEquals(List.of("java", "python"), back.quizzes().get(0).questions().get(0).languagesAllowed());
+        assertEquals(List.of("java", "python"), back.getQuizzes().get(0).getQuestions().get(0).getLanguagesAllowed());
     }
 
     @Test
     void unknownFieldsAreIgnoredOnRead() {
         Quiz back = Json.read("{\"id\":\"q\",\"title\":\"T\",\"zzz_unknown\":999}", Quiz.class);
-        assertEquals("q", back.id());
-        assertEquals("T", back.title());
+        assertEquals("q", back.getId());
+        assertEquals("T", back.getTitle());
     }
 
     @Test

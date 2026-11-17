@@ -55,7 +55,7 @@ public class GameEventListener {
     @EventListener
     public void onSubmission(GameEvent.SubmissionReceived e) {
         submissionsTotal.increment();
-        if (e.correct()) submissionsCorrect.increment();
+        if (e.isCorrect()) submissionsCorrect.increment();
     }
 
     @EventListener

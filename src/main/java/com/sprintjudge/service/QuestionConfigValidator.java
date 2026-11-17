@@ -15,38 +15,40 @@ public final class QuestionConfigValidator {
     private QuestionConfigValidator() {}
 
     public static void requireValid(String type, String config) {
-        QuestionType t = QuestionType.from(type);
+        String t = QuestionType.from(type);
         JsonNode c = parseObject(config);
         requireNoScript(c, "config");
-        // Expression form (not a statement switch): the synthetic
-        // exhaustiveness default is filtered from coverage, while a statement
-        // switch leaves one phantom branch no test can satisfy.
-        boolean _ = switch (t) {
-            case MCQ -> {
+        boolean ignored;
+        switch (t) {
+            case "MCQ": {
                 int n = requireOptions(c, 2);
                 requireIndexInBounds(c, "correctIndex", n);
-                yield true;
+                ignored = true;
+                break;
             }
-            case OUTPUT_PRED -> {
+            case "OUTPUT_PRED": {
                 int idx = requireIndex(c, "correctIndex");
                 if (c.has("options")) {
                     int n = requireOptions(c, 1);
                     if (idx >= n) throw new IllegalArgumentException("correctIndex out of bounds");
                 }
-                yield true;
+                ignored = true;
+                break;
             }
-            case COMPLEXITY -> {
+            case "COMPLEXITY": {
                 int n = requireOptions(c, 2);
                 requireIndexInBounds(c, "correctIndex", n);
-                yield true;
+                ignored = true;
+                break;
             }
-            case TRUE_FALSE -> {
+            case "TRUE_FALSE": {
                 if (!c.path("correct").isBoolean()) {
                     throw new IllegalArgumentException("correct must be true or false");
                 }
-                yield true;
+                ignored = true;
+                break;
             }
-            case MULTIPLE_SELECT -> {
+            case "MULTIPLE_SELECT": {
                 int n = requireOptions(c, 2);
                 JsonNode indices = c.path("correctIndices");
                 if (!indices.isArray() || indices.isEmpty()) {
@@ -57,45 +59,52 @@ public final class QuestionConfigValidator {
                         throw new IllegalArgumentException("correctIndices out of bounds");
                     }
                 }
-                yield true;
+                ignored = true;
+                break;
             }
-            case NUMERIC -> {
+            case "NUMERIC": {
                 if (!c.path("answer").isNumber()) {
                     throw new IllegalArgumentException("answer must be a number");
                 }
                 if (c.has("tolerance") && (!c.path("tolerance").isNumber() || c.path("tolerance").asDouble() < 0)) {
                     throw new IllegalArgumentException("tolerance must be >= 0");
                 }
-                yield true;
+                ignored = true;
+                break;
             }
-            case FILL_BLANK -> {
+            case "FILL_BLANK": {
                 if (!c.path("answer").isTextual() || c.path("answer").asText().isBlank()) {
                     throw new IllegalArgumentException("answer must not be blank");
                 }
-                yield true;
+                ignored = true;
+                break;
             }
-            case DRAG_SORT -> {
+            case "DRAG_SORT": {
                 JsonNode order = c.path("correctOrder");
                 if (!order.isArray() || order.size() < 2) {
                     throw new IllegalArgumentException("correctOrder needs at least 2 lines");
                 }
-                yield true;
+                ignored = true;
+                break;
             }
-            case CLICK_BUG -> {
+            case "CLICK_BUG": {
                 JsonNode lines = c.path("codeLines");
                 if (!lines.isArray() || lines.isEmpty()) {
                     throw new IllegalArgumentException("codeLines must be a non-empty array");
                 }
                 requireIndexInBounds(c, "bugLine", lines.size());
-                yield true;
+                ignored = true;
+                break;
             }
-            case CODE_COMPLETION -> {
+            case "CODE_COMPLETION": {
                 if (!c.path("expected").isTextual() || c.path("expected").asText().isBlank()) {
                     throw new IllegalArgumentException("expected must not be blank");
                 }
-                yield true;
+                ignored = true;
+                break;
             }
-            case OJ_FULL, OJ_PATCH -> {
+            case "OJ_FULL":
+            case "OJ_PATCH": {
                 JsonNode cases = c.path("testCases");
                 if (!cases.isArray() || cases.isEmpty()) {
                     throw new IllegalArgumentException("testCases must be a non-empty array");
@@ -108,9 +117,13 @@ public final class QuestionConfigValidator {
                 if (c.has("memoryLimitMb") && (!c.path("memoryLimitMb").isInt() || c.path("memoryLimitMb").asInt() <= 0)) {
                     throw new IllegalArgumentException("memoryLimitMb must be > 0");
                 }
-                yield true;
+                ignored = true;
+                break;
             }
-        };
+            default:
+                ignored = true;
+                break;
+        }
     }
 
     /**
@@ -164,9 +177,9 @@ public final class QuestionConfigValidator {
         if (node.isTextual()) {
             requireCleanText(field, node.asText());
         } else if (node.isArray()) {
-            node.forEach(child -> requireNoScript(child, field));
+            for (JsonNode child : node) requireNoScript(child, field);
         } else if (node.isObject()) {
-            node.forEach(child -> requireNoScript(child, field));
+            for (JsonNode child : node) requireNoScript(child, field);
         }
     }
 }

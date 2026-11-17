@@ -6,10 +6,10 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class AdminSettingsRepository {
@@ -22,10 +22,19 @@ public class AdminSettingsRepository {
 
     public Map<String, String> findAllAsMap() {
         List<AdminSetting> all = dsl.selectFrom(Tables.ADMIN_SETTINGS)
-                .fetch((org.jooq.Record r) -> new AdminSetting(
-                        r.get(Tables.SET_KEY), r.get(Tables.SET_VALUE),
-                        Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.SET_UPDATED)))));
-        return all.stream().collect(Collectors.toMap(s -> s.key(), s -> s.value()));
+                .fetch(new org.jooq.RecordMapper<org.jooq.Record, AdminSetting>() {
+                    @Override
+                    public AdminSetting map(org.jooq.Record r) {
+                        return new AdminSetting(
+                                r.get(Tables.SET_KEY), r.get(Tables.SET_VALUE),
+                                Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.SET_UPDATED))));
+                    }
+                });
+        Map<String, String> result = new HashMap<>();
+        for (AdminSetting s : all) {
+            result.put(s.getKey(), s.getValue());
+        }
+        return result;
     }
 
     public void put(String key, String value) {
@@ -42,7 +51,12 @@ public class AdminSettingsRepository {
 
     public Optional<AdminSetting> findByKey(String key) {
         return dsl.selectFrom(Tables.ADMIN_SETTINGS).where(Tables.SET_KEY.eq(key))
-                .fetchOptional(r -> new AdminSetting(r.get(Tables.SET_KEY), r.get(Tables.SET_VALUE),
-                        Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.SET_UPDATED)))));
+                .fetchOptional(new org.jooq.RecordMapper<org.jooq.Record, AdminSetting>() {
+                    @Override
+                    public AdminSetting map(org.jooq.Record r) {
+                        return new AdminSetting(r.get(Tables.SET_KEY), r.get(Tables.SET_VALUE),
+                                Instant.ofEpochSecond(RepoUtil.asLong(r.get(Tables.SET_UPDATED))));
+                    }
+                });
     }
 }

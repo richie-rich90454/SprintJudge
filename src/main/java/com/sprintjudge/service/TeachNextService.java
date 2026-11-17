@@ -21,7 +21,33 @@ import java.util.Map;
 @Service
 public class TeachNextService {
 
-    public record Recommendation(String subject, String unit, String topic, int count) {}
+    public static final class Recommendation {
+        private String subject;
+        private String unit;
+        private String topic;
+        private int count;
+
+        public Recommendation() {}
+
+        public Recommendation(String subject, String unit, String topic, int count) {
+            this.subject = subject;
+            this.unit = unit;
+            this.topic = topic;
+            this.count = count;
+        }
+
+        public String getSubject() { return subject; }
+        public void setSubject(String subject) { this.subject = subject; }
+
+        public String getUnit() { return unit; }
+        public void setUnit(String unit) { this.unit = unit; }
+
+        public String getTopic() { return topic; }
+        public void setTopic(String topic) { this.topic = topic; }
+
+        public int getCount() { return count; }
+        public void setCount(int count) { this.count = count; }
+    }
 
     private final GameSessionRepository sessionRepository;
     private final QuestionRepository questionRepository;
@@ -40,8 +66,13 @@ public class TeachNextService {
 
     public Recommendation recommendPractice(String sessionId) {
         GameSession session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "unknown session"));
-        List<Question> questions = questionRepository.findByQuiz(session.quizId());
+                .orElseThrow(new java.util.function.Supplier<ResponseStatusException>() {
+                    @Override
+                    public ResponseStatusException get() {
+                        return new ResponseStatusException(HttpStatus.NOT_FOUND, "unknown session");
+                    }
+                });
+        List<Question> questions = questionRepository.findByQuiz(session.getQuizId());
         List<Submission> submissions = submissionRepository.findBySession(sessionId);
 
         String topic = weakestTopic(questions, submissions);
@@ -78,21 +109,30 @@ public class TeachNextService {
         Map<String, Integer> totals = new HashMap<>();
         Map<String, Integer> corrects = new HashMap<>();
         for (Submission s : submissions) {
-            totals.merge(s.questionId(), 1, Integer::sum);
-            if (s.correct()) corrects.merge(s.questionId(), 1, Integer::sum);
+            Integer prevT = totals.get(s.getQuestionId());
+            totals.put(s.getQuestionId(), (prevT == null ? 0 : prevT) + 1);
+            if (s.isCorrect()) {
+                Integer prevC = corrects.get(s.getQuestionId());
+                corrects.put(s.getQuestionId(), (prevC == null ? 0 : prevC) + 1);
+            }
         }
         // group questions by topic
         Map<String, List<Question>> byTopic = new HashMap<>();
         for (Question q : questions) {
-            byTopic.computeIfAbsent(topicOf(q), k -> new ArrayList<>()).add(q);
+            List<Question> list = byTopic.get(topicOf(q));
+            if (list == null) {
+                list = new ArrayList<>();
+                byTopic.put(topicOf(q), list);
+            }
+            list.add(q);
         }
         String weakest = null;
         double weakestRate = 2.0;
         for (Map.Entry<String, List<Question>> e : byTopic.entrySet()) {
             int total = 0, correct = 0;
             for (Question q : e.getValue()) {
-                int t = totals.getOrDefault(q.id(), 0);
-                int c = corrects.getOrDefault(q.id(), 0);
+                int t = totals.getOrDefault(q.getId(), 0);
+                int c = corrects.getOrDefault(q.getId(), 0);
                 total += t;
                 correct += c;
             }
@@ -137,9 +177,9 @@ public class TeachNextService {
     }
 
     private static String topicOf(Question q) {
-        if (q.config() != null && !q.config().isBlank()) {
+        if (q.getConfig() != null && !q.getConfig().isBlank()) {
             try {
-                com.fasterxml.jackson.databind.JsonNode node = Json.readTree(q.config());
+                com.fasterxml.jackson.databind.JsonNode node = Json.readTree(q.getConfig());
                 if (node != null && node.has("topic")) {
                     String t = node.get("topic").asText("");
                     if (!t.isBlank()) return t;
@@ -147,7 +187,7 @@ public class TeachNextService {
             } catch (RuntimeException ignored) {
             }
         }
-        return q.title() == null ? "" : q.title();
+        return q.getTitle() == null ? "" : q.getTitle();
     }
 
     private static boolean containsIgnoreCase(String haystack, String needle) {

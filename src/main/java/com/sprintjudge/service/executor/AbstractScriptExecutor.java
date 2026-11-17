@@ -50,10 +50,10 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
 
     @Override
     public JudgeResult judge(JudgeRequest request) {
-        String language = canonical(request.language());
+        String language = canonical(request.getLanguage());
         if (!SUPPORTED.contains(language)) {
-            log.warn("Rejected unsupported language: {}", request.language());
-            return new JudgeResult(0, request.testCases().size(), false, List.of(
+            log.warn("Rejected unsupported language: {}", request.getLanguage());
+            return new JudgeResult(0, request.getTestCases().size(), false, List.of(
                     new JudgeResult.CaseResult(0, false, "", "", "unsupported_language")));
         }
         Path runDir;
@@ -61,7 +61,7 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             runDir = Files.createDirectories(Path.of(workDirBase,
                     "run-" + Thread.currentThread().threadId() + "-" + System.nanoTime()));
         } catch (IOException e) {            log.error("Could not create run directory under {}", workDirBase, e);
-            return new JudgeResult(0, request.testCases().size(), false, List.of());
+            return new JudgeResult(0, request.getTestCases().size(), false, List.of());
         }
         Process proc = null;
         try {
@@ -72,15 +72,15 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             String ext = extension(language);
             String judgeFileName = language.equals("java") ? "Main" : "solution";
             Path sourceFile = runDir.resolve(judgeFileName + ext).toAbsolutePath();
-            Files.writeString(sourceFile, request.sourceCode() == null ? "" : request.sourceCode());
+            Files.writeString(sourceFile, request.getSourceCode() == null ? "" : request.getSourceCode());
 
             List<JudgeResult.CaseResult> results = new ArrayList<>();
             int passed = 0;
-            int timeout = request.timeoutSec() > 0 ? request.timeoutSec() : defaultTimeoutSec;
-            for (int idx = 0; idx < request.testCases().size(); idx++) {
-                TestCase tc = request.testCases().get(idx);
+            int timeout = request.getTimeoutSec() > 0 ? request.getTimeoutSec() : defaultTimeoutSec;
+            for (int idx = 0; idx < request.getTestCases().size(); idx++) {
+                TestCase tc = request.getTestCases().get(idx);
                 Path inputFile = runDir.resolve("input_" + idx + ".txt").toAbsolutePath();
-                Files.writeString(inputFile, tc.input() == null ? "" : tc.input());
+                Files.writeString(inputFile, tc.getInput() == null ? "" : tc.getInput());
                 Path outputFile = runDir.resolve("out_" + idx + ".txt").toAbsolutePath();
 
                 List<String> cmd = commandFor(language, sourceFile, inputFile, runDir);
@@ -93,42 +93,40 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
                         .redirectOutput(outputFile.toFile());
                 proc = pb.start();
 
-                ExecIo.WaitOutcome outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
-                if (outcome != ExecIo.WaitOutcome.FINISHED) {
+                String outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
+                if (!"FINISHED".equals(outcome)) {
                     ExecIo.killAndReap(proc);
-                    results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "",
-                            outcome == ExecIo.WaitOutcome.TOO_BIG ? "stdout_exceeded_1MB" : "timeout"));
+                    results.add(new JudgeResult.CaseResult(idx, false, tc.getExpectedOutput(), "",
+                            ExecIo.WaitOutcome.TOO_BIG.equals(outcome) ? "stdout_exceeded_1MB" : "timeout"));
                     continue;
                 }
                 // Edge case X: cap captured stdout at 1MB.
                 String output = ExecIo.readCappedFile(outputFile);
                 if (output == null) {
-                    results.add(new JudgeResult.CaseResult(idx, false, tc.expectedOutput(), "", "stdout_exceeded_1MB"));
+                    results.add(new JudgeResult.CaseResult(idx, false, tc.getExpectedOutput(), "", "stdout_exceeded_1MB"));
                     continue;
                 }
-                boolean ok = output.equals((tc.expectedOutput() == null ? "" : tc.expectedOutput()).strip());
+                boolean ok = output.equals((tc.getExpectedOutput() == null ? "" : tc.getExpectedOutput()).strip());
                 if (ok) passed++;
-                results.add(new JudgeResult.CaseResult(idx, ok, tc.expectedOutput(), output, ok ? "" : "mismatch"));
+                results.add(new JudgeResult.CaseResult(idx, ok, tc.getExpectedOutput(), output, ok ? "" : "mismatch"));
             }
-            return new JudgeResult(passed, request.testCases().size(), passed == request.testCases().size(), results);
+            return new JudgeResult(passed, request.getTestCases().size(), passed == request.getTestCases().size(), results);
         } catch (IOException e) {
             if (proc != null) ExecIo.killAndReap(proc);
             log.error("Judge execution failed for language {}", language, e);
-            return new JudgeResult(0, request.testCases().size(), false, List.of());
+            return new JudgeResult(0, request.getTestCases().size(), false, List.of());
         } finally {
             ExecIo.deleteTree(runDir);
         }
     }
 
     private String extension(String language) {
-        return switch (language) {
-            case "c" -> ".c";
-            case "cpp" -> ".cpp";
-            case "java" -> ".java";
-            case "node" -> ".js";
-            case "python" -> ".py";
-            default -> ".txt";
-        };
+        if (language.equals("c")) return ".c";
+        if (language.equals("cpp")) return ".cpp";
+        if (language.equals("java")) return ".java";
+        if (language.equals("node")) return ".js";
+        if (language.equals("python")) return ".py";
+        return ".txt";
     }
 
     /**
@@ -138,11 +136,11 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
      */
     @Override
     public RunResult run(RunRequest request) {
-        String language = canonical(request.language());
+        String language = canonical(request.getLanguage());
         if (!SUPPORTED.contains(language)) {
             return new RunResult(false, "", "", "unsupported_language");
         }
-        if (request.sourceCode() != null && request.sourceCode().length() > 65_536) {
+        if (request.getSourceCode() != null && request.getSourceCode().length() > 65_536) {
             return new RunResult(false, "", "", "source_too_large");
         }
         Path runDir;
@@ -158,11 +156,11 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
             runDir = runDir.toAbsolutePath();
             String runFileName = language.equals("java") ? "Main" : "solution";
             Path sourceFile = runDir.resolve(runFileName + extension(language)).toAbsolutePath();
-            Files.writeString(sourceFile, request.sourceCode() == null ? "" : request.sourceCode());
+            Files.writeString(sourceFile, request.getSourceCode() == null ? "" : request.getSourceCode());
             Path inputFile = runDir.resolve("input.txt").toAbsolutePath();
-            Files.writeString(inputFile, request.stdin() == null ? "" : request.stdin());
+            Files.writeString(inputFile, request.getStdin() == null ? "" : request.getStdin());
 
-            int timeout = request.timeoutSec() > 0 ? request.timeoutSec() : defaultTimeoutSec;
+            int timeout = request.getTimeoutSec() > 0 ? request.getTimeoutSec() : defaultTimeoutSec;
             List<String> cmd = commandFor(language, sourceFile, inputFile, runDir);
             Path outputFile = runDir.resolve("stdout.txt").toAbsolutePath();
             ProcessBuilder pb = new ProcessBuilder(cmd)
@@ -174,11 +172,11 @@ public abstract class AbstractScriptExecutor implements CodeExecutor {
                     .redirectOutput(outputFile.toFile());
             proc = pb.start();
 
-            ExecIo.WaitOutcome outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
-            if (outcome != ExecIo.WaitOutcome.FINISHED) {
+            String outcome = ExecIo.awaitBounded(proc, outputFile, timeout);
+            if (!"FINISHED".equals(outcome)) {
                 ExecIo.killAndReap(proc);
                 return new RunResult(false, "", "",
-                        outcome == ExecIo.WaitOutcome.TOO_BIG ? "stdout_exceeded_1MB" : "timeout");
+                        ExecIo.WaitOutcome.TOO_BIG.equals(outcome) ? "stdout_exceeded_1MB" : "timeout");
             }
             String output = ExecIo.readCappedFile(outputFile);
             if (output == null) {

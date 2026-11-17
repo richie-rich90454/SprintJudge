@@ -16,8 +16,8 @@ class GlobalExceptionHandlerStatusTest {
         var ex = new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "rate_limited");
         var resp = handler.handleStatus(ex);
         assertEquals(429, resp.getStatusCode().value());
-        assertEquals("ERROR", resp.getBody().type());
-        assertEquals("rate_limited", resp.getBody().message());
+        assertEquals("ERROR", resp.getBody().getType());
+        assertEquals("rate_limited", resp.getBody().getMessage());
     }
 
     @Test
@@ -25,7 +25,7 @@ class GlobalExceptionHandlerStatusTest {
         var ex = new ResponseStatusException(HttpStatus.BAD_REQUEST, "bad-shape");
         var resp = handler.handleStatus(ex);
         assertEquals(400, resp.getStatusCode().value());
-        assertEquals("bad-shape", resp.getBody().message());
+        assertEquals("bad-shape", resp.getBody().getMessage());
     }
 
     @Test
@@ -33,7 +33,7 @@ class GlobalExceptionHandlerStatusTest {
         var ex = new ResponseStatusException(HttpStatus.NOT_FOUND, "no-room");
         var resp = handler.handleStatus(ex);
         assertEquals(404, resp.getStatusCode().value());
-        assertEquals("no-room", resp.getBody().message());
+        assertEquals("no-room", resp.getBody().getMessage());
     }
 
     @Test
@@ -41,6 +41,6 @@ class GlobalExceptionHandlerStatusTest {
         var ex = new ResponseStatusException(HttpStatus.BAD_REQUEST);
         var resp = handler.handleStatus(ex);
         assertEquals(400, resp.getStatusCode().value());
-        assertNotNull(resp.getBody().message());
+        assertNotNull(resp.getBody().getMessage());
     }
 }

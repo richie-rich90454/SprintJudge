@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 /**
  * Shared process-I/O helpers for every executor implementation.
@@ -60,22 +62,36 @@ public final class ExecIo {
 
     /** Best-effort recursive delete of a run directory. */
     public static void deleteTree(Path dir) {
-        try (var stream = Files.walk(dir)) {
-            stream.sorted((a, b) -> b.compareTo(a)).forEach(p -> {
-                try { Files.deleteIfExists(p); } catch (IOException ignored) {}
+        try (Stream<Path> stream = Files.walk(dir)) {
+            stream.sorted(new Comparator<Path>() {
+                @Override
+                public int compare(Path a, Path b) {
+                    return b.compareTo(a);
+                }
+            }).forEach(new java.util.function.Consumer<Path>() {
+                @Override
+                public void accept(Path p) {
+                    try { Files.deleteIfExists(p); } catch (IOException ignored) {}
+                }
             });
         } catch (IOException ignored) {}
     }
 
     /** Bounded-wait outcome for a child writing to a redirected output file. */
-    public enum WaitOutcome { FINISHED, TIMEOUT, TOO_BIG }
+    public final class WaitOutcome {
+        public static final String FINISHED = "FINISHED";
+        public static final String TIMEOUT = "TIMEOUT";
+        public static final String TOO_BIG = "TOO_BIG";
+
+        private WaitOutcome() {}
+    }
 
     /**
      * Waits up to {@code timeoutSec} for exit while watching the redirected
      * output file: a runaway writer is stopped at the cap instead of filling
      * the disk until the timeout kill. Missing file reads as size 0.
      */
-    public static WaitOutcome awaitBounded(Process proc, Path outputFile, long timeoutSec) {
+    public static String awaitBounded(Process proc, Path outputFile, long timeoutSec) {
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(Math.max(1, timeoutSec));
         try {
             while (System.nanoTime() < deadline) {
@@ -83,7 +99,7 @@ public final class ExecIo {
                 try {
                     if (Files.size(outputFile) > STDOUT_CAP_BYTES) return WaitOutcome.TOO_BIG;
                 } catch (IOException ignored) {
-                    // Not created yet — keep waiting.
+                    // Not created yet -?keep waiting.
                 }
             }
         } catch (InterruptedException e) {

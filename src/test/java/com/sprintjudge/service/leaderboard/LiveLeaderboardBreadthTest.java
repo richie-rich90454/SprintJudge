@@ -79,13 +79,13 @@ class LiveLeaderboardBreadthTest {
         lb.applyScore("a", 100);
         lb.applyScore("b", 200);
         DeltaLedger.Batch batch = lb.drainDeltas(false);
-        assertEquals(2, batch.upserts().size());
-        for (DeltaLedger.Delta d : batch.upserts()) {
-            if (d.uuid().equals("b")) {
-                assertEquals(1, d.rank());
-                assertEquals(200, d.score());
+        assertEquals(2, batch.getUpserts().size());
+        for (DeltaLedger.Delta d : batch.getUpserts()) {
+            if (d.getUuid().equals("b")) {
+                assertEquals(1, d.getRank());
+                assertEquals(200, d.getScore());
             } else {
-                assertEquals(2, d.rank());
+                assertEquals(2, d.getRank());
             }
         }
         assertEquals(0, lb.pendingDeltaCount());
@@ -97,12 +97,12 @@ class LiveLeaderboardBreadthTest {
         lb.join("a", "A");
         long seq = lb.currentSeq();
         DeltaLedger.Batch full = lb.fullBatch();
-        assertTrue(full.resync());
-        assertEquals(1, full.upserts().size());
-        assertEquals(seq, full.seq());
+        assertTrue(full.isResync());
+        assertEquals(1, full.getUpserts().size());
+        assertEquals(seq, full.getSeq());
         assertEquals(seq, lb.currentSeq());
         assertEquals(1, lb.pendingDeltaCount());
-        assertEquals(1, lb.drainDeltas(false).upserts().size());
+        assertEquals(1, lb.drainDeltas(false).getUpserts().size());
     }
 
     @Test
@@ -114,9 +114,9 @@ class LiveLeaderboardBreadthTest {
         lb.applyScore("c", 300);
         lb.applyScore("a", 100);
         List<RankedSkipList.Entry> snap = lb.snapshot();
-        assertEquals("c", snap.get(0).uuid());
-        assertEquals("a", snap.get(1).uuid());
-        assertEquals("b", snap.get(2).uuid());
+        assertEquals("c", snap.get(0).getUuid());
+        assertEquals("a", snap.get(1).getUuid());
+        assertEquals("b", snap.get(2).getUuid());
     }
 
     @Test
@@ -124,7 +124,7 @@ class LiveLeaderboardBreadthTest {
         LiveLeaderboard lb = new LiveLeaderboard();
         lb.join("a", "A");
         DeltaLedger.Batch b = lb.drainDeltas(true);
-        assertTrue(b.resync());
+        assertTrue(b.isResync());
         assertEquals(1, lb.pendingDeltaCount());
     }
 
@@ -154,8 +154,8 @@ class LiveLeaderboardBreadthTest {
         lb.join("u1", "A");
         lb.remove("u1");
         var batch = lb.drainDeltas(false);
-        assertEquals(1, batch.upserts().size());
-        assertEquals(1, batch.upserts().get(0).rank());
+        assertEquals(1, batch.getUpserts().size());
+        assertEquals(1, batch.getUpserts().get(0).getRank());
     }
 
     @Test
@@ -168,8 +168,8 @@ class LiveLeaderboardBreadthTest {
         assertEquals(50, lb.rankOf("u0"));
         assertEquals(25, lb.rankOf("u25"));
         var snap = lb.snapshot();
-        assertEquals("u49", snap.get(0).uuid());
-        assertEquals("u0", snap.get(49).uuid());
+        assertEquals("u49", snap.get(0).getUuid());
+        assertEquals("u0", snap.get(49).getUuid());
         assertEquals(490L, lb.scoreOf("u49"));
     }
 
@@ -183,9 +183,9 @@ class LiveLeaderboardBreadthTest {
         assertEquals(3, lb.rankOf("p97"));
         assertEquals(100, lb.rankOf("p0"));
         var snap = lb.snapshot();
-        assertEquals("p99", snap.get(0).uuid());
-        assertEquals("p98", snap.get(1).uuid());
-        assertEquals("p97", snap.get(2).uuid());
+        assertEquals("p99", snap.get(0).getUuid());
+        assertEquals("p98", snap.get(1).getUuid());
+        assertEquals("p97", snap.get(2).getUuid());
     }
 
     @Test
@@ -218,7 +218,7 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 60; i++) lb.applyScore("t" + i, 100L);
         for (int i = 0; i < 60; i++) assertEquals(i + 1, lb.rankOf("t" + i));
         var snap = lb.snapshot();
-        for (int i = 0; i < 60; i++) assertEquals("t" + i, snap.get(i).uuid());
+        for (int i = 0; i < 60; i++) assertEquals("t" + i, snap.get(i).getUuid());
     }
 
     @Test
@@ -251,15 +251,15 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 50; i++) lb.join("d" + i, "D" + i);
         for (int i = 0; i < 50; i++) lb.applyScore("d" + i, i * 10L);
         var first = lb.drainDeltas(false);
-        assertEquals(50, first.upserts().size());
+        assertEquals(50, first.getUpserts().size());
         assertEquals(0, lb.pendingDeltaCount());
         var empty = lb.drainDeltas(false);
-        org.junit.jupiter.api.Assertions.assertTrue(empty.resync());
+        org.junit.jupiter.api.Assertions.assertTrue(empty.isResync());
         var full = lb.fullBatch();
-        org.junit.jupiter.api.Assertions.assertTrue(full.resync());
-        assertEquals(50, full.upserts().size());
-        assertEquals("d49", full.upserts().get(0).uuid());
-        assertEquals(1, full.upserts().get(0).rank());
+        org.junit.jupiter.api.Assertions.assertTrue(full.isResync());
+        assertEquals(50, full.getUpserts().size());
+        assertEquals("d49", full.getUpserts().get(0).getUuid());
+        assertEquals(1, full.getUpserts().get(0).getRank());
     }
 
     @Test
@@ -269,11 +269,11 @@ class LiveLeaderboardBreadthTest {
         int pendingBefore = lb.pendingDeltaCount();
         assertEquals(100, pendingBefore);
         var forced = lb.drainDeltas(true);
-        org.junit.jupiter.api.Assertions.assertTrue(forced.resync());
+        org.junit.jupiter.api.Assertions.assertTrue(forced.isResync());
         assertEquals(100, lb.pendingDeltaCount());
         var real = lb.drainDeltas(false);
-        org.junit.jupiter.api.Assertions.assertFalse(real.resync());
-        assertEquals(100, real.upserts().size());
+        org.junit.jupiter.api.Assertions.assertFalse(real.isResync());
+        assertEquals(100, real.getUpserts().size());
     }
 
     @Test
@@ -286,7 +286,7 @@ class LiveLeaderboardBreadthTest {
         assertEquals(-1, lb.rankOf("r59"));
         assertEquals(1, lb.rankOf("r58"));
         assertEquals(59, lb.size());
-        assertEquals("r58", lb.snapshot().get(0).uuid());
+        assertEquals("r58", lb.snapshot().get(0).getUuid());
     }
 
     @Test
@@ -298,7 +298,7 @@ class LiveLeaderboardBreadthTest {
         assertEquals(-1, lb.rankOf("b0"));
         assertEquals(1, lb.rankOf("b49"));
         assertEquals(49, lb.size());
-        assertEquals("b49", lb.snapshot().get(0).uuid());
+        assertEquals("b49", lb.snapshot().get(0).getUuid());
     }
 
     @Test
@@ -306,13 +306,13 @@ class LiveLeaderboardBreadthTest {
         LiveLeaderboard lb = new LiveLeaderboard();
         for (int i = 0; i < 8; i++) lb.join("j" + i, "J" + i);
         for (int i = 0; i < 8; i++) lb.applyScore("j" + i, 500L + i);
-        assertEquals("j7", lb.snapshot().get(0).uuid());
+        assertEquals("j7", lb.snapshot().get(0).getUuid());
         lb.remove("j7");
         lb.join("j7", "J7");
         assertEquals(0L, lb.scoreOf("j7"));
         var snap = lb.snapshot();
-        assertEquals("j6", snap.get(0).uuid());
-        assertEquals("j7", snap.get(snap.size() - 1).uuid());
+        assertEquals("j6", snap.get(0).getUuid());
+        assertEquals("j7", snap.get(snap.size() - 1).getUuid());
         assertEquals(8, snap.size());
     }
 
@@ -341,8 +341,8 @@ class LiveLeaderboardBreadthTest {
         assertEquals(100, lb.rankOf("n99"));
         assertEquals(-50L, lb.scoreOf("n99"));
         var snap = lb.snapshot();
-        assertEquals("n0", snap.get(0).uuid());
-        assertEquals("n99", snap.get(99).uuid());
+        assertEquals("n0", snap.get(0).getUuid());
+        assertEquals("n99", snap.get(99).getUuid());
     }
 
     @Test
@@ -352,10 +352,10 @@ class LiveLeaderboardBreadthTest {
         lb.drainDeltas(false);
         for (int i = 0; i < 50; i++) lb.applyScore("v" + i, i * 20L);
         var batch = lb.drainDeltas(false);
-        org.junit.jupiter.api.Assertions.assertFalse(batch.resync());
-        assertEquals(50, batch.upserts().size());
+        org.junit.jupiter.api.Assertions.assertFalse(batch.isResync());
+        assertEquals(50, batch.getUpserts().size());
         java.util.Map<String, Integer> ranks = new java.util.HashMap<>();
-        for (var d : batch.upserts()) ranks.put(d.uuid(), d.rank());
+        for (var d : batch.getUpserts()) ranks.put(d.getUuid(), d.getRank());
         assertEquals(1, (int) ranks.get("v49"));
         assertEquals(50, (int) ranks.get("v0"));
         assertEquals(1, lb.rankOf("v49"));
@@ -368,8 +368,8 @@ class LiveLeaderboardBreadthTest {
         lb.drainDeltas(false);
         for (int r = 0; r < 3; r++) for (int i = 0; i < 120; i++) lb.applyScore("c" + i, 10L);
         var batch = lb.drainDeltas(false);
-        assertEquals(120, batch.upserts().size());
-        for (var d : batch.upserts()) assertEquals(30L, d.score());
+        assertEquals(120, batch.getUpserts().size());
+        for (var d : batch.getUpserts()) assertEquals(30L, d.getScore());
         assertEquals(0, lb.pendingDeltaCount());
     }
 
@@ -380,11 +380,11 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 60; i++) lb.applyScore("g" + i, i * 3L);
         lb.drainDeltas(false);
         var full = lb.fullBatch();
-        org.junit.jupiter.api.Assertions.assertTrue(full.resync());
-        assertEquals(60, full.upserts().size());
-        assertEquals("g59", full.upserts().get(0).uuid());
-        assertEquals(1, full.upserts().get(0).rank());
-        assertEquals("g0", full.upserts().get(59).uuid());
+        org.junit.jupiter.api.Assertions.assertTrue(full.isResync());
+        assertEquals(60, full.getUpserts().size());
+        assertEquals("g59", full.getUpserts().get(0).getUuid());
+        assertEquals(1, full.getUpserts().get(0).getRank());
+        assertEquals("g0", full.getUpserts().get(59).getUuid());
     }
 
     @Test
@@ -394,8 +394,8 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 150; i++) lb.applyScore("e" + i, 100L);
         for (int i = 0; i < 10; i++) lb.applyScore("e" + i, 900L);
         var snap = lb.snapshot();
-        for (int i = 0; i < 10; i++) assertEquals("e" + i, snap.get(i).uuid());
-        assertEquals("e10", snap.get(10).uuid());
+        for (int i = 0; i < 10; i++) assertEquals("e" + i, snap.get(i).getUuid());
+        assertEquals("e10", snap.get(10).getUuid());
         assertEquals(1000L, lb.scoreOf("e0"));
         assertEquals(100L, lb.scoreOf("e10"));
         assertEquals(150, snap.size());
@@ -408,10 +408,10 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 55; i++) lb.applyScore("alt" + i, (i % 2 == 0) ? 1000L : 10L);
         var snap = lb.snapshot();
         assertEquals(55, snap.size());
-        assertEquals("alt0", snap.get(0).uuid());
-        assertEquals(1000L, snap.get(0).score());
-        assertEquals("alt53", snap.get(snap.size() - 1).uuid());
-        assertEquals(10L, snap.get(snap.size() - 1).score());
+        assertEquals("alt0", snap.get(0).getUuid());
+        assertEquals(1000L, snap.get(0).getScore());
+        assertEquals("alt53", snap.get(snap.size() - 1).getUuid());
+        assertEquals(10L, snap.get(snap.size() - 1).getScore());
     }
 
     @Test
@@ -422,7 +422,7 @@ class LiveLeaderboardBreadthTest {
         lb.remove("st64");
         lb.remove("st63");
         assertEquals(63, lb.size());
-        assertEquals("st62", lb.snapshot().get(0).uuid());
+        assertEquals("st62", lb.snapshot().get(0).getUuid());
         assertEquals(-1, lb.rankOf("st64"));
     }
 
@@ -434,13 +434,13 @@ class LiveLeaderboardBreadthTest {
         lb.drainDeltas(false);
         lb.applyScore("h0", 5000L);
         var batch = lb.drainDeltas(false);
-        org.junit.jupiter.api.Assertions.assertFalse(batch.resync());
-        assertEquals(1, batch.upserts().size());
-        assertEquals("h0", batch.upserts().get(0).uuid());
-        assertEquals(5000L, batch.upserts().get(0).score());
+        org.junit.jupiter.api.Assertions.assertFalse(batch.isResync());
+        assertEquals(1, batch.getUpserts().size());
+        assertEquals("h0", batch.getUpserts().get(0).getUuid());
+        assertEquals(5000L, batch.getUpserts().get(0).getScore());
         var gap = lb.drainDeltas(false);
-        org.junit.jupiter.api.Assertions.assertTrue(gap.resync());
-        assertEquals(100, lb.fullBatch().upserts().size());
+        org.junit.jupiter.api.Assertions.assertTrue(gap.isResync());
+        assertEquals(100, lb.fullBatch().getUpserts().size());
     }
 
     @Test
@@ -450,9 +450,9 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 80; i++) lb.applyScore("rec" + i, -100L);
         for (int i = 0; i < 10; i++) lb.applyScore("rec" + i, 1000L);
         var snap = lb.snapshot();
-        assertEquals("rec0", snap.get(0).uuid());
-        assertEquals(900L, snap.get(0).score());
-        assertEquals("rec79", snap.get(snap.size() - 1).uuid());
+        assertEquals("rec0", snap.get(0).getUuid());
+        assertEquals(900L, snap.get(0).getScore());
+        assertEquals("rec79", snap.get(snap.size() - 1).getUuid());
     }
 
     @Test
@@ -464,8 +464,8 @@ class LiveLeaderboardBreadthTest {
         lb.join("late", "Late");
         assertEquals(1, lb.pendingDeltaCount());
         var batch = lb.drainDeltas(false);
-        assertEquals(1, batch.upserts().size());
-        assertEquals("late", batch.upserts().get(0).uuid());
+        assertEquals(1, batch.getUpserts().size());
+        assertEquals("late", batch.getUpserts().get(0).getUuid());
     }
 
     @Test
@@ -474,9 +474,9 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 110; i++) lb.join("mono" + i, "M" + i);
         for (int i = 0; i < 110; i++) lb.applyScore("mono" + i, (109 - i) * 13L);
         var snap = lb.snapshot();
-        assertEquals("mono0", snap.get(0).uuid());
+        assertEquals("mono0", snap.get(0).getUuid());
         for (int i = 1; i < snap.size(); i++) {
-            org.junit.jupiter.api.Assertions.assertTrue(snap.get(i - 1).score() >= snap.get(i).score());
+            org.junit.jupiter.api.Assertions.assertTrue(snap.get(i - 1).getScore() >= snap.get(i).getScore());
         }
     }
 
@@ -490,7 +490,7 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 5; i++) lb.join("back" + i, "B" + i);
         assertEquals(5, lb.size());
         assertEquals(5, lb.snapshot().size());
-        assertEquals("back0", lb.snapshot().get(0).uuid());
+        assertEquals("back0", lb.snapshot().get(0).getUuid());
     }
 
     @Test
@@ -509,9 +509,9 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 50; i++) lb.join("fb" + i, "F" + i);
         for (int i = 0; i < 50; i++) lb.applyScore("fb" + i, i * 9L);
         var full = lb.fullBatch();
-        org.junit.jupiter.api.Assertions.assertTrue(full.resync());
-        for (int i = 0; i < 50; i++) assertEquals(i + 1, full.upserts().get(i).rank());
-        assertEquals("fb49", full.upserts().get(0).uuid());
+        org.junit.jupiter.api.Assertions.assertTrue(full.isResync());
+        for (int i = 0; i < 50; i++) assertEquals(i + 1, full.getUpserts().get(i).getRank());
+        assertEquals("fb49", full.getUpserts().get(0).getUuid());
     }
 
     @Test
@@ -521,7 +521,7 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 99; i++) lb.applyScore("lr" + i, 50L);
         int rank = lb.applyScore("lr99", 5000L);
         assertEquals(1, rank);
-        assertEquals("lr99", lb.snapshot().get(0).uuid());
+        assertEquals("lr99", lb.snapshot().get(0).getUuid());
     }
 
     @Test
@@ -532,7 +532,7 @@ class LiveLeaderboardBreadthTest {
         lb.remove("mx0");
         lb.remove("mx1");
         var batch = lb.drainDeltas(false);
-        org.junit.jupiter.api.Assertions.assertTrue(batch.upserts().size() <= 70);
+        org.junit.jupiter.api.Assertions.assertTrue(batch.getUpserts().size() <= 70);
         assertEquals(68, lb.size());
     }
 
@@ -543,7 +543,7 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 60; i++) lb.applyScore("nm" + i, 200L);
         for (int i = 0; i < 60; i++) assertEquals("Name" + i, lb.nameOf("nm" + i));
         var snap = lb.snapshot();
-        assertEquals("Name0", snap.get(0).name());
+        assertEquals("Name0", snap.get(0).getName());
     }
 
     @Test
@@ -552,10 +552,10 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 130; i++) lb.join("eo" + i, "E" + i);
         for (int i = 0; i < 130; i += 2) lb.applyScore("eo" + i, 800L);
         var snap = lb.snapshot();
-        assertEquals("eo0", snap.get(0).uuid());
-        assertEquals(800L, snap.get(0).score());
-        assertEquals("eo129", snap.get(snap.size() - 1).uuid());
-        assertEquals(0L, snap.get(snap.size() - 1).score());
+        assertEquals("eo0", snap.get(0).getUuid());
+        assertEquals(800L, snap.get(0).getScore());
+        assertEquals("eo129", snap.get(snap.size() - 1).getUuid());
+        assertEquals(0L, snap.get(snap.size() - 1).getScore());
     }
 
     @Test
@@ -575,6 +575,6 @@ class LiveLeaderboardBreadthTest {
         for (int i = 0; i < 100; i++) lb.applyScore("pr" + i, i * 10L);
         for (int i = 99; i >= 90; i--) lb.remove("pr" + i);
         assertEquals(90, lb.size());
-        assertEquals("pr89", lb.snapshot().get(0).uuid());
+        assertEquals("pr89", lb.snapshot().get(0).getUuid());
     }
 }

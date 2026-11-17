@@ -34,7 +34,7 @@ class RepositoryBreadthTest {
         repo.save(sub("a", "s1", "q1", "u1", 30, true));
         repo.save(sub("b", "s1", "q1", "u1", 90, true));
         repo.save(sub("c", "s1", "q1", "u1", 60, false));
-        assertEquals(90, repo.findBest("s1", "q1", "u1").orElseThrow().scoreEarned());
+        assertEquals(90, repo.findBest("s1", "q1", "u1").orElseThrow().getScoreEarned());
     }
 
     @Test
@@ -42,8 +42,8 @@ class RepositoryBreadthTest {
         SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
         repo.save(sub("a", "s1", "q1", "u1", 95, true));
         repo.save(sub("b", "s1", "q1", "u2", 10, false));
-        assertEquals(95, repo.findBest("s1", "q1", "u1").orElseThrow().scoreEarned());
-        assertEquals(10, repo.findBest("s1", "q1", "u2").orElseThrow().scoreEarned());
+        assertEquals(95, repo.findBest("s1", "q1", "u1").orElseThrow().getScoreEarned());
+        assertEquals(10, repo.findBest("s1", "q1", "u2").orElseThrow().getScoreEarned());
     }
 
     @Test
@@ -51,7 +51,7 @@ class RepositoryBreadthTest {
         SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
         repo.save(sub("a", "s1", "q1", "u1", 40, true));
         repo.save(sub("b", "s1", "q2", "u1", 85, true));
-        assertEquals(85, repo.findHighestByPlayer("s1", "u1").orElseThrow().scoreEarned());
+        assertEquals(85, repo.findHighestByPlayer("s1", "u1").orElseThrow().getScoreEarned());
     }
 
     @Test
@@ -75,11 +75,11 @@ class RepositoryBreadthTest {
         SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
         repo.save(sub("full", "s1", "q1", "u7", 77, true));
         Submission got = repo.findBest("s1", "q1", "u7").orElseThrow();
-        assertEquals("{\"a\":1}", got.responseData());
-        assertEquals("log", got.judgeLog());
-        assertEquals(2, got.attemptCount());
-        assertEquals("player", got.playerName());
-        assertEquals(77, got.scoreEarned());
+        assertEquals("{\"a\":1}", got.getResponseData());
+        assertEquals("log", got.getJudgeLog());
+        assertEquals(2, got.getAttemptCount());
+        assertEquals("player", got.getPlayerName());
+        assertEquals(77, got.getScoreEarned());
     }
 
     @Test
@@ -107,21 +107,21 @@ class RepositoryBreadthTest {
         repo.put("b", "2");
         repo.put("c", "3");
         assertEquals(3, repo.findAllAsMap().size());
-        assertEquals("2", repo.findByKey("b").orElseThrow().value());
+        assertEquals("2", repo.findByKey("b").orElseThrow().getValue());
     }
 
     @Test
     void emptyStringValueRoundTrips() throws Exception {
         AdminSettingsRepository repo = new AdminSettingsRepository(TestDb.inMemory());
         repo.put("e", "");
-        assertEquals("", repo.findByKey("e").orElseThrow().value());
+        assertEquals("", repo.findByKey("e").orElseThrow().getValue());
     }
 
     @Test
     void unicodeValueRoundTrips() throws Exception {
         AdminSettingsRepository repo = new AdminSettingsRepository(TestDb.inMemory());
         repo.put("u", "h\u00e9llo w\u00f6rld");
-        assertEquals("h\u00e9llo w\u00f6rld", repo.findByKey("u").orElseThrow().value());
+        assertEquals("h\u00e9llo w\u00f6rld", repo.findByKey("u").orElseThrow().getValue());
     }
 
     @Test
@@ -131,9 +131,9 @@ class RepositoryBreadthTest {
         repo.save(question("q1", "z", 10));
         repo.save(question("q2", "z", 20));
         List<Question> list = repo.findByQuiz("z");
-        assertEquals("q1", list.get(0).id());
-        assertEquals("q2", list.get(1).id());
-        assertEquals("q3", list.get(2).id());
+        assertEquals("q1", list.get(0).getId());
+        assertEquals("q2", list.get(1).getId());
+        assertEquals("q3", list.get(2).getId());
     }
 
     @Test
@@ -169,7 +169,7 @@ class RepositoryBreadthTest {
     void createNullDescriptionRoundTrips() throws Exception {
         QuizRepository repo = new QuizRepository(TestDb.inMemory());
         Quiz created = repo.create(new Quiz(null, "T", null, null, Instant.now(), false));
-        assertEquals("T", repo.findById(created.id()).orElseThrow().title());
+        assertEquals("T", repo.findById(created.getId()).orElseThrow().getTitle());
     }
 
     @Test
@@ -186,27 +186,27 @@ class RepositoryBreadthTest {
         GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
         GameSession a = repo.create("quiz1", "host", "100001", null);
         GameSession b = repo.create("quiz1", "host", "100002", null);
-        assertTrue(!a.id().equals(b.id()));
-        repo.updateStatus(a.id(), "ACTIVE");
-        assertEquals("ACTIVE", repo.findByPin("100001").orElseThrow().status());
-        assertEquals("LOBBY", repo.findByPin("100002").orElseThrow().status());
+        assertTrue(!a.getId().equals(b.getId()));
+        repo.updateStatus(a.getId(), "ACTIVE");
+        assertEquals("ACTIVE", repo.findByPin("100001").orElseThrow().getStatus());
+        assertEquals("LOBBY", repo.findByPin("100002").orElseThrow().getStatus());
     }
 
     @Test
     void overrideEmptyStringRoundTrips() throws Exception {
         GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
         GameSession s = repo.create("quiz1", "host", "100003", null);
-        repo.setOverride(s.id(), "");
-        assertEquals("", repo.findById(s.id()).orElseThrow().settingsOverride());
+        repo.setOverride(s.getId(), "");
+        assertEquals("", repo.findById(s.getId()).orElseThrow().getSettingsOverride());
     }
 
     @Test
     void createPreservesPinAndQuiz() throws Exception {
         GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
         GameSession s = repo.create("quiz-77", "host-77", "100004", "{\"x\":1}");
-        assertEquals("100004", s.pinCode());
-        assertEquals("quiz-77", s.quizId());
-        assertEquals("{\"x\":1}", repo.findById(s.id()).orElseThrow().settingsOverride());
+        assertEquals("100004", s.getPinCode());
+        assertEquals("quiz-77", s.getQuizId());
+        assertEquals("{\"x\":1}", repo.findById(s.getId()).orElseThrow().getSettingsOverride());
     }
 
     @Test
@@ -214,8 +214,8 @@ class RepositoryBreadthTest {
         UserRepository repo = new UserRepository(TestDb.inMemory());
         User first = repo.upsertByEmail("u@x.com", "Al", "ava-1");
         User second = repo.upsertByEmail("u@x.com", "Al", "ava-2");
-        assertEquals(first.id(), second.id());
-        assertEquals("ava-1", second.avatarUrl());
+        assertEquals(first.getId(), second.getId());
+        assertEquals("ava-1", second.getAvatarUrl());
     }
 
     @Test
@@ -226,7 +226,7 @@ class RepositoryBreadthTest {
         repo.upsertByEmail("c@x.com", "C", null);
         assertEquals(3, repo.findAll().size());
         assertFalse(repo.findByEmail("z@x.com").isPresent());
-        assertNotNull(repo.findByEmail("b@x.com").orElseThrow().id());
+        assertNotNull(repo.findByEmail("b@x.com").orElseThrow().getId());
     }
 
     @Test
@@ -246,7 +246,7 @@ class RepositoryBreadthTest {
         SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
         repo.save(sub("dup", "s1", "q1", "u1", 10, false));
         repo.save(sub("dup", "s1", "q1", "u1", 99, true));
-        assertEquals(99, repo.findBest("s1", "q1", "u1").orElseThrow().scoreEarned());
+        assertEquals(99, repo.findBest("s1", "q1", "u1").orElseThrow().getScoreEarned());
         assertEquals(1, repo.findBySession("s1").size());
     }
 
@@ -266,9 +266,9 @@ class RepositoryBreadthTest {
         SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
         repo.save(new Submission("e1", "s1", "q1", "", "u1", "", 0, false, "", 1, Instant.now()));
         Submission got = repo.findBest("s1", "q1", "u1").orElseThrow();
-        assertEquals("", got.playerName());
-        assertEquals("", got.responseData());
-        assertEquals("", got.judgeLog());
+        assertEquals("", got.getPlayerName());
+        assertEquals("", got.getResponseData());
+        assertEquals("", got.getJudgeLog());
     }
 
     @Test
@@ -277,8 +277,8 @@ class RepositoryBreadthTest {
         repo.save(new Submission("u1", "s1", "q1", "h\u00e9llo \u4e2d\u6587", "uu",
                 "{\"code\":\"print('\u00fc')\"}", 8, true, "log-\u00fc", 1, Instant.now()));
         Submission got = repo.findBest("s1", "q1", "uu").orElseThrow();
-        assertEquals("h\u00e9llo \u4e2d\u6587", got.playerName());
-        assertEquals("log-\u00fc", got.judgeLog());
+        assertEquals("h\u00e9llo \u4e2d\u6587", got.getPlayerName());
+        assertEquals("log-\u00fc", got.getJudgeLog());
     }
 
     @Test
@@ -296,7 +296,7 @@ class RepositoryBreadthTest {
         List<Submission> batch = new ArrayList<>();
         for (int i = 0; i < 100; i++) batch.add(sub("h" + i, "sh", "qh", "solo", i, true));
         repo.saveAll(batch);
-        assertEquals(99, repo.findHighestByPlayer("sh", "solo").orElseThrow().scoreEarned());
+        assertEquals(99, repo.findHighestByPlayer("sh", "solo").orElseThrow().getScoreEarned());
     }
 
     @Test
@@ -310,15 +310,15 @@ class RepositoryBreadthTest {
     void mxSubNullIdGeneratesId() throws Exception {
         SubmissionRepository repo = new SubmissionRepository(TestDb.inMemory());
         Submission saved = repo.save(sub(null, "s1", "q1", "u1", 3, true));
-        assertNotNull(saved.id());
-        assertFalse(saved.id().isBlank());
+        assertNotNull(saved.getId());
+        assertFalse(saved.getId().isBlank());
     }
 
     @Test
     void mxQuestionNullIdGeneratesId() throws Exception {
         QuestionRepository repo = new QuestionRepository(TestDb.inMemory());
         Question saved = repo.save(question(null, "qk", 0));
-        assertNotNull(saved.id());
+        assertNotNull(saved.getId());
         assertEquals(1, repo.findByQuiz("qk").size());
     }
 
@@ -335,7 +335,7 @@ class RepositoryBreadthTest {
         Question changed = new Question("w1", "qk", "CHANGED", "D", "MCQ", null, 30, 100, "{}", 0,
                 Instant.now());
         repo.save(changed);
-        assertEquals("CHANGED", repo.findById("w1").orElseThrow().title());
+        assertEquals("CHANGED", repo.findById("w1").orElseThrow().getTitle());
         assertEquals(1, repo.findByQuiz("qk").size());
     }
 
@@ -351,7 +351,7 @@ class RepositoryBreadthTest {
     void mxQuestionEmptyTitleRoundTrips() throws Exception {
         QuestionRepository repo = new QuestionRepository(TestDb.inMemory());
         repo.save(new Question("e1", "qe", "", "D", "MCQ", null, 30, 100, "{}", 0, Instant.now()));
-        assertEquals("", repo.findById("e1").orElseThrow().title());
+        assertEquals("", repo.findById("e1").orElseThrow().getTitle());
     }
 
     @Test
@@ -359,7 +359,7 @@ class RepositoryBreadthTest {
         QuestionRepository repo = new QuestionRepository(TestDb.inMemory());
         repo.save(new Question("u1", "qu", "h\u00e9llo \u4e2d\u6587 \ud83c\udf89", "D", "MCQ", null,
                 30, 100, "{}", 0, Instant.now()));
-        assertEquals("h\u00e9llo \u4e2d\u6587 \ud83c\udf89", repo.findById("u1").orElseThrow().title());
+        assertEquals("h\u00e9llo \u4e2d\u6587 \ud83c\udf89", repo.findById("u1").orElseThrow().getTitle());
     }
 
     @Test
@@ -368,7 +368,7 @@ class RepositoryBreadthTest {
         for (int i = 99; i >= 0; i--) repo.save(question("o" + i, "qo", i));
         List<Question> list = repo.findByQuiz("qo");
         assertEquals(100, list.size());
-        for (int i = 0; i < 100; i++) assertEquals(i, list.get(i).orderIndex());
+        for (int i = 0; i < 100; i++) assertEquals(i, list.get(i).getOrderIndex());
     }
 
     @Test
@@ -389,14 +389,14 @@ class RepositoryBreadthTest {
             thrown = true;
         }
         assertTrue(thrown);
-        assertEquals("A", repo.findById("dup").orElseThrow().title());
+        assertEquals("A", repo.findById("dup").orElseThrow().getTitle());
     }
 
     @Test
     void mxQuizEmptyTitleRoundTrips() throws Exception {
         QuizRepository repo = new QuizRepository(TestDb.inMemory());
         Quiz created = repo.create(new Quiz(null, "", null, null, Instant.now(), false));
-        assertEquals("", repo.findById(created.id()).orElseThrow().title());
+        assertEquals("", repo.findById(created.getId()).orElseThrow().getTitle());
     }
 
     @Test
@@ -404,9 +404,9 @@ class RepositoryBreadthTest {
         QuizRepository repo = new QuizRepository(TestDb.inMemory());
         Quiz created = repo.create(new Quiz(null, "h\u00e9llo \u4e2d\u6587", "d-\u00fc", null,
                 Instant.now(), false));
-        Quiz got = repo.findById(created.id()).orElseThrow();
-        assertEquals("h\u00e9llo \u4e2d\u6587", got.title());
-        assertEquals("d-\u00fc", got.description());
+        Quiz got = repo.findById(created.getId()).orElseThrow();
+        assertEquals("h\u00e9llo \u4e2d\u6587", got.getTitle());
+        assertEquals("d-\u00fc", got.getDescription());
     }
 
     @Test
@@ -416,16 +416,16 @@ class RepositoryBreadthTest {
                 Instant.now(), i % 2 == 0));
         assertEquals(100, repo.count());
         assertEquals(100, repo.findAll().size());
-        assertEquals("T42", repo.findById("bulk42").orElseThrow().title());
-        assertTrue(repo.findById("bulk42").orElseThrow().template());
-        assertFalse(repo.findById("bulk43").orElseThrow().template());
+        assertEquals("T42", repo.findById("bulk42").orElseThrow().getTitle());
+        assertTrue(repo.findById("bulk42").orElseThrow().isTemplate());
+        assertFalse(repo.findById("bulk43").orElseThrow().isTemplate());
     }
 
     @Test
     void mxQuizNullCreatedByRoundTrips() throws Exception {
         QuizRepository repo = new QuizRepository(TestDb.inMemory());
         Quiz created = repo.create(new Quiz(null, "T", "D", null, Instant.now(), false));
-        assertTrue(repo.findById(created.id()).isPresent());
+        assertTrue(repo.findById(created.getId()).isPresent());
     }
 
     @Test
@@ -438,17 +438,17 @@ class RepositoryBreadthTest {
     void mxSessionSetNegativeIndex() throws Exception {
         GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
         GameSession s = repo.create("q1", "h", "200001", null);
-        repo.setCurrentIndex(s.id(), -1);
-        assertEquals(-1, repo.findById(s.id()).orElseThrow().currentQuestionIndex());
+        repo.setCurrentIndex(s.getId(), -1);
+        assertEquals(-1, repo.findById(s.getId()).orElseThrow().getCurrentQuestionIndex());
     }
 
     @Test
     void mxSessionUnicodeOverrideRoundTrips() throws Exception {
         GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
         GameSession s = repo.create("q1", "h", "200002", null);
-        repo.setOverride(s.id(), "{\"name\":\"h\u00e9llo \u4e2d\u6587\"}");
+        repo.setOverride(s.getId(), "{\"name\":\"h\u00e9llo \u4e2d\u6587\"}");
         assertEquals("{\"name\":\"h\u00e9llo \u4e2d\u6587\"}",
-                repo.findById(s.id()).orElseThrow().settingsOverride());
+                repo.findById(s.getId()).orElseThrow().getSettingsOverride());
     }
 
     @Test
@@ -464,11 +464,11 @@ class RepositoryBreadthTest {
     void mxSessionResetToLobbyKeepsStarted() throws Exception {
         GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
         GameSession s = repo.create("q1", "h", "200003", null);
-        repo.updateStatus(s.id(), "ACTIVE");
-        repo.updateStatus(s.id(), "LOBBY");
-        GameSession got = repo.findById(s.id()).orElseThrow();
-        assertEquals("LOBBY", got.status());
-        assertNotNull(got.startedAt());
+        repo.updateStatus(s.getId(), "ACTIVE");
+        repo.updateStatus(s.getId(), "LOBBY");
+        GameSession got = repo.findById(s.getId()).orElseThrow();
+        assertEquals("LOBBY", got.getStatus());
+        assertNotNull(got.getStartedAt());
     }
 
     @Test
@@ -476,8 +476,8 @@ class RepositoryBreadthTest {
         GameSessionRepository repo = new GameSessionRepository(TestDb.inMemory());
         GameSession s = repo.create("q1", "h", "200004", null);
         String big = "{\"x\":\"" + "y".repeat(5000) + "\"}";
-        repo.setOverride(s.id(), big);
-        assertEquals(big, repo.findById(s.id()).orElseThrow().settingsOverride());
+        repo.setOverride(s.getId(), big);
+        assertEquals(big, repo.findById(s.getId()).orElseThrow().getSettingsOverride());
     }
 
     @Test
@@ -492,16 +492,16 @@ class RepositoryBreadthTest {
         UserRepository repo = new UserRepository(TestDb.inMemory());
         User first = repo.upsertByEmail("k@x.com", "First", "av1");
         User second = repo.upsertByEmail("k@x.com", "Second", "av2");
-        assertEquals(first.id(), second.id());
-        assertEquals("First", second.name());
-        assertEquals("ADMIN", second.role());
+        assertEquals(first.getId(), second.getId());
+        assertEquals("First", second.getName());
+        assertEquals("ADMIN", second.getRole());
     }
 
     @Test
     void mxUserUnicodeNameRoundTrips() throws Exception {
         UserRepository repo = new UserRepository(TestDb.inMemory());
         repo.upsertByEmail("uni@x.com", "h\u00e9llo \u4e2d\u6587", null);
-        assertEquals("h\u00e9llo \u4e2d\u6587", repo.findByEmail("uni@x.com").orElseThrow().name());
+        assertEquals("h\u00e9llo \u4e2d\u6587", repo.findByEmail("uni@x.com").orElseThrow().getName());
     }
 
     @Test
@@ -524,21 +524,21 @@ class RepositoryBreadthTest {
         AdminSettingsRepository repo = new AdminSettingsRepository(TestDb.inMemory());
         for (int i = 0; i < 100; i++) repo.put("k" + i, "v" + i);
         assertEquals(100, repo.findAllAsMap().size());
-        assertEquals("v42", repo.findByKey("k42").orElseThrow().value());
+        assertEquals("v42", repo.findByKey("k42").orElseThrow().getValue());
     }
 
     @Test
     void mxSettingsEmptyKeyRoundTrips() throws Exception {
         AdminSettingsRepository repo = new AdminSettingsRepository(TestDb.inMemory());
         repo.put("", "empty-key");
-        assertEquals("empty-key", repo.findByKey("").orElseThrow().value());
+        assertEquals("empty-key", repo.findByKey("").orElseThrow().getValue());
     }
 
     @Test
     void mxSettingsRepeatedOverwriteKeepsLast() throws Exception {
         AdminSettingsRepository repo = new AdminSettingsRepository(TestDb.inMemory());
         for (int i = 0; i < 10; i++) repo.put("flip", "v" + i);
-        assertEquals("v9", repo.findByKey("flip").orElseThrow().value());
+        assertEquals("v9", repo.findByKey("flip").orElseThrow().getValue());
         assertEquals(1, repo.findAllAsMap().size());
     }
 }

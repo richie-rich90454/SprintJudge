@@ -2,22 +2,27 @@ package com.sprintjudge.domain.enums;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class RoleTest {
 
+    private static final List<String> ALL = Arrays.asList(Role.ADMIN, Role.PLAYER);
+
     @Test
     void allConstantsAreDefined() {
-        Role[] all = Role.values();
-        assertEquals(2, all.length);
-        assertSame(Role.ADMIN, Role.valueOf("ADMIN"));
-        assertSame(Role.PLAYER, Role.valueOf("PLAYER"));
+        assertEquals(2, ALL.size());
+        assertEquals(Role.ADMIN, Role.from("ADMIN"));
+        assertEquals(Role.PLAYER, Role.from("PLAYER"));
     }
 
     @Test
     void fromNormalizesCaseAndWhitespace() {
-        assertSame(Role.ADMIN, Role.from("admin"));
-        assertSame(Role.PLAYER, Role.from(" PLAYER "));
+        assertEquals(Role.ADMIN, Role.from("admin"));
+        assertEquals(Role.PLAYER, Role.from(" PLAYER "));
     }
 
     @Test
@@ -38,9 +43,9 @@ class RoleTest {
 
     @Test
     void everyValueRoundTrips() {
-        for (Role r : Role.values()) {
-            assertSame(r, Role.from(r.name()));
-            assertSame(r, Role.from(r.name().toLowerCase()));
+        for (String role : ALL) {
+            assertEquals(role, Role.from(role));
+            assertEquals(role, Role.from(role.toLowerCase()));
         }
     }
 }

@@ -18,8 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * AI grading service for coding submissions. Supports two providers:
  * <ul>
- *   <li>{@code openai} — any OpenAI-compatible API (cloud or local)</li>
- *   <li>{@code llamacpp} — local llama.cpp server with OpenAI-compatible endpoint</li>
+ *   <li>{@code openai} -?any OpenAI-compatible API (cloud or local)</li>
+ *   <li>{@code llamacpp} -?local llama.cpp server with OpenAI-compatible endpoint</li>
  * </ul>
  * Configured via {@code sprintjudge.ai.*} properties. When disabled or
  * unreachable, falls back to judge-only scoring (no AI feedback).
@@ -56,10 +56,36 @@ public class AiGradingService {
     /** Simple cache to avoid repeated grading of identical submissions. */
     private final ConcurrentHashMap<String, AiGradeResult> cache = new ConcurrentHashMap<>();
 
-    public record AiGradeResult(boolean available, String feedback, int suggestedScore, String status) {
+    public static final class AiGradeResult {
+        private boolean available;
+        private String feedback;
+        private int suggestedScore;
+        private String status;
+
+        public AiGradeResult() {}
+
+        public AiGradeResult(boolean available, String feedback, int suggestedScore, String status) {
+            this.available = available;
+            this.feedback = feedback;
+            this.suggestedScore = suggestedScore;
+            this.status = status;
+        }
+
         public static AiGradeResult unavailable() {
             return new AiGradeResult(false, "", 0, "unavailable");
         }
+
+        public boolean isAvailable() { return available; }
+        public void setAvailable(boolean available) { this.available = available; }
+
+        public String getFeedback() { return feedback; }
+        public void setFeedback(String feedback) { this.feedback = feedback; }
+
+        public int getSuggestedScore() { return suggestedScore; }
+        public void setSuggestedScore(int suggestedScore) { this.suggestedScore = suggestedScore; }
+
+        public String getStatus() { return status; }
+        public void setStatus(String status) { this.status = status; }
     }
 
     /**
@@ -94,49 +120,47 @@ public class AiGradingService {
 
     private String buildPrompt(String language, String source, String title,
                                 String description, boolean passed, int score, int maxScore) {
-        return """
-                You are a CS education code grader. Grade this student submission.
-
-                ## Question
-                Title: %s
-                Description: %s
-
-                ## Student Code (%s)
-                ```%s
-                %s
-                ```
-
-                ## Judge Result
-                Tests passed: %s
-                Score: %d / %d
-
-                ## Instructions
-                Analyze the code for:
-                1. Correctness (does it solve the problem?)
-                2. Code quality (readability, naming, structure)
-                3. Efficiency (time/space complexity)
-                4. Edge cases handled
-
-                Respond in JSON:
-                {"feedback": "<1-2 sentence constructive feedback>", "suggestedScore": <0-%d>}
-                If the code is good, suggest the current score. Adjust only for notable quality issues or improvements.
-                """.formatted(title, description, language, language, source,
+        return String.format(
+                "You are a CS education code grader. Grade this student submission.\n"
+                        + "\n"
+                        + "## Question\n"
+                        + "Title: %s\n"
+                        + "Description: %s\n"
+                        + "\n"
+                        + "## Student Code (%s)\n"
+                        + "```%s\n"
+                        + "%s\n"
+                        + "```\n"
+                        + "\n"
+                        + "## Judge Result\n"
+                        + "Tests passed: %s\n"
+                        + "Score: %d / %d\n"
+                        + "\n"
+                        + "## Instructions\n"
+                        + "Analyze the code for:\n"
+                        + "1. Correctness (does it solve the problem?)\n"
+                        + "2. Code quality (readability, naming, structure)\n"
+                        + "3. Efficiency (time/space complexity)\n"
+                        + "4. Edge cases handled\n"
+                        + "\n"
+                        + "Respond in JSON:\n"
+                        + "{\"feedback\": \"<1-2 sentence constructive feedback>\", \"suggestedScore\": <0-%d>}\n"
+                        + "If the code is good, suggest the current score. Adjust only for notable quality issues or improvements.\n",
+                title, description, language, language, source,
                 passed, score, maxScore, maxScore);
     }
 
     private String callLlm(String prompt) throws Exception {
         String url = endpoint.endsWith("/") ? endpoint + "chat/completions" : endpoint + "/chat/completions";
-        String body = """
-                {
-                    "model": "%s",
-                    "messages": [
-                        {"role": "system", "content": "You are a helpful CS education code grader. Respond only in valid JSON."},
-                        {"role": "user", "content": %s}
-                    ],
-                    "temperature": 0.3,
-                    "max_tokens": 256
-                }
-                """.formatted(model, toJsonString(prompt));
+        String body = "{\n"
+                + "    \"model\": \"" + model + "\",\n"
+                + "    \"messages\": [\n"
+                + "        {\"role\": \"system\", \"content\": \"You are a helpful CS education code grader. Respond only in valid JSON.\"},\n"
+                + "        {\"role\": \"user\", \"content\": " + toJsonString(prompt) + "}\n"
+                + "    ],\n"
+                + "    \"temperature\": 0.3,\n"
+                + "    \"max_tokens\": 256\n"
+                + "}";
 
         HttpRequest.Builder req = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -179,7 +203,7 @@ public class AiGradingService {
             for (byte b : hash) sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            // SHA-256 is required by every JVM — unreachable
+            // SHA-256 is required by every JVM -?unreachable
             throw new IllegalStateException(e);
         }
     }

@@ -244,7 +244,7 @@ class GameWebSocketTeamBattleTest {
     @Test
     void joinTeamPlayerObjectAvailable() {
         var p = new Player("uuid-9", "Bob", 0, "sess", true);
-        org.junit.jupiter.api.Assertions.assertEquals("uuid-9", p.uuid());
+        org.junit.jupiter.api.Assertions.assertEquals("uuid-9", p.getUuid());
     }
 
     @Test

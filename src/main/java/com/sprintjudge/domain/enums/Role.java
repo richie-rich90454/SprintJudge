@@ -1,11 +1,27 @@
 package com.sprintjudge.domain.enums;
 
-public enum Role {
-    ADMIN,
-    PLAYER;
+import java.util.Arrays;
+import java.util.List;
 
-    public static Role from(String value) {
-        if (value == null || value.isBlank()) throw new IllegalArgumentException("Role is required");
-        return Role.valueOf(value.trim().toUpperCase());
+public final class Role {
+
+    public static final String ADMIN = "ADMIN";
+
+    public static final String PLAYER = "PLAYER";
+
+    private static final List<String> VALUES = Arrays.asList(ADMIN, PLAYER);
+
+    private Role() {
+    }
+
+    public static String from(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("Role is required");
+        }
+        String normalized = value.trim().toUpperCase();
+        if (!VALUES.contains(normalized)) {
+            throw new IllegalArgumentException("No enum constant " + normalized);
+        }
+        return normalized;
     }
 }

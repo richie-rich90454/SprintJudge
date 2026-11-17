@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +41,29 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
      * opportunistically evicted: a handshake that never reaches onOpen must not
      * leak memory to unauthenticated clients.
      */
-    private record Staged(String ip, boolean authed, long nanos) {}
+    private static final class Staged {
+        private String ip;
+        private boolean authed;
+        private long nanos;
+
+        public Staged(String ip, boolean authed, long nanos) {
+            this.ip = ip;
+            this.authed = authed;
+            this.nanos = nanos;
+        }
+
+        public String getIp() {
+            return ip;
+        }
+
+        public boolean isAuthed() {
+            return authed;
+        }
+
+        public long getNanos() {
+            return nanos;
+        }
+    }
     private static final ConcurrentHashMap<String, Staged> staged = new ConcurrentHashMap<>();
     private static final long STAGE_TTL_NANOS = TimeUnit.MINUTES.toNanos(5);
     private static final int STAGE_MAX = 10_000;
@@ -69,7 +92,7 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
         String addr = lastHeader(request, "X-Forwarded-For");
         if (addr == null) addr = firstHeader(request, "X-Real-IP");
         String remoteAddr = addr == null ? "unresolved" : addr;
-        // Stage IP + auth for this connection — onOpen reads-and-removes them.
+        // Stage IP + auth for this connection -?onOpen reads-and-removes them.
         // The WS upgrade carries the JSESSIONID cookie, so the HttpSession holds
         // the form-login auth even though /ws itself is permitAll.
         String token = java.util.UUID.randomUUID().toString();
@@ -78,7 +101,34 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
         sec.getUserProperties().put(REMOTE_ADDR, token);
     }
 
-    public record StagedConnection(String ip, boolean authed) {}
+    public static final class StagedConnection {
+        private String ip;
+        private boolean authed;
+
+        public StagedConnection() {
+        }
+
+        public StagedConnection(String ip, boolean authed) {
+            this.ip = ip;
+            this.authed = authed;
+        }
+
+        public String getIp() {
+            return ip;
+        }
+
+        public void setIp(String ip) {
+            this.ip = ip;
+        }
+
+        public boolean isAuthed() {
+            return authed;
+        }
+
+        public void setAuthed(boolean authed) {
+            this.authed = authed;
+        }
+    }
 
     /**
      * Called from onOpen to retrieve the staged IP + auth for this connection.
@@ -89,7 +139,7 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
         if (token == null) return new StagedConnection("unresolved", false);
         Staged s = staged.remove(token.toString());
         if (s == null) return new StagedConnection("unresolved", false);
-        return new StagedConnection(s.ip() != null ? s.ip() : "unresolved", s.authed());
+        return new StagedConnection(s.getIp() != null ? s.getIp() : "unresolved", s.isAuthed());
     }
 
     /**
@@ -97,17 +147,20 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
      * Returns the IP address and removes the staging entry (no leak).
      */
     public static String consumeStagedIP(ServerEndpointConfig config) {
-        return consumeStaged(config).ip();
+        return consumeStaged(config).getIp();
     }
 
     private boolean isAuthenticated(HandshakeRequest request) {
         if (request.getUserPrincipal() != null) return true;
         try {
             Object httpSession = request.getHttpSession();
-            if (httpSession instanceof jakarta.servlet.http.HttpSession session) {
+            if (httpSession instanceof jakarta.servlet.http.HttpSession) {
+                jakarta.servlet.http.HttpSession session = (jakarta.servlet.http.HttpSession) httpSession;
                 Object ctx = session.getAttribute("SPRING_SECURITY_CONTEXT");
-                if (ctx instanceof org.springframework.security.core.context.SecurityContext security) {
-                    var auth = security.getAuthentication();
+                if (ctx instanceof org.springframework.security.core.context.SecurityContext) {
+                    org.springframework.security.core.context.SecurityContext security =
+                            (org.springframework.security.core.context.SecurityContext) ctx;
+                    org.springframework.security.core.Authentication auth = security.getAuthentication();
                     return auth != null && auth.isAuthenticated()
                             && !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken);
                 }
@@ -119,7 +172,11 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 
     private static void evictStale() {
         long now = System.nanoTime();
-        staged.entrySet().removeIf(e -> now - e.getValue().nanos() > STAGE_TTL_NANOS);
+        java.util.Iterator<Map.Entry<String, Staged>> it = staged.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, Staged> e = it.next();
+            if (now - e.getValue().getNanos() > STAGE_TTL_NANOS) it.remove();
+        }
     }
 
     private String lastHeader(HandshakeRequest request, String name) {

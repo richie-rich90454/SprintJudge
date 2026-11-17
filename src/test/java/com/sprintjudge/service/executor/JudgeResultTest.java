@@ -11,11 +11,11 @@ class JudgeResultTest {
     @Test
     void caseResultAccessors() {
         JudgeResult.CaseResult c = new JudgeResult.CaseResult(0, true, "expected", "actual", null);
-        assertEquals(0, c.index());
-        assertTrue(c.passed());
-        assertEquals("expected", c.expected());
-        assertEquals("actual", c.actual());
-        assertNull(c.error());
+        assertEquals(0, c.getIndex());
+        assertTrue(c.isPassed());
+        assertEquals("expected", c.getExpected());
+        assertEquals("actual", c.getActual());
+        assertNull(c.getError());
         assertTrue(c.toString().contains("CaseResult"));
 
         JudgeResult.CaseResult equal = new JudgeResult.CaseResult(0, true, "expected", "actual", null);
@@ -32,11 +32,11 @@ class JudgeResultTest {
     void judgeResultAccessorsAndEquality() {
         JudgeResult.CaseResult c = new JudgeResult.CaseResult(0, true, "e", "a", null);
         JudgeResult r = new JudgeResult(1, 1, true, List.of(c));
-        assertEquals(1, r.passed());
-        assertEquals(1, r.total());
-        assertTrue(r.allPassed());
-        assertEquals(1, r.cases().size());
-        assertSame(c, r.cases().get(0));
+        assertEquals(1, r.getPassed());
+        assertEquals(1, r.getTotal());
+        assertTrue(r.isAllPassed());
+        assertEquals(1, r.getCases().size());
+        assertSame(c, r.getCases().get(0));
         assertTrue(r.toString().contains("JudgeResult"));
 
         JudgeResult same = new JudgeResult(1, 1, true, List.of(c));

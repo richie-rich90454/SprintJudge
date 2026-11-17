@@ -27,18 +27,18 @@ class UserRepositoryTest {
     @Test
     void upsertNewInserts() {
         User u = repo.upsertByEmail("a@b.com", "Al", "ava");
-        assertNotNull(u.id());
-        assertEquals("ADMIN", u.role());
-        assertEquals("Al", u.name());
-        assertEquals("ava", u.avatarUrl());
+        assertNotNull(u.getId());
+        assertEquals("ADMIN", u.getRole());
+        assertEquals("Al", u.getName());
+        assertEquals("ava", u.getAvatarUrl());
     }
 
     @Test
     void upsertExistingReturnsExistingWithoutInsert() {
         User first = repo.upsertByEmail("a@b.com", "Al", "ava");
         User second = repo.upsertByEmail("a@b.com", "Different", "x");
-        assertEquals(first.id(), second.id());
-        assertEquals("Al", second.name());
+        assertEquals(first.getId(), second.getId());
+        assertEquals("Al", second.getName());
     }
 
     @Test
@@ -46,7 +46,7 @@ class UserRepositoryTest {
         repo.upsertByEmail("a@b.com", "Al", "ava");
         Optional<User> o = repo.findByEmail("a@b.com");
         assertTrue(o.isPresent());
-        assertEquals("a@b.com", o.get().email());
+        assertEquals("a@b.com", o.get().getEmail());
     }
 
     @Test

@@ -20,24 +20,34 @@ public class QuizRepository {
     }
 
     public Quiz create(Quiz quiz) {
-        String id = quiz.id() != null ? quiz.id() : Ids.uuid();
+        String id = quiz.getId() != null ? quiz.getId() : Ids.uuid();
         long now = Instant.now().getEpochSecond();
         dsl.insertInto(Tables.QUIZZES)
             .columns(Tables.QUIZZES_ID, Tables.QUIZZES_TITLE, Tables.QUIZZES_DESC,
                     Tables.QUIZZES_CREATED_BY, Tables.QUIZZES_CREATED_AT, Tables.QUIZZES_TEMPLATE)
-            .values(id, quiz.title(), quiz.description(), quiz.createdBy(), now, quiz.template())
+            .values(id, quiz.getTitle(), quiz.getDescription(), quiz.getCreatedBy(), now, quiz.isTemplate())
             .execute();
-        return new Quiz(id, quiz.title(), quiz.description(), quiz.createdBy(), Instant.ofEpochSecond(now), quiz.template());
+        return new Quiz(id, quiz.getTitle(), quiz.getDescription(), quiz.getCreatedBy(), Instant.ofEpochSecond(now), quiz.isTemplate());
     }
 
     public Optional<Quiz> findById(String id) {
         return dsl.selectFrom(Tables.QUIZZES).where(Tables.QUIZZES_ID.eq(id))
-                .fetchOptional(r -> toQuiz(r));
+                .fetchOptional(new org.jooq.RecordMapper<org.jooq.Record, Quiz>() {
+                    @Override
+                    public Quiz map(org.jooq.Record r) {
+                        return toQuiz(r);
+                    }
+                });
     }
 
     public List<Quiz> findAll() {
         return dsl.selectFrom(Tables.QUIZZES).orderBy(Tables.QUIZZES_CREATED_AT.desc())
-                .fetch(this::toQuiz);
+                .fetch(new org.jooq.RecordMapper<org.jooq.Record, Quiz>() {
+                    @Override
+                    public Quiz map(org.jooq.Record r) {
+                        return toQuiz(r);
+                    }
+                });
     }
 
     public int count() {
@@ -47,9 +57,9 @@ public class QuizRepository {
 
     public Quiz update(Quiz quiz) {
         dsl.update(Tables.QUIZZES)
-            .set(Tables.QUIZZES_TITLE, quiz.title())
-            .set(Tables.QUIZZES_DESC, quiz.description())
-            .where(Tables.QUIZZES_ID.eq(quiz.id()))
+            .set(Tables.QUIZZES_TITLE, quiz.getTitle())
+            .set(Tables.QUIZZES_DESC, quiz.getDescription())
+            .where(Tables.QUIZZES_ID.eq(quiz.getId()))
             .execute();
         return quiz;
     }

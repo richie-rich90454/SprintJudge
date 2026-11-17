@@ -47,8 +47,8 @@ public class BankStore {
     }
 
     private BankStore(Loaded loaded) {
-        this.questions = List.copyOf(loaded.headers());
-        this.skippedResources = loaded.skipped();
+        this.questions = List.copyOf(loaded.getHeaders());
+        this.skippedResources = loaded.getSkipped();
     }
 
     BankStore(List<Map<String, Object>> seed) {
@@ -63,7 +63,23 @@ public class BankStore {
         return resolver.getResources("classpath*:bank/**/*.json");
     }
 
-    record Loaded(List<Map<String, Object>> headers, int skipped) {}
+    static final class Loaded {
+        private List<Map<String, Object>> headers;
+        private int skipped;
+
+        Loaded() {}
+
+        Loaded(List<Map<String, Object>> headers, int skipped) {
+            this.headers = headers;
+            this.skipped = skipped;
+        }
+
+        List<Map<String, Object>> getHeaders() { return headers; }
+        void setHeaders(List<Map<String, Object>> headers) { this.headers = headers; }
+
+        int getSkipped() { return skipped; }
+        void setSkipped(int skipped) { this.skipped = skipped; }
+    }
 
     /**
      * Loads every readable bank file. A malformed or half-written file must
@@ -162,7 +178,12 @@ public class BankStore {
             if (!subject.equals(text(question, "subject"))) {
                 continue;
             }
-            byUnit.computeIfAbsent(text(question, "unit"), key -> new ArrayList<>()).add(question);
+            List<Map<String, Object>> list = byUnit.get(text(question, "unit"));
+        if (list == null) {
+            list = new ArrayList<>();
+            byUnit.put(text(question, "unit"), list);
+        }
+        list.add(question);
         }
         Map<String, Map<String, Object>> out = new LinkedHashMap<>();
         for (Map.Entry<String, List<Map<String, Object>>> entry : byUnit.entrySet()) {
@@ -189,7 +210,9 @@ public class BankStore {
     public Map<String, Integer> volume() {
         Map<String, Integer> out = new TreeMap<>();
         for (Map<String, Object> question : questions) {
-            out.merge(text(question, "subject"), 1, Integer::sum);
+            String subject = text(question, "subject");
+            Integer cur = out.get(subject);
+            out.put(subject, cur == null ? 1 : cur + 1);
         }
         return out;
     }
