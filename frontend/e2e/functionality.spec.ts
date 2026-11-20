@@ -120,4 +120,39 @@ test.describe("functionality", () => {
             expect(status, `${action} returned ${status}`).toBeLessThan(300);
         }
     });
+
+    test("all six game modes can be created and hosted", async ({ page }) => {
+        await login(page);
+        const quizId = await page.evaluate(async (base) => {
+            const response = await fetch(base + "/api/admin/quizzes", { credentials: "include" });
+            return (await response.json())[0].id as string;
+        }, B);
+        const modes = ["STANDARD", "AUTO_PILOT", "PRACTICE", "EXAM", "TEAM", "BATTLE"];
+        for (const mode of modes) {
+            const pin = await page.evaluate(
+                async ({ base, quizId, mode }) => {
+                    const token = document.cookie
+                        .split("; ")
+                        .find((cookie) => cookie.startsWith("XSRF-TOKEN="))
+                        ?.split("=")[1] ?? "";
+                    const response = await fetch(base + "/api/admin/games", {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-XSRF-TOKEN": token,
+                        },
+                        body: JSON.stringify({ quizId, gameMode: mode }),
+                    });
+                    if (!response.ok) return null;
+                    return (await response.json()).pinCode as string;
+                },
+                { base: B, quizId, mode },
+            );
+            expect(pin, `${mode} failed to create a game`).toBeTruthy();
+            await page.goto(`${B}/host?pin=${pin}`);
+            const text = await page.locator("body").innerText();
+            expect(text.length, `${mode} host screen was empty`).toBeGreaterThan(10);
+        }
+    });
 });
