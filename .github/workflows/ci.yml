@@ -84,9 +84,10 @@ jobs:
           npm ci
           npm run build
           npx playwright install --with-deps chromium
-      - name: Start the backend
+      - name: Package and start the backend
         run: |
-          ./mvnw -B spring-boot:run -Dspring-boot.run.profiles=dev > backend.log 2>&1 &
+          ./mvnw -B -DskipTests package > package.log 2>&1
+          java -jar target/sprintjudge.jar --spring.profiles.active=prod --server.port=8080 > backend.log 2>&1 &
           for i in $(seq 1 120); do
             if curl -fsS http://localhost:8080/actuator/health > /dev/null; then exit 0; fi
             sleep 2
