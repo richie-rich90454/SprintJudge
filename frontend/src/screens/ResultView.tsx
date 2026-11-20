@@ -7,6 +7,7 @@ import { useGameStore } from "../stores/useGameStore";
 import { formatAnswer } from "../game/reviewFormat";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
+import { AboutDialog } from "../components/AboutDialog";
 import { useCountUp } from "../motion/useStageMotion";
 import { GameReview } from "../types";
 
@@ -123,8 +124,9 @@ export function ResultView() {
                         </p>
                     </div>
                     <div className="flex gap-1">
-                        <SoundToggle />
-                        <MotionToggle />
+                        <SoundToggle className="header-icon" />
+                        <MotionToggle className="header-icon" />
+                        <AboutDialog />
                     </div>
                 </div>
                 <div className="mt-6 border-b border-[var(--oq-border-strong)]" />

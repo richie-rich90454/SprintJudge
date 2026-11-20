@@ -13,6 +13,7 @@ import { QuestionWizard } from "./QuestionWizard";
 import { useStaggerIn } from "../hooks/useMotion";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
+import { AboutDialog } from "../components/AboutDialog";
 import { LogoMark } from "../components/LogoMark";
 
 type AdminTab = "dashboard" | "quizzes" | "questions" | "games" | "settings";
@@ -308,8 +309,9 @@ export function AdminDashboard() {
                         <span className="font-extrabold tracking-tight text-lg">SprintJudge</span>
                     </div>
                     <div className="flex-1" />
-                    <SoundToggle />
-                    <MotionToggle />
+                    <SoundToggle className="header-icon" />
+                    <MotionToggle className="header-icon" />
+                    <AboutDialog />
                     <Button variant="secondary" size="sm" onClick={() => navigate({ to: "/" })}>
                         Player view
                     </Button>

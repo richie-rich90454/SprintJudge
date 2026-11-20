@@ -5,11 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -27,9 +27,18 @@ public class BankRecordSource {
 	private static final Logger log = LoggerFactory.getLogger(BankRecordSource.class);
 	private static final String BANK_GLOB = "classpath*:bank/**/*.json";
 
+	private static final int MAX_CACHED_SLICES = 2;
+
 	private final Resource[] resources;
 	private final ObjectMapper mapper;
-	private final Map<String, List<Map<String, Object>>> cache = new ConcurrentHashMap<>();
+	// A quiz build needs one subject/unit at a time. An unbounded cache kept full
+	// records for every subject and exhausted the heap after a few builds.
+	private final Map<String, List<Map<String, Object>>> cache = new LinkedHashMap<>(16, 0.75f, true) {
+		@Override
+		protected boolean removeEldestEntry(Map.Entry<String, List<Map<String, Object>>> eldest) {
+			return size() > MAX_CACHED_SLICES;
+		}
+	};
 	private volatile Set<String> subjectsCache;
 
 	public BankRecordSource() throws IOException {
@@ -45,14 +54,15 @@ public class BankRecordSource {
 	 * Full records for a subject, optionally narrowed to a unit. Unreadable files
 	 * are skipped with a log line; strict validation lives in CI.
 	 */
-	public List<Map<String, Object>> records(String subject, String unit) {
+	public synchronized List<Map<String, Object>> records(String subject, String unit) {
 		String key = subject + "|" + (unit == null ? "" : unit);
-		return cache.computeIfAbsent(key, new java.util.function.Function<String, List<Map<String, Object>>>() {
-			@Override
-			public List<Map<String, Object>> apply(String ignored) {
-				return load(subject, unit);
-			}
-		});
+		List<Map<String, Object>> hit = cache.get(key);
+		if (hit != null) {
+			return hit;
+		}
+		List<Map<String, Object>> loaded = load(subject, unit);
+		cache.put(key, loaded);
+		return loaded;
 	}
 
 	private List<Map<String, Object>> load(String subject, String unit) {

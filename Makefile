@@ -203,6 +203,10 @@ restore-db: ## Restore a backup while the server is stopped (FILE=, DB=).
 	@test -n "$(FILE)" || (echo "FILE=<backup.db> is required"; exit 1)
 	@$(LOAD_ENV); ./scripts/restore-db.sh "$(FILE)" "$(DB)"
 
+.PHONY: seed-banks
+seed-banks: ## Build a few playable quiz sets per subject from the bank.
+	@node scripts/seed-playable-banks.mjs
+
 .PHONY: lint
 lint: ## Run all static checks: format, checkstyle, PMD, compiler warnings.
 	@$(LOAD_ENV); $(MVNW) -q spotless:check checkstyle:check pmd:check compile test-compile

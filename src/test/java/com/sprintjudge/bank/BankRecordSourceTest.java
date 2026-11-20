@@ -45,6 +45,22 @@ class BankRecordSourceTest {
 	}
 
 	@Test
+	void singleObjectDocumentIsLoaded() {
+		String single = "{\"id\":\"solo\",\"subject\":\"JAVA_PROGRAMMING\",\"unit\":\"Unit 1\","
+				+ "\"format\":\"CONCEPT_MCQ\"}";
+		BankRecordSource source = new BankRecordSource(new Resource[]{json(single)}, new ObjectMapper());
+		assertEquals(1, source.records("JAVA_PROGRAMMING", null).size());
+	}
+
+	@Test
+	void nonArrayQuestionsFieldIsTreatedAsASingleRecord() {
+		String single = "{\"questions\":\"not-an-array\",\"id\":\"solo2\","
+				+ "\"subject\":\"JAVA_PROGRAMMING\",\"unit\":\"Unit 1\"}";
+		BankRecordSource source = new BankRecordSource(new Resource[]{json(single)}, new ObjectMapper());
+		assertEquals(1, source.records("JAVA_PROGRAMMING", null).size());
+	}
+
+	@Test
 	void missingKeysDoNotThrow() {
 		BankRecordSource source = source();
 		List<?> all = source.records("JAVA_PROGRAMMING", null);

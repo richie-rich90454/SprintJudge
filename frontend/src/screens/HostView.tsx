@@ -10,6 +10,7 @@ import { useUIStore } from "../stores/useUIStore";
 import { webSocketService, type WsMessage } from "../game/WebSocketService";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
+import { AboutDialog } from "../components/AboutDialog";
 import { useVirtualWindow } from "../hooks/useVirtualWindow";
 import { useFlipList } from "../motion/useStageMotion";
 import { HostStage } from "../components/host/HostStage";
@@ -622,8 +623,9 @@ export function HostView() {
                                 Projector view
                             </Link>
                         </div>
-                        <SoundToggle />
-                        <MotionToggle />
+                        <SoundToggle className="header-icon" />
+                        <MotionToggle className="header-icon" />
+                        <AboutDialog />
                     </div>
                     <p className="mono text-xs text-[var(--oq-ink-soft)] mt-3 break-all">
                         {joinUrl}

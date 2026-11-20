@@ -37,28 +37,28 @@ export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerP
         wasLow.current = low;
     }, [secs]);
     const frac = totalSec > 0 ? Math.min(1, remaining / (totalSec * 1000)) : 0;
-    const r = 34;
+    const r = 38;
     const c = 2 * Math.PI * r;
     const low = secs <= 10;
 
     return (
-        <div ref={wrapRef} className="relative w-[84px] h-[84px]">
-            <svg viewBox="0 0 84 84" className="w-full h-full -rotate-90">
+        <div ref={wrapRef} className="relative w-[96px] h-[96px]">
+            <svg viewBox="0 0 96 96" className="w-full h-full -rotate-90">
                 <circle
-                    cx="42"
-                    cy="42"
+                    cx="48"
+                    cy="48"
                     r={r}
                     fill="none"
                     stroke="var(--oq-border)"
-                    strokeWidth="6"
+                    strokeWidth="7"
                 />
                 <circle
-                    cx="42"
-                    cy="42"
+                    cx="48"
+                    cy="48"
                     r={r}
                     fill="none"
                     stroke={low ? "var(--oq-warning)" : "var(--oq-accent)"}
-                    strokeWidth="6"
+                    strokeWidth="7"
                     strokeLinecap="round"
                     strokeDasharray={c}
                     strokeDashoffset={c * (1 - frac)}
@@ -67,7 +67,7 @@ export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerP
             <div
                 role="timer"
                 aria-label={`${secs} seconds remaining`}
-                className="absolute inset-0 flex items-center justify-center font-mono text-lg font-semibold"
+                className="absolute inset-0 flex items-center justify-center font-mono text-xl font-semibold"
             >
                 {secs}
             </div>
