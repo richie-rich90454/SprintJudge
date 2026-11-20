@@ -16,7 +16,9 @@ EnvironmentFile=-/opt/sprintjudge/.env
 ExecStartPre=/usr/bin/test -x /usr/bin/java
 ExecStartPre=/usr/bin/test -x /usr/bin/nsjail
 
-ExecStart=/usr/bin/java -XX:+UseZGC -Xms2g -Xmx2g \
+# BankStore loads answer-free columnar headers (~128m floor); 512m leaves room
+# for large rooms. Raise only if metrics show a need.
+ExecStart=/usr/bin/java -XX:+UseZGC -Xms512m -Xmx512m \
   -XX:+UseStringDeduplication -XX:+PerfDisableSharedMem -XX:+UseCompactObjectHeaders \
   -jar /opt/sprintjudge/sprintjudge.jar \
   --spring.profiles.active=prod \

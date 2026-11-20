@@ -1,5 +1,6 @@
 package com.sprintjudge.bank;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,7 +59,7 @@ public class BankRecordSource {
 		List<Map<String, Object>> out = new ArrayList<>();
 		for (Resource resource : resources) {
 			try (InputStream in = resource.getInputStream()) {
-				for (Map<String, Object> record : BankStore.recordsOf(mapper.readTree(in), mapper)) {
+				for (Map<String, Object> record : fullRecords(mapper.readTree(in))) {
 					if (!subject.equals(text(record, "subject")))
 						continue;
 					if (unit != null && !unit.equals(text(record, "unit")))
@@ -83,7 +84,7 @@ public class BankRecordSource {
 		Set<String> out = new java.util.TreeSet<>();
 		for (Resource resource : resources) {
 			try (InputStream in = resource.getInputStream()) {
-				for (Map<String, Object> record : BankStore.recordsOf(mapper.readTree(in), mapper)) {
+				for (Map<String, Object> record : fullRecords(mapper.readTree(in))) {
 					String subject = text(record, "subject");
 					if (!subject.isBlank())
 						out.add(subject);
@@ -106,6 +107,22 @@ public class BankRecordSource {
 				out.add(record);
 		}
 		return out;
+	}
+
+	/**
+	 * Full records for the builder. Kept here rather than in BankStore so the
+	 * header store never materialises answers or explanations.
+	 */
+	@SuppressWarnings("unchecked")
+	private List<Map<String, Object>> fullRecords(JsonNode node) {
+		if (node.has("questions") && node.path("questions").isArray()) {
+			List<Map<String, Object>> batch = new ArrayList<>();
+			for (JsonNode entry : node.path("questions")) {
+				batch.add(mapper.convertValue(entry, Map.class));
+			}
+			return batch;
+		}
+		return List.of(mapper.convertValue(node, Map.class));
 	}
 
 	private static String text(Map<String, Object> record, String key) {
