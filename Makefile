@@ -107,7 +107,7 @@ package: ## SPA + fat jar (SKIP_FRONTEND=1 skips the SPA).
 check-env: ## Audit the toolchain.
 	@echo "== SprintJudge environment check =="
 	@java -version 2>&1 | head -1
-	@java -version 2>&1 | head -1 | grep -Eq 'version .(2[5-9]|[3-9][0-9])' || (echo "[MISS] JDK 25+ is required"; exit 1)
+	@if command -v java >/dev/null 2>&1; then java -version 2>&1 | head -1 | grep -Eq 'version .(2[5-9]|[3-9][0-9])' || (echo "[MISS] JDK 25+ is required"; exit 1); else echo "[WARN] java not on this shell's PATH"; fi
 	@test -f .mvn/wrapper/maven-wrapper.properties && echo "[OK]   Maven wrapper present (no Maven install needed)" || (echo "[MISS] Maven wrapper"; exit 1)
 	@node --version
 	@$(NPM) --version
