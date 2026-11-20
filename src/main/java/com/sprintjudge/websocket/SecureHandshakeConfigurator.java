@@ -93,7 +93,7 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 		if (addr == null)
 			addr = firstHeader(request, "X-Real-IP");
 		String remoteAddr = addr == null ? "unresolved" : addr;
-		// Stage IP + auth for this connection -?onOpen reads-and-removes them.
+		// Stage IP + auth for this connection - onOpen reads-and-removes them.
 		// The WS upgrade carries the JSESSIONID cookie, so the HttpSession holds
 		// the form-login auth even though /ws itself is permitAll.
 		String token = java.util.UUID.randomUUID().toString();

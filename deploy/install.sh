@@ -2,7 +2,8 @@
 # Provision SprintJudge on a Linux host with systemd and nginx.
 # Prerequisites (install with your package manager, no WSL, no npm/npm-global):
 #   JDK 25, nsjail at /usr/bin/nsjail, nginx, curl, python3, sqlite3, bash
-# Usage: SPRINTJUDGE_ADMIN_PASSWORD='strong-secret' sudo bash deploy/install.sh
+# Usage: sudo bash deploy/install.sh   (prompts for the admin password)
+#   or:  printf '%s' 'strong-secret' | sudo SPRINTJUDGE_ADMIN_PASSWORD_STDIN=1 bash deploy/install.sh
 set -euo pipefail
 
 INSTALL_DIR="${SPRINTJUDGE_INSTALL_DIR:-/opt/sprintjudge}"
@@ -14,8 +15,16 @@ PORT="${SPRINTJUDGE_PORT:-8080}"
 fail() { echo "install: $*" >&2; exit 1; }
 
 [ -f "$JAR" ] || fail "jar not found: $JAR (run make package first)"
-[ -n "${SPRINTJUDGE_ADMIN_PASSWORD:-}" ] || fail "set SPRINTJUDGE_ADMIN_PASSWORD to a strong value"
 [ "$(id -u)" -eq 0 ] || fail "run as root (sudo bash deploy/install.sh)"
+if [ -z "${SPRINTJUDGE_ADMIN_PASSWORD:-}" ]; then
+    if [ "${SPRINTJUDGE_ADMIN_PASSWORD_STDIN:-}" = "1" ]; then
+        IFS= read -r SPRINTJUDGE_ADMIN_PASSWORD || true
+    else
+        read -r -s -p "Admin password: " SPRINTJUDGE_ADMIN_PASSWORD
+        echo
+    fi
+fi
+[ -n "$SPRINTJUDGE_ADMIN_PASSWORD" ] || fail "admin password must not be empty"
 command -v nginx >/dev/null 2>&1 || fail "nginx is required"
 command -v systemctl >/dev/null 2>&1 || fail "systemd is required"
 [ -x /usr/bin/nsjail ] || fail "nsjail must be executable at /usr/bin/nsjail"
@@ -42,7 +51,11 @@ ENVFILE
 fi
 
 chown -R sprintjudge:sprintjudge "$INSTALL_DIR" "$DATA_DIR" "$LOG_DIR"
-chmod 600 "$INSTALL_DIR/.env"
+# systemd reads EnvironmentFile as root before dropping to User=sprintjudge.
+# Keep the secret root-only so jailed submissions running as sprintjudge cannot
+# read it from disk.
+chown root:root "$INSTALL_DIR/.env"
+chmod 400 "$INSTALL_DIR/.env"
 
 install -m 0644 deploy/sprintjudge.service /etc/systemd/system/sprintjudge.service
 install -m 0644 deploy/nginx-sprintjudge.conf /etc/nginx/sites-available/sprintjudge

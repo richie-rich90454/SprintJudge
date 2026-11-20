@@ -46,7 +46,7 @@ test.describe("functionality", () => {
         }
     });
 
-    test("all admin actions respond successfully through the browser session", async ({ page }) => {
+    test("admin quiz, question, settings, export/import, build and game flows", async ({ page }) => {
         await login(page);
         const results = await page.evaluate(async (base) => {
             const token = document.cookie
@@ -65,17 +65,31 @@ test.describe("functionality", () => {
                 });
                 return { status: response.status, body: await response.text() };
             };
-            const out: Record<string, number> = {};
-            out.listQuizzes = (await call("/api/admin/quizzes", "GET")).status;
-            const quizzes = JSON.parse((await call("/api/admin/quizzes", "GET")).body ?? "[]");
-            const questionsBody = await call(`/api/admin/quizzes/${quizzes[0].id}/questions`, "GET");
-            out.listQuestions = questionsBody.status;
-            const template = JSON.parse(questionsBody.body)[0] as Record<string, unknown> | undefined;
+            const check: Record<string, boolean> = {};
+            const stamp = Date.now();
+            const quizId = "e2e-matrix-" + stamp;
+            const questionId = "e2eq-" + stamp;
+            const importedId = "e2e-import-" + stamp;
+
+            // A seed template supplies a valid, schema-checked question config.
+            const existing = JSON.parse((await call("/api/admin/quizzes", "GET")).body) as { id: string }[];
+            const template = JSON.parse(
+                (await call(`/api/admin/quizzes/${existing[0].id}/questions`, "GET")).body,
+            )[0] as Record<string, unknown> | undefined;
+            check.hasTemplate = Boolean(template);
+
+            check.createQuiz = (await call("/api/admin/quizzes", "POST", {
+                id: quizId,
+                title: "E2E matrix quiz",
+                description: "temporary",
+            })).status === 200;
+            const listed = JSON.parse((await call("/api/admin/quizzes", "GET")).body) as { id: string }[];
+            check.createdQuizListed = listed.some((q) => q.id === quizId);
+
             if (template) {
-                const questionId = "e2eq-" + Date.now();
                 const payload = {
                     id: questionId,
-                    quizId: quizzes[0].id,
+                    quizId,
                     title: "E2E question",
                     description: "temporary",
                     questionType: template.questionType,
@@ -85,39 +99,52 @@ test.describe("functionality", () => {
                     config: template.config,
                     orderIndex: 0,
                 };
-                out.addQuestion = (await call(`/api/admin/quizzes/${quizzes[0].id}/questions`, "POST", payload)).status;
-                out.updateQuestion = (await call(`/api/admin/questions/${questionId}`, "PUT", {
+                check.addQuestion = (await call(`/api/admin/quizzes/${quizId}/questions`, "POST", payload)).status === 200;
+                const readBack = JSON.parse((await call(`/api/admin/quizzes/${quizId}/questions`, "GET")).body) as { id: string }[];
+                check.questionListed = readBack.some((q) => q.id === questionId);
+                check.updateQuestion = (await call(`/api/admin/questions/${questionId}`, "PUT", {
                     ...payload,
                     title: "E2E question edited",
-                })).status;
-                out.deleteQuestion = (await call(`/api/admin/questions/${questionId}`, "DELETE")).status;
+                })).status === 200;
+                const edited = JSON.parse((await call(`/api/admin/quizzes/${quizId}/questions`, "GET")).body) as { title: string }[];
+                check.questionEdited = edited.some((q) => q.title === "E2E question edited");
+                check.deleteQuestion = (await call(`/api/admin/questions/${questionId}`, "DELETE")).status === 204;
+                const afterDelete = JSON.parse((await call(`/api/admin/quizzes/${quizId}/questions`, "GET")).body) as { id: string }[];
+                check.questionDeleted = !afterDelete.some((q) => q.id === questionId);
             }
-            out.getSettings = (await call("/api/admin/settings", "GET")).status;
-            out.export = (await call("/api/admin/export", "GET")).status;
+
+            const settings = await call("/api/admin/settings", "GET");
+            check.getSettings = settings.status === 200;
+            check.saveSettings = (await call("/api/admin/settings", "PUT", { e2eProbe: String(stamp) })).status === 200;
+            const afterSettings = await call("/api/admin/settings", "GET");
+            check.settingsPersisted = JSON.parse(afterSettings.body).e2eProbe === String(stamp);
+
+            const exported = await call("/api/admin/export", "GET");
+            check.export = exported.status === 200 && JSON.parse(exported.body).quizzes.length > 0;
+            const bundle = {
+                version: "1.0",
+                exportedAt: 1,
+                quizzes: [{ id: importedId, title: "E2E import", description: "temporary", template: false, questions: [] }],
+                settings: {},
+            };
+            check.import = (await call("/api/admin/import", "POST", { json: JSON.stringify(bundle), replace: false })).status === 200;
+            check.importedQuizListed = (JSON.parse((await call("/api/admin/quizzes", "GET")).body) as { id: string }[])
+                .some((q) => q.id === importedId);
+            check.deleteImportedQuiz = (await call(`/api/admin/quizzes/${importedId}`, "DELETE")).status === 204;
+
             const built = await call("/api/admin/bank/build", "POST", {
-                subject: "JAVA_PROGRAMMING",
-                count: 3,
-                title: "E2E admin matrix",
+                subject: "JAVA_PROGRAMMING", count: 3, title: "E2E matrix built",
             });
-            out.build = built.status;
+            check.build = built.status === 200 && JSON.parse(built.body).questions === 3;
             const builtQuiz = JSON.parse(built.body).quizId as string;
-            out.createGame = (await call("/api/admin/games", "POST", {
-                quizId: quizzes[0].id,
-                gameMode: "STANDARD",
-            })).status;
-            out.saveSettings = (await call("/api/admin/settings", "PUT", { e2eProbe: "1" })).status;
-            const quizId = "e2e-" + Date.now();
-            out.createQuiz = (await call("/api/admin/quizzes", "POST", {
-                id: quizId,
-                title: "E2E matrix quiz",
-                description: "temporary",
-            })).status;
-            out.deleteQuiz = (await call(`/api/admin/quizzes/${quizId}`, "DELETE")).status;
-            out.deleteBuiltQuiz = (await call(`/api/admin/quizzes/${builtQuiz}`, "DELETE")).status;
-            return out;
+            const game = await call("/api/admin/games", "POST", { quizId, gameMode: "STANDARD" });
+            check.createGame = game.status === 200 && Boolean(JSON.parse(game.body).pinCode);
+            check.deleteBuiltQuiz = (await call(`/api/admin/quizzes/${builtQuiz}`, "DELETE")).status === 204;
+            check.deleteQuiz = (await call(`/api/admin/quizzes/${quizId}`, "DELETE")).status === 204;
+            return check;
         }, B);
-        for (const [action, status] of Object.entries(results)) {
-            expect(status, `${action} returned ${status}`).toBeLessThan(300);
+        for (const [action, ok] of Object.entries(results)) {
+            expect(ok, `admin action failed: ${action}`).toBeTruthy();
         }
     });
 
@@ -181,8 +208,8 @@ test.describe("functionality", () => {
             );
             expect(pin, `${mode} failed to create a game`).toBeTruthy();
             await page.goto(`${B}/host?pin=${pin}`);
-            const text = await page.locator("body").innerText();
-            expect(text.length, `${mode} host screen was empty`).toBeGreaterThan(10);
+            await expect(page.locator("body")).toContainText(pin as string, { timeout: 10000 });
+            await expect(page.getByText(/share the pin|no players yet/i).first()).toBeVisible({ timeout: 10000 });
         }
     });
 });

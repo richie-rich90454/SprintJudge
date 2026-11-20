@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>
  * Performance contract: {@link #broadcast(Collection, Object)} serializes the
- * payload EXACTLY ONCE and writes the pre-rendered string to every session -? *
+ * payload EXACTLY ONCE and writes the pre-rendered string to every session - *
  * the old behavior re-serialized per recipient, which dominated CPU at scale.
  * Individual session failures are isolated and never abort the fan-out.
  */

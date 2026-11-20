@@ -16,11 +16,11 @@ import java.util.Set;
  * <p>
  * Questions carry answer keys in their {@code config} (correctIndex, correct,
  * correctIndices, answer, correctOrder, bugLine, expected, hidden test cases).
- * Those must never reach players during a round -?only the public reveal (after
+ * Those must never reach players during a round - only the public reveal (after
  * the round ends) gets the answer-bearing subset, built by
  * {@link #answerPayload}. {@link #sanitize} strips all answer keys plus hidden
- * OJ test cases, leaving the rendering fields (options, lines, code, starter,
- * -? intact.
+ * OJ test cases, leaving the rendering fields (options, lines, code, starter, -
+ * intact.
  */
 @SuppressWarnings("all")
 public final class QuestionAnswers {

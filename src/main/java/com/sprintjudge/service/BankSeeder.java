@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * Seeds the bundled question library on first boot -?ONLY when the bank is
+ * Seeds the bundled question library on first boot - ONLY when the bank is
  * completely empty, so existing installs are never touched.
  */
 @Component

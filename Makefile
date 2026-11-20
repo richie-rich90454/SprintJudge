@@ -17,6 +17,7 @@ VERIFY_PORT ?= 8091
 # 169000-question bank boots in ~128m. Override with SPRINTJUDGE_HEAP for very
 # large rooms.
 HEAP ?= 512m
+DEV_HEAP ?= 256m
 
 # Windows needs the .cmd shims; POSIX shells use the bare names.
 ifeq ($(OS),Windows_NT)
@@ -71,7 +72,7 @@ dev: ## Backend + frontend side by side (parallel).
 dev-backend: ## API + WebSocket on :8080 (dev profile).
 	@$(LOAD_ENV); $(MVNW) spring-boot:run \
 		-Dspring-boot.run.profiles=dev \
-		"-Dspring-boot.run.jvmArguments=-Xms64m -Xmx256m -XX:+UseStringDeduplication -XX:+PerfDisableSharedMem"
+		"-Dspring-boot.run.jvmArguments=-Xms64m -Xmx$(DEV_HEAP) -XX:+UseStringDeduplication -XX:+PerfDisableSharedMem"
 
 .PHONY: dev-frontend
 dev-frontend: ## UI on :5173 (proxies /api and /ws).

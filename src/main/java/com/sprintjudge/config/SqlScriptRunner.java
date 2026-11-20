@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
  * Flyway offers no SQLite support (no official module exists), so the migration
  * path for this project is a single idempotent DDL script (every statement is
  * CREATE TABLE/INDEX IF NOT EXISTS) applied exactly once at DataSource
- * construction -?guaranteed to precede any repository call.
+ * construction - guaranteed to precede any repository call.
  */
 final class SqlScriptRunner {
 
@@ -33,7 +33,7 @@ final class SqlScriptRunner {
 	/**
 	 * Idempotent additive migration for databases created before a column existed:
 	 * probes the column and ALTERs only when absent. Callers pass internal
-	 * constants only -?never user input (identifiers are inlined).
+	 * constants only - never user input (identifiers are inlined).
 	 */
 	static void ensureColumn(javax.sql.DataSource dataSource, String table, String column, String columnDdl) {
 		try (java.sql.Connection conn = dataSource.getConnection()) {

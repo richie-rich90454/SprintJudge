@@ -279,7 +279,7 @@ public class NativeExecutor implements CodeExecutor {
 	 * Live execution for the interactive console: compiles (if needed) then runs
 	 * the program feeding {@code stdin} and capturing combined stdout/stderr.
 	 * Callers (the player console) get back the merged stream so students can
-	 * experiment before submitting -?mirroring JuiceMind's in-quiz runner.
+	 * experiment before submitting - mirroring JuiceMind's in-quiz runner.
 	 */
 	@Override
 	public RunResult run(RunRequest request) {

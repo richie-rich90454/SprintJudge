@@ -163,7 +163,7 @@ public class AdminController {
 
 	/**
 	 * Host attribution is resolved server-side from the authenticated login session
-	 * -?the client never gets to declare who the host is.
+	 * - the client never gets to declare who the host is.
 	 */
 	@PostMapping("/games")
 	public com.sprintjudge.domain.models.GameSession createGame(@RequestBody Map<String, String> body) {

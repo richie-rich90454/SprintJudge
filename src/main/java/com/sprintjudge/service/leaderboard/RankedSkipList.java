@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Order-statistic skip list keyed by (score DESC, joinSeq ASC), implementing
  * the classic Redis zskiplist span algorithm: O(log n) insert/remove/rank/
- * select with EXACT spans -?no probabilistic drift, no eventual consistency.
+ * select with EXACT spans - no probabilistic drift, no eventual consistency.
  *
  * <p>
  * Concurrency: single writer via write lock; lock-free-ish readers via read
@@ -171,7 +171,7 @@ public final class RankedSkipList {
 	}
 
 	/**
-	 * Removes a player whose current score and join sequence are known -?O(log n).
+	 * Removes a player whose current score and join sequence are known - O(log n).
 	 * The joinSeq tie-breaker is required: with seq=MIN_VALUE the traversal stops
 	 * at the first node of an equal-score group and silently fails to unlink.
 	 */
@@ -184,7 +184,7 @@ public final class RankedSkipList {
 		}
 	}
 
-	/** Removes by identity only -?O(n); used when the score is unknown. */
+	/** Removes by identity only - O(n); used when the score is unknown. */
 	public boolean removeByIdentity(String uuid) {
 		lock.writeLock().lock();
 		try {

@@ -1,7 +1,10 @@
 package com.sprintjudge.config;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -98,6 +101,24 @@ class SecurityConfigTest {
 				.getCorsConfiguration(new org.springframework.mock.web.MockHttpServletRequest("GET", "/"));
 		assertNotNull(cfg);
 		assertEquals(2, cfg.getAllowedOriginPatterns().size());
+	}
+
+	@Test
+	void corsEmptyDefaultAllowsNoCrossOrigin() {
+		CorsConfigurationSource src = config("admin", "x").corsConfigurationSource("");
+		CorsConfiguration cfg = src.getCorsConfiguration(new MockHttpServletRequest("GET", "/"));
+		assertNotNull(cfg);
+		assertTrue(cfg.getAllowedOriginPatterns().isEmpty());
+	}
+
+	@Test
+	void corsBlankEntriesAreTrimmedAndSkipped() {
+		CorsConfigurationSource src = config("admin", "x")
+				.corsConfigurationSource("http://a.example, , http://b.example");
+		CorsConfiguration cfg = src.getCorsConfiguration(new MockHttpServletRequest("GET", "/"));
+		assertEquals(2, cfg.getAllowedOriginPatterns().size());
+		assertTrue(cfg.getAllowedOriginPatterns().contains("http://a.example"));
+		assertTrue(cfg.getAllowedOriginPatterns().contains("http://b.example"));
 	}
 
 	@Test

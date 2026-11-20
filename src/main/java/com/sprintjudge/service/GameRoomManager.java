@@ -144,7 +144,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		GameRoom room = registry.get(key);
 		if (room == null) {
 			// Lookup is done OUTSIDE the registry write lock (H6 fix); the
-			// factory only constructs -?no DB access under lock.
+			// factory only constructs - no DB access under lock.
 			GameSession s = sessionRepository.findByPin(pin).orElse(null);
 			if (s == null)
 				throw new IllegalArgumentException("Invalid PIN");
@@ -365,7 +365,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		Question q = questionRepository.findById(questionId).orElse(null);
 		if (q == null) {
 			ws.send(sessionIdOf(room, playerUuid),
-					new ErrorMessage("ERROR", "Unknown question -?wait for the next round"));
+					new ErrorMessage("ERROR", "Unknown question - wait for the next round"));
 			return;
 		}
 		String type = QuestionType.from(q.getQuestionType());
@@ -374,7 +374,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		if (!"ACTIVE".equals(room.getStatus()) || !questionId.equals(room.getCurrentQuestionId())) {
 			Player target = room.getPlayer(playerUuid);
 			ws.send(target == null ? null : target.getSessionId(),
-					new ErrorMessage("ERROR", "Round is locked -?answers are no longer accepted"));
+					new ErrorMessage("ERROR", "Round is locked - answers are no longer accepted"));
 			return;
 		}
 		// Membership before attempts: a submit with no live seat (left,
@@ -415,7 +415,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		}
 
 		// Every mode gets immediate per-player feedback (correct/wrong + score)
-		// the moment they submit -?host-led rooms reveal instantly per player.
+		// the moment they submit - host-led rooms reveal instantly per player.
 		ws.send(p.getSessionId(),
 				new SubmissionResult("SUBMISSION_RESULT", questionId, total, correct, correct ? 1 : 0, 1, null));
 		eventPublisher.publishEvent(
@@ -474,7 +474,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 						room.markBattleAnswer(uuid, System.currentTimeMillis());
 					}
 				}
-				// ponytail: re-resolve the session at reply time -?the player may
+				// ponytail: re-resolve the session at reply time - the player may
 				// have reconnected (new sessionId) while the judge was running.
 				Player current = room.getPlayer(uuid);
 				ws.send(current == null ? null : current.getSessionId(), new SubmissionResult("SUBMISSION_RESULT",
@@ -483,7 +483,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 						questionId, uuid, allPassed));
 				broadcastScoreChanged(room);
 				// Solo practice has no host: advance once the judged result is
-				// in (never on busy-reject -?the attempt was refunded, the
+				// in (never on busy-reject - the attempt was refunded, the
 				// round must stay open for the retry).
 				if (GameRoom.GameMode.PRACTICE.equals(room.getGameMode())) {
 					transitionToReview(pin);
@@ -513,7 +513,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 							room.refundAttempt(questionId, playerUuid);
 							Player current = room.getPlayer(playerUuid);
 							ws.send(current == null ? null : current.getSessionId(), new ErrorMessage("ERROR",
-									"Judge queue is busy -?resubmit shortly (auto-retry in 250ms)"));
+									"Judge queue is busy - resubmit shortly (auto-retry in 250ms)"));
 						}
 					}
 				});
@@ -549,7 +549,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		GameRoom room = require(pin);
 		if (!"ACTIVE".equals(room.getStatus()))
 			return;
-		// ponytail: total cap +300s over the original deadline -?repeated
+		// ponytail: total cap +300s over the original deadline - repeated
 		// +time calls previously grew the round without bound.
 		long base = room.getQuestionEndBaseEpochMs();
 		if (base <= 0)
@@ -939,7 +939,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
 	/**
 	 * Display candidates for the review answer key (option texts, sortable lines);
-	 * null when the type has none. Parsed defensively -?a ragged config must never
+	 * null when the type has none. Parsed defensively - a ragged config must never
 	 * break the end-of-game review.
 	 */
 	private static List<String> displayOptions(JsonNode config) {
@@ -1185,8 +1185,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
 	/**
 	 * Score-driven board updates. Host-led live modes (STANDARD/TEAM/BATTLE/
-	 * AUTO_PILOT) freeze the public board mid-round -?deltas accumulate in the
-	 * ledger and flush at review -?while each player still gets instant per-player
+	 * AUTO_PILOT) freeze the public board mid-round - deltas accumulate in the
+	 * ledger and flush at review - while each player still gets instant per-player
 	 * feedback via SUBMISSION_RESULT. PRACTICE/EXAM keep the historical live-board
 	 * behavior.
 	 */

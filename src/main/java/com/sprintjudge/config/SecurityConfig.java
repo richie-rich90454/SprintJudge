@@ -48,7 +48,7 @@ public class SecurityConfig {
 				throw new IllegalStateException("Refusing to boot in prod with the default admin password; "
 						+ "set SPRINTJUDGE_ADMIN_PASSWORD");
 			}
-			log.warn("Using default admin password -?set sprintjudge.admin.password environment variable!");
+			log.warn("Using default admin password - set sprintjudge.admin.password environment variable!");
 		}
 		org.springframework.security.core.userdetails.UserDetails admin = User.builder().username(adminUsername)
 				.password(passwordEncoder().encode(adminPassword)).roles("ADMIN").build();

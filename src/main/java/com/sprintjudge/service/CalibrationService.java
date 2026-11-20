@@ -14,7 +14,7 @@ import java.util.Map;
  * Derives per-question difficulty statistics from real submissions. Difficulty
  * ({@code pValue}) is the mean correctness rate; discrimination is a
  * temporal-split proxy (early-half correct rate minus late-half correct rate by
- * {@code submitted_at} ordering, clamped to [-1, 1]) -?deliberately NOT
+ * {@code submitted_at} ordering, clamped to [-1, 1]) - deliberately NOT
  * point-biserial, which would require per-player ability scores.
  */
 @Service

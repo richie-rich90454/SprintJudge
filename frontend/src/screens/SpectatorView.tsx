@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link, useParams } from "@tanstack/react-router";
 import { HostStage } from "../components/host/HostStage";
+import { AboutDialog } from "../components/AboutDialog";
 import { useGameStore } from "../stores/useGameStore";
 import { useJoinUrl } from "../hooks/useJoinUrl";
 
@@ -25,7 +26,10 @@ export function SpectatorView() {
 
     if (!room) {
         return (
-            <div className="pattern-exam flex min-h-[100dvh] items-center justify-center p-6">
+            <div className="pattern-exam relative flex min-h-[100dvh] items-center justify-center p-6">
+                <div className="absolute right-4 top-4">
+                    <AboutDialog />
+                </div>
                 <div className="text-center">
                     <p className="label-caps mb-2">Projector</p>
                     <p className="text-[var(--oq-ink-soft)]">Connecting to room {pin}…</p>
@@ -45,7 +49,10 @@ export function SpectatorView() {
     }
 
     return (
-        <div className="pattern-exam min-h-[100dvh] p-4 md:p-8">
+        <div className="pattern-exam relative min-h-[100dvh] p-4 md:p-8">
+            <div className="absolute right-4 top-4">
+                <AboutDialog />
+            </div>
             <HostStage pin={pin} joinUrl={joinUrl} projector />
             <p className="mt-4 text-center font-mono text-xs text-[var(--oq-ink-soft)]">
                 Projector view. Read only.

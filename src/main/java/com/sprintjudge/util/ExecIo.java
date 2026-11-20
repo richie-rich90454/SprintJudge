@@ -109,7 +109,7 @@ public final class ExecIo {
 					if (Files.size(outputFile) > STDOUT_CAP_BYTES)
 						return WaitOutcome.TOO_BIG;
 				} catch (IOException ignored) {
-					// Not created yet -?keep waiting.
+					// Not created yet - keep waiting.
 				}
 			}
 		} catch (InterruptedException e) {

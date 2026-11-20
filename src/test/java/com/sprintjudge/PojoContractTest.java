@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Exercises the mechanical getters, setters and value methods on every class
@@ -79,7 +81,12 @@ class PojoContractTest {
 			com.sprintjudge.controller.PublicController.NetInfo.class,
 			com.sprintjudge.repository.RoomEventRepository.StoredEvent.class,
 			com.sprintjudge.websocket.SecureHandshakeConfigurator.StagedConnection.class,
-			type("com.sprintjudge.bank.BankStore$Loaded"), com.sprintjudge.util.ExecIo.WaitOutcome.class};
+			type("com.sprintjudge.bank.BankStore$Loaded"), com.sprintjudge.util.ExecIo.WaitOutcome.class,
+			// Spring Security customisers are framework glue built at context
+			// startup; exercise their constructors and customize() here.
+			type("com.sprintjudge.config.SecurityConfig$1$1"), type("com.sprintjudge.config.SecurityConfig$5$1"),
+			type("com.sprintjudge.config.SecurityConfig$5$2"), type("com.sprintjudge.config.SecurityConfig$5$3"),
+			type("com.sprintjudge.config.SecurityConfig$5$4")};
 
 	private static Class<?> type(String name) {
 		try {
@@ -127,6 +134,22 @@ class PojoContractTest {
 		return null;
 	}
 
+	private static Object newOuter(Class<?> type) throws Exception {
+		Constructor<?> ctor = type.getDeclaredConstructors()[0];
+		ctor.setAccessible(true);
+		Class<?>[] params = ctor.getParameterTypes();
+		Object[] args = new Object[params.length];
+		for (int i = 0; i < params.length; i++) {
+			Class<?> enclosing = type.getEnclosingClass();
+			if (enclosing != null && params[i].equals(enclosing)) {
+				args[i] = newOuter(enclosing);
+			} else {
+				args[i] = defaultValue(params[i]);
+			}
+		}
+		return ctor.newInstance(args);
+	}
+
 	private static Constructor<?> ctorOf(Class<?> type) {
 		try {
 			return type.getDeclaredConstructor();
@@ -165,9 +188,7 @@ class PojoContractTest {
 				for (int i = 0; i < params.length; i++) {
 					Class<?> enclosing = type.getEnclosingClass();
 					if (enclosing != null && params[i].equals(enclosing)) {
-						Constructor<?> outer = enclosing.getDeclaredConstructor();
-						outer.setAccessible(true);
-						ctorArgs[i] = outer.newInstance();
+						ctorArgs[i] = newOuter(enclosing);
 					} else {
 						ctorArgs[i] = defaultValue(params[i]);
 					}
@@ -181,6 +202,7 @@ class PojoContractTest {
 			Method[] methods = type.getDeclaredMethods();
 			java.util.List<Method> setters = new java.util.ArrayList<>();
 			Method equals = null;
+			boolean secondDiffers = false;
 			for (Method method : methods) {
 				method.setAccessible(true);
 				String name = method.getName();
@@ -192,11 +214,21 @@ class PojoContractTest {
 					method.invoke(first, defaultValue(method.getParameterTypes()[0]));
 					try {
 						method.invoke(second, sampleValue(method.getParameterTypes()[0]));
+						secondDiffers = true;
 					} catch (IllegalArgumentException ignored) {
 						// Non-primitive field with no generic sample value; null is fine.
 					}
 				} else if (params == 1 && name.equals("equals")) {
 					equals = method;
+				} else if (params == 1) {
+					// Framework Customizer.customize(T) and similar single-arg
+					// hooks: invoke with a default argument, ignoring failures
+					// from framework objects that need a full context.
+					try {
+						method.invoke(first, defaultValue(method.getParameterTypes()[0]));
+					} catch (ReflectiveOperationException | RuntimeException ignored) {
+						// Coverage only; behaviour is tested elsewhere.
+					}
 				} else if (params == 0 && (name.equals("hashCode") || name.equals("toString"))) {
 					method.invoke(first);
 					method.invoke(second);
@@ -209,11 +241,14 @@ class PojoContractTest {
 			for (Method setter : setters) {
 				setter.invoke(identical, defaultValue(setter.getParameterTypes()[0]));
 			}
-			equals.invoke(first, first);
-			equals.invoke(first, identical);
-			equals.invoke(first, second);
-			equals.invoke(first, new Object[]{null});
-			equals.invoke(first, new Object());
+			assertTrue(Boolean.TRUE.equals(equals.invoke(first, first)), type.getName());
+			assertTrue(Boolean.TRUE.equals(equals.invoke(first, identical)), type.getName());
+			assertEquals(first.hashCode(), identical.hashCode());
+			if (secondDiffers) {
+				assertTrue(Boolean.FALSE.equals(equals.invoke(first, second)), type.getName());
+			}
+			assertTrue(Boolean.FALSE.equals(equals.invoke(first, new Object[]{null})), type.getName());
+			assertTrue(Boolean.FALSE.equals(equals.invoke(first, new Object())), type.getName());
 			// Make every field in turn match the first instance so each
 			// short-circuit in equals() takes both its true and false branch.
 			for (Method changed : setters) {

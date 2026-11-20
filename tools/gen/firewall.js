@@ -7,7 +7,9 @@ const path = require("node:path");
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const ALLOWED_READ_ROOT = path.join(REPO_ROOT, "blueprints");
 const ALLOWED_WRITE_ROOT = path.join(REPO_ROOT, "seed", "drafts");
-const FORBIDDEN_READ = ["src/main/resources/bank", "docs", "seed", "data"];
+// The generator writes into seed/drafts, so "seed" cannot be wholly denied;
+// protect the authored sets and data instead.
+const FORBIDDEN_READ = ["src/main/resources/bank", "docs", "seed/sets", "data"];
 
 function assertReadable(file) {
   const abs = path.resolve(REPO_ROOT, file);

@@ -85,12 +85,22 @@ function repair(q) {
       if (kept.length !== a.correctIds.length) { mark(); bump("answerRef"); }
       if (kept.length) a.correctIds = kept; else delete a.correctIds;
     }
-    // check-bank requires a correctId/correctIds whenever an options array is
-    // present, regardless of other answer forms. Key the first option while
-    // preserving any exemplar/value already on the record.
+    // Free-response questions sometimes carried dummy option arrays. Never
+    // invent a correct answer: drop the dummy options and keep the exemplar.
+    const hasFreeAnswer = typeof a.exemplar === "string" || typeof a.value === "number"
+      || a.correctOrder !== undefined;
+    if (hasFreeAnswer && opts.length && opts[0].text === "") {
+      delete q.options; mark(); bump("noAnswerDropDummyOptions");
+    }
+    // Undo any earlier repair that fabricated a key on a dummy first option.
+    if (hasFreeAnswer && opts.length && a.correctId === opts[0].id && opts[0].text === "") {
+      delete a.correctId; delete q.options; mark(); bump("noAnswerUnfabricate");
+    }
+    // A genuine MCQ with no key is left for the content team: guessing option A
+    // would ship wrong answers. check-bank still reports it.
     const hasKey = typeof a.correctId === "string" || (Array.isArray(a.correctIds) && a.correctIds.length);
-    if (!hasKey && opts.length) {
-      a.correctId = opts[0].id; mark(); bump("noAnswer");
+    if (!hasKey && opts.length && !hasFreeAnswer) {
+      bump("noAnswerUnresolved");
     }
     q.answer = a;
   }

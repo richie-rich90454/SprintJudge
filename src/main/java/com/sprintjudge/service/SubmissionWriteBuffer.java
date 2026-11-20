@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p>
  * Score truth lives in the room's in-memory leaderboard; this only batches the
- * durable audit trail. A crash loses at most one flush window of history -? *
+ * durable audit trail. A crash loses at most one flush window of history - *
  * never correctness of live rankings. Round boundaries call {@link #flush()}
  * synchronously so results screens are always fully persisted.
  */
@@ -72,12 +72,12 @@ public class SubmissionWriteBuffer {
 		offered.incrementAndGet();
 		boolean accepted = queue.offer(s);
 		if (!accepted) {
-			log.warn("Write buffer full ({} queued) -?submission audit row dropped", queue.size());
+			log.warn("Write buffer full ({} queued) - submission audit row dropped", queue.size());
 		}
 		return accepted;
 	}
 
-	/** Synchronous drain -?used at accuracy boundaries (force-submit, game end). */
+	/** Synchronous drain - used at accuracy boundaries (force-submit, game end). */
 	public synchronized int flush() {
 		if (queue.isEmpty())
 			return 0;
@@ -91,7 +91,7 @@ public class SubmissionWriteBuffer {
 			// rather than silently; live rankings stay correct either way.
 			for (Submission s : batch) {
 				if (!queue.offer(s)) {
-					log.warn("Write buffer full -?dropped {} submissions on DB failure",
+					log.warn("Write buffer full - dropped {} submissions on DB failure",
 							batch.size() - batch.indexOf(s));
 					break;
 				}

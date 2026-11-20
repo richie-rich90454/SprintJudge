@@ -18,8 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * AI grading service for coding submissions. Supports two providers:
  * <ul>
- * <li>{@code openai} -?any OpenAI-compatible API (cloud or local)</li>
- * <li>{@code llamacpp} -?local llama.cpp server with OpenAI-compatible
+ * <li>{@code openai} - any OpenAI-compatible API (cloud or local)</li>
+ * <li>{@code llamacpp} - local llama.cpp server with OpenAI-compatible
  * endpoint</li>
  * </ul>
  * Configured via {@code sprintjudge.ai.*} properties. When disabled or
@@ -197,7 +197,7 @@ public class AiGradingService {
 				sb.append(String.format("%02x", b));
 			return sb.toString();
 		} catch (NoSuchAlgorithmException e) {
-			// SHA-256 is required by every JVM -?unreachable
+			// SHA-256 is required by every JVM - unreachable
 			throw new IllegalStateException(e);
 		}
 	}

@@ -28,7 +28,7 @@ class ExecutorCommandMappingTest {
 		assertEquals("/usr/bin/nsjail", cmd.get(0));
 		assertTrue(cmd.contains("--chroot"));
 		assertTrue(cmd.contains("--read_only"));
-		assertTrue(cmd.contains("--proc_rw"));
+		assertTrue(cmd.contains("--disable_proc"));
 	}
 
 	@Test

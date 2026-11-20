@@ -65,7 +65,7 @@ public class ImportExportService {
 			throw new IllegalArgumentException("Import too large: max 200 quizzes");
 		}
 		if (replace && bundle.getQuizzes().isEmpty()) {
-			throw new IllegalArgumentException("Replace import requires at least one quiz -?refusing to wipe the bank");
+			throw new IllegalArgumentException("Replace import requires at least one quiz - refusing to wipe the bank");
 		}
 		// Validate EVERYTHING before any delete so @Transactional atomicity is
 		// honest: a bad row never wipes good data (even via rollback).
@@ -139,7 +139,7 @@ public class ImportExportService {
 					throw new IllegalArgumentException("Invalid import bundle: duplicate quiz id " + quizId);
 				}
 				if (!replace && quizRepository.findById(quizId).isPresent()) {
-					throw new IllegalArgumentException("Import would overwrite quiz " + quizId + " -?use replace mode");
+					throw new IllegalArgumentException("Import would overwrite quiz " + quizId + " - use replace mode");
 				}
 			}
 			List<ExportBundle.QuestionExport> exports = qe.getQuestions() == null ? List.of() : qe.getQuestions();
@@ -151,7 +151,7 @@ public class ImportExportService {
 					}
 					if (!replace && questionRepository.findById(qid).isPresent()) {
 						throw new IllegalArgumentException(
-								"Import would overwrite question " + qid + " -?use replace mode");
+								"Import would overwrite question " + qid + " - use replace mode");
 					}
 				}
 			}

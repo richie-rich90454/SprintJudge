@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Deliberately minimal public surface. Question payloads (which embed answer
- * keys in their config) are NEVER exposed here -?they are admin-only, so a
+ * keys in their config) are NEVER exposed here - they are admin-only, so a
  * player cannot fetch correct answers before a round.
  */
 @RestController
@@ -107,7 +107,7 @@ public class PublicController {
 
 	/**
 	 * PIN-scoped quiz preview for the join flow. The full bank is never listed
-	 * anonymously -?without a live PIN there is nothing to see.
+	 * anonymously - without a live PIN there is nothing to see.
 	 */
 	@GetMapping("/quizzes")
 	public List<Quiz> listQuizzes(@RequestParam(value = "pin", required = false) String pin) {
@@ -128,7 +128,7 @@ public class PublicController {
 	/**
 	 * Public question-bank headers for the library and the practice picker.
 	 * Answer-free by construction: correct answers live in question configs, which
-	 * are never exposed here -?only id/title/description cross the wire.
+	 * are never exposed here - only id/title/description cross the wire.
 	 */
 	@GetMapping("/banks")
 	public List<BankDto> banks() {
@@ -306,7 +306,7 @@ public class PublicController {
 	/**
 	 * One-click solo practice. Spins up a PRACTICE-mode room on the chosen bank (or
 	 * the practice set: first template quiz, else first quiz) with a server-side
-	 * practice host -?no admin session involved, so players never touch /admin. The
+	 * practice host - no admin session involved, so players never touch /admin. The
 	 * first join auto-starts Q1; empty banks 404.
 	 */
 	@PostMapping("/practice")

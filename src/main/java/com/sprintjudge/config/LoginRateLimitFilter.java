@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Fixed-window throttle on the form-login endpoint: brute-forcing the single
  * admin password must get progressively useless, not silently unlimited. Uses
- * the TCP peer address (what nginx actually connected from) -?never
+ * the TCP peer address (what nginx actually connected from) - never
  * X-Forwarded-For, which is spoofable when the jar is exposed directly.
  */
 @Component

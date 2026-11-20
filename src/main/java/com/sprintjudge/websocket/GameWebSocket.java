@@ -34,7 +34,7 @@ public class GameWebSocket {
 	private static final String IP_KEY = SecureHandshakeConfigurator.REMOTE_ADDR;
 
 	/**
-	 * Whitelist -?also prevents script-path traversal via a crafted language value.
+	 * Whitelist - also prevents script-path traversal via a crafted language value.
 	 */
 	private static final Set<String> LANGUAGES = Set.of("c", "cpp", "java", "node", "python");
 	private static final int MAX_SOURCE_CHARS = 65_536;
@@ -213,7 +213,7 @@ public class GameWebSocket {
 		String rejoinToken = msg.path("rejoinToken").asText(null);
 		try {
 			com.sprintjudge.service.Player player = roomManager.join(pin, name, session.getId(), role, rejoinToken);
-			// ponytail: only leave old room AFTER new join succeeds AND pin changed -? //
+			// ponytail: only leave old room AFTER new join succeeds AND pin changed - //
 			// the old code left before join, so a failed join destroyed
 			// the player's seat in the previous room.
 			if (prevPin != null && prevUuid != null && !prevPin.equals(pin)) {
@@ -328,7 +328,7 @@ public class GameWebSocket {
 	public void onError(Session session, Throwable error) {
 		org.slf4j.LoggerFactory.getLogger(GameWebSocket.class).warn("WebSocket error on session {}", idOf(session),
 				error);
-		// Some containers don't call onClose after onError -?ensure cleanup.
+		// Some containers don't call onClose after onError - ensure cleanup.
 		onClose(session);
 	}
 

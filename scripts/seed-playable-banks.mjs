@@ -5,9 +5,13 @@
 import fs from "node:fs";
 
 const BASE = process.argv[2] ?? "http://127.0.0.1:8080";
-const SETS = Number(process.argv[3] ?? 3);
+const SETS = Number(process.argv[3] ?? 2);
 const USER = process.env.SPRINTJUDGE_ADMIN_USERNAME ?? "admin";
-const PASS = process.env.SPRINTJUDGE_ADMIN_PASSWORD ?? "ci-admin-password";
+const PASS = process.env.SPRINTJUDGE_ADMIN_PASSWORD ?? (process.env.CI === "true" ? "ci-admin-password" : "");
+if (!PASS) {
+    console.error("seed: set SPRINTJUDGE_ADMIN_PASSWORD before running outside CI");
+    process.exit(1);
+}
 
 const schema = JSON.parse(fs.readFileSync("contracts/question-schema.json", "utf8"));
 const subjects = schema.properties.subject.enum;
