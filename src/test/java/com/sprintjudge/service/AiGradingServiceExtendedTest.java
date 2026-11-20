@@ -48,6 +48,20 @@ class AiGradingServiceExtendedTest {
 	}
 
 	@Test
+	void httpClientIsCreatedLazilyAndReused() throws Exception {
+		AiGradingService svc = new AiGradingService();
+		Field f = AiGradingService.class.getDeclaredField("http");
+		f.setAccessible(true);
+		assertNull(f.get(svc));
+		Method client = AiGradingService.class.getDeclaredMethod("client");
+		client.setAccessible(true);
+		Object first = client.invoke(svc);
+		Object second = client.invoke(svc);
+		assertSame(first, second);
+		assertSame(first, f.get(svc));
+	}
+
+	@Test
 	void defaultsAreDisabled() {
 		AiGradingService svc = new AiGradingService();
 		assertFalse(svc.isEnabled());

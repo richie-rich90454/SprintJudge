@@ -48,7 +48,16 @@ public class AiGradingService {
 	@Value("${sprintjudge.ai.timeout-sec:30}")
 	private int timeoutSec;
 
-	private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+	// Built lazily: constructing an HttpClient initialises the JSSE trust store,
+	// which is unavailable in some minimal CI images even when AI grading is off.
+	private volatile HttpClient http;
+
+	private synchronized HttpClient client() {
+		if (http == null) {
+			http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+		}
+		return http;
+	}
 
 	private static final int MAX_CACHE_SIZE = 500;
 
@@ -164,7 +173,7 @@ public class AiGradingService {
 		}
 
 		req.POST(HttpRequest.BodyPublishers.ofString(body));
-		HttpResponse<String> resp = http.send(req.build(), HttpResponse.BodyHandlers.ofString());
+		HttpResponse<String> resp = client().send(req.build(), HttpResponse.BodyHandlers.ofString());
 		return resp.body();
 	}
 

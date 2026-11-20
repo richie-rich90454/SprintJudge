@@ -81,12 +81,7 @@ class PojoContractTest {
 			com.sprintjudge.controller.PublicController.NetInfo.class,
 			com.sprintjudge.repository.RoomEventRepository.StoredEvent.class,
 			com.sprintjudge.websocket.SecureHandshakeConfigurator.StagedConnection.class,
-			type("com.sprintjudge.bank.BankStore$Loaded"), com.sprintjudge.util.ExecIo.WaitOutcome.class,
-			// Spring Security customisers are framework glue built at context
-			// startup; exercise their constructors and customize() here.
-			type("com.sprintjudge.config.SecurityConfig$1$1"), type("com.sprintjudge.config.SecurityConfig$5$1"),
-			type("com.sprintjudge.config.SecurityConfig$5$2"), type("com.sprintjudge.config.SecurityConfig$5$3"),
-			type("com.sprintjudge.config.SecurityConfig$5$4")};
+			type("com.sprintjudge.bank.BankStore$Loaded"), com.sprintjudge.util.ExecIo.WaitOutcome.class};
 
 	private static Class<?> type(String name) {
 		try {

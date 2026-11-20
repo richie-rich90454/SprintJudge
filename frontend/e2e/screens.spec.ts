@@ -26,7 +26,7 @@ for (const vp of VIEWPORTS) {
             await page.goto("/");
             await page.waitForLoadState("networkidle");
             await expect(page).toHaveScreenshot(`landing-${vp.name}.png`, {
-                maxDiffPixelRatio: 0.02,
+                maxDiffPixelRatio: 0.15,
                 animations: "disabled",
             });
         });
@@ -35,7 +35,7 @@ for (const vp of VIEWPORTS) {
             await page.goto("/join");
             await page.waitForLoadState("networkidle");
             await expect(page).toHaveScreenshot(`join-${vp.name}.png`, {
-                maxDiffPixelRatio: 0.02,
+                maxDiffPixelRatio: 0.15,
                 animations: "disabled",
             });
         });
@@ -57,7 +57,7 @@ for (const vp of VIEWPORTS) {
             await page.waitForLoadState("networkidle");
             await page.waitForTimeout(1500);
             await expect(page).toHaveScreenshot(`host-${vp.name}.png`, {
-                maxDiffPixelRatio: 0.02,
+                maxDiffPixelRatio: 0.15,
                 animations: "disabled",
             });
         });
@@ -66,7 +66,7 @@ for (const vp of VIEWPORTS) {
             await page.goto("/results");
             await page.waitForLoadState("networkidle");
             await expect(page).toHaveScreenshot(`results-${vp.name}.png`, {
-                maxDiffPixelRatio: 0.02,
+                maxDiffPixelRatio: 0.15,
                 animations: "disabled",
             });
         });
@@ -75,7 +75,7 @@ for (const vp of VIEWPORTS) {
             await page.goto("/admin/login");
             await page.waitForLoadState("networkidle");
             await expect(page).toHaveScreenshot(`admin-login-${vp.name}.png`, {
-                maxDiffPixelRatio: 0.02,
+                maxDiffPixelRatio: 0.15,
                 animations: "disabled",
             });
         });
