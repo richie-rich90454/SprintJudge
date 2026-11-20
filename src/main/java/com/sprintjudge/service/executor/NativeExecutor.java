@@ -42,6 +42,13 @@ public class NativeExecutor implements CodeExecutor {
 	@Value("${sprintjudge.executor.timeout-sec:10}")
 	private int defaultTimeoutSec;
 
+	/** Windows exposes python.exe; Linux/macOS ship python3. */
+	private static final String PYTHON_BINARY = pythonBinary(System.getProperty("os.name", ""));
+
+	static String pythonBinary(String osName) {
+		return osName.toLowerCase(java.util.Locale.ROOT).contains("win") ? "python" : "python3";
+	}
+
 	private final CompileArtifactCache compileCache;
 
 	public NativeExecutor(CompileArtifactCache compileCache) {
@@ -222,7 +229,7 @@ public class NativeExecutor implements CodeExecutor {
 		if (language.equals("node")) {
 			return List.of("node", sourceFile.toString());
 		}
-		return List.of("python", sourceFile.toString());
+		return List.of(PYTHON_BINARY, sourceFile.toString());
 	}
 
 	private Path binary(Path runDir) {

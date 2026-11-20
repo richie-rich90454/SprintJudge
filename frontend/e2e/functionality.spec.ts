@@ -121,6 +121,36 @@ test.describe("functionality", () => {
         }
     });
 
+    test("native executor runs every supported language without WSL", async ({ request }) => {
+        const cases: { language: string; sourceCode: string; expected: string }[] = [
+            { language: "python", sourceCode: "print('py-ok')", expected: "py-ok" },
+            { language: "node", sourceCode: "console.log('node-ok')", expected: "node-ok" },
+            {
+                language: "java",
+                sourceCode:
+                    'public class Main { public static void main(String[] a){ System.out.println("java-ok"); } }',
+                expected: "java-ok",
+            },
+            {
+                language: "c",
+                sourceCode: '#include <stdio.h>\nint main(){printf("c-ok\\n");return 0;}',
+                expected: "c-ok",
+            },
+            {
+                language: "cpp",
+                sourceCode: '#include <iostream>\nint main(){std::cout << "cpp-ok" << std::endl;}',
+                expected: "cpp-ok",
+            },
+        ];
+        for (const item of cases) {
+            const response = await request.post(`${B}/api/public/run`, { data: item });
+            expect(response.ok(), `${item.language} run failed`).toBeTruthy();
+            const result = (await response.json()) as { ok: boolean; output: string };
+            expect(result.ok, `${item.language} did not succeed`).toBeTruthy();
+            expect(result.output.trim(), `${item.language} output`).toBe(item.expected);
+        }
+    });
+
     test("all six game modes can be created and hosted", async ({ page }) => {
         await login(page);
         const quizId = await page.evaluate(async (base) => {

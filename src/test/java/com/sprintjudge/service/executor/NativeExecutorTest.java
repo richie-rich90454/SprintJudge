@@ -705,6 +705,12 @@ class NativeExecutorTest {
 	}
 
 	@Test
+	void pythonBinaryMatchesPlatform() {
+		assertEquals("python", NativeExecutor.pythonBinary("Windows 11"));
+		assertEquals("python3", NativeExecutor.pythonBinary("Linux"));
+	}
+
+	@Test
 	@SuppressWarnings("unchecked")
 	void runCommandShapes(@TempDir Path tmp) throws Exception {
 		NativeExecutor ex = executor(tmp, tmp, 5);
@@ -712,7 +718,8 @@ class NativeExecutorTest {
 		m.setAccessible(true);
 		Path src = tmp.resolve("solution.py");
 		List<String> py = (List<String>) m.invoke(ex, "python", src, tmp);
-		assertEquals(List.of("python", src.toString()), py);
+		assertTrue(py.get(0).equals("python") || py.get(0).equals("python3"), py.get(0));
+		assertEquals(src.toString(), py.get(1));
 		List<String> node = (List<String>) m.invoke(ex, "node", src, tmp);
 		assertEquals("node", node.get(0));
 		List<String> java = (List<String>) m.invoke(ex, "java", tmp.resolve("Main.java"), tmp);

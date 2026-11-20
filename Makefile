@@ -1,4 +1,5 @@
-# SprintJudge — GNU Make workflows (run from git-bash / WSL / Linux / macOS).
+# SprintJudge — GNU Make workflows. On Windows, run from Git Bash/MSYS2 (a
+# POSIX shell); no WSL is needed. Linux/macOS use the shell directly.
 #
 #   make [tab]            list targets grouped by section
 #   make run              production single-jar launch (BUILD=1 rebuilds first)
@@ -89,7 +90,7 @@ build-frontend: ## Build the SPA only.
 
 .PHONY: package
 package: ## SPA + fat jar (SKIP_FRONTEND=1 skips the SPA).
-	@pkill -f 'sprintjudge\.jar' 2>/dev/null && sleep 1 || true
+	@if command -v pkill >/dev/null 2>&1; then pkill -f 'sprintjudge\.jar' 2>/dev/null && sleep 1 || true; fi
 	@if [ "$(SKIP_FRONTEND)" != "1" ]; then $(MAKE) build-frontend; fi
 	$(MVNW) -q clean package -DskipTests
 	@test -f $(JAR) || (echo "BUILD INCOMPLETE: $(JAR) missing"; exit 1)
@@ -138,10 +139,10 @@ verify-prod: ## Boot prod jar on :8091 and probe health (PORT=, SKIP_BUILD=1).
 	@if [ "$(SKIP_BUILD)" != "1" ]; then $(MAKE) package; fi
 	@echo "Booting prod jar on :$(VERIFY_PORT) for health checks..."
 	@$(LOAD_ENV); \
-	logdir="$${TMPDIR:-$${TEMP:-/tmp}}"; \
+	logdir="$$(mktemp -d)"; \
 	java -jar $(JAR) --spring.profiles.active=prod --server.port=$(VERIFY_PORT) >"$$logdir/sprintjudge-verify.log" 2>&1 & \
 	pid=$$!; \
-	trap 'kill $$pid 2>/dev/null' EXIT; \
+	trap 'kill $$pid 2>/dev/null; rm -rf "$$logdir"' EXIT; \
 	ok=0; \
 	for i in $$(seq 1 60); do \
 		if curl -fsS http://localhost:$(VERIFY_PORT)/api/public/quizzes >/dev/null 2>&1; then ok=1; break; fi; \

@@ -8,21 +8,23 @@ Type=simple
 User=sprintjudge
 Group=sprintjudge
 WorkingDirectory=/opt/sprintjudge
-# Optional: SPRINTJUDGE_PORT / SPRINTJUDGE_DB_PATH / SPRINTJUDGE_ADMIN_* live
-# here (dash prefix = ignore when absent). CLI flags below always win.
+# SPRINTJUDGE_ADMIN_PASSWORD must be set here (prod refuses the default).
+# Optional: SPRINTJUDGE_PORT, SPRINTJUDGE_CORS_ALLOWED_ORIGINS.
 EnvironmentFile=-/opt/sprintjudge/.env
 
-# Fail fast if the toolchain is missing instead of crash-looping.
+# Fail fast with clear errors instead of crash-looping.
 ExecStartPre=/usr/bin/test -x /usr/bin/java
+# JDK 25 is required; Ubuntu 24.04's default JDK 21 cannot run the jar.
+ExecStartPre=/bin/bash -c '/usr/bin/java -version 2>&1 | head -1 | grep -Eq "version .(2[5-9]|[3-9][0-9])"'
 ExecStartPre=/usr/bin/test -x /usr/bin/nsjail
 
-# BankStore loads answer-free columnar headers (~128m floor); 512m leaves room
-# for large rooms. Raise only if metrics show a need.
 ExecStart=/usr/bin/java -XX:+UseZGC -Xms512m -Xmx512m \
   -XX:+UseStringDeduplication -XX:+PerfDisableSharedMem -XX:+UseCompactObjectHeaders \
   -jar /opt/sprintjudge/sprintjudge.jar \
   --spring.profiles.active=prod \
-  --sprintjudge.executor.mode=nsjail
+  --sprintjudge.db.path=/var/lib/sprintjudge/sprintjudge.db \
+  --sprintjudge.executor.mode=nsjail \
+  --sprintjudge.executor.nsjail-binary=/usr/bin/nsjail
 SuccessExitStatus=143
 Restart=on-failure
 RestartSec=5

@@ -181,3 +181,23 @@ jobs:
           ./mvnw -B -ntp org.owasp:dependency-check-maven:check \
             -DfailBuildOnCVSS=7 -DskipTests -DnvdApiKey=${{ secrets.NVD_API_KEY }} \
             || true
+
+  deploy-config:
+    name: Deploy configuration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax and stray-marker check
+        run: |
+          bash -n deploy/*.sh scripts/*.sh executor/compile-scripts/*.sh
+          if grep -R -n '^EOF$' deploy/ scripts/; then
+            echo "deploy-config: stray EOF marker in a config file" >&2
+            exit 1
+          fi
+      - name: systemd unit syntax (when available)
+        run: |
+          if command -v systemd-analyze >/dev/null 2>&1; then
+            systemd-analyze verify deploy/sprintjudge.service || true
+          else
+            echo "systemd-analyze unavailable; skipped"
+          fi

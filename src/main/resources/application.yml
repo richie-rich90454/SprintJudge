@@ -22,17 +22,19 @@ sprintjudge:
   db:
     path: ./database/sprintjudge.db
   cors:
-    # Same-origin by default (Vite dev proxy). Set explicit origins in production.
-    allowed-origins: "http://localhost:5173"
+    # Same-origin by default (Vite dev proxy and the production jar both use
+    # /api on their own origin). Set explicit origins only if the UI is served
+    # from a different host.
+    allowed-origins: ${SPRINTJUDGE_CORS_ALLOWED_ORIGINS:}
   admin:
     username: ${SPRINTJUDGE_ADMIN_USERNAME:admin}
     password: ${SPRINTJUDGE_ADMIN_PASSWORD:changeme}
   executor:
     # Single source of truth: SPRINTJUDGE_EXECUTOR_MODE (the systemd unit pins
-    # nsjail in production). Values below are fallbacks, not overrides.
-    # "native" (Windows dev + Windows prod) | "wsl" (Windows dev, WSL2 isolation)
-    # | "nsjail" (Linux production) | "auto" count below.
-    mode: ${SPRINTJUDGE_EXECUTOR_MODE:wsl}
+    # nsjail on Linux). "native" runs local toolchains directly with no WSL and
+    # no extra runtime; "nsjail" is the Linux sandbox. No WSL mode is required
+    # by the default deployment.
+    mode: ${SPRINTJUDGE_EXECUTOR_MODE:native}
     max-concurrent: auto        # or a number; "auto" = cores x concurrency-factor
     concurrency-factor: 8       # floor 8, cap 512
     timeout-sec: 10

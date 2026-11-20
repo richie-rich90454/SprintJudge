@@ -27,8 +27,14 @@ format specifications, see the [documentation site](#testing--documentation).
 
 ## Quick start
 
-Prerequisites: JDK 25, Maven 3.9+ (`./mvnw` wrapper included), Node.js 20+,
-GNU Make.
+Prerequisites: JDK 25, Node.js 20+, GNU Make, and a POSIX shell (Git Bash or
+MSYS2 on Windows). Maven is not installed globally: use the included `./mvnw`
+wrapper. Frontend packages are local (`npm ci`), so no global npm installs are
+needed. For the code judge, `gcc`/`g++`/`javac`/`java`/`node` and `python3` (or
+`python`) must be on PATH; Windows native dev needs no WSL.
+
+Production Linux needs JDK 25, nginx, nsjail at `/usr/bin/nsjail`, curl, python3
+and sqlite3. See [docs/deployment.md](docs/deployment.md).
 
 ```bash
 make check-env          # audit toolchain
@@ -78,37 +84,37 @@ All runtime knobs are plain environment variables:
 | Variable | Purpose |
 |----------|---------|
 | `SPRINTJUDGE_DB_PATH` | SQLite database location (parent dirs are created automatically) |
-| `SPRINTJUDGE_EXECUTOR_MODE` | Judge isolation strategy: `native`, `wsl`, or `nsjail` |
+| `SPRINTJUDGE_EXECUTOR_MODE` | Judge strategy: `native` (local toolchains, no WSL) or `nsjail` (Linux sandbox) |
 | `SPRINTJUDGE_PORT` | HTTP listen port (prod profile) |
 | `SPRINTJUDGE_ADMIN_USERNAME` / `SPRINTJUDGE_ADMIN_PASSWORD` | Admin sign-in. Production refuses to boot with the default password. |
 | `SPRINTJUDGE_COOKIE_SECURE` | Secure session cookies (default `true` in prod; set `false` only for plain-HTTP LAN use) |
 | `SPRINTJUDGE_CORS_ALLOWED_ORIGINS` | Comma-separated origins when the UI is served from another host |
 | `SPRINTJUDGE_AI_*` | Optional OpenAI-compatible AI grading (disabled by default) |
 
-A `.env` file sitting next to the jar (or at the project root under Maven) is loaded
-automatically — copy [.env.example](.env.example) as a starting point. Real OS
-environment variables always take precedence over `.env` values.
+`.env` is loaded by `make` and by the systemd unit (`EnvironmentFile`), not by a
+plain `java -jar`. Copy [.env.example](.env.example) and pass values as environment
+variables or CLI flags when launching the jar directly. Real OS environment
+variables always take precedence over `.env` values.
 
 Admins sign in with a local account (form login on `/admin/login`); players never
 create accounts. Set a strong `SPRINTJUDGE_ADMIN_PASSWORD` before deploying.
 
 ## Security overview
 
-- **Room authorization.** Host-only commands require an authenticated OAuth2 session
+- **Room authorization.** Host-only commands require an authenticated admin session
   bound at the WebSocket upgrade plus an explicit host-role join; one host per room.
 - **Test-case secrecy.** Hidden test cases and answer keys live exclusively behind
   admin-authenticated endpoints — the public surface can never leak them.
 - **Input hardening.** Bean validation on REST DTOs, schema-checked WebSocket messages,
   whitelisted player nicknames, source-size caps, and language allowlists.
 - **Process isolation modes.**
-  - `native` — direct toolchain execution; fastest setup for development and Windows hosts.
-  - `wsl` — judge runs inside a separate Linux VM on Windows development machines.
-  - `nsjail` — chroot + rlimit sandboxing; always use this on Linux production.
+  - `native` — direct local toolchains (`gcc`, `g++`, `javac`, `java`, `node`, `python3` or `python`); no WSL, no extra runtime. Default for Windows dev.
+  - `nsjail` — chroot + rlimit sandboxing; always use this on Linux production. Requires `/usr/bin/nsjail`.
 
 ## Testing & documentation
 
 ```bash
-mvn test                       # backend suite (unit + concurrency + security)
+./mvnw test                    # backend suite (no global Maven install)
 cd frontend
 npx playwright install         # once; then:
 npm run test:e2e               # browser end-to-end specs

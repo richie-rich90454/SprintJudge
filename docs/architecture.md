@@ -24,7 +24,7 @@ flowchart TB
         EV["EvaluationService<br/>per-type correctness"]
         SC["ScoringEngine<br/>decay + attempts"]
         SP["SubmissionProcessor<br/>Semaphore(100)"]
-        EXC["CodeExecutor<br/>nsjail / WSL2 / native"]
+        EXC["CodeExecutor<br/>nsjail / native"]
         IE2["ImportExportService"]
         AS2["AdminSettingsService"]
     end
@@ -132,9 +132,8 @@ flowchart LR
 
 | Mode | Where | Isolation | Use when |
 |------|-------|-----------|----------|
-| `native` | Windows/Linux dev | None (dev only) | Fastest setup; toolchains on PATH |
-| `wsl` | Windows dev | Separate Linux VM | Parity with production scripts |
-| `nsjail` | Linux production | chroot + rlimits | Always, in production |
+| `native` | Windows/Linux dev (and Windows prod) | None | Fastest setup; toolchains on PATH, no WSL |
+| `nsjail` | Linux production | chroot + rlimits | Always, in production; `/usr/bin/nsjail` |
 
 ## Hard budgets (single source: code defaults)
 
