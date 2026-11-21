@@ -10,6 +10,7 @@ import { MotionToggle } from "../components/MotionToggle";
 import { AboutDialog } from "../components/AboutDialog";
 import { useCountUp } from "../motion/useStageMotion";
 import { GameReview } from "../types";
+import { adminApi } from "../services/AdminApiService";
 
 type ReviewTab = "podium" | "answers" | "students" | "teams" | "analysis";
 
@@ -69,19 +70,12 @@ export function ResultView() {
             if (!rec.subject || !rec.unit || rec.count <= 0) {
                 throw new Error("no bank match");
             }
-            const buildRes = await fetch("/api/admin/bank/build", {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    subject: rec.subject,
-                    unit: rec.unit,
-                    count: Math.min(10, rec.count),
-                    title: `Practice: ${rec.topic || rec.unit}`,
-                }),
+            const built = await adminApi.buildBankQuiz({
+                subject: rec.subject,
+                unit: rec.unit,
+                count: Math.min(10, rec.count),
+                title: `Practice: ${rec.topic || rec.unit}`,
             });
-            if (!buildRes.ok) throw new Error("build failed");
-            const built = (await buildRes.json()) as { quizId: string };
             setPracticeQuizId(built.quizId);
         } catch {
             setPracticeError("Could not build a practice quiz. Sign in as admin and retry.");

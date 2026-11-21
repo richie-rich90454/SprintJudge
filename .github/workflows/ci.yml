@@ -16,6 +16,7 @@ jobs:
   backend:
     # Several executor tests drive `cmd` directly and are Windows-only.
     runs-on: windows-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -38,6 +39,7 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -87,7 +89,8 @@ jobs:
       - name: Package and start the backend
         run: |
           ./mvnw -B -DskipTests package > package.log 2>&1
-          java -jar target/sprintjudge.jar --spring.profiles.active=prod --server.port=8080 > backend.log 2>&1 &
+          java -jar target/sprintjudge.jar --spring.profiles.active=prod --server.port=8080 \
+            --sprintjudge.executor.public-run=true > backend.log 2>&1 &
           for i in $(seq 1 120); do
             if curl -fsS http://localhost:8080/actuator/health > /dev/null; then exit 0; fi
             sleep 2
@@ -179,21 +182,25 @@ jobs:
       - name: Backend dependency scan
         run: |
           ./mvnw -B -ntp dependency:resolve -Dsilent=true
-          # OWASP dependency-check; heavy but runs in a dedicated job.
+      - name: OWASP dependency check (fails on CVSS >= 7)
+        if: env.NVD_API_KEY != ''
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
           ./mvnw -B -ntp org.owasp:dependency-check-maven:check \
-            -DfailBuildOnCVSS=7 -DskipTests -DnvdApiKey=${{ secrets.NVD_API_KEY }} \
-            || true
+            -DfailBuildOnCVSS=7 -DskipTests -DnvdApiKey=${{ secrets.NVD_API_KEY }}
 
   deploy-config:
     name: Deploy configuration
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Shell syntax and stray-marker check
         run: |
           bash -n deploy/*.sh scripts/*.sh executor/compile-scripts/*.sh
-          if grep -R -n '^EOF$' deploy/ scripts/; then
-            echo "deploy-config: stray EOF marker in a config file" >&2
+          if grep -R -n -E '^(EOF|ENVFILE)$' deploy/ scripts/; then
+            echo "deploy-config: stray heredoc terminator in a config file" >&2
             exit 1
           fi
       - name: systemd unit syntax (when available)

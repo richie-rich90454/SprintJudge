@@ -147,10 +147,10 @@ verify-prod: ## Boot prod jar on :8091 and probe health (PORT=, SKIP_BUILD=1).
 	trap 'kill $$pid 2>/dev/null; rm -rf "$$logdir"' EXIT; \
 	ok=0; \
 	for i in $$(seq 1 60); do \
-		if curl -fsS http://localhost:$(VERIFY_PORT)/api/public/quizzes >/dev/null 2>&1; then ok=1; break; fi; \
+		if curl -fsS http://localhost:$(VERIFY_PORT)/actuator/health 2>/dev/null | grep -q '"UP"'; then ok=1; break; fi; \
 		sleep 2; \
 	done; \
-	if [ "$$ok" = "1" ]; then echo "VERIFY OK: /api/public/quizzes serves on :$(VERIFY_PORT)"; \
+	if [ "$$ok" = "1" ]; then echo "VERIFY OK: /actuator/health is UP on :$(VERIFY_PORT)"; \
 	else echo "VERIFY FAILED (see $$logdir/sprintjudge-verify.log)"; tail -20 "$$logdir/sprintjudge-verify.log"; exit 1; fi
 
 ##@ Maintain

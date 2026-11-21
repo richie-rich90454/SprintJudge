@@ -59,7 +59,11 @@ public class BasisTokenVerifier {
 			if (!claims.getAudience().contains(audience))
 				return null;
 			Date expiry = claims.getExpirationTime();
-			if (expiry == null || expiry.toInstant().isBefore(Instant.now().minusSeconds(60)))
+			Instant now = Instant.now();
+			if (expiry == null || expiry.toInstant().isBefore(now.minusSeconds(30)))
+				return null;
+			Date notBefore = claims.getNotBeforeTime();
+			if (notBefore != null && notBefore.toInstant().isAfter(now.plusSeconds(30)))
 				return null;
 			JWK key = keys().getKeyByKeyId(jwt.getHeader().getKeyID());
 			if (!(key instanceof RSAKey))

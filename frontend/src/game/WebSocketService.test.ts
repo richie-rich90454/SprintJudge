@@ -187,6 +187,17 @@ describe("WebSocketService inbound messages", () => {
         expect(got).toHaveLength(0);
     });
 
+    test("disconnect while already closed emits no duplicate status", () => {
+        const svc = makeService();
+        const seen: string[] = [];
+        svc.onStatus().subscribe((s) => seen.push(s));
+        svc.connect("ws://host/game");
+        lastSocket().onopen?.();
+        svc.disconnect();
+        svc.disconnect();
+        expect(seen).toEqual(["closed", "open", "closed"]);
+    });
+
     test("close from a stale socket is ignored", () => {
         const svc = makeService();
         const seen: string[] = [];
@@ -198,7 +209,7 @@ describe("WebSocketService inbound messages", () => {
         vi.advanceTimersByTime(1000);
         expect(FakeSocket.created).toHaveLength(2);
         old.onclose?.();
-        expect(seen).toEqual(["closed", "closed"]);
+        expect(seen).toEqual(["closed"]);
     });
 });
 

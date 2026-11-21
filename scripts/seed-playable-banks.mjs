@@ -76,3 +76,4 @@ for (const subject of subjects) {
     }
 }
 console.log(`seed: ${built} quiz sets built across ${subjects.length} subjects, ${failed} failed`);
+if (failed > 0) process.exitCode = 1;

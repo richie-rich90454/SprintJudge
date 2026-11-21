@@ -2160,6 +2160,57 @@ class GameRoomManagerCoverageTest {
 	}
 
 	@Test
+	void skippingAnActiveRoundRevealsBeforeAdvancing() {
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+		GameRoomManager mgr = manager();
+		mgr.join("123456", "Alice", "sa", "player", null);
+		mgr.startQuestion("123456");
+		assertEquals("ACTIVE", roomOf(mgr).getStatus());
+		mgr.nextQuestion("123456");
+		assertEquals("ACTIVE", roomOf(mgr).getStatus());
+		assertEquals("q2", roomOf(mgr).getCurrentQuestionId());
+	}
+
+	@Test
+	void attemptLimitIsConfigurableAndBounded() throws Exception {
+		GameRoomManager mgr = manager();
+		java.lang.reflect.Method method = GameRoomManager.class.getDeclaredMethod("attemptLimit");
+		method.setAccessible(true);
+		java.util.Map<String, Object> settings = new java.util.HashMap<>();
+		when(settingsService.asMap()).thenReturn(settings);
+		assertEquals(50, method.invoke(mgr));
+		settings.put("mcq_max_attempts", 3);
+		assertEquals(3, method.invoke(mgr));
+		settings.put("mcq_max_attempts", "7");
+		assertEquals(7, method.invoke(mgr));
+		settings.put("mcq_max_attempts", "bad");
+		assertEquals(50, method.invoke(mgr));
+		settings.put("mcq_max_attempts", 0);
+		assertEquals(1, method.invoke(mgr));
+		settings.put("mcq_max_attempts", 999);
+		assertEquals(50, method.invoke(mgr));
+	}
+
+	@Test
+	void repeatedSubmissionsCannotFarmFullBaseScore() {
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+		when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+		when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+		when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(200);
+		GameRoomManager mgr = manager();
+		com.sprintjudge.service.Player a = mgr.join("123456", "Alice", "sa", "player", null);
+		mgr.startQuestion("123456");
+		for (int i = 0; i < 10; i++)
+			mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+		int score = roomOf(mgr).getPlayer(a.getUuid()).getScore();
+		// Score growth is bounded by the capped streak bonus, not by repeated
+		// awards of the full 200-point base.
+		assertTrue(score <= 300, "repeated correct answers must not farm base points: " + score);
+	}
+
+	@Test
 	void sevenConsecutiveCorrectCapsStreakBonusAtFiveSteps() {
 		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
@@ -2175,7 +2226,7 @@ class GameRoomManagerCoverageTest {
 		int[] round = roomOf(mgr).roundOf(a.getUuid());
 		assertEquals(100, round[0]);
 		assertEquals(50, round[1]);
-		assertEquals(900, roomOf(mgr).getPlayer(a.getUuid()).getScore());
+		assertEquals(150, roomOf(mgr).getPlayer(a.getUuid()).getScore());
 	}
 
 	@Test
@@ -2487,7 +2538,7 @@ class GameRoomManagerCoverageTest {
 		mgr.startQuestion("123456");
 		mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
 		mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-		assertEquals(420, roomOf(mgr).getPlayer(a.getUuid()).getScore());
+		assertEquals(220, roomOf(mgr).getPlayer(a.getUuid()).getScore());
 		assertEquals(2, roomOf(mgr).attemptCount("q1", a.getUuid()));
 	}
 

@@ -53,9 +53,9 @@ class OAuth2CallbackIntegrationTest {
 				assertTrue(body.contains("code_verifier="));
 				String clientId = "test-client";
 				JWTClaimsSet claims = new JWTClaimsSet.Builder().issuer(base()).audience(clientId)
-						.subject("mock-subject").claim("email", EMAIL).claim("nonce", nonce)
-						.expirationTime(Date.from(Instant.now().plusSeconds(600))).issueTime(Date.from(Instant.now()))
-						.build();
+						.subject("mock-subject").claim("email", EMAIL).claim("email_verified", true)
+						.claim("nonce", nonce).expirationTime(Date.from(Instant.now().plusSeconds(600)))
+						.issueTime(Date.from(Instant.now())).build();
 				try {
 					SignedJWT idToken = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256)
 							.type(new JOSEObjectType("JWT")).keyID("mock-key").build(), claims);
@@ -68,8 +68,8 @@ class OAuth2CallbackIntegrationTest {
 					exchange.close();
 				}
 			});
-			provider.createContext("/oauth/userinfo",
-					exchange -> respond(exchange, "{\"sub\":\"mock-subject\",\"email\":\"" + EMAIL + "\"}"));
+			provider.createContext("/oauth/userinfo", exchange -> respond(exchange,
+					"{\"sub\":\"mock-subject\",\"email\":\"" + EMAIL + "\",\"email_verified\":true}"));
 			provider.createContext("/oauth/authorize", exchange -> {
 				Map<String, String> query = parse(exchange.getRequestURI().getRawQuery());
 				nonce = query.get("nonce");

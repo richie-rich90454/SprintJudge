@@ -131,7 +131,8 @@ export function HostStage({
                         </p>
                     </div>
                     <div className="rounded-[2px] border border-[var(--stage-border)] bg-white p-3">
-                        <QRCodeSVG value={joinUrl} size={projector ? 196 : 148} level="M" aria-label={`Join QR code for game ${pin ?? ""}`} />
+                        <QRCodeSVG
+                            role="img" value={joinUrl} size={projector ? 196 : 148} level="M" aria-label={`Join QR code for game ${pin ?? ""}`} />
                     </div>
                 </div>
             </section>

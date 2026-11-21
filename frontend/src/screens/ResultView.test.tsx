@@ -16,6 +16,14 @@ const uiMock = vi.hoisted(() => ({
 }));
 
 const navigateMock = vi.hoisted(() => vi.fn());
+const buildBankQuizMock = vi.hoisted(() => vi.fn());
+
+vi.mock("../services/AdminApiService", () => ({
+    adminApi: {
+        buildBankQuiz: (...args: unknown[]) => buildBankQuizMock(...args),
+        exportBank: vi.fn(),
+    },
+}));
 
 vi.mock("../stores/useGameStore", () => ({
     useGameStore: (selector: (s: any) => unknown) => selector(gameMock.state),
@@ -80,17 +88,12 @@ describe("ResultView", () => {
             teams: [],
             rankings: [],
         };
-        const fetchMock = vi
-            .fn()
-            .mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({ subject: "math", unit: "u", topic: "t", count: 5 }),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({ quizId: "p1" }),
-            });
-        vi.stubGlobal("fetch", fetchMock);
+        vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => ({ subject: "math", unit: "u", topic: "t", count: 5 }),
+        }));
+        buildBankQuizMock.mockReset();
+        buildBankQuizMock.mockResolvedValue({ quizId: "p1", questions: 5, skipped: 0 });
         render(<ResultView />);
         fireEvent.click(screen.getByRole("button", { name: /Practice next/i }));
         await waitFor(() =>

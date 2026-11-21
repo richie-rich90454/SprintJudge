@@ -78,8 +78,8 @@ public class SecurityConfig {
 								// Public endpoints and the WebSocket handshake carry no session
 								// state; every admin API is CSRF-protected (the Axios client
 								// echoes XSRF-TOKEN in X-XSRF-TOKEN).
-								.ignoringRequestMatchers("/api/public/**", "/api/auth/**", "/ws", "/admin/login",
-										"/admin/logout")
+								.ignoringRequestMatchers("/api/public/**", "/ws", "/admin/login", "/admin/logout",
+										"/api/auth/basis/backchannel", "/api/auth/backchannel")
 								.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 								// Axios echoes the raw cookie value. Spring Security 7's default
 								// XOR handler expects an encoded token and rejects the raw one
@@ -158,10 +158,10 @@ public class SecurityConfig {
 										// join QR codes point at /j/<pin> on this origin.
 										.requestMatchers("/j/**", "/join", "/play", "/host", "/results", "/solo",
 												"/practice", "/explore")
-										.permitAll().requestMatchers("/admin/**", "/api/admin/**").authenticated()
-										// Ops endpoints stay login-gated (health alone is public).
+										.permitAll().requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
+										// Ops endpoints stay admin-gated (health alone is public).
 										.requestMatchers("/actuator/prometheus", "/actuator/metrics", "/actuator/info")
-										.authenticated().anyRequest().denyAll();
+										.hasRole("ADMIN").anyRequest().denyAll();
 							}
 						})
 				.formLogin(
@@ -240,7 +240,7 @@ public class SecurityConfig {
 		List<String> origins = new java.util.ArrayList<>();
 		for (String origin : allowedOrigins.split(",")) {
 			String trimmed = origin.trim();
-			if ("*".equals(trimmed)) {
+			if (trimmed.contains("*")) {
 				throw new IllegalStateException("Refusing to boot: wildcard CORS origin with allowCredentials=true");
 			}
 			if (!trimmed.isEmpty()) {

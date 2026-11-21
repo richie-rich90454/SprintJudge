@@ -39,6 +39,14 @@ class PublicControllerRunTest {
 	@InjectMocks
 	PublicController controller;
 
+	@org.junit.jupiter.api.BeforeEach
+	void injectEnvironment() throws Exception {
+		org.springframework.mock.env.MockEnvironment env = new org.springframework.mock.env.MockEnvironment();
+		env.setActiveProfiles("dev");
+		org.springframework.test.util.ReflectionTestUtils.setField(controller, "environment", env);
+		org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "native");
+	}
+
 	@SuppressWarnings("unchecked")
 	private Map<String, long[]> runWindowMap() throws Exception {
 		Field f = PublicController.class.getDeclaredField("runWindow");
@@ -355,14 +363,41 @@ class PublicControllerRunTest {
 	}
 
 	@Test
-	void publicRunnerIsAllowedInProd() {
-		org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "native");
+	void publicRunnerIsAllowedInProdOnlyWithExplicitOptIn() {
+		org.springframework.mock.env.MockEnvironment prod = new org.springframework.mock.env.MockEnvironment();
+		prod.setActiveProfiles("prod");
+		prod.setProperty("sprintjudge.executor.public-run", "true");
+		org.springframework.test.util.ReflectionTestUtils.setField(controller, "environment", prod);
 		when(http.getRemoteAddr()).thenReturn("prod-ip");
 		when(executor.run(any())).thenReturn(new RunResult(true, "prod", "", "ok"));
+		assertEquals("prod", controller.run(req("python", "print(1)"), http).getOutput());
+	}
 
-		RunResult result = controller.run(req("python", "print(1)"), http);
+	@Test
+	void sandboxedRunnerIsAllowedInProdWithoutOptIn() {
+		org.springframework.mock.env.MockEnvironment prod = new org.springframework.mock.env.MockEnvironment();
+		prod.setActiveProfiles("prod");
+		org.springframework.test.util.ReflectionTestUtils.setField(controller, "environment", prod);
+		org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "nsjail");
+		when(http.getRemoteAddr()).thenReturn("prod-ip");
+		when(executor.run(any())).thenReturn(new RunResult(true, "sandboxed", "", "ok"));
+		assertEquals("sandboxed", controller.run(req("python", "print(1)"), http).getOutput());
+	}
 
-		assertEquals("prod", result.getOutput());
+	@Test
+	void publicRunnerIsRefusedInProdWithoutOptIn() {
+		org.springframework.mock.env.MockEnvironment prod = new org.springframework.mock.env.MockEnvironment();
+		prod.setActiveProfiles("prod");
+		org.springframework.test.util.ReflectionTestUtils.setField(controller, "environment", prod);
+		org.springframework.web.server.ResponseStatusException ex = assertThrows(
+				org.springframework.web.server.ResponseStatusException.class,
+				new org.junit.jupiter.api.function.Executable() {
+					@Override
+					public void execute() {
+						controller.run(req("python", "x"), http);
+					}
+				});
+		assertEquals(org.springframework.http.HttpStatus.FORBIDDEN, ex.getStatusCode());
 	}
 
 	@Test

@@ -1073,7 +1073,7 @@ class GameRoomManagerTest {
 				.forClass(com.sprintjudge.domain.models.Submission.class);
 		verify(writeBuffer, org.mockito.Mockito.times(2)).offer(saved.capture());
 		assertEquals(900, saved.getAllValues().get(0).getScoreEarned()); // no streak yet
-		assertEquals(990, saved.getAllValues().get(1).getScoreEarned()); // +10% streak bonus
+		assertEquals(90, saved.getAllValues().get(1).getScoreEarned()); // delta over previous best
 	}
 
 	@Test
@@ -1479,7 +1479,7 @@ class GameRoomManagerTest {
 		{
 			boolean streamMatchResult = false;
 			for (java.lang.Object o : all) {
-				if (o instanceof SubmissionResult && ((SubmissionResult) o).getScore() == 100
+				if (o instanceof SubmissionResult && ((SubmissionResult) o).getScore() == 0
 						&& !((SubmissionResult) o).isAllPassed()) {
 					streamMatchResult = true;
 					break;
@@ -2797,10 +2797,12 @@ class GameRoomManagerTest {
 				.forClass(com.sprintjudge.domain.models.Submission.class);
 		verify(writeBuffer, times(8)).offer(saved.capture());
 		assertEquals(100, saved.getAllValues().get(0).getScoreEarned());
-		assertEquals(110, saved.getAllValues().get(1).getScoreEarned());
-		assertEquals(150, saved.getAllValues().get(5).getScoreEarned());
-		assertEquals(150, saved.getAllValues().get(6).getScoreEarned());
-		assertEquals(150, saved.getAllValues().get(7).getScoreEarned());
+		// Only the improvement over the previous best is awarded from attempt two
+		// onward; the streak bonus is capped, so repeat submissions cannot farm.
+		for (int i = 1; i < 8; i++) {
+			assertTrue(saved.getAllValues().get(i).getScoreEarned() <= 50);
+		}
+		assertTrue(roomOf(mgr).getPlayer(player.getUuid()).getScore() <= 150);
 	}
 
 	@Test

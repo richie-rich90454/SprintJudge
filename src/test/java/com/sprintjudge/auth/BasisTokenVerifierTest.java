@@ -37,6 +37,12 @@ class BasisTokenVerifierTest {
 				"logout+jwt"));
 		assertNull(
 				verifier.verify(BasisTestJwt.sign(other, "logout+jwt", ISSUER, AUDIENCE, "u", Map.of()), "logout+jwt"));
+		String futureNbf = BasisTestJwt.sign(key, "logout+jwt", ISSUER, AUDIENCE, "u",
+				Map.of("nbf", System.currentTimeMillis() / 1000L + 3600L));
+		assertNull(verifier.verify(futureNbf, "logout+jwt"));
+		String pastNbf = BasisTestJwt.sign(key, "logout+jwt", ISSUER, AUDIENCE, "u",
+				Map.of("nbf", System.currentTimeMillis() / 1000L - 120L));
+		assertNotNull(verifier.verify(pastNbf, "logout+jwt"));
 	}
 
 	@Test

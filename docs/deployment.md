@@ -92,15 +92,22 @@ no global npm tools, and no global Maven are needed - `./mvnw` and local
 
 ```bash
 make package                       # local SPA + fat jar, no global installs
-SPRINTJUDGE_ADMIN_PASSWORD='strong-secret' sudo bash deploy/install.sh
+sudo -E bash deploy/install.sh     # prompts for the admin password; -E keeps env
 bash deploy/health-check.sh
 ```
 
 `deploy/install.sh` creates the `sprintjudge` service user, `/opt/sprintjudge`
 (jar + `executor/compile-scripts`), `/var/lib/sprintjudge` (database), the `.env`
 with the DB path and admin password, and installs/enables the systemd unit,
-nginx vhost and logrotate config. Edit `/opt/sprintjudge/.env` to set CORS or
-change the port; if you change the port, also update the nginx upstream.
+nginx vhost and logrotate config. The bootstrap vhost is HTTP-only so it does
+not require certificates. After certbot has issued certificates, replace
+`/etc/nginx/sites-available/sprintjudge` with
+`deploy/nginx-sprintjudge.conf` (adjusting the upstream port if you chose a
+non-default `SPRINTJUDGE_PORT`) and reload nginx to enable TLS.
+
+Edit `/opt/sprintjudge/.env` to set CORS or change the port. Keep values shell-safe
+(no spaces, quotes or `$`) because the systemd unit and Makefile source it as a
+shell file.
 
 ## Verification status
 

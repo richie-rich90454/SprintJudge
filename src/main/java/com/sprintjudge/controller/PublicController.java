@@ -71,11 +71,19 @@ public class PublicController {
 	 * Production policy: the public runner is unsandboxed under the native
 	 * executor, so it is refused in prod unless nsjail is the active mode.
 	 */
+	@org.springframework.beans.factory.annotation.Autowired
+	private org.springframework.core.env.Environment environment;
+
 	boolean publicRunAllowed() {
-		// The native executor already enforces timeouts, output caps, and a
-		// per-IP rate limit. Allow it in every profile so the live console
-		// works on Windows and other hosts without nsjail.
-		return true;
+		// Sandboxed execution is always acceptable. Unsanboxed native execution
+		// is fine in development, but in production it must be an explicit,
+		// deliberate opt-in: otherwise an anonymous caller could run arbitrary
+		// code as the service user and read its secrets.
+		if (!"native".equalsIgnoreCase(executorMode))
+			return true;
+		if (!environment.acceptsProfiles(org.springframework.core.env.Profiles.of("prod")))
+			return true;
+		return Boolean.parseBoolean(environment.getProperty("sprintjudge.executor.public-run", "false"));
 	}
 
 	public PublicController(QuizRepository quizRepository, GameSessionRepository sessionRepository,

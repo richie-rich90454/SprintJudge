@@ -133,9 +133,108 @@ class OAuth2ProviderConfigTest {
 		MockEnvironment env = new MockEnvironment();
 		env.setProperty("SPRINTJUDGE_ADMIN_EMAILS", " Teacher@Example.org , other@example.org ");
 		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
-		Collection<? extends GrantedAuthority> mapped = mapper
-				.mapAuthorities(List.of(new OAuth2UserAuthority(Map.of("email", "teacher@example.org"))));
+		Collection<? extends GrantedAuthority> mapped = mapper.mapAuthorities(
+				List.of(new OAuth2UserAuthority(Map.of("email", "teacher@example.org", "email_verified", true))));
 		assertTrue(mapped.stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
+	}
+
+	@Test
+	void stringVerifiedFlagAndUserInfoVerificationGrantAdmin() {
+		MockEnvironment env = new MockEnvironment();
+		env.setProperty("SPRINTJUDGE_ADMIN_EMAILS", "admin@example.org");
+		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
+		assertTrue(mapper
+				.mapAuthorities(List
+						.of(new OAuth2UserAuthority(Map.of("email", "admin@example.org", "email_verified", "true"))))
+				.stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
+		OidcIdToken token = new OidcIdToken("v", java.time.Instant.now(), java.time.Instant.now().plusSeconds(60),
+				Map.of("sub", "s", "email_verified", false));
+		OidcUserAuthority authority = new OidcUserAuthority(token,
+				new OidcUserInfo(Map.of("email", "admin@example.org", "email_verified", true)));
+		assertTrue(mapper.mapAuthorities(List.of(authority)).stream()
+				.anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
+	}
+
+	@Test
+	void verifiedEmailAttributeWithoutEmailStillGetsUserRole() {
+		MockEnvironment env = new MockEnvironment();
+		env.setProperty("SPRINTJUDGE_ADMIN_EMAILS", "admin@example.org");
+		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
+		assertTrue(mapper
+				.mapAuthorities(List.of(new OAuth2UserAuthority(Map.of("verified_email", true, "name", "no email"))))
+				.stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
+		assertTrue(mapper
+				.mapAuthorities(
+						List.of(new OAuth2UserAuthority(Map.of("email_verified", true, "email", "admin@example.org"))))
+				.stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
+	}
+
+	@Test
+	void oidcVerifiedFalseInBothSourcesGetsUserRole() {
+		MockEnvironment env = new MockEnvironment();
+		env.setProperty("SPRINTJUDGE_ADMIN_EMAILS", "admin@example.org");
+		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
+		OidcIdToken token = new OidcIdToken("v", java.time.Instant.now(), java.time.Instant.now().plusSeconds(60),
+				Map.of("sub", "s", "email", "admin@example.org", "email_verified", false));
+		OidcUserAuthority authority = new OidcUserAuthority(token,
+				new OidcUserInfo(Map.of("email", "admin@example.org", "email_verified", false)));
+		assertTrue(
+				mapper.mapAuthorities(List.of(authority)).stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
+	}
+
+	@Test
+	void oidcEmailResolutionCoversBothSourcesAndMissingEmail() {
+		MockEnvironment env = new MockEnvironment();
+		env.setProperty("SPRINTJUDGE_ADMIN_EMAILS", "admin@example.org");
+		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
+		OidcIdToken withEmail = new OidcIdToken("v", java.time.Instant.now(), java.time.Instant.now().plusSeconds(60),
+				Map.of("sub", "s", "email", "admin@example.org", "email_verified", true));
+		assertTrue(
+				mapper.mapAuthorities(List.of(new OidcUserAuthority(withEmail, new OidcUserInfo(Map.of("name", "n")))))
+						.stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
+		OidcIdToken noEmail = new OidcIdToken("v", java.time.Instant.now(), java.time.Instant.now().plusSeconds(60),
+				Map.of("sub", "s", "email_verified", true));
+		assertTrue(mapper
+				.mapAuthorities(List.of(
+						new OidcUserAuthority(noEmail, new OidcUserInfo(Map.of("name", "n", "email_verified", true)))))
+				.stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
+		assertTrue(mapper.mapAuthorities(List.of(new OidcUserAuthority(noEmail))).stream()
+				.anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
+	}
+
+	@Test
+	void oidcWithoutUserInfoUsesIdTokenEmail() {
+		MockEnvironment env = new MockEnvironment();
+		env.setProperty("SPRINTJUDGE_ADMIN_EMAILS", "admin@example.org");
+		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
+		OidcIdToken token = new OidcIdToken("v", java.time.Instant.now(), java.time.Instant.now().plusSeconds(60),
+				Map.of("sub", "s", "email", "admin@example.org", "email_verified", true));
+		assertTrue(mapper.mapAuthorities(List.of(new OidcUserAuthority(token))).stream()
+				.anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
+	}
+
+	@Test
+	void oidcIdTokenWithoutEmailUsesUserInfo() {
+		MockEnvironment env = new MockEnvironment();
+		env.setProperty("SPRINTJUDGE_ADMIN_EMAILS", "admin@example.org");
+		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
+		OidcIdToken token = new OidcIdToken("v", java.time.Instant.now(), java.time.Instant.now().plusSeconds(60),
+				Map.of("sub", "s", "email_verified", true));
+		OidcUserAuthority authority = new OidcUserAuthority(token,
+				new OidcUserInfo(Map.of("email", "admin@example.org")));
+		assertTrue(mapper.mapAuthorities(List.of(authority)).stream()
+				.anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
+	}
+
+	@Test
+	void unverifiedEmailNeverGetsAdminRole() {
+		MockEnvironment env = new MockEnvironment();
+		env.setProperty("SPRINTJUDGE_ADMIN_EMAILS", "admin@example.org");
+		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
+		Collection<? extends GrantedAuthority> mapped = mapper.mapAuthorities(
+				List.of(new OAuth2UserAuthority(Map.of("email", "admin@example.org", "email_verified", false))));
+		assertTrue(mapped.stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
+		assertTrue(mapped.stream().noneMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
 	}
 
 	@Test
@@ -143,8 +242,8 @@ class OAuth2ProviderConfigTest {
 		MockEnvironment env = new MockEnvironment();
 		env.setProperty("SPRINTJUDGE_ADMIN_EMAILS", "admin@example.org,");
 		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
-		Collection<? extends GrantedAuthority> stranger = mapper
-				.mapAuthorities(List.of(new OAuth2UserAuthority(Map.of("email", "student@example.org"))));
+		Collection<? extends GrantedAuthority> stranger = mapper.mapAuthorities(
+				List.of(new OAuth2UserAuthority(Map.of("email", "student@example.org", "email_verified", true))));
 		assertTrue(stranger.stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
 		Collection<? extends GrantedAuthority> anonymous = mapper.mapAuthorities(List.of());
 		assertTrue(anonymous.stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
@@ -157,7 +256,7 @@ class OAuth2ProviderConfigTest {
 		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
 		OidcIdToken token = new OidcIdToken("v", Instant.now(), Instant.now().plusSeconds(60), Map.of("sub", "s"));
 		OidcUserAuthority authority = new OidcUserAuthority(token,
-				new OidcUserInfo(Map.of("email", "admin@example.org")));
+				new OidcUserInfo(Map.of("email", "admin@example.org", "email_verified", true)));
 		Collection<? extends GrantedAuthority> mapped = mapper.mapAuthorities(List.of(authority));
 		assertTrue(mapped.stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
 	}
@@ -168,7 +267,7 @@ class OAuth2ProviderConfigTest {
 		env.setProperty("SPRINTJUDGE_ADMIN_EMAILS", "admin@example.org");
 		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
 		OidcIdToken token = new OidcIdToken("v", Instant.now(), Instant.now().plusSeconds(60),
-				Map.of("sub", "s", "email", "admin@example.org"));
+				Map.of("sub", "s", "email", "admin@example.org", "email_verified", true));
 		Collection<? extends GrantedAuthority> mapped = mapper.mapAuthorities(List.of(new OidcUserAuthority(token)));
 		assertTrue(mapped.stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
 	}

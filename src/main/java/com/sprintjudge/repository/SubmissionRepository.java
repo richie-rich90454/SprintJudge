@@ -53,6 +53,7 @@ public class SubmissionRepository {
 	public List<Submission> findBySessionQuestion(String sessionId, String questionId) {
 		return dsl.selectFrom(Tables.SUBMISSIONS)
 				.where(Tables.SUB_SESS.eq(sessionId), Tables.SUB_QUESTION.eq(questionId))
+				.orderBy(Tables.SUB_AT.desc(), Tables.SUB_ID.desc())
 				.fetch(new org.jooq.RecordMapper<org.jooq.Record, Submission>() {
 					public Submission map(org.jooq.Record r) {
 						return toSubmission(r);

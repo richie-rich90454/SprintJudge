@@ -15,6 +15,10 @@ public final class HttpBasisJwkSource implements BasisJwkSource {
 	public HttpBasisJwkSource(String issuer) {
 		String base = issuer.endsWith("/") ? issuer.substring(0, issuer.length() - 1) : issuer;
 		this.uri = URI.create(base + "/oauth/jwks");
+		if (!"https".equalsIgnoreCase(this.uri.getScheme()) && !"localhost".equalsIgnoreCase(this.uri.getHost())
+				&& !"127.0.0.1".equals(this.uri.getHost())) {
+			throw new IllegalArgumentException("BASIS_AUTH_ISSUER must use HTTPS (localhost allowed for tests)");
+		}
 	}
 
 	@Override

@@ -317,11 +317,9 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		GameRoom room = require(pin);
 		synchronized (room) {
 			if ("ACTIVE".equals(room.getStatus())) {
-				// Host skip mid-round: close the live round first so startQuestion
-				// below (LOBBY/REVIEW-only) can proceed instead of silently stalling.
-				roundTimer.cancel(Integer.parseInt(pin));
-				room.setStatus("REVIEW");
-				sessionRepository.updateStatus(room.getSessionId(), "REVIEW");
+				// Host skip mid-round: run the normal reveal path first so results,
+				// deltas and the battle round are resolved before advancing.
+				transitionToReview(pin);
 			}
 			if (GameRoom.GameMode.BATTLE.equals(room.getGameMode())) {
 				if (room.currentBattleRound() == null) {
@@ -333,6 +331,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				// Advance the bracket before the next question: pair the winners,
 				// hand the odd player a bye, and refresh both clients' views.
 				room.clearBattleAnswerTimes();
+				// beginBattleRound ignores an empty winner set: a skipped first
+				// round keeps the existing bracket instead of adding an empty one.
 				room.beginBattleRound(pairUp(room.getBattleWinners()));
 				broadcastBracket(room);
 				broadcastBattleRound(room);
@@ -382,7 +382,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		Player member = room.getPlayer(playerUuid);
 		if (member == null || !member.isConnected())
 			return;
-		if (!room.tryBeginAttempt(questionId, playerUuid, MAX_ATTEMPTS_PER_QUESTION)) {
+		if (!room.tryBeginAttempt(questionId, playerUuid, attemptLimit())) {
 			ws.send(sessionIdOf(room, playerUuid),
 					new ErrorMessage("ERROR", "Attempt limit reached for this question"));
 			return;
@@ -404,12 +404,12 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				settingsService.asMap());
 		int bonus = streakBonus(room, playerUuid, correct, base);
 		int total = base + bonus;
+		int awarded = room.applyBestScore(questionId, playerUuid, total);
 
 		writeBuffer.offer(new Submission(Ids.uuid(), room.getSessionId(), questionId, p.getName(), playerUuid,
-				Json.write(response), total, correct, null, attempts, Instant.now()));
-		room.applyScore(playerUuid, total);
+				Json.write(response), awarded, correct, null, attempts, Instant.now()));
 		room.recordRound(playerUuid, base, bonus, correct);
-		applyTeamScore(room, playerUuid, total);
+		applyTeamScore(room, playerUuid, awarded);
 		if (GameRoom.GameMode.BATTLE.equals(room.getGameMode())) {
 			room.markBattleAnswer(playerUuid, System.currentTimeMillis());
 		}
@@ -417,7 +417,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		// Every mode gets immediate per-player feedback (correct/wrong + score)
 		// the moment they submit - host-led rooms reveal instantly per player.
 		ws.send(p.getSessionId(),
-				new SubmissionResult("SUBMISSION_RESULT", questionId, total, correct, correct ? 1 : 0, 1, null));
+				new SubmissionResult("SUBMISSION_RESULT", questionId, awarded, correct, correct ? 1 : 0, 1, null));
 		eventPublisher.publishEvent(
 				new com.sprintjudge.service.event.GameEvent.SubmissionReceived(pin, questionId, playerUuid, correct));
 		broadcastScoreChanged(room);
@@ -453,6 +453,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		String questionId = q.getId();
 		long startMs = room.getCurrentQuestionStartEpochMs();
 
+		final int[] awardedToPlayer = {0};
 		CodingOutcomeConsumer handler = new CodingOutcomeConsumer() {
 			@Override
 			public void accept(String uuid, int baseScore, boolean allPassed, int passed, int totalTests,
@@ -466,10 +467,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 						return;
 					boolean correct = allPassed;
 					bonus = streakBonus(room, uuid, correct, baseScore);
-					int total = baseScore + bonus;
-					room.applyScore(uuid, total);
+					int awarded = room.applyBestScore(questionId, uuid, baseScore + bonus);
+					awardedToPlayer[0] = awarded;
 					room.recordRound(uuid, baseScore, bonus, correct);
-					applyTeamScore(room, uuid, total);
+					applyTeamScore(room, uuid, awarded);
 					if (GameRoom.GameMode.BATTLE.equals(room.getGameMode())) {
 						room.markBattleAnswer(uuid, System.currentTimeMillis());
 					}
@@ -478,7 +479,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				// have reconnected (new sessionId) while the judge was running.
 				Player current = room.getPlayer(uuid);
 				ws.send(current == null ? null : current.getSessionId(), new SubmissionResult("SUBMISSION_RESULT",
-						questionId, baseScore + bonus, allPassed, passed, totalTests, aiFeedback));
+						questionId, awardedToPlayer[0], allPassed, passed, totalTests, aiFeedback));
 				eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.SubmissionReceived(pin,
 						questionId, uuid, allPassed));
 				broadcastScoreChanged(room);
@@ -520,9 +521,27 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 	}
 
 	/**
-	 * Updates streak and returns the bonus to add; 0 until the second correct in a
-	 * row.
+	 * Admin-configurable cap on submissions per question; sanitised and bounded.
 	 */
+	private int attemptLimit() {
+		Object configured = settingsService.asMap().get("mcq_max_attempts");
+		int limit = MAX_ATTEMPTS_PER_QUESTION;
+		if (configured instanceof Number) {
+			limit = ((Number) configured).intValue();
+		} else if (configured instanceof String) {
+			try {
+				limit = Integer.parseInt((String) configured);
+			} catch (NumberFormatException ignored) {
+				limit = MAX_ATTEMPTS_PER_QUESTION;
+			}
+		}
+		if (limit < 1)
+			limit = 1;
+		if (limit > MAX_ATTEMPTS_PER_QUESTION)
+			limit = MAX_ATTEMPTS_PER_QUESTION;
+		return limit;
+	}
+
 	private int streakBonus(GameRoom room, String uuid, boolean correct, int base) {
 		if (!correct) {
 			room.resetStreak(uuid);
@@ -1297,8 +1316,9 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 	Map<String, Integer> answerCounts(GameRoom room, Question q, String type, List<RoundResult.PlayerScore> scores) {
 		Map<String, Integer> counts = new LinkedHashMap<>();
 		Map<String, String> latest = new HashMap<>();
+		// Repository returns newest first; keep the first row per player.
 		for (Submission s : submissionRepository.findBySessionQuestion(room.getSessionId(), q.getId())) {
-			latest.put(s.getPlayerUuid(), s.getResponseData());
+			latest.putIfAbsent(s.getPlayerUuid(), s.getResponseData());
 		}
 		if (QuestionType.MCQ.equals(type) || QuestionType.OUTPUT_PRED.equals(type)
 				|| QuestionType.COMPLEXITY.equals(type)) {

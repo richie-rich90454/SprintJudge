@@ -319,6 +319,18 @@ class BasisAuthFlowTest {
 	}
 
 	@Test
+	void jwkSourceRejectsPlainHttpRemoteIssuer() {
+		org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+				new org.junit.jupiter.api.function.Executable() {
+					@Override
+					public void execute() {
+						new HttpBasisJwkSource("http://auth.example.org");
+					}
+				});
+		assertNotNull(new HttpBasisJwkSource("http://localhost:3000"));
+	}
+
+	@Test
 	void httpSourcesSurviveFailures() {
 		HttpBasisJwkSource source = new HttpBasisJwkSource("http://127.0.0.1:1");
 		for (int i = 0; i < 2; i++) {

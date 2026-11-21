@@ -93,6 +93,27 @@ class GameRoomTest {
 	}
 
 	@Test
+	void emptyBattlePairsDoNotAppendABracketRound() {
+		GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10, GameRoom.GameMode.BATTLE);
+		r.beginBattleRound(List.of());
+		assertEquals(0, r.getBracketRounds().size());
+		r.beginBattleRound(List.of(new GameRoom.BattlePair("a", "b", null, false)));
+		assertEquals(1, r.getBracketRounds().size());
+	}
+
+	@Test
+	void bestScoreOnlyAwardsImprovements() {
+		GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
+		r.addPlayer(new Player("u1", "a", 0, "ss", true));
+		assertEquals(0, r.bestScore("q1", "u1"));
+		assertEquals(100, r.applyBestScore("q1", "u1", 100));
+		assertEquals(0, r.applyBestScore("q1", "u1", 80));
+		assertEquals(20, r.applyBestScore("q1", "u1", 120));
+		assertEquals(120, r.bestScore("q1", "u1"));
+		assertEquals(120, r.getPlayer("u1").getScore());
+	}
+
+	@Test
 	void applyScoreAndLeaderboard() {
 		GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
 		r.addPlayer(new Player("u1", "a", 0, "ss", true));

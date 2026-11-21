@@ -4,6 +4,7 @@ import { HostStage } from "../components/host/HostStage";
 import { AboutDialog } from "../components/AboutDialog";
 import { useGameStore } from "../stores/useGameStore";
 import { useJoinUrl } from "../hooks/useJoinUrl";
+import { webSocketService } from "../game/WebSocketService";
 
 /**
  * Read-only projector. Joins as a spectator so it never takes the host seat
@@ -22,6 +23,9 @@ export function SpectatorView() {
         const proto = window.location.protocol === "https:" ? "wss" : "ws";
         connect(`${proto}://${window.location.host}/ws`);
         join(pin, "Projector", "spectator");
+        return () => {
+            webSocketService.disconnect();
+        };
     }, [pin, connect, join]);
 
     if (!room) {

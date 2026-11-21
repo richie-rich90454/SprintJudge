@@ -3,6 +3,7 @@ package com.sprintjudge.config;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -154,10 +155,17 @@ public class OAuth2ProviderConfig {
 		};
 	}
 
+	/**
+	 * Only verified emails may grant admin. An unverified or secondary email on an
+	 * OAuth account is not proof of control of the allowlisted address.
+	 */
 	private static String emailOf(Collection<? extends GrantedAuthority> authorities) {
 		for (GrantedAuthority authority : authorities) {
 			if (authority instanceof OidcUserAuthority) {
 				OidcUserAuthority oidc = (OidcUserAuthority) authority;
+				if (!verified(oidc.getIdToken().getClaim("email_verified"))
+						&& (oidc.getUserInfo() == null || !verified(oidc.getUserInfo().getClaim("email_verified"))))
+					continue;
 				String email = oidc.getIdToken().getEmail();
 				if (email == null && oidc.getUserInfo() != null) {
 					email = oidc.getUserInfo().getEmail();
@@ -165,11 +173,18 @@ public class OAuth2ProviderConfig {
 				if (email != null)
 					return email;
 			} else if (authority instanceof OAuth2UserAuthority) {
-				Object email = ((OAuth2UserAuthority) authority).getAttributes().get("email");
+				Map<String, Object> attributes = ((OAuth2UserAuthority) authority).getAttributes();
+				if (!verified(attributes.get("email_verified")) && !verified(attributes.get("verified_email")))
+					continue;
+				Object email = attributes.get("email");
 				if (email != null)
 					return String.valueOf(email);
 			}
 		}
 		return null;
+	}
+
+	private static boolean verified(Object value) {
+		return Boolean.TRUE.equals(value) || "true".equalsIgnoreCase(String.valueOf(value));
 	}
 }

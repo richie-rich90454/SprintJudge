@@ -69,6 +69,7 @@ public class GameRoom {
 	// In-memory per-(question,player) attempt counter (authoritative; the async
 	// write buffer used to lag behind so rapid resubmits scored full marks).
 	private final ConcurrentHashMap<String, Integer> attempts = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, Integer> bestScores = new ConcurrentHashMap<>();
 	private final ConcurrentHashMap<String, Integer> streaks = new ConcurrentHashMap<>();
 	// Per-round contribution for the reveal screen: [roundScore, bonus].
 	private final ConcurrentHashMap<String, int[]> lastRound = new ConcurrentHashMap<>();
@@ -501,6 +502,28 @@ public class GameRoom {
 		return board.applyScore(uuid, delta);
 	}
 
+	/**
+	 * Applies only the improvement over this player's best result for a question.
+	 * Repeated submissions must not keep adding the full base score to the board.
+	 * The compare-and-set is atomic with the award so concurrent judges cannot both
+	 * claim the same improvement.
+	 */
+	public synchronized int applyBestScore(String questionId, String uuid, int total) {
+		String key = questionId + " " + uuid;
+		Integer previous = bestScores.get(key);
+		if (previous != null && previous.intValue() >= total)
+			return 0;
+		bestScores.put(key, Integer.valueOf(total));
+		int delta = total - (previous == null ? 0 : previous.intValue());
+		applyScore(uuid, delta);
+		return delta;
+	}
+
+	public int bestScore(String questionId, String uuid) {
+		Integer value = bestScores.get(questionId + " " + uuid);
+		return value == null ? 0 : value.intValue();
+	}
+
 	public synchronized List<Player> getPlayers() {
 		List<Player> out = new ArrayList<>(players.size());
 		for (RankedSkipList.Entry e : board.snapshot()) {
@@ -805,6 +828,8 @@ public class GameRoom {
 
 	/** Opens the next round and appends it to the bracket history. */
 	public synchronized void beginBattleRound(List<BattlePair> pairs) {
+		if (pairs.isEmpty())
+			return;
 		battleRound++;
 		battleWinners = List.of();
 		bracketRounds.add(new BattleRound(battleRound, List.copyOf(pairs)));
