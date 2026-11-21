@@ -39,8 +39,8 @@ class AuthProvidersControllerTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void nonRegistrationItemsAreSkipped() {
-		@SuppressWarnings("unchecked")
 		ClientRegistrationRepository repo = org.mockito.Mockito.mock(ClientRegistrationRepository.class,
 				org.mockito.Mockito.withSettings().extraInterfaces(Iterable.class));
 		java.util.List<Object> items = new java.util.ArrayList<>();
