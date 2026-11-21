@@ -14,37 +14,38 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class AdminSettingsService {
 
-    private final AdminSettingsRepository repository;
-    private final Map<String, String> cache = new ConcurrentHashMap<>();
-    private volatile boolean loaded = false;
+	private final AdminSettingsRepository repository;
+	private final Map<String, String> cache = new ConcurrentHashMap<>();
+	private volatile boolean loaded = false;
 
-    public AdminSettingsService(AdminSettingsRepository repository) {
-        this.repository = repository;
-    }
+	public AdminSettingsService(AdminSettingsRepository repository) {
+		this.repository = repository;
+	}
 
-    public synchronized void refresh() {
-        cache.clear();
-        cache.putAll(repository.findAllAsMap());
-        loaded = true;
-    }
+	public synchronized void refresh() {
+		cache.clear();
+		cache.putAll(repository.findAllAsMap());
+		loaded = true;
+	}
 
-    public String get(String key, String defaultValue) {
-        ensureLoaded();
-        return cache.getOrDefault(key, defaultValue);
-    }
+	public String get(String key, String defaultValue) {
+		ensureLoaded();
+		return cache.getOrDefault(key, defaultValue);
+	}
 
-    public Map<String, Object> asMap() {
-        ensureLoaded();
-        return Map.copyOf(cache);
-    }
+	public Map<String, Object> asMap() {
+		ensureLoaded();
+		return Map.copyOf(cache);
+	}
 
-    public void set(String key, String value) {
-        repository.put(key, value);
-        ensureLoaded();
-        cache.put(key, value);
-    }
+	public void set(String key, String value) {
+		repository.put(key, value);
+		ensureLoaded();
+		cache.put(key, value);
+	}
 
-    private void ensureLoaded() {
-        if (!loaded) refresh();
-    }
+	private void ensureLoaded() {
+		if (!loaded)
+			refresh();
+	}
 }

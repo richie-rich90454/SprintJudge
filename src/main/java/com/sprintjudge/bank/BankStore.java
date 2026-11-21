@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,209 +20,368 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
 /**
- * Classpath JSON question bank, loaded once at construction.
- * Only answer-free headers are retained: id, subject, unit, topic, scope,
- * format, difficulty, stem. Options, answers, explanations, and every other
- * field are dropped at load, so a 150000-question bank fits in a small heap.
- * Correct answers never leave this store.
+ * Classpath question bank, loaded once at construction. Only answer-free
+ * headers are retained: id, subject, unit, topic, scope, format, difficulty,
+ * stem. Options, answers, explanations, and every other field are dropped at
+ * load, so the bank never holds a full question in memory. Correct answers
+ * never leave this store.
+ *
+ * Headers are kept in columnar arrays with repeated subject/unit/scope/format
+ * values interned. A map per header would cost roughly an object plus eight
+ * entries and eight value strings per question; at 169000 questions that alone
+ * dominated the heap. Columnar storage also makes the search scan sequential.
  */
 @Component
 public class BankStore {
 
-    private static final Logger log = LoggerFactory.getLogger(BankStore.class);
+	private static final Logger log = LoggerFactory.getLogger(BankStore.class);
+	private static final String[] HEADER_KEYS = {"id", "subject", "unit", "topic", "scope", "format", "stem"};
 
-    private final List<Map<String, Object>> questions;
-    private int skippedResources;
+	private final String[] ids;
+	private final String[] subjects;
+	private final String[] units;
+	private final String[] topics;
+	private final String[] scopes;
+	private final String[] formats;
+	private final String[] stems;
+	private final Object[] difficulties;
+	private final int skippedResources;
 
-    /**
-     * Loads every bank JSON document from the classpath.
-     *
-     * @throws IOException when a bank document cannot be read
-     */
-    public BankStore() throws IOException {
-        this(new PathMatchingResourcePatternResolver(), new ObjectMapper());
-    }
+	/**
+	 * Loads every bank JSON document from the classpath.
+	 *
+	 * @throws IOException
+	 *             when a bank document cannot be read
+	 */
+	public BankStore() throws IOException {
+		this(new PathMatchingResourcePatternResolver(), new ObjectMapper());
+	}
 
-    BankStore(PathMatchingResourcePatternResolver resolver, ObjectMapper mapper) throws IOException {
-        this(loadAll(resources(resolver), mapper));
-    }
+	BankStore(PathMatchingResourcePatternResolver resolver, ObjectMapper mapper) throws IOException {
+		this(loadAll(resources(resolver), mapper));
+	}
 
-    private BankStore(Loaded loaded) {
-        this.questions = List.copyOf(loaded.headers());
-        this.skippedResources = loaded.skipped();
-    }
+	private BankStore(Loaded loaded) {
+		this.ids = loaded.ids;
+		this.subjects = loaded.subjects;
+		this.units = loaded.units;
+		this.topics = loaded.topics;
+		this.scopes = loaded.scopes;
+		this.formats = loaded.formats;
+		this.stems = loaded.stems;
+		this.difficulties = loaded.difficulties;
+		this.skippedResources = loaded.skipped;
+	}
 
-    BankStore(List<Map<String, Object>> seed) {
-        List<Map<String, Object>> headers = new ArrayList<>(seed.size());
-        for (Map<String, Object> record : seed) {
-            headers.add(header(record));
-        }
-        this.questions = List.copyOf(headers);
-    }
+	BankStore(List<Map<String, Object>> seed) {
+		Columns columns = new Columns();
+		Map<String, String> pool = new HashMap<>();
+		for (Map<String, Object> record : seed) {
+			columns.add(record, pool);
+		}
+		this.ids = columns.ids();
+		this.subjects = columns.subjects();
+		this.units = columns.units();
+		this.topics = columns.topics();
+		this.scopes = columns.scopes();
+		this.formats = columns.formats();
+		this.stems = columns.stems();
+		this.difficulties = columns.difficulties();
+		this.skippedResources = 0;
+	}
 
-    private static Resource[] resources(PathMatchingResourcePatternResolver resolver) throws IOException {
-        return resolver.getResources("classpath*:bank/**/*.json");
-    }
+	private static Resource[] resources(PathMatchingResourcePatternResolver resolver) throws IOException {
+		return resolver.getResources("classpath*:bank/**/*.json");
+	}
 
-    record Loaded(List<Map<String, Object>> headers, int skipped) {}
+	/**
+	 * Answer-free header for one index in the columnar store.
+	 */
+	private Map<String, Object> header(int i) {
+		Map<String, Object> out = new LinkedHashMap<>();
+		out.put("id", ids[i]);
+		out.put("subject", subjects[i]);
+		out.put("unit", units[i]);
+		out.put("topic", topics[i]);
+		out.put("scope", scopes[i]);
+		out.put("format", formats[i]);
+		out.put("difficulty", difficulties[i]);
+		out.put("stem", stems[i]);
+		return out;
+	}
 
-    /**
-     * Loads every readable bank file. A malformed or half-written file must
-     * never take the whole application down: the strict validator reports it in
-     * CI, while runtime keeps serving the other 99.9% of the library.
-     */
-    static Loaded loadAll(Resource[] resources, ObjectMapper mapper) {
-        List<Map<String, Object>> all = new ArrayList<>();
-        int skipped = 0;
-        for (Resource resource : resources) {
-            try (InputStream in = resource.getInputStream()) {
-                all.addAll(recordsOf(mapper.readTree(in), mapper));
-            } catch (IOException | RuntimeException e) {
-                skipped++;
-                log.error("Skipping unreadable bank resource: {}", resource.getFilename(), e);
-            }
-        }
-        if (skipped > 0) {
-            log.warn("Bank loaded with {} unreadable file(s); run `make check-bank` to see details", skipped);
-        }
-        return new Loaded(all, skipped);
-    }
+	/**
+	 * Result of a bank load: the columnar headers and the skip count. The headers
+	 * view exists for tests that load small fixtures; production never expands it.
+	 */
+	static final class Loaded {
+		private final String[] ids;
+		private final String[] subjects;
+		private final String[] units;
+		private final String[] topics;
+		private final String[] scopes;
+		private final String[] formats;
+		private final String[] stems;
+		private final Object[] difficulties;
+		private final int skipped;
 
-    @SuppressWarnings("unchecked")
-    static List<Map<String, Object>> recordsOf(JsonNode node, ObjectMapper mapper) {
-        if (node.has("questions") && node.path("questions").isArray()) {
-            List<Map<String, Object>> batch = new ArrayList<>();
-            for (JsonNode entry : node.path("questions")) {
-                batch.add(mapper.convertValue(entry, Map.class));
-            }
-            return batch;
-        }
-        return List.of(mapper.convertValue(node, Map.class));
-    }
+		Loaded() {
+			this.ids = new String[0];
+			this.subjects = new String[0];
+			this.units = new String[0];
+			this.topics = new String[0];
+			this.scopes = new String[0];
+			this.formats = new String[0];
+			this.stems = new String[0];
+			this.difficulties = new Object[0];
+			this.skipped = 0;
+		}
 
-    /** Number of bank files skipped because they were unreadable at startup. */
-    public int skippedResources() {
-        return skippedResources;
-    }
+		Loaded(Columns columns, int skipped) {
+			this.ids = columns.ids();
+			this.subjects = columns.subjects();
+			this.units = columns.units();
+			this.topics = columns.topics();
+			this.scopes = columns.scopes();
+			this.formats = columns.formats();
+			this.stems = columns.stems();
+			this.difficulties = columns.difficulties();
+			this.skipped = skipped;
+		}
 
-    /**
-     * Answer-free headers matching every filter. Null scope and the
-     * {@code everything} scope both mean all scopes; null or blank unit and
-     * format both mean all values.
-     *
-     * @param subject required subject name
-     * @param unit optional unit filter, blank means all
-     * @param scope optional scope filter, blank or everything means all
-     * @param format optional format filter, blank means all
-     * @return matching answer-free headers
-     */
-    public List<Map<String, Object>> search(String subject, String unit, String scope, String format) {
-        List<Map<String, Object>> out = new ArrayList<>();
-        for (Map<String, Object> question : questions) {
-            if (!subject.equals(text(question, "subject"))) {
-                continue;
-            }
-            if (!matchScope(question, scope)) {
-                continue;
-            }
-            if (!matchText(text(question, "unit"), unit)) {
-                continue;
-            }
-            if (!matchText(text(question, "format"), format)) {
-                continue;
-            }
-            out.add(header(question));
-        }
-        return List.copyOf(out);
-    }
+		List<Map<String, Object>> getHeaders() {
+			List<Map<String, Object>> out = new ArrayList<>(ids.length);
+			for (int i = 0; i < ids.length; i++) {
+				Map<String, Object> header = new LinkedHashMap<>();
+				header.put("id", ids[i]);
+				header.put("subject", subjects[i]);
+				header.put("unit", units[i]);
+				header.put("topic", topics[i]);
+				header.put("scope", scopes[i]);
+				header.put("format", formats[i]);
+				header.put("difficulty", difficulties[i]);
+				header.put("stem", stems[i]);
+				out.add(header);
+			}
+			return out;
+		}
 
-    /**
-     * Answer-free header for one question id.
-     *
-     * @param id question id
-     * @return header, or empty when the id is unknown
-     */
-    public Optional<Map<String, Object>> headerById(String id) {
-        for (Map<String, Object> question : questions) {
-            if (id.equals(text(question, "id"))) {
-                return Optional.of(header(question));
-            }
-        }
-        return Optional.empty();
-    }
+		int getSkipped() {
+			return skipped;
+		}
+	}
 
-    /**
-     * Per-unit format and scope coverage for one subject.
-     *
-     * @param subject subject name
-     * @return unit name to total, sorted formats, and sorted scopes
-     */
-    public Map<String, Map<String, Object>> coverage(String subject) {
-        Map<String, List<Map<String, Object>>> byUnit = new TreeMap<>();
-        for (Map<String, Object> question : questions) {
-            if (!subject.equals(text(question, "subject"))) {
-                continue;
-            }
-            byUnit.computeIfAbsent(text(question, "unit"), key -> new ArrayList<>()).add(question);
-        }
-        Map<String, Map<String, Object>> out = new LinkedHashMap<>();
-        for (Map.Entry<String, List<Map<String, Object>>> entry : byUnit.entrySet()) {
-            Set<String> formats = new TreeSet<>();
-            Set<String> scopes = new TreeSet<>();
-            for (Map<String, Object> question : entry.getValue()) {
-                formats.add(text(question, "format"));
-                scopes.add(text(question, "scope"));
-            }
-            Map<String, Object> unit = new LinkedHashMap<>();
-            unit.put("total", entry.getValue().size());
-            unit.put("formats", List.copyOf(formats));
-            unit.put("scopes", List.copyOf(scopes));
-            out.put(entry.getKey(), unit);
-        }
-        return out;
-    }
+	/**
+	 * Column accumulator. Repeated scalar values are interned so 169000 records
+	 * share a handful of subject/unit/scope/format string instances.
+	 */
+	private static final class Columns {
+		private final List<String> ids = new ArrayList<>();
+		private final List<String> subjects = new ArrayList<>();
+		private final List<String> units = new ArrayList<>();
+		private final List<String> topics = new ArrayList<>();
+		private final List<String> scopes = new ArrayList<>();
+		private final List<String> formats = new ArrayList<>();
+		private final List<String> stems = new ArrayList<>();
+		private final List<Object> difficulties = new ArrayList<>();
 
-    /**
-     * Question totals per subject.
-     *
-     * @return subject name to total
-     */
-    public Map<String, Integer> volume() {
-        Map<String, Integer> out = new TreeMap<>();
-        for (Map<String, Object> question : questions) {
-            out.merge(text(question, "subject"), 1, Integer::sum);
-        }
-        return out;
-    }
+		void add(Map<String, Object> header, Map<String, String> pool) {
+			ids.add(intern(pool, text(header, "id")));
+			subjects.add(intern(pool, text(header, "subject")));
+			units.add(intern(pool, text(header, "unit")));
+			topics.add(intern(pool, text(header, "topic")));
+			scopes.add(intern(pool, text(header, "scope")));
+			formats.add(intern(pool, text(header, "format")));
+			stems.add(text(header, "stem"));
+			difficulties.add(header.get("difficulty"));
+		}
 
-    private static boolean matchScope(Map<String, Object> question, String scope) {
-        if (scope == null || scope.isBlank() || "everything".equals(scope)) {
-            return true;
-        }
-        return scope.equals(text(question, "scope"));
-    }
+		String[] ids() {
+			return ids.toArray(new String[0]);
+		}
+		String[] subjects() {
+			return subjects.toArray(new String[0]);
+		}
+		String[] units() {
+			return units.toArray(new String[0]);
+		}
+		String[] topics() {
+			return topics.toArray(new String[0]);
+		}
+		String[] scopes() {
+			return scopes.toArray(new String[0]);
+		}
+		String[] formats() {
+			return formats.toArray(new String[0]);
+		}
+		String[] stems() {
+			return stems.toArray(new String[0]);
+		}
+		Object[] difficulties() {
+			return difficulties.toArray();
+		}
+	}
 
-    private static boolean matchText(String value, String filter) {
-        if (filter == null || filter.isBlank()) {
-            return true;
-        }
-        return filter.equals(value);
-    }
+	private static String intern(Map<String, String> pool, String value) {
+		String found = pool.get(value);
+		if (found != null) {
+			return found;
+		}
+		pool.put(value, value);
+		return value;
+	}
 
-    private static String text(Map<String, Object> question, String key) {
-        return String.valueOf(question.get(key));
-    }
+	private static String text(Map<String, Object> question, String key) {
+		return String.valueOf(question.get(key));
+	}
 
-    private static Map<String, Object> header(Map<String, Object> question) {
-        Map<String, Object> out = new LinkedHashMap<>();
-        out.put("id", question.get("id"));
-        out.put("subject", question.get("subject"));
-        out.put("unit", question.get("unit"));
-        out.put("topic", question.get("topic"));
-        out.put("scope", question.get("scope"));
-        out.put("format", question.get("format"));
-        out.put("difficulty", question.get("difficulty"));
-        out.put("stem", question.get("stem"));
-        return out;
-    }
+	/**
+	 * Loads every readable bank file. A malformed or half-written file must never
+	 * take the whole application down: the strict validator reports it in CI, while
+	 * runtime keeps serving the other 99.9% of the library. Only one file's headers
+	 * are materialised at a time, so peak memory stays flat across the whole bank.
+	 */
+	static Loaded loadAll(Resource[] resources, ObjectMapper mapper) {
+		Columns columns = new Columns();
+		Map<String, String> pool = new HashMap<>();
+		int skipped = 0;
+		for (Resource resource : resources) {
+			try (InputStream in = resource.getInputStream()) {
+				List<Map<String, Object>> batch = recordsOf(mapper.readTree(in), mapper);
+				for (Map<String, Object> header : batch) {
+					columns.add(header, pool);
+				}
+			} catch (IOException | RuntimeException e) {
+				skipped++;
+				log.error("Skipping unreadable bank resource: {}", resource.getFilename(), e);
+			}
+		}
+		if (skipped > 0) {
+			log.warn("Bank loaded with {} unreadable file(s); run `make check-bank` to see details", skipped);
+		}
+		return new Loaded(columns, skipped);
+	}
+
+	/**
+	 * Extracts answer-free headers from one JSON document.
+	 */
+	static List<Map<String, Object>> recordsOf(JsonNode node, ObjectMapper mapper) {
+		if (node.has("questions") && node.path("questions").isArray()) {
+			List<Map<String, Object>> batch = new ArrayList<>();
+			for (JsonNode entry : node.path("questions")) {
+				batch.add(header(entry, mapper));
+			}
+			return batch;
+		}
+		return List.of(header(node, mapper));
+	}
+
+	private static Map<String, Object> header(JsonNode question, ObjectMapper mapper) {
+		Map<String, Object> out = new LinkedHashMap<>();
+		for (String key : HEADER_KEYS) {
+			out.put(key, question.path(key).asText());
+		}
+		JsonNode difficulty = question.get("difficulty");
+		out.put("difficulty", difficulty == null ? null : mapper.convertValue(difficulty, Object.class));
+		return out;
+	}
+
+	/** Number of bank files skipped because they were unreadable at startup. */
+	public int skippedResources() {
+		return skippedResources;
+	}
+
+	/**
+	 * Answer-free headers matching the supplied filters.
+	 */
+	public List<Map<String, Object>> search(String subject, String unit, String scope, String format) {
+		List<Map<String, Object>> out = new ArrayList<>();
+		for (int i = 0; i < ids.length; i++) {
+			if (!subject.equals(subjects[i])) {
+				continue;
+			}
+			if (!matchScope(scopes[i], scope)) {
+				continue;
+			}
+			if (!matchText(units[i], unit)) {
+				continue;
+			}
+			if (!matchText(formats[i], format)) {
+				continue;
+			}
+			out.add(header(i));
+		}
+		return List.copyOf(out);
+	}
+
+	/**
+	 * Answer-free header for one question id.
+	 */
+	public Optional<Map<String, Object>> headerById(String id) {
+		for (int i = 0; i < ids.length; i++) {
+			if (id.equals(ids[i])) {
+				return Optional.of(header(i));
+			}
+		}
+		return Optional.empty();
+	}
+
+	/**
+	 * Per-unit format and scope coverage for one subject.
+	 */
+	public Map<String, Map<String, Object>> coverage(String subject) {
+		Map<String, List<Integer>> byUnit = new TreeMap<>();
+		for (int i = 0; i < ids.length; i++) {
+			if (!subject.equals(subjects[i])) {
+				continue;
+			}
+			List<Integer> list = byUnit.get(units[i]);
+			if (list == null) {
+				list = new ArrayList<>();
+				byUnit.put(units[i], list);
+			}
+			list.add(Integer.valueOf(i));
+		}
+		Map<String, Map<String, Object>> out = new LinkedHashMap<>();
+		for (Map.Entry<String, List<Integer>> entry : byUnit.entrySet()) {
+			Set<String> foundFormats = new TreeSet<>();
+			Set<String> foundScopes = new TreeSet<>();
+			for (Integer index : entry.getValue()) {
+				foundFormats.add(formats[index.intValue()]);
+				foundScopes.add(scopes[index.intValue()]);
+			}
+			Map<String, Object> unit = new LinkedHashMap<>();
+			unit.put("total", Integer.valueOf(entry.getValue().size()));
+			unit.put("formats", List.copyOf(foundFormats));
+			unit.put("scopes", List.copyOf(foundScopes));
+			out.put(entry.getKey(), unit);
+		}
+		return out;
+	}
+
+	/**
+	 * Question totals per subject.
+	 */
+	public Map<String, Integer> volume() {
+		Map<String, Integer> out = new TreeMap<>();
+		for (int i = 0; i < ids.length; i++) {
+			Integer current = out.get(subjects[i]);
+			out.put(subjects[i], current == null ? Integer.valueOf(1) : Integer.valueOf(current.intValue() + 1));
+		}
+		return out;
+	}
+
+	private static boolean matchScope(String value, String scope) {
+		if (scope == null || scope.isBlank() || "everything".equals(scope)) {
+			return true;
+		}
+		return scope.equals(value);
+	}
+
+	private static boolean matchText(String value, String filter) {
+		if (filter == null || filter.isBlank()) {
+			return true;
+		}
+		return filter.equals(value);
+	}
 }

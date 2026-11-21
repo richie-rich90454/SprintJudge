@@ -3,10 +3,11 @@ import { Link } from "@tanstack/react-router";
 import { LogoMark } from "./LogoMark";
 import { SoundToggle } from "./SoundToggle";
 import { MotionToggle } from "./MotionToggle";
+import { AboutDialog } from "./AboutDialog";
 import { webSocketService } from "../game/WebSocketService";
 import { useEffect, useState } from "react";
 
-/** Shared outer shell: header (logo, sound, motion, connection) + footer. */
+/** Shared outer shell: header with logo, connection, sound, motion and About. */
 export function Shell({ children, minimal = false }: { children: ReactNode; minimal?: boolean }) {
     const [online, setOnline] = useState(false);
     useEffect(() => {
@@ -44,18 +45,13 @@ export function Shell({ children, minimal = false }: { children: ReactNode; mini
                                 {online ? "Live" : "Offline"}
                             </span>
                         )}
-                        <SoundToggle />
-                        <MotionToggle />
+                        <SoundToggle className="header-icon" />
+                        <MotionToggle className="header-icon" />
+                        <AboutDialog />
                     </div>
                 </div>
             </header>
             <main className="flex-1 flex flex-col w-full">{children}</main>
-            <footer className="border-t border-[var(--oq-border)] py-3">
-                <div className="page-shell flex justify-between text-xs text-[var(--oq-ink-soft)]">
-                    <span>GPLv3</span>
-                    <span>Self-hosted classroom quiz and code judge</span>
-                </div>
-            </footer>
         </div>
     );
 }

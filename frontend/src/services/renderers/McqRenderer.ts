@@ -47,6 +47,7 @@ export class McqRenderer extends BaseQuestionRenderer {
                 b.classList.add("is-correct");
                 motion.pulse(b);
             } else if (i === this.selected) {
+                b.classList.add("is-wrong");
                 motion.shake(b);
             }
         });

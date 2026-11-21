@@ -18,45 +18,38 @@ import java.util.List;
 @ConditionalOnProperty(name = "sprintjudge.executor.mode", havingValue = "nsjail")
 public class NsJailExecutor extends AbstractScriptExecutor {
 
-    @Value("${sprintjudge.executor.nsjail-binary:/usr/bin/nsjail}")
-    private String nsjailBinary;
+	@Value("${sprintjudge.executor.nsjail-binary:/usr/bin/nsjail}")
+	private String nsjailBinary;
 
-    /**
-     * Fail-closed: this bean only exists when nsjail mode is selected, so a
-     * missing binary must abort boot — never silently judge unsandboxed.
-     */
-    @jakarta.annotation.PostConstruct
-    void verifyBinary() {
-        if (!java.nio.file.Files.isExecutable(Path.of(nsjailBinary))) {
-            throw new IllegalStateException(
-                    "nsjail executor selected but binary is not executable: " + nsjailBinary);
-        }
-    }
+	/**
+	 * Fail-closed: this bean only exists when nsjail mode is selected, so a missing
+	 * binary must abort boot - never silently judge unsandboxed.
+	 */
+	@jakarta.annotation.PostConstruct
+	void verifyBinary() {
+		if (!java.nio.file.Files.isExecutable(Path.of(nsjailBinary))) {
+			throw new IllegalStateException("nsjail executor selected but binary is not executable: " + nsjailBinary);
+		}
+	}
 
-    @Override
-    protected List<String> commandFor(String language, Path sourceFile, Path inputFile, Path runDir) {
-        Path scriptsDir = scriptPath(language).toAbsolutePath().getParent();
-        List<String> cmd = new ArrayList<>(List.of(
-                nsjailBinary,
-                "-Mo", "--chroot", "/",
-                "-E", "PATH=/usr/bin:/bin",
-                "--rlimit_as", "512M",
-                "--rlimit_cpu", "30",
-                "--rlimit_fsize", "8",
-                "--read_only",
-                "--proc_rw",
-                "-R", "/usr", "-R", "/lib", "-R", "/lib64", "-R", "/bin", "-R", "/etc/alternatives",
-                // ponytail: the jail sees host-absolute argv paths, so the run
-                // dir (sources, inputs, compiler outputs) must be mounted
-                // writable and the scripts dir readable — otherwise every
-                // jailed judge fails on invisible files. Tmpfs /tmp keeps
-                // compiler temp files off the host disk.
-                "--bindmount", runDir.toString() + ":" + runDir.toString(),
-                "-R", scriptsDir.toString(),
-                "--tmpfsmount", "/tmp",
-                "--",
-                "bash", scriptPath(language).toString(),
-                sourceFile.toString(), inputFile.toString(), runDir.toString()));
-        return cmd;
-    }
+	@Override
+	protected List<String> commandFor(String language, Path sourceFile, Path inputFile, Path runDir) {
+		Path scriptsDir = scriptPath(language).toAbsolutePath().getParent();
+		// Toolchains under /usr/local/bin are visible through the read-only /usr
+		// bind mount. --disable_proc stops submitted code reading the app's
+		// environment (which carries the admin password) via /proc/<pid>/environ.
+		List<String> cmd = new ArrayList<>(List.of(nsjailBinary, "-Mo", "--chroot", "/", "--disable_net",
+				"--clone_newnet", "-E", "PATH=/usr/bin:/bin:/usr/local/bin", "--rlimit_as", "512M", "--rlimit_cpu",
+				"30", "--rlimit_nproc", "64", "--rlimit_fsize", "8", "--read_only", "--disable_proc", "-R", "/usr",
+				"-R", "/lib", "-R", "/lib64", "-R", "/bin", "-R", "/etc/alternatives",
+				// ponytail: the jail sees host-absolute argv paths, so the run
+				// dir (sources, inputs, compiler outputs) must be mounted
+				// writable and the scripts dir readable - otherwise every
+				// jailed judge fails on invisible files. Tmpfs /tmp keeps
+				// compiler temp files off the host disk.
+				"--bindmount", runDir.toString() + ":" + runDir.toString(), "-R", scriptsDir.toString(), "--tmpfsmount",
+				"/tmp", "--", "bash", scriptPath(language).toString(), sourceFile.toString(), inputFile.toString(),
+				runDir.toString()));
+		return cmd;
+	}
 }

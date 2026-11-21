@@ -94,6 +94,10 @@ export class GameStateManager {
         // On reconnect, rejoin and resync if the player was already connected.
         webSocketService.onStatus().subscribe((status) => {
             if (status === "open" && this.state.playerUuid) {
+                // A fresh transport invalidates sequence numbers and any resync
+                // that was in flight on the dead socket.
+                this.lastSeq = null;
+                this.resyncInFlight = false;
                 webSocketService.send({
                     type: "JOIN",
                     role: this.state.role,

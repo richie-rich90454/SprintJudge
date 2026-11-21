@@ -1,4 +1,48 @@
 @import "tailwindcss";
+@plugin "daisyui" {
+    themes: false;
+}
+
+/* SprintJudge's single DaisyUI theme: the new-baroque palette already used
+   throughout the app. Neutral surfaces, burgundy primary, brass secondary,
+   verdigris accent, flat 1px borders and 2px radii. */
+@plugin "daisyui/theme" {
+    name: "sprintjudge";
+    default: true;
+    color-scheme: light;
+
+    --color-base-100: #ffffff;
+    --color-base-200: #f5f5f5;
+    --color-base-300: #e5e5e5;
+    --color-base-content: #111111;
+
+    --color-primary: #6e2430;
+    --color-primary-content: #ffffff;
+    --color-secondary: #8a6a2f;
+    --color-secondary-content: #ffffff;
+    --color-accent: #1f4e4a;
+    --color-accent-content: #ffffff;
+    --color-neutral: #111111;
+    --color-neutral-content: #ffffff;
+
+    --color-info: #3a5a78;
+    --color-info-content: #ffffff;
+    --color-success: #1f4e4a;
+    --color-success-content: #ffffff;
+    --color-warning: #8a6a2f;
+    --color-warning-content: #ffffff;
+    --color-error: #8c2f2f;
+    --color-error-content: #ffffff;
+
+    --radius-selector: 2px;
+    --radius-field: 2px;
+    --radius-box: 2px;
+    --size-field: 0.75rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
 @import "@xterm/xterm/css/xterm.css";
 
 /* ------------------------------------------------------------------ */
@@ -32,10 +76,13 @@
     --oq-success: #1f4e4a;
     --oq-warning: #8a6a2f;
     --oq-danger: #8c2f2f;
-    --oq-answer-0: #f2f2f2;
-    --oq-answer-1: #e8e8e8;
-    --oq-answer-2: #dddddd;
-    --oq-answer-3: #d0d0d0;
+    /* Muted brand-derived answer hues: terracotta, ink-blue, ochre, verdigris.
+       Four distinct choices without leaving the burgundy/brass identity. */
+    --oq-answer-0: #a8443a;
+    --oq-answer-1: #35536b;
+    --oq-answer-2: #8a6a2f;
+    --oq-answer-3: #1f4e4a;
+    --oq-answer-ink: #ffffff;
 
     --stage-bg: #0b0c0e;
     --stage-surface: #151619;
@@ -143,11 +190,14 @@ textarea {
         padding: 24px;
     }
 
-    .btn {
+    /* Doubled class selectors outrank DaisyUI's later .btn height rule, which
+       derives from --size-field * 10 and makes every button 120px tall. */
+    .btn.btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
+        height: 44px;
         min-height: 44px;
         padding: 0 20px;
         border-radius: var(--radius-panel);
@@ -207,20 +257,36 @@ textarea {
         color: var(--oq-accent);
         background: var(--oq-accent-tint);
     }
-    .btn-sm {
+    .btn.btn-sm {
+        height: 40px;
         min-height: 40px;
         padding: 0 14px;
         font-size: 13px;
     }
-    .btn-lg {
+    .btn.btn-lg {
+        height: 52px;
         min-height: 52px;
         padding: 0 28px;
         font-size: 15px;
     }
-    .btn-icon {
+    .btn.btn-icon {
+        height: 44px;
+        width: 44px;
         min-height: 44px;
         min-width: 44px;
         padding: 0;
+    }
+    /* DaisyUI's ghost button picks up a filled base surface; header switches
+       must stay transparent or they read as broken grey blocks. */
+    .header-icon.btn,
+    .header-icon.btn-ghost {
+        background: transparent;
+        border-color: transparent;
+        box-shadow: none;
+    }
+    .header-icon:hover {
+        color: var(--oq-accent);
+        background: var(--oq-accent-tint);
     }
 
     .input-underline {
@@ -389,6 +455,38 @@ textarea {
     }
 }
 
+/* DaisyUI defines .btn in the utilities layer, which outranks our components
+   layer regardless of specificity. Override control sizes in that same layer. */
+@layer utilities {
+    .btn.btn {
+        height: 44px;
+        min-height: 44px;
+    }
+    .btn.btn-sm {
+        height: 40px;
+        min-height: 40px;
+    }
+    .btn.btn-lg {
+        height: 52px;
+        min-height: 52px;
+    }
+    .btn.btn-icon {
+        height: 44px;
+        width: 44px;
+        min-height: 44px;
+        min-width: 44px;
+    }
+    .btn.btn-square {
+        width: 44px;
+    }
+    .header-icon.btn,
+    .header-icon.btn-ghost {
+        background: transparent;
+        border-color: transparent;
+        box-shadow: none;
+    }
+}
+
 code,
 pre {
     font-family: var(--font-mono);
@@ -527,48 +625,48 @@ html.motion-reduced .tab-panel {
 }
 
 .renderer-host .kahoot-options button {
-    min-height: 76px;
-    padding: 16px 20px;
-    border: 1px solid var(--oq-border-strong);
+    min-height: 96px;
+    padding: 18px 22px;
+    border: 1px solid rgb(255 255 255 / 0.28);
     border-radius: var(--radius-panel);
-    color: var(--oq-ink);
-    font-weight: 600;
-    font-size: clamp(15px, 2.2vw, 21px);
+    color: var(--oq-answer-ink);
+    font-weight: 700;
+    font-size: clamp(16px, 2.4vw, 22px);
     line-height: 1.25;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 18px;
     text-align: left;
     cursor: pointer;
     transition:
-        border-color 160ms var(--ease-out),
+        filter 160ms var(--ease-out),
         transform 160ms var(--ease-out),
-        background-color 160ms var(--ease-out);
+        outline-color 160ms var(--ease-out);
 }
 .renderer-host .kahoot-options button:hover {
-    border-color: var(--oq-accent);
-    transform: translateY(-1px);
+    filter: brightness(1.08);
+    transform: translateY(-2px);
 }
 .renderer-host .kahoot-options button:active {
     transform: scale(0.992);
 }
 .renderer-host .kahoot-options button .opt-letter {
     flex: 0 0 auto;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-panel);
-    background: color-mix(in oklab, var(--oq-surface) 82%, white);
+    background: rgb(255 255 255 / 0.16);
     color: inherit;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--oq-border-strong);
+    border: 1px solid rgb(255 255 255 / 0.35);
 }
 .renderer-host .kahoot-options button .opt-index {
     flex: 0 0 auto;
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--oq-ink-soft);
+    color: rgb(255 255 255 / 0.75);
 }
 .renderer-host .kahoot-options button .opt-letter .opt-shape {
     display: block;
@@ -611,15 +709,20 @@ html.motion-reduced .tab-panel {
     background: var(--oq-answer-3);
 }
 .renderer-host .kahoot-options button[data-selected="true"] {
-    outline: 2px solid var(--oq-accent-dark);
-    outline-offset: -2px;
+    outline: 3px solid var(--oq-ink);
+    outline-offset: -3px;
 }
 .renderer-host .kahoot-options button[disabled] {
     cursor: default;
 }
 .renderer-host .kahoot-options button.is-correct {
-    outline: 2px solid var(--oq-accent-dark);
-    outline-offset: -2px;
+    outline: 3px solid var(--oq-ink);
+    outline-offset: -3px;
+}
+.renderer-host .kahoot-options button.is-wrong {
+    filter: saturate(0.4) brightness(0.82);
+    outline: 3px solid var(--oq-ink);
+    outline-offset: -3px;
 }
 
 .lb-row:nth-child(even) {
@@ -678,4 +781,58 @@ html.motion-reduced .tab-panel {
     .question-shake {
         animation: none;
     }
+}
+
+/* ---- Round feedback: a restrained moment of delight ------------------- */
+.score-pop {
+    display: inline-block;
+    animation: oq-score-pop 420ms var(--ease-out) both;
+}
+@keyframes oq-score-pop {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.92);
+    }
+    60% {
+        transform: translateY(-2px) scale(1.04);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Square motes only: keeps the baroque no-rounded-corners rule. */
+.motes {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+.motes i {
+    position: absolute;
+    top: -12px;
+    width: 8px;
+    height: 8px;
+    background: var(--oq-answer-2);
+    animation: oq-mote 1100ms var(--ease-out) forwards;
+}
+.motes i:nth-child(2n) {
+    background: var(--oq-accent);
+}
+.motes i:nth-child(3n) {
+    background: var(--oq-success);
+}
+@keyframes oq-mote {
+    to {
+        transform: translateY(280px);
+        opacity: 0;
+    }
+}
+html.motion-reduced .score-pop,
+html.motion-reduced .motes i {
+    animation: none;
+}
+html.motion-reduced .motes {
+    display: none;
 }

@@ -13,57 +13,58 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("all")
 class UserRepositoryTest {
 
-    private DSLContext dsl;
-    private UserRepository repo;
+	private DSLContext dsl;
+	private UserRepository repo;
 
-    @BeforeEach
-    void setup() throws Exception {
-        dsl = TestDb.inMemory();
-        repo = new UserRepository(dsl);
-    }
+	@BeforeEach
+	void setup() throws Exception {
+		dsl = TestDb.inMemory();
+		repo = new UserRepository(dsl);
+	}
 
-    @Test
-    void upsertNewInserts() {
-        User u = repo.upsertByEmail("a@b.com", "Al", "ava");
-        assertNotNull(u.id());
-        assertEquals("ADMIN", u.role());
-        assertEquals("Al", u.name());
-        assertEquals("ava", u.avatarUrl());
-    }
+	@Test
+	void upsertNewInserts() {
+		User u = repo.upsertByEmail("a@b.com", "Al", "ava");
+		assertNotNull(u.getId());
+		assertEquals("ADMIN", u.getRole());
+		assertEquals("Al", u.getName());
+		assertEquals("ava", u.getAvatarUrl());
+	}
 
-    @Test
-    void upsertExistingReturnsExistingWithoutInsert() {
-        User first = repo.upsertByEmail("a@b.com", "Al", "ava");
-        User second = repo.upsertByEmail("a@b.com", "Different", "x");
-        assertEquals(first.id(), second.id());
-        assertEquals("Al", second.name());
-    }
+	@Test
+	void upsertExistingReturnsExistingWithoutInsert() {
+		User first = repo.upsertByEmail("a@b.com", "Al", "ava");
+		User second = repo.upsertByEmail("a@b.com", "Different", "x");
+		assertEquals(first.getId(), second.getId());
+		assertEquals("Al", second.getName());
+	}
 
-    @Test
-    void findByEmailFound() {
-        repo.upsertByEmail("a@b.com", "Al", "ava");
-        Optional<User> o = repo.findByEmail("a@b.com");
-        assertTrue(o.isPresent());
-        assertEquals("a@b.com", o.get().email());
-    }
+	@Test
+	void findByEmailFound() {
+		repo.upsertByEmail("a@b.com", "Al", "ava");
+		Optional<User> o = repo.findByEmail("a@b.com");
+		assertTrue(o.isPresent());
+		assertEquals("a@b.com", o.get().getEmail());
+	}
 
-    @Test
-    void findByEmailNotFound() {
-        assertTrue(repo.findByEmail("nope@b.com").isEmpty());
-    }
+	@Test
+	void findByEmailNotFound() {
+		assertTrue(repo.findByEmail("nope@b.com").isEmpty());
+	}
 
-    @Test
-    void findAllEmpty() {
-        assertTrue(repo.findAll().isEmpty());
-    }
+	@Test
+	void findAllEmpty() {
+		assertTrue(repo.findAll().isEmpty());
+	}
 
-    @Test
-    void findAllPopulated() {
-        repo.upsertByEmail("a@b.com", "Al", "ava");
-        repo.upsertByEmail("c@d.com", "Bo", "bv");
-        List<User> all = repo.findAll();
-        assertEquals(2, all.size());
-    }
+	@Test
+	void findAllPopulated() {
+		repo.upsertByEmail("a@b.com", "Al", "ava");
+		repo.upsertByEmail("c@d.com", "Bo", "bv");
+		List<User> all = repo.findAll();
+		assertEquals(2, all.size());
+	}
 }

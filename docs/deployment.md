@@ -23,15 +23,16 @@ directly (no nsjail on Windows), and the database defaults to a portable relativ
 ```bash
 make prod          # builds target/sprintjudge.jar and starts it with ZGC
 # optional environment:
-#   SPRINTJUDGE_DB_PATH=D:\data\sprintjudge.db
+#   SPRINTJUDGE_DB_PATH=D:/data/sprintjudge.db
 #   SPRINTJUDGE_PORT=8080
 #   SPRINTJUDGE_EXECUTOR_MODE=native
 ```
 
 The parent directory of `SPRINTJUDGE_DB_PATH` is created automatically on first boot.
-Without an explicit path, the database (and a `.env` file if present) lives next to
-the running jar, so the whole deployment is one folder you can copy around.
-Verify any Windows launch in one command:
+Without an explicit path the database is `./database/sprintjudge.db` relative to the
+working directory. `.env` is read by `make`, not by a plain `java -jar`; pass values
+as environment variables or CLI flags for direct launches. Verify any Windows
+launch in one command:
 
 ```bash
 make verify-prod SKIP_BUILD=1   # boots prod, checks the REST health endpoints
@@ -50,7 +51,8 @@ on the executor's whitelist, source cap, timeout-kill, and stdout-cap controls.
   Both locations forward `X-Forwarded-For`/`X-Real-IP` so rate limiting sees
   real client IPs. Upstream is `127.0.0.1:8080` — match it with SPRINTJUDGE_PORT.
 - Set `SPRINTJUDGE_COOKIE_SECURE=true` behind TLS nginx.
-- Use the `prod` profile: `SPRINTJUDGE_EXECUTOR_MODE=nsjail`, executor `nsjail` binary on `PATH`.
+- Use the `prod` profile: `SPRINTJUDGE_EXECUTOR_MODE=nsjail` with the binary at
+  `/usr/bin/nsjail` (the systemd unit pins the same absolute path).
 - Weekly SQLite WAL checkpoint:
 
 ```bash
@@ -81,12 +83,44 @@ Rollback: stop the service, restore the backup, put the previous jar back,
 start, and probe health again. SQLite migrations are forward-only, so a jar
 rollback without the matching database backup is not supported.
 
-## Verified on Linux (WSL Ubuntu 24.04, 2026-10-30)
+## Fresh Linux install
 
-- `bash -n` passes for `scripts/backup-db.sh`, `scripts/restore-db.sh`, and `deploy/health-check.sh`.
-- `systemd-analyze` and `nginx` are not installed in the WSL image used, so the unit and reverse-proxy configs were not machine-verified here; review them by hand before go-live.
-- OpenJDK 25 is not available in the Ubuntu 24.04 archive (only OpenJDK 21), so the production jar was not booted under Linux on this host. Boot it on the target host with the bundled `make prod` flow and probe `/actuator/health`.
-- The jar builds and boots on Windows with the `prod` profile (see `make verify-prod`).
+The host must have **JDK 25** (Ubuntu 24.04's archive only has JDK 21, so install
+Temurin/Adoptium 25), `/usr/bin/nsjail`, nginx, curl, python3 and sqlite3. No WSL,
+no global npm tools, and no global Maven are needed - `./mvnw` and local
+`node_modules` cover the build.
+
+```bash
+make package                       # local SPA + fat jar, no global installs
+sudo -E bash deploy/install.sh     # prompts for the admin password; -E keeps env
+bash deploy/health-check.sh
+```
+
+`deploy/install.sh` creates the `sprintjudge` service user, `/opt/sprintjudge`
+(jar + `executor/compile-scripts`), `/var/lib/sprintjudge` (database), the `.env`
+with the DB path and admin password, and installs/enables the systemd unit,
+nginx vhost and logrotate config. The bootstrap vhost is HTTP-only so it does
+not require certificates. After certbot has issued certificates, replace
+`/etc/nginx/sites-available/sprintjudge` with
+`deploy/nginx-sprintjudge.conf` (adjusting the upstream port if you chose a
+non-default `SPRINTJUDGE_PORT`) and reload nginx to enable TLS.
+
+Edit `/opt/sprintjudge/.env` to set CORS or change the port. Keep values shell-safe
+(no spaces, quotes or `$`) because the systemd unit and Makefile source it as a
+shell file.
+
+## Verification status
+
+- `bash -n` passes for `scripts/backup-db.sh`, `scripts/restore-db.sh`,
+  `deploy/health-check.sh`, and `deploy/install.sh`.
+- The jar builds, boots and passes all health checks on Windows with the `prod`
+  profile (`make verify-prod`). The native executor was verified with real
+  C/C++/Java/Node/Python submissions and uses no WSL.
+- The systemd unit and nginx config must be validated on the target host with
+  `systemd-analyze verify` and `nginx -t`; `deploy/install.sh` runs `nginx -t`
+  before enabling anything.
+- Boot the jar on the target Linux host and run `deploy/health-check.sh` before
+  opening access to students.
 
 ## Public runner policy
 
@@ -119,7 +153,7 @@ Go-live checklist:
 
 ```mermaid
 flowchart TB
-    A["nsjail on PATH"] --> B[".env set + perms"]
+    A["/usr/bin/nsjail + JDK 25"] --> B[".env set + perms"]
     B --> C["nginx up, certs live"]
     C --> D["make prod smoke test"]
     D --> E["QR join from a phone"]
@@ -129,8 +163,8 @@ flowchart TB
 
 ## Development (Windows)
 
-- Use the `dev` profile; the executor defaults to `native` toolchains, with WSL2
-  Ubuntu opt-in via `SPRINTJUDGE_EXECUTOR_MODE=wsl`.
+- Use the `dev` profile; the executor defaults to `native` toolchains with no WSL.
+  Toolchains must be on PATH (`gcc`, `g++`, `javac`, `java`, `node`, `python3`/`python`).
 - `spring.profiles.active=dev`.
 
 ## Concurrency
@@ -158,7 +192,7 @@ proxy_set_header X-Real-IP $remote_addr;
 1. Verify the toolchain on the host:
    ```bash
    java -version          # JDK 25 LTS
-   command -v nsjail && nsjail --version
+   /usr/bin/nsjail --version
    systemctl is-active sprintjudge
    ```
 2. Take a WAL-safe backup:
@@ -193,7 +227,7 @@ database backup.
 
 - HTTP: `curl -fsS http://127.0.0.1:8080/actuator/health` (expect `{"status":"UP"}`).
 - Database: `sqlite3 /var/lib/sprintjudge/sprintjudge.db 'PRAGMA integrity_check;'` (expect `ok`).
-- Executor: `command -v nsjail && nsjail --version`.
+- Executor: `/usr/bin/nsjail --version`.
 - Combined: `deploy/health-check.sh` (exits non-zero on any failure).
 
 ### Log rotation

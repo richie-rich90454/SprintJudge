@@ -31,283 +31,313 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("all")
 class GameWebSocketTeamBattleTest {
 
-    @Mock GameRoomManager roomManager;
-    @Mock JoinRateLimiter rateLimiter;
-    @Mock WebSocketSessionManager sessions;
-    @Mock Session session;
-    @Mock RemoteEndpoint.Basic remote;
+	@Mock
+	GameRoomManager roomManager;
+	@Mock
+	JoinRateLimiter rateLimiter;
+	@Mock
+	WebSocketSessionManager sessions;
+	@Mock
+	Session session;
+	@Mock
+	RemoteEndpoint.Basic remote;
 
-    private final Map<String, Object> props = new HashMap<>();
+	private final Map<String, Object> props = new HashMap<>();
 
-    @BeforeEach
-    void setUp() throws Exception {
-        lenient().when(session.getUserProperties()).thenReturn(props);
-        lenient().when(session.getBasicRemote()).thenReturn(remote);
-        lenient().when(session.isOpen()).thenReturn(true);
-        lenient().when(session.getId()).thenReturn("sess");
-        lenient().doAnswer(inv -> null).when(remote).sendText(anyString());
-        lenient().doAnswer(inv -> null).when(sessions).sendRaw(eq("sess"), anyString());
-        Map<String, Object> handshake = new HashMap<>();
-        handshake.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.FALSE);
-        handshake.put(SecureHandshakeConfigurator.REMOTE_ADDR, "unresolved");
-        EndpointConfig cfg = org.mockito.Mockito.mock(EndpointConfig.class);
-        lenient().when(cfg.getUserProperties()).thenReturn(handshake);
-        new GameWebSocket(roomManager, rateLimiter, sessions).onOpen(session, cfg);
-    }
+	@BeforeEach
+	void setUp() throws Exception {
+		lenient().when(session.getUserProperties()).thenReturn(props);
+		lenient().when(session.getBasicRemote()).thenReturn(remote);
+		lenient().when(session.isOpen()).thenReturn(true);
+		lenient().when(session.getId()).thenReturn("sess");
+		lenient().doAnswer(new org.mockito.stubbing.Answer<Object>() {
+			@Override
+			public Object answer(org.mockito.invocation.InvocationOnMock inv) {
+				return null;
+			}
+		}).when(remote).sendText(anyString());
+		lenient().doAnswer(new org.mockito.stubbing.Answer<Object>() {
+			@Override
+			public Object answer(org.mockito.invocation.InvocationOnMock inv) {
+				return null;
+			}
+		}).when(sessions).sendRaw(eq("sess"), anyString());
+		Map<String, Object> handshake = new HashMap<>();
+		handshake.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.FALSE);
+		handshake.put(SecureHandshakeConfigurator.REMOTE_ADDR, "unresolved");
+		EndpointConfig cfg = org.mockito.Mockito.mock(EndpointConfig.class);
+		lenient().when(cfg.getUserProperties()).thenReturn(handshake);
+		new GameWebSocket(roomManager, rateLimiter, sessions).onOpen(session, cfg);
+	}
 
-    private GameWebSocket ws() {
-        return new GameWebSocket(roomManager, rateLimiter, sessions);
-    }
+	private GameWebSocket ws() {
+		return new GameWebSocket(roomManager, rateLimiter, sessions);
+	}
 
-    private String lastMessage() {
-        ArgumentCaptor<String> cap = ArgumentCaptor.forClass(String.class);
-        verify(sessions).sendRaw(eq("sess"), cap.capture());
-        return cap.getValue();
-    }
+	private String lastMessage() {
+		ArgumentCaptor<String> cap = ArgumentCaptor.forClass(String.class);
+		verify(sessions).sendRaw(eq("sess"), cap.capture());
+		return cap.getValue();
+	}
 
-    private void asHost() {
-        props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
-        props.put("role", "host");
-        props.put("pin", "123456");
-    }
+	private void asHost() {
+		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put("role", "host");
+		props.put("pin", "123456");
+	}
 
-    @Test
-    void createTeamHappyPathSendsTeamCreated() {
-        asHost();
-        when(roomManager.createTeam("123456", "Alpha"))
-                .thenReturn(new GameRoom.Team("team-1", "Alpha", Set.of(), 0));
-        ws().onMessage(session, "{\"type\":\"CREATE_TEAM\",\"name\":\"Alpha\"}");
-        verify(roomManager).createTeam("123456", "Alpha");
-        assertTrue(lastMessage().contains("TEAM_CREATED"));
-        assertTrue(lastMessage().contains("team-1"));
-    }
+	@Test
+	void createTeamHappyPathSendsTeamCreated() {
+		asHost();
+		when(roomManager.createTeam("123456", "Alpha")).thenReturn(new GameRoom.Team("team-1", "Alpha", Set.of(), 0));
+		ws().onMessage(session, "{\"type\":\"CREATE_TEAM\",\"name\":\"Alpha\"}");
+		verify(roomManager).createTeam("123456", "Alpha");
+		assertTrue(lastMessage().contains("TEAM_CREATED"));
+		assertTrue(lastMessage().contains("team-1"));
+	}
 
-    @Test
-    void createTeamDefaultsNameWhenMissing() {
-        asHost();
-        when(roomManager.createTeam(eq("123456"), anyString()))
-                .thenReturn(new GameRoom.Team("team-1", "Team", Set.of(), 0));
-        ws().onMessage(session, "{\"type\":\"CREATE_TEAM\"}");
-        verify(roomManager).createTeam("123456", "Team");
-    }
+	@Test
+	void createTeamDefaultsNameWhenMissing() {
+		asHost();
+		when(roomManager.createTeam(eq("123456"), anyString()))
+				.thenReturn(new GameRoom.Team("team-1", "Team", Set.of(), 0));
+		ws().onMessage(session, "{\"type\":\"CREATE_TEAM\"}");
+		verify(roomManager).createTeam("123456", "Team");
+	}
 
-    @Test
-    void createTeamForbiddenForPlayer() {
-        props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
-        props.put("role", "player");
-        props.put("pin", "123456");
-        ws().onMessage(session, "{\"type\":\"CREATE_TEAM\",\"name\":\"Alpha\"}");
-        assertTrue(lastMessage().contains("Forbidden"));
-        verify(roomManager, never()).createTeam(anyString(), anyString());
-    }
+	@Test
+	void createTeamForbiddenForPlayer() {
+		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put("role", "player");
+		props.put("pin", "123456");
+		ws().onMessage(session, "{\"type\":\"CREATE_TEAM\",\"name\":\"Alpha\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).createTeam(anyString(), anyString());
+	}
 
-    @Test
-    void createTeamForbiddenWhenUnauthenticated() {
-        props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.FALSE);
-        props.put("role", "host");
-        props.put("pin", "123456");
-        ws().onMessage(session, "{\"type\":\"CREATE_TEAM\",\"name\":\"Alpha\"}");
-        assertTrue(lastMessage().contains("Forbidden"));
-        verify(roomManager, never()).createTeam(anyString(), anyString());
-    }
+	@Test
+	void createTeamForbiddenWhenUnauthenticated() {
+		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.FALSE);
+		props.put("role", "host");
+		props.put("pin", "123456");
+		ws().onMessage(session, "{\"type\":\"CREATE_TEAM\",\"name\":\"Alpha\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).createTeam(anyString(), anyString());
+	}
 
-    @Test
-    void leaveTeamRequiresAPlayerUuid() {
-        props.put("pin", "123456");
-        ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
-        verify(roomManager, never()).leaveTeam(anyString(), anyString());
-    }
+	@Test
+	void leaveTeamRequiresAPlayerUuid() {
+		props.put("pin", "123456");
+		ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
+		verify(roomManager, never()).leaveTeam(anyString(), anyString());
+	}
 
-    @Test
-    void leaveTeamHappyPathDelegates() {
-        props.put("pin", "123456");
-        props.put("playerUuid", "uuid-9");
-        ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
-        verify(roomManager).leaveTeam("123456", "uuid-9");
-    }
+	@Test
+	void leaveTeamHappyPathDelegates() {
+		props.put("pin", "123456");
+		props.put("playerUuid", "uuid-9");
+		ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
+		verify(roomManager).leaveTeam("123456", "uuid-9");
+	}
 
-    @Test
-    void leaveTeamLockedTeamSendsError() {
-        props.put("pin", "123456");
-        props.put("playerUuid", "uuid-9");
-        doThrow(new IllegalStateException("Teams are locked once the game starts"))
-                .when(roomManager).leaveTeam("123456", "uuid-9");
-        ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
-        assertTrue(lastMessage().contains("locked"));
-    }
+	@Test
+	void leaveTeamLockedTeamSendsError() {
+		props.put("pin", "123456");
+		props.put("playerUuid", "uuid-9");
+		doThrow(new IllegalStateException("Teams are locked once the game starts")).when(roomManager)
+				.leaveTeam("123456", "uuid-9");
+		ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
+		assertTrue(lastMessage().contains("locked"));
+	}
 
-    @Test
-    void leaveTeamUnknownTeamSendsError() {
-        props.put("pin", "123456");
-        props.put("playerUuid", "uuid-9");
-        doThrow(new IllegalArgumentException("Unknown team: team-9"))
-                .when(roomManager).leaveTeam("123456", "uuid-9");
-        ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
-        assertTrue(lastMessage().contains("Unknown team"));
-    }
+	@Test
+	void leaveTeamUnknownTeamSendsError() {
+		props.put("pin", "123456");
+		props.put("playerUuid", "uuid-9");
+		doThrow(new IllegalArgumentException("Unknown team: team-9")).when(roomManager).leaveTeam("123456", "uuid-9");
+		ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
+		assertTrue(lastMessage().contains("Unknown team"));
+	}
 
-    @Test
-    void spectatorSubmitIsRejected() {
-        props.put("pin", "123456");
-        props.put("playerUuid", "uuid-9");
-        props.put("role", "spectator");
-        ws().onMessage(session,
-                "{\"type\":\"SUBMIT\",\"questionId\":\"q1\",\"response\":{\"selectedIndex\":0}}");
-        assertTrue(lastMessage().contains("Spectators cannot submit"));
-        verify(roomManager, never()).submit(anyString(), anyString(), anyString(), anyString(), any());
-    }
+	@Test
+	void spectatorSubmitIsRejected() {
+		props.put("pin", "123456");
+		props.put("playerUuid", "uuid-9");
+		props.put("role", "spectator");
+		ws().onMessage(session, "{\"type\":\"SUBMIT\",\"questionId\":\"q1\",\"response\":{\"selectedIndex\":0}}");
+		assertTrue(lastMessage().contains("Spectators cannot submit"));
+		verify(roomManager, never()).submit(anyString(), anyString(), anyString(), anyString(), any());
+	}
 
-    @Test
-    void joinTeamHappyPathSendsTeamJoined() {
-        props.put("pin", "123456");
-        props.put("playerUuid", "uuid-9");
-        when(roomManager.joinTeam("123456", "team-1", "uuid-9"))
-                .thenReturn(new GameRoom.Team("team-1", "Alpha", Set.of("uuid-9"), 0));
-        ws().onMessage(session, "{\"type\":\"JOIN_TEAM\",\"teamId\":\"team-1\"}");
-        verify(roomManager).joinTeam("123456", "team-1", "uuid-9");
-        assertTrue(lastMessage().contains("TEAM_JOINED"));
-    }
+	@Test
+	void joinTeamHappyPathSendsTeamJoined() {
+		props.put("pin", "123456");
+		props.put("playerUuid", "uuid-9");
+		when(roomManager.joinTeam("123456", "team-1", "uuid-9"))
+				.thenReturn(new GameRoom.Team("team-1", "Alpha", Set.of("uuid-9"), 0));
+		ws().onMessage(session, "{\"type\":\"JOIN_TEAM\",\"teamId\":\"team-1\"}");
+		verify(roomManager).joinTeam("123456", "team-1", "uuid-9");
+		assertTrue(lastMessage().contains("TEAM_JOINED"));
+	}
 
-    @Test
-    void joinTeamWithoutUuidNeverCallsManager() {
-        props.put("pin", "123456");
-        ws().onMessage(session, "{\"type\":\"JOIN_TEAM\",\"teamId\":\"team-1\"}");
-        verify(roomManager, never()).joinTeam(anyString(), anyString(), anyString());
-    }
+	@Test
+	void joinTeamWithoutUuidNeverCallsManager() {
+		props.put("pin", "123456");
+		ws().onMessage(session, "{\"type\":\"JOIN_TEAM\",\"teamId\":\"team-1\"}");
+		verify(roomManager, never()).joinTeam(anyString(), anyString(), anyString());
+	}
 
-    @Test
-    void joinTeamWithBlankTeamIdNeverCallsManager() {
-        props.put("pin", "123456");
-        props.put("playerUuid", "uuid-9");
-        ws().onMessage(session, "{\"type\":\"JOIN_TEAM\",\"teamId\":\"  \"}");
-        verify(roomManager, never()).joinTeam(anyString(), anyString(), anyString());
-    }
+	@Test
+	void joinTeamWithBlankTeamIdNeverCallsManager() {
+		props.put("pin", "123456");
+		props.put("playerUuid", "uuid-9");
+		ws().onMessage(session, "{\"type\":\"JOIN_TEAM\",\"teamId\":\"  \"}");
+		verify(roomManager, never()).joinTeam(anyString(), anyString(), anyString());
+	}
 
-    @Test
-    void joinTeamNullResultSendsNothing() {
-        props.put("pin", "123456");
-        props.put("playerUuid", "uuid-9");
-        when(roomManager.joinTeam("123456", "ghost", "uuid-9")).thenReturn(null);
-        ws().onMessage(session, "{\"type\":\"JOIN_TEAM\",\"teamId\":\"ghost\"}");
-        verify(sessions, never()).sendRaw(eq("sess"), contains("TEAM_JOINED"));
-    }
+	@Test
+	void joinTeamNullResultSendsNothing() {
+		props.put("pin", "123456");
+		props.put("playerUuid", "uuid-9");
+		when(roomManager.joinTeam("123456", "ghost", "uuid-9")).thenReturn(null);
+		ws().onMessage(session, "{\"type\":\"JOIN_TEAM\",\"teamId\":\"ghost\"}");
+		verify(sessions, never()).sendRaw(eq("sess"), contains("TEAM_JOINED"));
+	}
 
-    @Test
-    void getTeamsHappyPathSendsTeamList() {
-        props.put("pin", "123456");
-        when(roomManager.getTeams("123456")).thenReturn(
-                List.of(new GameRoom.Team("team-1", "Alpha", Set.of(), 0)));
-        ws().onMessage(session, "{\"type\":\"GET_TEAMS\"}");
-        assertTrue(lastMessage().contains("TEAM_LIST"));
-    }
+	@Test
+	void getTeamsHappyPathSendsTeamList() {
+		props.put("pin", "123456");
+		when(roomManager.getTeams("123456")).thenReturn(List.of(new GameRoom.Team("team-1", "Alpha", Set.of(), 0)));
+		ws().onMessage(session, "{\"type\":\"GET_TEAMS\"}");
+		assertTrue(lastMessage().contains("TEAM_LIST"));
+	}
 
-    @Test
-    void getTeamsWithoutPinSendsJoinFirstError() {
-        ws().onMessage(session, "{\"type\":\"GET_TEAMS\"}");
-        assertTrue(lastMessage().contains("Join a room first"));
-    }
+	@Test
+	void getTeamsWithoutPinSendsJoinFirstError() {
+		ws().onMessage(session, "{\"type\":\"GET_TEAMS\"}");
+		assertTrue(lastMessage().contains("Join a room first"));
+	}
 
-    @Test
-    void startBattleHappyPathForwardsToManager() {
-        asHost();
-        ws().onMessage(session, "{\"type\":\"START_BATTLE\"}");
-        verify(roomManager).startBattle("123456");
-    }
+	@Test
+	void startBattleHappyPathForwardsToManager() {
+		asHost();
+		ws().onMessage(session, "{\"type\":\"START_BATTLE\"}");
+		verify(roomManager).startBattle("123456");
+	}
 
-    @Test
-    void startBattleForbiddenForPlayer() {
-        props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
-        props.put("role", "player");
-        props.put("pin", "123456");
-        ws().onMessage(session, "{\"type\":\"START_BATTLE\"}");
-        assertTrue(lastMessage().contains("Forbidden"));
-        verify(roomManager, never()).startBattle(anyString());
-    }
+	@Test
+	void startBattleForbiddenForPlayer() {
+		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put("role", "player");
+		props.put("pin", "123456");
+		ws().onMessage(session, "{\"type\":\"START_BATTLE\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).startBattle(anyString());
+	}
 
-    @Test
-    void getBracketHappyPathSendsBracket() {
-        props.put("pin", "123456");
-        when(roomManager.getBracketView("123456")).thenReturn(
-                new com.sprintjudge.domain.dto.BattleBracket("BRACKET", java.util.List.of(), null, null));
-        ws().onMessage(session, "{\"type\":\"GET_BRACKET\"}");
-        assertTrue(lastMessage().contains("BRACKET"));
-    }
+	@Test
+	void getBracketHappyPathSendsBracket() {
+		props.put("pin", "123456");
+		when(roomManager.getBracketView("123456"))
+				.thenReturn(new com.sprintjudge.domain.dto.BattleBracket("BRACKET", java.util.List.of(), null, null));
+		ws().onMessage(session, "{\"type\":\"GET_BRACKET\"}");
+		assertTrue(lastMessage().contains("BRACKET"));
+	}
 
-    @Test
-    void getBracketWithoutPinSendsJoinFirstError() {
-        ws().onMessage(session, "{\"type\":\"GET_BRACKET\"}");
-        assertTrue(lastMessage().contains("Join a room first"));
-    }
+	@Test
+	void getBracketWithoutPinSendsJoinFirstError() {
+		ws().onMessage(session, "{\"type\":\"GET_BRACKET\"}");
+		assertTrue(lastMessage().contains("Join a room first"));
+	}
 
-    @Test
-    void joinTeamPlayerObjectAvailable() {
-        var p = new Player("uuid-9", "Bob", 0, "sess", true);
-        org.junit.jupiter.api.Assertions.assertEquals("uuid-9", p.uuid());
-    }
+	@Test
+	void joinTeamPlayerObjectAvailable() {
+		com.sprintjudge.service.Player p = new Player("uuid-9", "Bob", 0, "sess", true);
+		org.junit.jupiter.api.Assertions.assertEquals("uuid-9", p.getUuid());
+	}
 
-    @Test
-    void closeLeavesRoom() {
-        props.put("pin", "123456");
-        props.put("playerUuid", "u1");
-        ws().onClose(session);
-        verify(sessions).unregister("sess");
-        verify(roomManager).leave("123456", "u1");
-    }
+	@Test
+	void closeLeavesRoom() {
+		props.put("pin", "123456");
+		props.put("playerUuid", "u1");
+		ws().onClose(session);
+		verify(sessions).unregister("sess");
+		verify(roomManager).leave("123456", "u1");
+	}
 
-    @Test
-    void closeWithoutSeatSkipsLeave() {
-        ws().onClose(session);
-        verify(sessions).unregister("sess");
-        verify(roomManager, never()).leave(anyString(), anyString());
-    }
+	@Test
+	void closeWithoutSeatSkipsLeave() {
+		ws().onClose(session);
+		verify(sessions).unregister("sess");
+		verify(roomManager, never()).leave(anyString(), anyString());
+	}
 
-    @Test
-    void closeWithDeadSessionSkipsCleanup() {
-        when(session.getId()).thenThrow(new IllegalStateException("closed"));
-        when(session.getUserProperties()).thenThrow(new IllegalStateException("closed"));
-        assertDoesNotThrow(() -> ws().onClose(session));
-        verify(sessions, never()).unregister(anyString());
-        verify(roomManager, never()).leave(anyString(), anyString());
-    }
+	@Test
+	void closeWithDeadSessionSkipsCleanup() {
+		when(session.getId()).thenThrow(new IllegalStateException("closed"));
+		when(session.getUserProperties()).thenThrow(new IllegalStateException("closed"));
+		assertDoesNotThrow(new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() {
+				ws().onClose(session);
+			}
+		});
+		verify(sessions, never()).unregister(anyString());
+		verify(roomManager, never()).leave(anyString(), anyString());
+	}
 
-    @Test
-    void closeSurvivesUnregisterFailure() {
-        props.put("pin", "123456");
-        props.put("playerUuid", "u1");
-        doThrow(new RuntimeException("gone")).when(sessions).unregister("sess");
-        assertDoesNotThrow(() -> ws().onClose(session));
-        verify(roomManager).leave("123456", "u1");
-    }
+	@Test
+	void closeSurvivesUnregisterFailure() {
+		props.put("pin", "123456");
+		props.put("playerUuid", "u1");
+		doThrow(new RuntimeException("gone")).when(sessions).unregister("sess");
+		assertDoesNotThrow(new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() {
+				ws().onClose(session);
+			}
+		});
+		verify(roomManager).leave("123456", "u1");
+	}
 
-    @Test
-    void closeSurvivesLeaveFailure() {
-        props.put("pin", "123456");
-        props.put("playerUuid", "u1");
-        doThrow(new RuntimeException("db down")).when(roomManager).leave("123456", "u1");
-        assertDoesNotThrow(() -> ws().onClose(session));
-    }
+	@Test
+	void closeSurvivesLeaveFailure() {
+		props.put("pin", "123456");
+		props.put("playerUuid", "u1");
+		doThrow(new RuntimeException("db down")).when(roomManager).leave("123456", "u1");
+		assertDoesNotThrow(new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() {
+				ws().onClose(session);
+			}
+		});
+	}
 
-    @Test
-    void errorDelegatesToClose() {
-        props.put("pin", "123456");
-        props.put("playerUuid", "u1");
-        assertDoesNotThrow(() -> ws().onError(session, new RuntimeException("reset")));
-        verify(roomManager).leave("123456", "u1");
-    }
+	@Test
+	void errorDelegatesToClose() {
+		props.put("pin", "123456");
+		props.put("playerUuid", "u1");
+		assertDoesNotThrow(new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() {
+				ws().onError(session, new RuntimeException("reset"));
+			}
+		});
+		verify(roomManager).leave("123456", "u1");
+	}
 
-    @Test
-    void joinSendsCatchUpAfterJoined() {
-        when(rateLimiter.tryJoin(any())).thenReturn(true);
-        var player = new Player("uuid-1", "Solo", 0, "sess", true, "tok-1");
-        when(roomManager.join(eq("123456"), eq("Solo"), eq("sess"), eq("player"), any()))
-                .thenReturn(player);
-        when(roomManager.getRoomState("123456")).thenReturn(
-                new com.sprintjudge.domain.dto.RoomState("ROOM_STATE", "LOBBY", 0, null,
-                        List.of(), "PRACTICE"));
-        ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Solo\"}");
-        assertTrue(lastMessage().contains("JOINED"));
-        verify(roomManager).sendCurrentQuestion("123456", "sess");
-    }
+	@Test
+	void joinSendsCatchUpAfterJoined() {
+		when(rateLimiter.tryJoin(any())).thenReturn(true);
+		com.sprintjudge.service.Player player = new Player("uuid-1", "Solo", 0, "sess", true, "tok-1");
+		when(roomManager.join(eq("123456"), eq("Solo"), eq("sess"), eq("player"), any())).thenReturn(player);
+		when(roomManager.getRoomState("123456")).thenReturn(
+				new com.sprintjudge.domain.dto.RoomState("ROOM_STATE", "LOBBY", 0, null, List.of(), "PRACTICE"));
+		ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Solo\"}");
+		assertTrue(lastMessage().contains("JOINED"));
+		verify(roomManager).sendCurrentQuestion("123456", "sess");
+	}
 }

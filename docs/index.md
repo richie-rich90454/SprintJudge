@@ -15,7 +15,7 @@ features:
   - title: 12 question formats
     details: MCQ, True/False, Multiple Select, Numeric, Output Prediction, Fill Blank, Drag Sort, Click-the-Bug, Code Completion, Complexity, and two full Online-Judge modes.
   - title: Real code execution
-    details: Players write actual C, C++, Java, Node.js or Python, compiled and run against hidden test cases with nsjail (Linux) or WSL2 (Windows) isolation.
+    details: Players write actual C, C++, Java, Node.js or Python, compiled and run against hidden test cases with nsjail (Linux) or native toolchains (Windows, no WSL).
   - title: Portable & fast
     details: Single-file SQLite (WAL), Java 25 virtual threads + ZGC, vanilla Jakarta WebSocket, auto-sized judge concurrency.
 ---

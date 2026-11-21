@@ -25,80 +25,77 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@SuppressWarnings("all")
 class SecurityPermitMatrixTest {
 
-    @TempDir
-    static Path tempDir;
+	@TempDir
+	static Path tempDir;
 
-    @DynamicPropertySource
-    static void props(DynamicPropertyRegistry registry) {
-        registry.add("sprintjudge.db.path", () -> tempDir.resolve("matrix.db").toString());
-    }
+	@DynamicPropertySource
+	static void props(DynamicPropertyRegistry registry) {
+		registry.add("sprintjudge.db.path", new java.util.function.Supplier<Object>() {
+			@Override
+			public Object get() {
+				return tempDir.resolve("matrix.db").toString();
+			}
+		});
+	}
 
-    @Autowired
-    MockMvc mvc;
+	@Autowired
+	MockMvc mvc;
 
-    @Test
-    void joinLinkServesShellLoggedOut() throws Exception {
-        mvc.perform(get("/j/123456"))
-                .andExpect(status().isOk())
-                .andExpect(forwardedUrl("/index.html"));
-    }
+	@Test
+	void joinLinkServesShellLoggedOut() throws Exception {
+		mvc.perform(get("/j/123456")).andExpect(status().isOk()).andExpect(forwardedUrl("/index.html"));
+	}
 
-    @Test
-    void spaRoutesServeShellLoggedOut() throws Exception {
-        for (String path : new String[]{"/join", "/play", "/host", "/results", "/solo", "/practice", "/explore"}) {
-            mvc.perform(get(path))
-                    .andExpect(status().isOk())
-                    .andExpect(forwardedUrl("/index.html"));
-        }
-    }
+	@Test
+	void spaRoutesServeShellLoggedOut() throws Exception {
+		for (String path : new String[]{"/join", "/play", "/host", "/results", "/solo", "/practice", "/explore"}) {
+			mvc.perform(get(path)).andExpect(status().isOk()).andExpect(forwardedUrl("/index.html"));
+		}
+	}
 
-    @Test
-    void indexShellIsFreshEveryLoad() throws Exception {
-        // The shell must never be cached: a cached index.html boots the
-        // previous deployment's hashed JS after an upgrade.
-        mvc.perform(get("/index.html"))
-                .andExpect(status().isOk())
-                .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")));
-    }
+	@Test
+	void indexShellIsFreshEveryLoad() throws Exception {
+		// The shell must never be cached: a cached index.html boots the
+		// previous deployment's hashed JS after an upgrade.
+		mvc.perform(get("/index.html")).andExpect(status().isOk())
+				.andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")));
+	}
 
-    @Test
-    void publicApiServesLoggedOut() throws Exception {
-        mvc.perform(get("/api/public/banks")).andExpect(status().isOk());
-        // Audio worklets load from blob: or Tone.js fails closed in console.
-        mvc.perform(get("/api/public/quizzes"))
-                .andExpect(status().isOk())
-                .andExpect(header().string("Content-Security-Policy",
-                        org.hamcrest.Matchers.containsString("blob:")));
-    }
+	@Test
+	void publicApiServesLoggedOut() throws Exception {
+		mvc.perform(get("/api/public/banks")).andExpect(status().isOk());
+		// Audio worklets load from blob: or Tone.js fails closed in console.
+		mvc.perform(get("/api/public/quizzes")).andExpect(status().isOk())
+				.andExpect(header().string("Content-Security-Policy", org.hamcrest.Matchers.containsString("blob:")));
+	}
 
-    @Test
-    void practicePostIsReachableLoggedOut() throws Exception {
-        // Seeded fixture bank: 200 proves an anonymous caller reaches the
-        // handler (not a 403/denyAll) and gets a live practice PIN.
-        mvc.perform(post("/api/public/practice"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.pinCode").isNotEmpty());
-    }
+	@Test
+	void practicePostIsReachableLoggedOut() throws Exception {
+		// Seeded fixture bank: 200 proves an anonymous caller reaches the
+		// handler (not a 403/denyAll) and gets a live practice PIN.
+		mvc.perform(post("/api/public/practice")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.pinCode").isNotEmpty());
+	}
 
-    @Test
-    void adminApiReturns401Anonymous() throws Exception {
-        // Machine-readable 401 (not the form-login 302): XHR must not follow
-        // a redirect to HTML and mistake it for an authenticated session.
-        mvc.perform(get("/api/admin/quizzes")).andExpect(status().isUnauthorized());
-    }
+	@Test
+	void adminApiReturns401Anonymous() throws Exception {
+		// Machine-readable 401 (not the form-login 302): XHR must not follow
+		// a redirect to HTML and mistake it for an authenticated session.
+		mvc.perform(get("/api/admin/quizzes")).andExpect(status().isUnauthorized());
+	}
 
-    @Test
-    void adminPagesRedirectAnonymousToLogin() throws Exception {
-        mvc.perform(get("/admin/dashboard"))
-                .andExpect(status().isFound())
-                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("/admin/login")));
-    }
+	@Test
+	void adminPagesRedirectAnonymousToLogin() throws Exception {
+		mvc.perform(get("/admin/dashboard")).andExpect(status().isFound())
+				.andExpect(header().string("Location", org.hamcrest.Matchers.containsString("/admin/login")));
+	}
 
-    @Test
-    void healthIsPublicButPrometheusIsNot() throws Exception {
-        mvc.perform(get("/actuator/health")).andExpect(status().isOk());
-        mvc.perform(get("/actuator/prometheus")).andExpect(status().isFound());
-    }
+	@Test
+	void healthIsPublicButPrometheusIsNot() throws Exception {
+		mvc.perform(get("/actuator/health")).andExpect(status().isOk());
+		mvc.perform(get("/actuator/prometheus")).andExpect(status().isFound());
+	}
 }

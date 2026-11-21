@@ -1,6 +1,5 @@
 package com.sprintjudge.service;
 
-import com.sprintjudge.domain.dto.ErrorMessage;
 import com.sprintjudge.domain.dto.QuestionStart;
 import com.sprintjudge.domain.dto.SubmissionResult;
 import com.sprintjudge.domain.models.GameSession;
@@ -40,395 +39,518 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("all")
 class GameRoomManagerModesTest {
 
-    @Mock QuizRepository quizRepository;
-    @Mock GameSessionRepository sessionRepository;
-    @Mock QuestionRepository questionRepository;
-    @Mock SubmissionRepository submissionRepository;
-    @Mock ScoringEngine scoringEngine;
-    @Mock SubmissionProcessor submissionProcessor;
-    private final org.springframework.beans.factory.ObjectProvider<SubmissionProcessor> processorProvider =
-            new org.springframework.beans.factory.ObjectProvider<>() {
-                @Override public SubmissionProcessor getObject() { return submissionProcessor; }
-            };
-    @Mock WebSocketSessionManager ws;
-    @Mock EvaluationService evaluationService;
-    @Mock AdminSettingsService settingsService;
-    @Mock BroadcastScheduler scheduler;
-    @Mock SubmissionWriteBuffer writeBuffer;
-    @Mock RoundTimeoutScheduler roundTimer;
-    @Mock org.springframework.context.ApplicationEventPublisher eventPublisher;
+	@Mock
+	QuizRepository quizRepository;
+	@Mock
+	GameSessionRepository sessionRepository;
+	@Mock
+	QuestionRepository questionRepository;
+	@Mock
+	SubmissionRepository submissionRepository;
+	@Mock
+	ScoringEngine scoringEngine;
+	@Mock
+	SubmissionProcessor submissionProcessor;
+	private final org.springframework.beans.factory.ObjectProvider<SubmissionProcessor> processorProvider = new org.springframework.beans.factory.ObjectProvider<>() {
+		@Override
+		public SubmissionProcessor getObject() {
+			return submissionProcessor;
+		}
+	};
+	@Mock
+	WebSocketSessionManager ws;
+	@Mock
+	EvaluationService evaluationService;
+	@Mock
+	AdminSettingsService settingsService;
+	@Mock
+	BroadcastScheduler scheduler;
+	@Mock
+	SubmissionWriteBuffer writeBuffer;
+	@Mock
+	RoundTimeoutScheduler roundTimer;
+	@Mock
+	org.springframework.context.ApplicationEventPublisher eventPublisher;
 
-    private GameRoomManager manager() {
-        return new GameRoomManager(sessionRepository, quizRepository, questionRepository,
-                submissionRepository, scoringEngine, processorProvider, ws,
-                evaluationService, settingsService, scheduler, writeBuffer, roundTimer, eventPublisher);
-    }
+	private GameRoomManager manager() {
+		return new GameRoomManager(sessionRepository, quizRepository, questionRepository, submissionRepository,
+				scoringEngine, processorProvider, ws, evaluationService, settingsService, scheduler, writeBuffer,
+				roundTimer, eventPublisher);
+	}
 
-    private Question mcq(String id) {
-        return new Question(id, "qz", "T", "D", "MCQ", null, 30, 100,
-                Json.write(Map.of("correctIndex", 0)), 0, Instant.now());
-    }
+	private Question mcq(String id) {
+		return new Question(id, "qz", "T", "D", "MCQ", null, 30, 100, Json.write(Map.of("correctIndex", 0)), 0,
+				Instant.now());
+	}
 
-    private RoomRegistry registryOf(GameRoomManager mgr) {
-        try {
-            var f = GameRoomManager.class.getDeclaredField("registry");
-            f.setAccessible(true);
-            return (RoomRegistry) f.get(mgr);
-        } catch (Exception e) { throw new RuntimeException(e); }
-    }
+	private RoomRegistry registryOf(GameRoomManager mgr) {
+		try {
+			java.lang.reflect.Field f = GameRoomManager.class.getDeclaredField("registry");
+			f.setAccessible(true);
+			return (RoomRegistry) f.get(mgr);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    private void putRoom(GameRoomManager mgr, GameRoom.GameMode mode) {
-        registryOf(mgr).put(123456, new GameRoom("s1", "qz", "123456", "LOBBY", 500, mode));
-    }
+	private void putRoom(GameRoomManager mgr, String mode) {
+		registryOf(mgr).put(123456, new GameRoom("s1", "qz", "123456", "LOBBY", 500, mode));
+	}
 
-    private void armRound(GameRoomManager mgr, String questionId) {
-        GameRoom room = registryOf(mgr).get(123456);
-        room.setStatus("ACTIVE");
-        room.setCurrentQuestionId(questionId);
-    }
+	private void armRound(GameRoomManager mgr, String questionId) {
+		GameRoom room = registryOf(mgr).get(123456);
+		room.setStatus("ACTIVE");
+		room.setCurrentQuestionId(questionId);
+	}
 
-    private Player addPlayer(GameRoomManager mgr, String name) {
-        GameRoom room = registryOf(mgr).get(123456);
-        Player p = new Player("uuid-" + name, name, 0, "sess-" + name, true);
-        room.addPlayer(p);
-        return p;
-    }
+	private Player addPlayer(GameRoomManager mgr, String name) {
+		GameRoom room = registryOf(mgr).get(123456);
+		Player p = new Player("uuid-" + name, name, 0, "sess-" + name, true);
+		room.addPlayer(p);
+		return p;
+	}
 
-    // ---------- TEAM guards ----------
+	// ---------- TEAM guards ----------
 
-    @Test
-    void createTeamBlankNameThrows() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.TEAM);
-        assertThrows(IllegalArgumentException.class, () -> mgr.createTeam("123456", "  "));
-    }
+	@Test
+	void createTeamBlankNameThrows() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.TEAM);
+		assertThrows(IllegalArgumentException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				mgr.createTeam("123456", "  ");
+			}
+		});
+	}
 
-    @Test
-    void createTeamNullNameThrows() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.TEAM);
-        assertThrows(IllegalArgumentException.class, () -> mgr.createTeam("123456", null));
-    }
+	@Test
+	void createTeamNullNameThrows() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.TEAM);
+		assertThrows(IllegalArgumentException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				mgr.createTeam("123456", null);
+			}
+		});
+	}
 
-    @Test
-    void createTeamHappyReturnsTrackedTeam() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.TEAM);
-        GameRoom.Team t = mgr.createTeam("123456", "Alpha");
-        assertNotNull(t.id());
-        assertEquals("Alpha", t.name());
-        assertEquals(1, mgr.getTeams("123456").size());
-    }
+	@Test
+	void createTeamHappyReturnsTrackedTeam() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.TEAM);
+		GameRoom.Team t = mgr.createTeam("123456", "Alpha");
+		assertNotNull(t.getId());
+		assertEquals("Alpha", t.getName());
+		assertEquals(1, mgr.getTeams("123456").size());
+	}
 
-    @Test
-    void joinTeamBlankTeamIdThrows() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.TEAM);
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", " ", "u1"));
-    }
+	@Test
+	void joinTeamBlankTeamIdThrows() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.TEAM);
+		assertThrows(IllegalArgumentException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				mgr.joinTeam("123456", " ", "u1");
+			}
+		});
+	}
 
-    @Test
-    void joinTeamBlankPlayerUuidThrows() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.TEAM);
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", "team-1", null));
-    }
+	@Test
+	void joinTeamBlankPlayerUuidThrows() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.TEAM);
+		assertThrows(IllegalArgumentException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				mgr.joinTeam("123456", "team-1", null);
+			}
+		});
+	}
 
-    @Test
-    void joinTeamUnknownPlayerThrows() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.TEAM);
-        GameRoom.Team t = mgr.createTeam("123456", "Alpha");
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", t.id(), "ghost"));
-    }
+	@Test
+	void joinTeamUnknownPlayerThrows() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.TEAM);
+		GameRoom.Team t = mgr.createTeam("123456", "Alpha");
+		assertThrows(IllegalArgumentException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				mgr.joinTeam("123456", t.getId(), "ghost");
+			}
+		});
+	}
 
-    @Test
-    void joinTeamUnknownTeamThrows() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.TEAM);
-        Player p = addPlayer(mgr, "Ann");
-        assertThrows(IllegalArgumentException.class, () -> mgr.joinTeam("123456", "team-999", p.uuid()));
-    }
+	@Test
+	void joinTeamUnknownTeamThrows() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.TEAM);
+		Player p = addPlayer(mgr, "Ann");
+		assertThrows(IllegalArgumentException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				mgr.joinTeam("123456", "team-999", p.getUuid());
+			}
+		});
+	}
 
-    @Test
-    void joinTeamHappyAddsMember() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.TEAM);
-        Player p = addPlayer(mgr, "Ann");
-        GameRoom.Team t = mgr.createTeam("123456", "Alpha");
-        GameRoom.Team joined = mgr.joinTeam("123456", t.id(), p.uuid());
-        assertTrue(joined.memberUuids().contains(p.uuid()));
-        assertEquals(1, mgr.getTeams("123456").size());
-    }
+	@Test
+	void joinTeamHappyAddsMember() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.TEAM);
+		Player p = addPlayer(mgr, "Ann");
+		GameRoom.Team t = mgr.createTeam("123456", "Alpha");
+		GameRoom.Team joined = mgr.joinTeam("123456", t.getId(), p.getUuid());
+		assertTrue(joined.getMemberUuids().contains(p.getUuid()));
+		assertEquals(1, mgr.getTeams("123456").size());
+	}
 
-    @Test
-    void teamModeSubmitFreezesPublicBoard() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.TEAM);
-        Player p = addPlayer(mgr, "Ann");
-        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
-        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
-        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any()))
-                .thenReturn(800);
-        armRound(mgr, "q1");
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws).send(eq(p.sessionId()), sent.capture());
-        assertTrue(sent.getValue() instanceof SubmissionResult);
-        verify(scheduler, never()).markDirty(anyInt(), any());
-    }
+	@Test
+	void teamModeSubmitFreezesPublicBoard() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.TEAM);
+		Player p = addPlayer(mgr, "Ann");
+		when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+		when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+		when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(800);
+		armRound(mgr, "q1");
+		mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+		ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+		verify(ws).send(eq(p.getSessionId()), sent.capture());
+		assertTrue(sent.getValue() instanceof SubmissionResult);
+		verify(scheduler, never()).markDirty(anyInt(), any());
+	}
 
-    // ---------- BATTLE ----------
+	// ---------- BATTLE ----------
 
-    @Test
-    void battleHappyPairsTwoPlayers() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.BATTLE);
-        addPlayer(mgr, "Ann");
-        addPlayer(mgr, "Bo");
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
-        mgr.startBattle("123456");
-        assertEquals(1, mgr.getBattleMatches("123456").size());
-        assertEquals(1, mgr.getBracket("123456").size());
-        assertEquals("ACTIVE", mgr.getRoomState("123456").status());
-    }
+	@Test
+	void battleHappyPairsTwoPlayers() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.BATTLE);
+		addPlayer(mgr, "Ann");
+		addPlayer(mgr, "Bo");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), mcq("q2")));
+		mgr.startBattle("123456");
+		assertEquals(1, mgr.getBattleMatches("123456").size());
+		assertEquals(1, mgr.getBracket("123456").size());
+		assertEquals("ACTIVE", mgr.getRoomState("123456").getStatus());
+	}
 
-    @Test
-    void battleOddPlayerSitsOutWithABye() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.BATTLE);
-        addPlayer(mgr, "Ann");
-        addPlayer(mgr, "Bo");
-        addPlayer(mgr, "Cy");
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
-        mgr.startBattle("123456");
-        assertEquals(1, mgr.getBattleMatches("123456").size());
-        assertTrue(mgr.getBracket("123456").get(0).pairs().get(1).bye());
-        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws, times(3)).send(anyString(), sent.capture());
-        assertTrue(sent.getAllValues().stream()
-                .noneMatch(com.sprintjudge.domain.dto.ErrorMessage.class::isInstance));
-    }
+	@Test
+	void battleOddPlayerSitsOutWithABye() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.BATTLE);
+		addPlayer(mgr, "Ann");
+		addPlayer(mgr, "Bo");
+		addPlayer(mgr, "Cy");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+		mgr.startBattle("123456");
+		assertEquals(1, mgr.getBattleMatches("123456").size());
+		assertTrue(mgr.getBracket("123456").get(0).getPairs().get(1).isBye());
+		ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+		verify(ws, times(3)).send(anyString(), sent.capture());
+		{
+			boolean streamNoneResult = true;
+			for (java.lang.Object streamItem : sent.getAllValues()) {
+				if (streamItem instanceof com.sprintjudge.domain.dto.ErrorMessage) {
+					streamNoneResult = false;
+					break;
+				}
+			}
+			assertTrue(streamNoneResult);
+		}
+	}
 
-    @Test
-    void battleSinglePlayerRejected() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.BATTLE);
-        addPlayer(mgr, "Solo");
-        assertThrows(IllegalStateException.class, () -> mgr.startBattle("123456"));
-    }
+	@Test
+	void battleSinglePlayerRejected() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.BATTLE);
+		addPlayer(mgr, "Solo");
+		assertThrows(IllegalStateException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				mgr.startBattle("123456");
+			}
+		});
+	}
 
-    @Test
-    void battleExcludesHostFromContestants() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.BATTLE);
-        GameRoom room = registryOf(mgr).get(123456);
-        Player host = new Player("host-1", "Host", 0, "sess-h", true);
-        room.addHost(host);
-        room.setHostUuid(host.uuid());
-        Player a = addPlayer(mgr, "Ann");
-        Player b = addPlayer(mgr, "Bo");
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
-        mgr.startBattle("123456");
-        assertEquals(1, mgr.getBattleMatches("123456").size());
-        var match = mgr.getBattleMatches("123456").get(0);
-        assertTrue(match.p1Uuid().equals(a.uuid()) || match.p1Uuid().equals(b.uuid()));
-        assertTrue(match.p2Uuid().equals(a.uuid()) || match.p2Uuid().equals(b.uuid()));
-    }
+	@Test
+	void battleExcludesHostFromContestants() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.BATTLE);
+		GameRoom room = registryOf(mgr).get(123456);
+		Player host = new Player("host-1", "Host", 0, "sess-h", true);
+		room.addHost(host);
+		room.setHostUuid(host.getUuid());
+		Player a = addPlayer(mgr, "Ann");
+		Player b = addPlayer(mgr, "Bo");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+		mgr.startBattle("123456");
+		assertEquals(1, mgr.getBattleMatches("123456").size());
+		com.sprintjudge.service.GameRoom.BattleMatch match = mgr.getBattleMatches("123456").get(0);
+		assertTrue(match.getP1Uuid().equals(a.getUuid()) || match.getP1Uuid().equals(b.getUuid()));
+		assertTrue(match.getP2Uuid().equals(a.getUuid()) || match.getP2Uuid().equals(b.getUuid()));
+	}
 
-    @Test
-    void battleRequiresLobbyStatus() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.BATTLE);
-        addPlayer(mgr, "Ann");
-        addPlayer(mgr, "Bo");
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
-        mgr.startQuestion("123456");
-        assertThrows(IllegalStateException.class, () -> mgr.startBattle("123456"));
-    }
+	@Test
+	void battleRequiresLobbyStatus() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.BATTLE);
+		addPlayer(mgr, "Ann");
+		addPlayer(mgr, "Bo");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+		mgr.startQuestion("123456");
+		assertThrows(IllegalStateException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				mgr.startBattle("123456");
+			}
+		});
+	}
 
-    @Test
-    void battleWithNoQuestionsThrows() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.BATTLE);
-        addPlayer(mgr, "Ann");
-        addPlayer(mgr, "Bo");
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
-        assertThrows(IllegalStateException.class, () -> mgr.startBattle("123456"));
-    }
+	@Test
+	void battleWithNoQuestionsThrows() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.BATTLE);
+		addPlayer(mgr, "Ann");
+		addPlayer(mgr, "Bo");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of());
+		assertThrows(IllegalStateException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				mgr.startBattle("123456");
+			}
+		});
+	}
 
-    @Test
-    void battleIndexPastLastQuestionThrows() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.BATTLE);
-        addPlayer(mgr, "Ann");
-        addPlayer(mgr, "Bo");
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
-        registryOf(mgr).get(123456).setCurrentQuestionIndex(4);
-        assertThrows(IllegalStateException.class, () -> mgr.startBattle("123456"));
-    }
+	@Test
+	void battleIndexPastLastQuestionThrows() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.BATTLE);
+		addPlayer(mgr, "Ann");
+		addPlayer(mgr, "Bo");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+		registryOf(mgr).get(123456).setCurrentQuestionIndex(4);
+		assertThrows(IllegalStateException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() throws java.lang.Throwable {
+				mgr.startBattle("123456");
+			}
+		});
+	}
 
-    // ---------- EXAM ----------
+	// ---------- EXAM ----------
 
-    @Test
-    void examUsesPresetTotalEnd() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.EXAM);
-        addPlayer(mgr, "Ann");
-        long end = System.currentTimeMillis() + 120_000;
-        registryOf(mgr).get(123456).setTotalEndEpochMs(end);
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
-        mgr.startQuestion("123456");
-        assertEquals(end, registryOf(mgr).get(123456).currentQuestionEndEpochMs());
-        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
-        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
-        QuestionStart start = msg.getAllValues().stream()
-                .filter(m -> m instanceof QuestionStart).map(m -> (QuestionStart) m)
-                .findFirst().orElseThrow();
-        assertEquals(120, start.timeLimitSec(), 5);
-    }
+	@Test
+	void examUsesPresetTotalEnd() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.EXAM);
+		addPlayer(mgr, "Ann");
+		long end = System.currentTimeMillis() + 120_000;
+		registryOf(mgr).get(123456).setTotalEndEpochMs(end);
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+		mgr.startQuestion("123456");
+		assertEquals(end, registryOf(mgr).get(123456).getCurrentQuestionEndEpochMs());
+		ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+		verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+		QuestionStart start = null;
+		for (java.lang.Object m : msg.getAllValues()) {
+			if (m instanceof QuestionStart) {
+				start = (com.sprintjudge.domain.dto.QuestionStart) m;
+				break;
+			}
+		}
+		if (start == null)
+			throw new java.util.NoSuchElementException("No value present");
+		assertEquals(120, start.getTimeLimitSec(), 5);
+	}
 
-    @Test
-    void examComputesTotalFromQuestionsWhenUnset() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.EXAM);
-        addPlayer(mgr, "Ann");
-        Question slow = new Question("q2", "qz", "T", "D", "MCQ", null, 45, 100,
-                Json.write(Map.of("correctIndex", 0)), 1, Instant.now());
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), slow));
-        long before = System.currentTimeMillis();
-        mgr.startQuestion("123456");
-        long examEnd = registryOf(mgr).get(123456).currentQuestionEndEpochMs();
-        assertTrue(examEnd - before >= 70_000 && examEnd - before <= 80_000);
-        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
-        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
-        QuestionStart start = msg.getAllValues().stream()
-                .filter(m -> m instanceof QuestionStart).map(m -> (QuestionStart) m)
-                .findFirst().orElseThrow();
-        assertEquals(75, start.timeLimitSec());
-    }
+	@Test
+	void examComputesTotalFromQuestionsWhenUnset() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.EXAM);
+		addPlayer(mgr, "Ann");
+		Question slow = new Question("q2", "qz", "T", "D", "MCQ", null, 45, 100, Json.write(Map.of("correctIndex", 0)),
+				1, Instant.now());
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1"), slow));
+		long before = System.currentTimeMillis();
+		mgr.startQuestion("123456");
+		long examEnd = registryOf(mgr).get(123456).getCurrentQuestionEndEpochMs();
+		assertTrue(examEnd - before >= 70_000 && examEnd - before <= 80_000);
+		ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+		verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+		QuestionStart start = null;
+		for (java.lang.Object m : msg.getAllValues()) {
+			if (m instanceof QuestionStart) {
+				start = (com.sprintjudge.domain.dto.QuestionStart) m;
+				break;
+			}
+		}
+		if (start == null)
+			throw new java.util.NoSuchElementException("No value present");
+		assertEquals(75, start.getTimeLimitSec());
+	}
 
-    @Test
-    void examSubmitKeepsLiveBoard() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.EXAM);
-        Player p = addPlayer(mgr, "Ann");
-        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
-        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
-        when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any()))
-                .thenReturn(700);
-        armRound(mgr, "q1");
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws).send(eq(p.sessionId()), sent.capture());
-        assertTrue(sent.getValue() instanceof SubmissionResult r && r.score() == 700);
-        verify(scheduler, times(1)).markDirty(eq(123456), any());
-    }
+	@Test
+	void examTotalDeadlineDoesNotDriftAcrossQuestions() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.EXAM);
+		addPlayer(mgr, "Ann");
+		Question q1 = new Question("qa", "qz", "A", "D", "MCQ", null, 30, 100, Json.write(Map.of("correctIndex", 0)), 0,
+				Instant.now());
+		Question q2 = new Question("qb", "qz", "B", "D", "MCQ", null, 30, 100, Json.write(Map.of("correctIndex", 0)), 1,
+				Instant.now());
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1, q2));
 
-    @Test
-    void examForceSubmitSkipsPublicBoardFlush() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.EXAM);
-        addPlayer(mgr, "Ann");
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
-        mgr.startQuestion("123456");
-        mgr.forceSubmit("123456");
-        verify(sessionRepository).updateStatus("s1", "REVIEW");
-        verify(scheduler, never()).markDirty(anyInt(), any());
-    }
+		mgr.startQuestion("123456");
+		long firstDeadline = registryOf(mgr).get(123456).getCurrentQuestionEndEpochMs();
+		mgr.startQuestion("123456");
+		long secondDeadline = registryOf(mgr).get(123456).getCurrentQuestionEndEpochMs();
 
-    // ---------- PRACTICE ----------
+		assertEquals(firstDeadline, secondDeadline, "the exam budget must stay fixed, not restart on every question");
+	}
 
-    @Test
-    void practiceStartHasNoDeadline() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.PRACTICE);
-        addPlayer(mgr, "Ann");
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
-        mgr.startQuestion("123456");
-        assertEquals(Long.MAX_VALUE, registryOf(mgr).get(123456).currentQuestionEndEpochMs());
-        assertEquals(Long.MAX_VALUE, registryOf(mgr).get(123456).questionEndBaseEpochMs());
-        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
-        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
-        QuestionStart start = msg.getAllValues().stream()
-                .filter(m -> m instanceof QuestionStart).map(m -> (QuestionStart) m)
-                .findFirst().orElseThrow();
-        assertEquals(-1, start.timeLimitSec());
-    }
+	@Test
+	void examSubmitKeepsLiveBoard() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.EXAM);
+		Player p = addPlayer(mgr, "Ann");
+		when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+		when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(1.0);
+		when(scoringEngine.scoreSelection(eq(1.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(700);
+		armRound(mgr, "q1");
+		mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
+		ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+		verify(ws).send(eq(p.getSessionId()), sent.capture());
+		assertTrue(
+				sent.getValue() instanceof SubmissionResult && ((SubmissionResult) sent.getValue()).getScore() == 700);
+		verify(scheduler, times(1)).markDirty(eq(123456), any());
+	}
 
-    @Test
-    void practiceWrongAnswerStillLiveBoards() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.PRACTICE);
-        Player p = addPlayer(mgr, "Ann");
-        when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
-        when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(0.0);
-        when(scoringEngine.scoreSelection(eq(0.0), anyLong(), anyLong(), anyInt(), anyInt(), any()))
-                .thenReturn(0);
-        armRound(mgr, "q1");
-        mgr.submit("123456", "q1", p.uuid(), "python", Json.readTree("{\"selectedIndex\":3}"));
-        ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
-        verify(ws).send(eq(p.sessionId()), sent.capture());
-        assertTrue(sent.getValue() instanceof SubmissionResult r && !r.allPassed());
-        verify(scheduler, times(1)).markDirty(eq(123456), any());
-    }
+	@Test
+	void examForceSubmitSkipsPublicBoardFlush() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.EXAM);
+		addPlayer(mgr, "Ann");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+		mgr.startQuestion("123456");
+		mgr.forceSubmit("123456");
+		verify(sessionRepository).updateStatus("s1", "REVIEW");
+		verify(scheduler, never()).markDirty(anyInt(), any());
+	}
 
-    @Test
-    void practiceForceSubmitSchedulesAutoAdvance() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.PRACTICE);
-        addPlayer(mgr, "Ann");
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
-        mgr.startQuestion("123456");
-        mgr.forceSubmit("123456");
-        verify(roundTimer, times(1)).schedule(eq(123456), anyLong(), any());
-    }
+	// ---------- PRACTICE ----------
 
-    // ---------- AUTO_PILOT ----------
+	@Test
+	void practiceStartHasNoDeadline() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.PRACTICE);
+		addPlayer(mgr, "Ann");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+		mgr.startQuestion("123456");
+		assertEquals(Long.MAX_VALUE, registryOf(mgr).get(123456).getCurrentQuestionEndEpochMs());
+		assertEquals(Long.MAX_VALUE, registryOf(mgr).get(123456).getQuestionEndBaseEpochMs());
+		ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+		verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+		QuestionStart start = null;
+		for (java.lang.Object m : msg.getAllValues()) {
+			if (m instanceof QuestionStart) {
+				start = (com.sprintjudge.domain.dto.QuestionStart) m;
+				break;
+			}
+		}
+		if (start == null)
+			throw new java.util.NoSuchElementException("No value present");
+		assertEquals(-1, start.getTimeLimitSec());
+	}
 
-    @Test
-    void autoPilotStartUsesPerQuestionTimer() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.AUTO_PILOT);
-        addPlayer(mgr, "Ann");
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
-        mgr.startQuestion("123456");
-        ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
-        verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
-        QuestionStart start = msg.getAllValues().stream()
-                .filter(m -> m instanceof QuestionStart).map(m -> (QuestionStart) m)
-                .findFirst().orElseThrow();
-        assertEquals(30, start.timeLimitSec());
-        verify(roundTimer, times(1)).schedule(eq(123456), anyLong(), any());
-    }
+	@Test
+	void practiceWrongAnswerStillLiveBoards() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.PRACTICE);
+		Player p = addPlayer(mgr, "Ann");
+		when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
+		when(evaluationService.evaluateCorrectness(any(), any())).thenReturn(0.0);
+		when(scoringEngine.scoreSelection(eq(0.0), anyLong(), anyLong(), anyInt(), anyInt(), any())).thenReturn(0);
+		armRound(mgr, "q1");
+		mgr.submit("123456", "q1", p.getUuid(), "python", Json.readTree("{\"selectedIndex\":3}"));
+		ArgumentCaptor<Object> sent = ArgumentCaptor.forClass(Object.class);
+		verify(ws).send(eq(p.getSessionId()), sent.capture());
+		assertTrue(sent.getValue() instanceof SubmissionResult && !((SubmissionResult) sent.getValue()).isAllPassed());
+		verify(scheduler, times(1)).markDirty(eq(123456), any());
+	}
 
-    @Test
-    void autoPilotForceSubmitSchedulesAutoAdvance() {
-        GameRoomManager mgr = manager();
-        putRoom(mgr, GameRoom.GameMode.AUTO_PILOT);
-        addPlayer(mgr, "Ann");
-        when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
-        mgr.startQuestion("123456");
-        mgr.forceSubmit("123456");
-        verify(roundTimer, times(2)).schedule(eq(123456), anyLong(), any());
-        assertEquals("REVIEW", mgr.getRoomState("123456").status());
-    }
+	@Test
+	void practiceForceSubmitSchedulesAutoAdvance() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.PRACTICE);
+		addPlayer(mgr, "Ann");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+		mgr.startQuestion("123456");
+		mgr.forceSubmit("123456");
+		verify(roundTimer, times(1)).schedule(eq(123456), anyLong(), any());
+	}
 
-    // ---------- creation with explicit mode ----------
+	// ---------- AUTO_PILOT ----------
 
-    @Test
-    void createRoomWithTeamModePersistsMode() {
-        when(quizRepository.findById("qz")).thenReturn(Optional.of(
-                new Quiz("qz", "T", "", null, Instant.now(), false)));
-        when(sessionRepository.findByPin(anyString())).thenReturn(Optional.empty());
-        when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null), anyString()))
-                .thenAnswer(inv -> new GameSession("gen", "qz", inv.getArgument(2),
-                        "host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now()));
-        GameRoomManager mgr = manager();
-        GameSession created = mgr.createRoom("qz", "host", GameRoom.GameMode.TEAM);
-        assertEquals(GameRoom.GameMode.TEAM, registryOf(mgr).snapshot().get(0).gameMode());
-        assertEquals(created.pinCode(), registryOf(mgr).snapshot().get(0).pin());
-    }
+	@Test
+	void autoPilotStartUsesPerQuestionTimer() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.AUTO_PILOT);
+		addPlayer(mgr, "Ann");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+		mgr.startQuestion("123456");
+		ArgumentCaptor<Object> msg = ArgumentCaptor.forClass(Object.class);
+		verify(ws, atLeastOnce()).broadcast(any(), msg.capture());
+		QuestionStart start = null;
+		for (java.lang.Object m : msg.getAllValues()) {
+			if (m instanceof QuestionStart) {
+				start = (com.sprintjudge.domain.dto.QuestionStart) m;
+				break;
+			}
+		}
+		if (start == null)
+			throw new java.util.NoSuchElementException("No value present");
+		assertEquals(30, start.getTimeLimitSec());
+		verify(roundTimer, times(1)).schedule(eq(123456), anyLong(), any());
+	}
+
+	@Test
+	void autoPilotForceSubmitSchedulesAutoAdvance() {
+		GameRoomManager mgr = manager();
+		putRoom(mgr, GameRoom.GameMode.AUTO_PILOT);
+		addPlayer(mgr, "Ann");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
+		mgr.startQuestion("123456");
+		mgr.forceSubmit("123456");
+		verify(roundTimer, times(2)).schedule(eq(123456), anyLong(), any());
+		assertEquals("REVIEW", mgr.getRoomState("123456").getStatus());
+	}
+
+	// ---------- creation with explicit mode ----------
+
+	@Test
+	void createRoomWithTeamModePersistsMode() {
+		when(quizRepository.findById("qz"))
+				.thenReturn(Optional.of(new Quiz("qz", "T", "", null, Instant.now(), false)));
+		when(sessionRepository.findByPin(anyString())).thenReturn(Optional.empty());
+		when(sessionRepository.create(eq("qz"), eq("host"), anyString(), eq(null), anyString()))
+				.thenAnswer(new org.mockito.stubbing.Answer<java.lang.Object>() {
+					@Override
+					public java.lang.Object answer(org.mockito.invocation.InvocationOnMock inv)
+							throws java.lang.Throwable {
+						return new GameSession("gen", "qz", inv.getArgument(2), "host", "LOBBY", "STANDARD", 0, null,
+								null, null, Instant.now());
+					}
+				});
+		GameRoomManager mgr = manager();
+		GameSession created = mgr.createRoom("qz", "host", GameRoom.GameMode.TEAM);
+		assertEquals(GameRoom.GameMode.TEAM, registryOf(mgr).snapshot().get(0).getGameMode());
+		assertEquals(created.getPinCode(), registryOf(mgr).snapshot().get(0).getPin());
+	}
 }

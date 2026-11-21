@@ -13,6 +13,7 @@ import { QuestionWizard } from "./QuestionWizard";
 import { useStaggerIn } from "../hooks/useMotion";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
+import { AboutDialog } from "../components/AboutDialog";
 import { LogoMark } from "../components/LogoMark";
 
 type AdminTab = "dashboard" | "quizzes" | "questions" | "games" | "settings";
@@ -247,8 +248,13 @@ export function AdminDashboard() {
             const game = await adminApi.createGame(built.quizId, "STANDARD");
             setPin(game.pinCode);
             navigate({ to: "/host", search: { pin: game.pinCode, projector: false } });
-        } catch {
-            setBannerError("Could not build the CSA game. Try the bank again.");
+        } catch (e) {
+            const status = (e as { response?: { status?: number } })?.response?.status;
+            setBannerError(
+                status === 403
+                    ? "Your session expired. Sign in again and retry."
+                    : `Could not build the CSA game${status ? ` (HTTP ${status})` : ""}. Check the bank and retry.`,
+            );
         } finally {
             setCsaBusy(null);
         }
@@ -303,8 +309,9 @@ export function AdminDashboard() {
                         <span className="font-extrabold tracking-tight text-lg">SprintJudge</span>
                     </div>
                     <div className="flex-1" />
-                    <SoundToggle />
-                    <MotionToggle />
+                    <SoundToggle className="header-icon" />
+                    <MotionToggle className="header-icon" />
+                    <AboutDialog />
                     <Button variant="secondary" size="sm" onClick={() => navigate({ to: "/" })}>
                         Player view
                     </Button>

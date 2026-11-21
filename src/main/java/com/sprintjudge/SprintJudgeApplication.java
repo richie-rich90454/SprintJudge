@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 public class SprintJudgeApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SprintJudgeApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(SprintJudgeApplication.class, args);
+	}
 }

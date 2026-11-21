@@ -13,7 +13,7 @@ flowchart TD
     B -->|"no"| D["Verify Java 25 + Node 20+"]
     C --> E{"Compilers on PATH?<br/>gcc · g++ · javac · python"}
     E -->|"yes"| F["native executor — done"]
-    E -->|"no"| G["Install toolchains, or set<br/>SPRINTJUDGE_EXECUTOR_MODE=wsl"]
+    E -->|"no"| G["Install compilers locally<br/>(no WSL, no global npm tools)"]
     D --> F
     G --> F
     F --> H["make dev-backend"]
@@ -24,17 +24,18 @@ flowchart TD
 
 ## Prerequisites
 
-- Java 25 (virtual threads + ZGC enabled by default)
-- Maven 3.9+ (or nothing at all — the bundled `mvnw.cmd` wrapper downloads it)
-- Node.js 20+
-- Linux production: `nsjail` on `PATH`
-- Windows development: native compilers (`gcc`, `g++`, `javac`, `python`) for the default
-  `native` mode, or WSL2 Ubuntu with the same packages for the `wsl` mode
+- Java 25 (the jar targets Java 25; JDK 21 will not run it)
+- No global Maven: use the bundled `./mvnw` / `mvnw.cmd` wrapper
+- Node.js 20+; frontend dependencies install locally with `npm ci`
+- GNU Make plus a POSIX shell (Git Bash/MSYS2 on Windows; no WSL needed)
+- Code judge toolchains on PATH: `gcc`, `g++`, `javac`, `java`, `node`, and
+  `python3` or `python`
+- Linux production: `/usr/bin/nsjail`, nginx, curl, python3 and sqlite3
 
 ## Run the backend
 
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 Profiles: `dev` (default; `native` executor) and `prod` (`nsjail` on Linux).
@@ -44,7 +45,7 @@ Configure the executor and database in `src/main/resources/application.yml`.
 
 | Surface | Default | Override |
 |---------|---------|----------|
-| Backend dev (`mvn spring-boot:run`) | :8080 | application.yml |
+| Backend dev (`./mvnw spring-boot:run`) | :8080 | application.yml |
 | Frontend dev (`npm run dev`) | :5173 | vite.config.ts |
 | Fat jar prod | :8080 | SPRINTJUDGE_PORT (default 8080) |
 | Prod verifier | :8091 | make verify-prod PORT=... |
@@ -71,11 +72,11 @@ flowchart LR
 | Variable | Default | Effect |
 |----------|---------|--------|
 | SPRINTJUDGE_PORT | 8080 | Prod jar listen port |
-| SPRINTJUDGE_DB_PATH | next to jar / ./sprintjudge.db | SQLite file (forward slashes) |
-| SPRINTJUDGE_EXECUTOR_MODE | native dev, nsjail prod | native, wsl, or nsjail |
-| SPRINTJUDGE_CORS_ALLOWED_ORIGINS | `http://localhost:5173` | Extra browser origins |
+| SPRINTJUDGE_DB_PATH | ./database/sprintjudge.db (prod override: /var/lib/sprintjudge/sprintjudge.db) | SQLite file (forward slashes) |
+| SPRINTJUDGE_EXECUTOR_MODE | native dev, nsjail prod | native or nsjail |
+| SPRINTJUDGE_CORS_ALLOWED_ORIGINS | empty (same-origin) | Extra browser origins |
 | SPRINTJUDGE_ADMIN_USERNAME | admin | Form-login username |
-| SPRINTJUDGE_ADMIN_PASSWORD | changeme | Form-login password (change it) |
+| SPRINTJUDGE_ADMIN_PASSWORD | none in prod | Required; prod refuses `changeme` |
 | SPRINTJUDGE_COOKIE_SECURE | false | true behind TLS nginx |
 | SPRINTJUDGE_AI_ENABLED | false | AI feedback on failed cases |
 | SPRINTJUDGE_AI_PROVIDER | openai | openai or llamacpp |
@@ -97,11 +98,11 @@ make prod               # single-jar production: UI + API + bundled library
 make verify-prod        # boot prod and probe the REST health endpoints
 ```
 
-The dev profile defaults to the `native` executor: toolchains are invoked directly, so a
-fresh machine only needs its compilers on PATH. Set `SPRINTJUDGE_EXECUTOR_MODE=wsl` to run
-the same judge inside Ubuntu instead. The production build bundles the compiled frontend
-and the graded starter library into one fat jar — first launch creates and seeds the
-SQLite database automatically (only when the bank is empty).
+The dev profile defaults to the `native` executor: toolchains are invoked directly on
+PATH, with no WSL and no global npm/Maven tools. The production build bundles the
+compiled frontend and the graded library into one fat jar — first launch creates and
+seeds the SQLite database automatically (only when the bank is empty). Run
+`make seed-banks` once to add playable quiz sets for every subject.
 
 ## Admin authentication
 

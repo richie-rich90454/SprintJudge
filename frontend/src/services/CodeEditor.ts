@@ -1,5 +1,5 @@
 import type * as Monaco from "monaco-editor";
-import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
+import EditorWorker from "monaco-editor/editor/editor.worker?worker";
 
 // Without a worker environment, monaco.editor.create() throws ("Could not create
 // web worker") and the textarea fallback is what renders. The base editor worker
@@ -32,17 +32,14 @@ export async function createCodeEditor(
     opts: CodeEditorOptions,
 ): Promise<CodeEditorHandle> {
     try {
-        // Slim API entry plus the complete editor feature set — but NOT the
-        // fat editor.main entry, which would also bundle ~100 unused grammars
-        // plus the ts/css/html/json language services.
-        const monaco = await import("monaco-editor/esm/vs/editor/editor.api");
-        await import("monaco-editor/esm/vs/editor/edcore.main");
-        // Register only the judge languages (cpp covers C too).
+        // Monaco 0.57 slim API entry (the old esm/vs/* paths and edcore.main
+        // were removed). Register only the judge languages — cpp covers C too.
+        const monaco = await import("monaco-editor/editor/editor.api");
         await Promise.all([
-            import("monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution"),
-            import("monaco-editor/esm/vs/basic-languages/java/java.contribution"),
-            import("monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution"),
-            import("monaco-editor/esm/vs/basic-languages/python/python.contribution"),
+            import("monaco-editor/languages/definitions/cpp/register.js"),
+            import("monaco-editor/languages/definitions/java/register.js"),
+            import("monaco-editor/languages/definitions/javascript/register.js"),
+            import("monaco-editor/languages/definitions/python/register.js"),
         ]);
         const ed = monaco.editor.create(host, {
             value: opts.value,

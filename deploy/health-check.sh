@@ -13,10 +13,12 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 echo "== SprintJudge health check =="
 
 # 1. HTTP health endpoint
-if ! curl -fsS "${BASE_URL}/actuator/health" >/tmp/sprintjudge-health.json 2>/dev/null; then
+HEALTH_FILE="$(mktemp)"
+trap 'rm -f "$HEALTH_FILE"' EXIT
+if ! curl -fsS "${BASE_URL}/actuator/health" >"$HEALTH_FILE" 2>/dev/null; then
     fail "HTTP health endpoint unreachable: ${BASE_URL}/actuator/health"
 fi
-STATUS="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("status","UNKNOWN"))' </tmp/sprintjudge-health.json 2>/dev/null || echo UNKNOWN)"
+STATUS="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("status","UNKNOWN"))' <"$HEALTH_FILE" 2>/dev/null || echo UNKNOWN)"
 echo "http: ${STATUS}"
 [ "$STATUS" = "UP" ] || fail "health status is ${STATUS}, expected UP"
 
@@ -45,5 +47,3 @@ fi
 echo "executor: nsjail ok ($NSJAIL)"
 
 echo "RESULT: all checks passed"
-EOF
-echo done
