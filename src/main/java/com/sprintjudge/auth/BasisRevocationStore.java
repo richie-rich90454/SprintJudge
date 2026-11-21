@@ -12,7 +12,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class BasisRevocationStore {
 
+	private static final int MAX_ENTRIES = 5000;
+	private static final long MAX_AGE_MS = 24L * 60 * 60 * 1000;
+
 	private final Map<String, Long> revoked = new ConcurrentHashMap<>();
+	private final Map<String, Long> storedAt = new ConcurrentHashMap<>();
 
 	public void deny(String jti, long validAfterEpochSec) {
 		if (jti == null || jti.isBlank())
@@ -23,6 +27,8 @@ public class BasisRevocationStore {
 				return Long.valueOf(Math.min(first.longValue(), second.longValue()));
 			}
 		});
+		storedAt.put(jti, System.currentTimeMillis());
+		prune();
 	}
 
 	public boolean isDenied(String jti) {
@@ -30,6 +36,19 @@ public class BasisRevocationStore {
 			return false;
 		Long after = revoked.get(jti);
 		return after != null && System.currentTimeMillis() / 1000L >= after.longValue();
+	}
+
+	/** Bounds memory: a signed token feed must not grow the denylist forever. */
+	private void prune() {
+		if (revoked.size() <= MAX_ENTRIES)
+			return;
+		long cutoff = System.currentTimeMillis() - MAX_AGE_MS;
+		for (Map.Entry<String, Long> entry : storedAt.entrySet()) {
+			if (entry.getValue() < cutoff) {
+				revoked.remove(entry.getKey());
+				storedAt.remove(entry.getKey());
+			}
+		}
 	}
 
 	public int size() {

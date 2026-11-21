@@ -40,6 +40,26 @@ class SecureHandshakeConfiguratorTest {
 	}
 
 	@Test
+	void foreignOriginIsBlocked() {
+		Map<String, Object> props = new HashMap<>();
+		configurator.modifyHandshake(secWith(props),
+				requestWith(Map.of("Origin", List.of("https://evil.example"), "Host", List.of("quiz.example.org")),
+						null),
+				mock(HandshakeResponse.class));
+		assertEquals("blocked", props.get(SecureHandshakeConfigurator.REMOTE_ADDR));
+	}
+
+	@Test
+	void sameHostOriginIsAllowed() {
+		Map<String, Object> props = new HashMap<>();
+		configurator.modifyHandshake(secWith(props),
+				requestWith(Map.of("Origin", List.of("https://quiz.example.org"), "Host", List.of("quiz.example.org")),
+						null),
+				mock(HandshakeResponse.class));
+		assertEquals("unresolved", stagedIp(props));
+	}
+
+	@Test
 	void stagesIpFromForwardedFor() {
 		Map<String, Object> props = new HashMap<>();
 		configurator.modifyHandshake(secWith(props), requestWith(Map.of("X-Forwarded-For", List.of("1.2.3.4")), null),

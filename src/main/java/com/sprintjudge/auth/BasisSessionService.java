@@ -31,6 +31,7 @@ public class BasisSessionService implements HttpSessionListener {
 		for (Set<String> ids : bySubject.values()) {
 			ids.remove(id);
 		}
+		bySubject.entrySet().removeIf(entry -> entry.getValue().isEmpty());
 	}
 
 	public void register(String sessionId, String subject) {

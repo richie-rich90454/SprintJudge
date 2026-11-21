@@ -36,6 +36,40 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 	private static volatile ApplicationContext context;
 
 	/**
+	 * Optional explicit origin allowlist (comma-separated); empty means same-host.
+	 */
+	static String allowedOrigins() {
+		ApplicationContext ctx = context;
+		if (ctx == null)
+			return "";
+		return ctx.getEnvironment().getProperty("SPRINTJUDGE_CORS_ALLOWED_ORIGINS", "");
+	}
+
+	public static boolean originAllowed(String origin, String host) {
+		if (host == null || host.isBlank())
+			return false;
+		try {
+			java.net.URI originUri = java.net.URI.create(origin);
+			String originHost = originUri.getHost();
+			if (originHost == null)
+				return false;
+			String requestedHost = host.contains(":") ? host.substring(0, host.lastIndexOf(':')) : host;
+			if (originHost.equalsIgnoreCase(requestedHost) || "localhost".equalsIgnoreCase(originHost)
+					|| "127.0.0.1".equals(originHost)) {
+				return true;
+			}
+			for (String allowed : allowedOrigins().split(",")) {
+				String trimmed = allowed.trim();
+				if (!trimmed.isEmpty() && trimmed.equalsIgnoreCase(origin))
+					return true;
+			}
+			return false;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+
+	/**
 	 * Per-connection staging maps. The handshake writes IP + auth here keyed by a
 	 * unique token; onOpen reads and removes them. Entries are timestamped and
 	 * opportunistically evicted: a handshake that never reaches onOpen must not
@@ -85,14 +119,23 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 	@Override
 	public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
 		super.modifyHandshake(sec, request, response);
-		// Trust the LAST X-Forwarded-For segment: nginx appends the real peer
-		// IP there ($proxy_add_x_forwarded_for), while earlier segments are
-		// client-controlled. Taking the first would let an attacker rotate
-		// identities past the join rate limiter.
-		String addr = lastHeader(request, "X-Forwarded-For");
-		if (addr == null)
-			addr = firstHeader(request, "X-Real-IP");
-		String remoteAddr = addr == null ? "unresolved" : addr;
+		// Proxy headers count only for a loopback proxy (nginx on this host).
+		// Direct-to-jar deployments use the TCP peer, so a client cannot rotate
+		// identities past the join rate limiter with fabricated headers.
+		// WebSocketOriginFilter rejects fabricated proxy headers before upgrade,
+		// so the last XFF segment is safe to use here.
+		String forwarded = lastHeader(request, "X-Forwarded-For");
+		String realIp = firstHeader(request, "X-Real-IP");
+		String remoteAddr = forwarded != null ? forwarded : (realIp != null ? realIp : "unresolved");
+		// Cross-site WebSocket hijacking: browsers always send Origin. Reject a
+		// handshake whose Origin host differs from the requested Host unless an
+		// explicit allowlist is configured.
+		String origin = firstHeader(request, "Origin");
+		String host = firstHeader(request, "Host");
+		if (origin != null && !originAllowed(origin, host)) {
+			sec.getUserProperties().put(REMOTE_ADDR, "blocked");
+			return;
+		}
 		// Stage IP + auth for this connection - onOpen reads-and-removes them.
 		// The WS upgrade carries the JSESSIONID cookie, so the HttpSession holds
 		// the form-login auth even though /ws itself is permitAll.

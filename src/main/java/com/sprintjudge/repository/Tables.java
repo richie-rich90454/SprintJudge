@@ -18,6 +18,12 @@ public final class Tables {
 	public static final Field<String> USERS_ROLE = DSL.field("role", SQLDataType.VARCHAR);
 	public static final Field<Long> USERS_CREATED_AT = DSL.field("created_at", SQLDataType.BIGINT);
 
+	public static final Table<?> PLAYER_SESSIONS = DSL.table("player_sessions");
+	public static final Field<String> PS_PLAYER_ID = DSL.field("player_id", SQLDataType.VARCHAR);
+	public static final Field<String> PS_ROOM_ID = DSL.field("room_id", SQLDataType.VARCHAR);
+	public static final Field<String> PS_REJOIN_TOKEN = DSL.field("rejoin_token", SQLDataType.VARCHAR);
+	public static final Field<Long> PS_EXPIRES_AT = DSL.field("expires_at", SQLDataType.BIGINT);
+
 	public static final Table<?> QUIZZES = DSL.table("quizzes");
 	public static final Field<String> QUIZZES_ID = DSL.field("id", SQLDataType.VARCHAR);
 	public static final Field<String> QUIZZES_TITLE = DSL.field("title", SQLDataType.VARCHAR);

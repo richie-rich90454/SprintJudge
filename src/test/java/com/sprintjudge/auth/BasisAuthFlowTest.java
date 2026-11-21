@@ -319,6 +319,36 @@ class BasisAuthFlowTest {
 	}
 
 	@Test
+	void revocationPrunesOldEntriesBeyondCap() throws Exception {
+		BasisRevocationStore store = new BasisRevocationStore();
+		java.lang.reflect.Field storedAt = BasisRevocationStore.class.getDeclaredField("storedAt");
+		storedAt.setAccessible(true);
+		@SuppressWarnings("unchecked")
+		java.util.Map<String, Long> timestamps = (java.util.Map<String, Long>) storedAt.get(store);
+		long old = System.currentTimeMillis() - 25L * 60 * 60 * 1000;
+		for (int i = 0; i < 5001; i++) {
+			store.deny("old-" + i, 1);
+			timestamps.put("old-" + i, old);
+		}
+		for (int i = 0; i < 30; i++) {
+			store.deny("fresh-" + i, 1);
+		}
+		assertTrue(store.size() < 5031, "old revocations must be pruned");
+	}
+
+	@Test
+	void sessionServicePrunesEmptySubjectLinks() {
+		BasisSessionService sessions = new BasisSessionService();
+		jakarta.servlet.http.HttpSession session = org.mockito.Mockito.mock(jakarta.servlet.http.HttpSession.class);
+		org.mockito.Mockito.when(session.getId()).thenReturn("s-prune");
+		sessions.sessionCreated(new jakarta.servlet.http.HttpSessionEvent(session));
+		sessions.register("s-prune", "subject-prune");
+		assertEquals(1, sessions.sessionCount("subject-prune"));
+		sessions.sessionDestroyed(new jakarta.servlet.http.HttpSessionEvent(session));
+		assertEquals(0, sessions.sessionCount("subject-prune"));
+	}
+
+	@Test
 	void jwkSourceRejectsPlainHttpRemoteIssuer() {
 		org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
 				new org.junit.jupiter.api.function.Executable() {

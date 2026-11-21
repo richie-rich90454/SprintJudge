@@ -65,6 +65,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 	private final QuizRepository quizRepository;
 	private final QuestionRepository questionRepository;
 	private final SubmissionRepository submissionRepository;
+	private final com.sprintjudge.repository.PlayerSessionRepository playerSessionRepository;
 	private final ScoringEngine scoringEngine;
 	private final org.springframework.beans.factory.ObjectProvider<SubmissionProcessor> submissionProcessor;
 	private final WebSocketSessionManager ws;
@@ -88,6 +89,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				}
 			});
 
+	/**
+	 * Test-friendly overload: session-token persistence is a no-op without a
+	 * repository.
+	 */
 	public GameRoomManager(GameSessionRepository sessionRepository, QuizRepository quizRepository,
 			QuestionRepository questionRepository, SubmissionRepository submissionRepository,
 			ScoringEngine scoringEngine,
@@ -95,10 +100,37 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 			WebSocketSessionManager ws, EvaluationService evaluationService, AdminSettingsService settingsService,
 			BroadcastScheduler scheduler, SubmissionWriteBuffer writeBuffer, RoundTimeoutScheduler roundTimer,
 			ApplicationEventPublisher eventPublisher) {
+		this(sessionRepository, quizRepository, questionRepository, submissionRepository, scoringEngine,
+				submissionProcessor, ws, evaluationService, settingsService, scheduler, writeBuffer, roundTimer,
+				eventPublisher, new com.sprintjudge.repository.PlayerSessionRepository(null) {
+					@Override
+					public void save(String playerId, String roomId, String token) {
+					}
+					@Override
+					public java.util.List<com.sprintjudge.repository.PlayerSessionRepository.StoredPlayerSession> findByRoom(
+							String roomId) {
+						return java.util.List.of();
+					}
+					@Override
+					public void deleteExpired() {
+					}
+				});
+	}
+
+	@org.springframework.beans.factory.annotation.Autowired
+	public GameRoomManager(GameSessionRepository sessionRepository, QuizRepository quizRepository,
+			QuestionRepository questionRepository, SubmissionRepository submissionRepository,
+			ScoringEngine scoringEngine,
+			org.springframework.beans.factory.ObjectProvider<SubmissionProcessor> submissionProcessor,
+			WebSocketSessionManager ws, EvaluationService evaluationService, AdminSettingsService settingsService,
+			BroadcastScheduler scheduler, SubmissionWriteBuffer writeBuffer, RoundTimeoutScheduler roundTimer,
+			ApplicationEventPublisher eventPublisher,
+			com.sprintjudge.repository.PlayerSessionRepository playerSessionRepository) {
 		this.sessionRepository = sessionRepository;
 		this.quizRepository = quizRepository;
 		this.questionRepository = questionRepository;
 		this.submissionRepository = submissionRepository;
+		this.playerSessionRepository = playerSessionRepository;
 		this.scoringEngine = scoringEngine;
 		this.submissionProcessor = submissionProcessor;
 		this.ws = ws;
@@ -167,6 +199,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				if (room.getHostUuid() != null)
 					throw new IllegalStateException("A host is already connected");
 				Player p = new Player(Ids.uuid(), safeName, 0, sessionId, true, Ids.uuid());
+				playerSessionRepository.save(p.getUuid(), room.getSessionId(), p.getToken());
 				if (!room.addHost(p))
 					throw new IllegalStateException("Room is full");
 				room.setHostUuid(p.getUuid());
@@ -196,6 +229,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 			if (room.isFull())
 				throw new IllegalStateException("Room is full");
 			Player joined = new Player(Ids.uuid(), safeName, 0, sessionId, true, Ids.uuid());
+			playerSessionRepository.save(joined.getUuid(), room.getSessionId(), joined.getToken());
 			// isFull above holds under synchronized(room), so the add cannot fail.
 			room.addPlayer(joined);
 			room.touch();
@@ -1091,6 +1125,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 	 * pins nor memory leak.
 	 */
 	public void sweepIdleRooms() {
+		playerSessionRepository.deleteExpired();
 		long now = System.currentTimeMillis();
 		boolean evicted = false;
 		for (GameRoom room : registry.snapshot()) {
@@ -1172,6 +1207,13 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 							name = "Player";
 						int score = scores.getOrDefault(uuid, 0);
 						Player p = new Player(uuid, name, 0, null, false, null);
+						String savedToken = playerSessionRepository.findByRoom(s.getId()).stream()
+								.filter(ps -> uuid.equals(ps.getPlayerId()))
+								.map(com.sprintjudge.repository.PlayerSessionRepository.StoredPlayerSession::getRejoinToken)
+								.findFirst().orElse(null);
+						if (savedToken != null) {
+							p.setToken(savedToken);
+						}
 						if (room.addPlayer(p) && score != 0) {
 							room.applyScore(uuid, score);
 						}
@@ -1190,6 +1232,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		sweeper.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
+				playerSessionRepository.deleteExpired();
 				sweepIdleRooms();
 			}
 		}, 60, 60, java.util.concurrent.TimeUnit.SECONDS);

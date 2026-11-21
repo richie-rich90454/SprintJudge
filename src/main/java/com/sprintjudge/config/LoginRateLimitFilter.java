@@ -39,7 +39,8 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		if (windows.size() > MAX_TRACKED_IPS)
 			windows.clear();
-		String ip = request.getRemoteAddr();
+		String ip = com.sprintjudge.util.ClientIpResolver.resolve(request.getRemoteAddr(),
+				request.getHeader("X-Forwarded-For"), request.getHeader("X-Real-IP"));
 		long now = System.currentTimeMillis();
 		long[] window = windows.compute(ip, new java.util.function.BiFunction<String, long[], long[]>() {
 			@Override

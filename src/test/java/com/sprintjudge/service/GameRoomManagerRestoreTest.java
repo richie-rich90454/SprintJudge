@@ -172,6 +172,32 @@ class GameRoomManagerRestoreTest {
 	}
 
 	@Test
+	void restoresRejoinTokensFromPersistence() {
+		GameSession s = gs("sid-token", "qz-token", "777777", "ACTIVE", "STANDARD", 0);
+		when(sessionRepository.findAllNonEnded()).thenReturn(List.of(s));
+		Submission sub = new Submission("sub-1", "sid-token", "q-token", "Alice", "player-1", "{}", 100, true, null, 1,
+				Instant.now());
+		when(submissionRepository.findBySession("sid-token")).thenReturn(List.of(sub));
+
+		com.sprintjudge.repository.PlayerSessionRepository sessions = org.mockito.Mockito
+				.mock(com.sprintjudge.repository.PlayerSessionRepository.class);
+		when(sessions.findByRoom("sid-token")).thenReturn(
+				List.of(new com.sprintjudge.repository.PlayerSessionRepository.StoredPlayerSession("player-1",
+						"persisted-token", System.currentTimeMillis() + 60_000)));
+		GameRoomManager m = new GameRoomManager(sessionRepository, quizRepository, questionRepository,
+				submissionRepository, scoringEngine, processorProvider, ws, evaluationService, settingsService,
+				scheduler, writeBuffer, roundTimer, eventPublisher, sessions);
+		m.restoreRooms();
+		GameRoom room = registry(m).get(777777);
+		assertNotNull(room);
+		Player restored = room.getPlayer("player-1");
+		assertNotNull(restored);
+		assertEquals("persisted-token", restored.getToken());
+		assertEquals(100, restored.getScore());
+		assertEquals("persisted-token", room.reclaim("persisted-token", "new-session").getToken());
+	}
+
+	@Test
 	void skipsNullSession() {
 		List<GameSession> ls = new java.util.ArrayList<>();
 		ls.add(null);
