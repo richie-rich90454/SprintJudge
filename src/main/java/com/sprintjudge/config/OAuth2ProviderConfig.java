@@ -142,12 +142,22 @@ public class OAuth2ProviderConfig {
 			}
 		}
 		final List<String> admins = allowed;
+		// Providers without a verified-email claim (GitHub/GitLab/Facebook) can
+		// still grant admin by the stable provider subject.
+		final List<String> adminSubjects = new ArrayList<>();
+		for (String entry : env.getProperty("SPRINTJUDGE_ADMIN_SUBJECTS", "").split(",")) {
+			if (!entry.trim().isEmpty()) {
+				adminSubjects.add(entry.trim());
+			}
+		}
 		return new GrantedAuthoritiesMapper() {
 			@Override
 			public Collection<? extends GrantedAuthority> mapAuthorities(
 					Collection<? extends GrantedAuthority> authorities) {
 				String email = emailOf(authorities);
-				boolean admin = email != null && admins.contains(email.toLowerCase());
+				String subject = subjectOf(authorities);
+				boolean admin = (email != null && admins.contains(email.toLowerCase()))
+						|| (subject != null && adminSubjects.contains(subject));
 				List<GrantedAuthority> mapped = new ArrayList<>(authorities);
 				mapped.add(new SimpleGrantedAuthority(admin ? "ROLE_ADMIN" : "ROLE_USER"));
 				return mapped;
@@ -179,6 +189,23 @@ public class OAuth2ProviderConfig {
 				Object email = attributes.get("email");
 				if (email != null)
 					return String.valueOf(email);
+			}
+		}
+		return null;
+	}
+
+	private static String subjectOf(Collection<? extends GrantedAuthority> authorities) {
+		for (GrantedAuthority authority : authorities) {
+			if (authority instanceof OidcUserAuthority) {
+				String subject = ((OidcUserAuthority) authority).getIdToken().getSubject();
+				if (subject != null)
+					return subject;
+			} else if (authority instanceof OAuth2UserAuthority) {
+				Object subject = ((OAuth2UserAuthority) authority).getAttributes().get("sub");
+				if (subject == null)
+					subject = ((OAuth2UserAuthority) authority).getAttributes().get("id");
+				if (subject != null)
+					return String.valueOf(subject);
 			}
 		}
 		return null;

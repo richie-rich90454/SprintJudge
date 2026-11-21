@@ -251,10 +251,21 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 	}
 
 	public void leave(String pin, String playerUuid) {
+		leave(pin, playerUuid, null);
+	}
+
+	/** A stale socket closing after a token rejoin must not evict the new seat. */
+	public void leave(String pin, String playerUuid, String closingSessionId) {
 		GameRoom room = registry.get(Integer.parseInt(pin));
 		if (room == null)
 			return;
 		synchronized (room) {
+			if (closingSessionId != null) {
+				Player current = room.getPlayer(playerUuid);
+				if (current != null && current.isConnected() && !closingSessionId.equals(current.getSessionId())) {
+					return;
+				}
+			}
 			if (playerUuid.equals(room.getHostUuid()))
 				room.setHostUuid(null);
 			room.removeSpectator(playerUuid);
@@ -354,6 +365,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				// Host skip mid-round: run the normal reveal path first so results,
 				// deltas and the battle round are resolved before advancing.
 				transitionToReview(pin);
+			}
+			if ("ENDED".equals(room.getStatus())) {
+				// resolveBattleRound may have crowned a champion and ended the game.
+				return;
 			}
 			if (GameRoom.GameMode.BATTLE.equals(room.getGameMode())) {
 				if (room.currentBattleRound() == null) {
@@ -1185,9 +1200,27 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				continue;
 			String mode = (s.getGameMode() == null || s.getGameMode().isBlank()
 					|| !GameRoom.GameMode.isValid(s.getGameMode())) ? GameRoom.GameMode.STANDARD : s.getGameMode();
-			GameRoom room = new GameRoom(s.getId(), s.getQuizId(), s.getPinCode(),
-					s.getStatus() == null ? "LOBBY" : s.getStatus(), maxPlayers, mode);
+			String restoredStatus = s.getStatus() == null ? "LOBBY" : s.getStatus();
+			GameRoom room = new GameRoom(s.getId(), s.getQuizId(), s.getPinCode(), restoredStatus, maxPlayers, mode);
 			room.setCurrentQuestionIndex(s.getCurrentQuestionIndex());
+			try {
+				java.util.List<com.sprintjudge.domain.models.Question> questions = questionRepository
+						.findByQuiz(s.getQuizId());
+				int index = s.getCurrentQuestionIndex();
+				if (questions != null && index >= 0 && index < questions.size()) {
+					room.setCurrentQuestionId(questions.get(index).getId());
+					// An in-flight round lost its wall-clock deadline on restart; move
+					// to REVIEW so clients get a consistent reveal instead of a
+					// locked ACTIVE round that never accepts or resolves answers.
+					if ("ACTIVE".equals(restoredStatus)) {
+						room.setStatus("REVIEW");
+						restoredStatus = "REVIEW";
+						sessionRepository.updateStatus(s.getId(), "REVIEW");
+					}
+				}
+			} catch (RuntimeException e) {
+				log.warn("Room {} question restore failed", s.getPinCode(), e);
+			}
 			try {
 				java.util.List<Submission> subs = submissionRepository.findBySession(s.getId());
 				if (subs != null) {

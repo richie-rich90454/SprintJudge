@@ -31,6 +31,7 @@ public class GameWebSocket {
 	private static final String PIN_KEY = "pin";
 	private static final String ROLE_KEY = "role";
 	private static final String AUTHED_KEY = SecureHandshakeConfigurator.AUTHENTICATED;
+	private static final String ADMIN_KEY = SecureHandshakeConfigurator.ADMIN;
 	private static final String IP_KEY = SecureHandshakeConfigurator.REMOTE_ADDR;
 
 	/**
@@ -202,7 +203,8 @@ public class GameWebSocket {
 			return;
 		}
 		boolean authenticated = Boolean.TRUE.equals(session.getUserProperties().get(AUTHED_KEY));
-		if ("host".equalsIgnoreCase(role) && !authenticated) {
+		boolean admin = Boolean.TRUE.equals(session.getUserProperties().get(ADMIN_KEY));
+		if ("host".equalsIgnoreCase(role) && !(authenticated && admin)) {
 			send(session, new ErrorMessage("ERROR", "Host role requires admin authentication"));
 			return;
 		}
@@ -279,7 +281,8 @@ public class GameWebSocket {
 	private void asHost(Session session, Runnable action) {
 		String role = (String) session.getUserProperties().get(ROLE_KEY);
 		boolean authenticated = Boolean.TRUE.equals(session.getUserProperties().get(AUTHED_KEY));
-		if (!"host".equals(role) || !authenticated) {
+		boolean admin = Boolean.TRUE.equals(session.getUserProperties().get(ADMIN_KEY));
+		if (!"host".equals(role) || !authenticated || !admin) {
 			send(session, new ErrorMessage("ERROR", "Forbidden: host authentication required"));
 			return;
 		}
@@ -317,7 +320,7 @@ public class GameWebSocket {
 		String uuid = propOf(session, UUID_KEY);
 		if (pin != null && uuid != null) {
 			try {
-				roomManager.leave(pin, uuid);
+				roomManager.leave(pin, uuid, session.getId());
 			} catch (RuntimeException e) {
 				org.slf4j.LoggerFactory.getLogger(GameWebSocket.class).debug("WS leave failed for room {}", pin, e);
 			}

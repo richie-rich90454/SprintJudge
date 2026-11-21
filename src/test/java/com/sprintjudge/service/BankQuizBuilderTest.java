@@ -273,8 +273,38 @@ class BankQuizBuilderTest {
 		numeric.remove("answer");
 		assertNull(builder.toQuestion(numeric, 0));
 
-		assertNull(builder.toQuestion(with(base, "format", "EXPLANATION"), 0));
-		assertNull(builder.toQuestion(with(base, "options", List.of(), "format", "EXPLANATION"), 0));
+		// Newly playable formats: TWO_STAGE/ORDERING share the MCQ shape,
+		// FILE_DATASET/JUDGED_PROBLEM are numeric, and prose formats become
+		// FILL_BLANK graded against the exemplar.
+		assertEquals("MCQ", builder.toQuestion(with(base, "format", "TWO_STAGE"), 0).getType());
+		assertEquals("MCQ", builder.toQuestion(with(base, "format", "ORDERING"), 0).getType());
+		assertEquals("MCQ", builder.toQuestion(with(base, "format", "DATA_INTERPREPATION"), 0).getType());
+		numeric.put("answer", java.util.Map.of("value", 2));
+		numeric.put("format", "FILE_DATASET");
+		assertEquals("NUMERIC", builder.toQuestion(numeric, 0).getType());
+		numeric.put("format", "JUDGED_PROBLEM");
+		assertEquals("NUMERIC", builder.toQuestion(numeric, 0).getType());
+
+		java.util.Map<String, Object> prose = new java.util.HashMap<>();
+		prose.put("format", "EXPLANATION");
+		prose.put("stem", "Explain why");
+		prose.put("explanation", "Because");
+		prose.put("answer", java.util.Map.of("exemplar", "A complete explanation"));
+		prose.put("options", List.of());
+		ExportBundle.QuestionExport converted = builder.toQuestion(prose, 0);
+		assertNotNull(converted);
+		assertEquals("FILL_BLANK", converted.getType());
+		assertEquals("A complete explanation", converted.getConfig().get("answer"));
+		assertEquals("FILL_BLANK", builder.toQuestion(with(prose, "csaUnit", "CSA 2"), 0).getType());
+		prose.put("csaUnit", "");
+		assertEquals("CSA 2", ((java.util.Map<?, ?>) builder.toQuestion(prose, 2).getConfig()).get("csaUnit"));
+		assertNull(((java.util.Map<?, ?>) builder.toQuestion(prose, 0).getConfig()).get("csaUnit"));
+		// csaUnit outside 1..4 leaves no CSA label (e.g. mixed unit 5).
+		assertNull(((java.util.Map<?, ?>) builder.toQuestion(prose, 5).getConfig()).get("csaUnit"));
+		// Options on a prose format are ignored: free-response grading wins.
+		assertNotNull(builder.toQuestion(with(prose, "options", base.get("options")), 0));
+		assertNull(builder.toQuestion(with(prose, "answer", java.util.Map.of()), 0));
+		assertNull(builder.toQuestion(with(prose, "format", "PROOF", "answer", java.util.Map.of()), 0));
 	}
 
 	private static java.util.Map<String, Object> with(java.util.Map<String, Object> base, String key, Object value) {

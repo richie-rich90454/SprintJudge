@@ -31,7 +31,14 @@ public class BankQuizBuilder {
 
 	private static final Set<String> MCQ_FORMATS = Set.of("CONCEPT_MCQ", "STIMULUS_MCQ", "SOURCE_BASED",
 			"ERROR_ANALYSIS", "DATA_INTERPRETATION", "CONCEPTUAL_REASONING", "RHETORICAL_ANALYSIS", "SYNTHESIS",
-			"DIAGRAM", "CODE_TRACING", "BUG_SPOTTING", "CODE_COMPLETION", "MCQ");
+			"DIAGRAM", "CODE_TRACING", "BUG_SPOTTING", "CODE_COMPLETION", "MCQ", "TWO_STAGE", "ORDERING",
+			"DATA_INTERPREPATION");
+
+	private static final Set<String> NUMERIC_FORMATS = Set.of("NUMERIC", "FORMULA_APPLICATION",
+			"CALCULATION_WITH_UNITS", "NUMERIC_CALCULATION", "FILE_DATASET", "JUDGED_PROBLEM");
+
+	private static final Set<String> FREE_RESPONSE_FORMATS = Set.of("EXPLANATION", "EXPERIMENT_DESIGN", "PROOF",
+			"FREE_RESPONSE", "IMAGE_INTERPRETATION", "LISTENING_RESPONSE", "COMPOSITION", "WRITTEN");
 
 	private final BankRecordSource records;
 	private final ImportExportService importExportService;
@@ -284,8 +291,8 @@ public class BankQuizBuilder {
 		String subject = csa
 				? "JAVA_PROGRAMMING"
 				: blank(request.getSubject()) ? "JAVA_PROGRAMMING" : request.getSubject().trim();
-		Set<String> playableFormats = union(MCQ_FORMATS, Set.of("MULTI_SELECT", "NUMERIC", "FORMULA_APPLICATION",
-				"CALCULATION_WITH_UNITS", "NUMERIC_CALCULATION"));
+		Set<String> playableFormats = union(union(MCQ_FORMATS, NUMERIC_FORMATS),
+				union(Set.of("MULTI_SELECT"), FREE_RESPONSE_FORMATS));
 		Random random = new Random(request.getSeed() == 0 ? 2026L + request.getCsaUnit() : request.getSeed());
 		ExportBundle.QuestionExport coding = request.isIncludeCoding() ? codingQuestion(subject) : null;
 		int bankTarget = coding == null ? count : Math.max(1, count - 1);
@@ -413,8 +420,7 @@ public class BankQuizBuilder {
 				}
 			}
 		}
-		if (Set.of("NUMERIC", "FORMULA_APPLICATION", "CALCULATION_WITH_UNITS", "NUMERIC_CALCULATION")
-				.contains(format)) {
+		if (NUMERIC_FORMATS.contains(format)) {
 			Map<String, Object> answer = asMap(record.get("answer"));
 			double value = number(answer.get("value"), number(answer.get("answer"), Double.NaN));
 			if (Double.isNaN(value))
@@ -431,6 +437,25 @@ public class BankQuizBuilder {
 			else if (csaUnit >= 1 && csaUnit <= 4)
 				config.put("csaUnit", "CSA " + csaUnit);
 			return new ExportBundle.QuestionExport(Ids.uuid(), "NUMERIC", titleFor(record), stem, 90, 200, config,
+					null);
+		}
+		if (FREE_RESPONSE_FORMATS.contains(format)) {
+			Map<String, Object> answer = asMap(record.get("answer"));
+			String exemplar = text(answer, "exemplar");
+			if (exemplar.isBlank())
+				return null;
+			Map<String, Object> config = new LinkedHashMap<>();
+			config.put("answer", exemplar);
+			config.put("explanation", explanation);
+			config.put("hint", text(record, "hint"));
+			config.put("topic", text(record, "topic"));
+			config.put("unit", text(record, "unit"));
+			config.put("sourceFormat", format);
+			if (!recordUnit.isBlank())
+				config.put("csaUnit", recordUnit);
+			else if (csaUnit >= 1 && csaUnit <= 4)
+				config.put("csaUnit", "CSA " + csaUnit);
+			return new ExportBundle.QuestionExport(Ids.uuid(), "FILL_BLANK", titleFor(record), stem, 120, 300, config,
 					null);
 		}
 		return null;

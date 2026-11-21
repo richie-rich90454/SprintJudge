@@ -114,6 +114,16 @@ public class PublicController {
 	}
 
 	/**
+	 * Resolve the real client IP so every caller behind one proxy does not share a
+	 * single rate-limit bucket. Proxy headers are trusted only from loopback peers,
+	 * matching the WebSocket and login limiters.
+	 */
+	private static String clientIp(jakarta.servlet.http.HttpServletRequest http) {
+		return com.sprintjudge.util.ClientIpResolver.resolve(http.getRemoteAddr(), http.getHeader("X-Forwarded-For"),
+				http.getHeader("X-Real-IP"));
+	}
+
+	/**
 	 * PIN-scoped quiz preview for the join flow. The full bank is never listed
 	 * anonymously - without a live PIN there is nothing to see.
 	 */
@@ -303,8 +313,9 @@ public class PublicController {
 			throw new org.springframework.web.server.ResponseStatusException(
 					org.springframework.http.HttpStatus.FORBIDDEN, "public_runner_disabled");
 		}
-		if (overLimit(runWindow, http.getRemoteAddr(), RUN_LIMIT_PER_MIN)) {
-			log.warn("Rate limit exceeded for IP: {}", http.getRemoteAddr());
+		String ip = clientIp(http);
+		if (overLimit(runWindow, ip, RUN_LIMIT_PER_MIN)) {
+			log.warn("Rate limit exceeded for IP: {}", ip);
 			throw new org.springframework.web.server.ResponseStatusException(
 					org.springframework.http.HttpStatus.TOO_MANY_REQUESTS, "rate_limited");
 		}
@@ -320,8 +331,9 @@ public class PublicController {
 	@PostMapping("/practice")
 	public com.sprintjudge.domain.models.GameSession practice(@RequestBody(required = false) Map<String, String> body,
 			HttpServletRequest http) {
-		if (overLimit(practiceWindow, http.getRemoteAddr(), PRACTICE_LIMIT_PER_MIN)) {
-			log.warn("Practice rate limit exceeded for IP: {}", http.getRemoteAddr());
+		String ip = clientIp(http);
+		if (overLimit(practiceWindow, ip, PRACTICE_LIMIT_PER_MIN)) {
+			log.warn("Practice rate limit exceeded for IP: {}", ip);
 			throw new org.springframework.web.server.ResponseStatusException(
 					org.springframework.http.HttpStatus.TOO_MANY_REQUESTS, "rate_limited");
 		}

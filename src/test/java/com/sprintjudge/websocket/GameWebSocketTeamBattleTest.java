@@ -85,6 +85,7 @@ class GameWebSocketTeamBattleTest {
 
 	private void asHost() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		props.put("role", "host");
 		props.put("pin", "123456");
 	}
@@ -111,6 +112,7 @@ class GameWebSocketTeamBattleTest {
 	@Test
 	void createTeamForbiddenForPlayer() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		props.put("role", "player");
 		props.put("pin", "123456");
 		ws().onMessage(session, "{\"type\":\"CREATE_TEAM\",\"name\":\"Alpha\"}");
@@ -231,6 +233,7 @@ class GameWebSocketTeamBattleTest {
 	@Test
 	void startBattleForbiddenForPlayer() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		props.put("role", "player");
 		props.put("pin", "123456");
 		ws().onMessage(session, "{\"type\":\"START_BATTLE\"}");
@@ -265,14 +268,14 @@ class GameWebSocketTeamBattleTest {
 		props.put("playerUuid", "u1");
 		ws().onClose(session);
 		verify(sessions).unregister("sess");
-		verify(roomManager).leave("123456", "u1");
+		verify(roomManager).leave(eq("123456"), eq("u1"), anyString());
 	}
 
 	@Test
 	void closeWithoutSeatSkipsLeave() {
 		ws().onClose(session);
 		verify(sessions).unregister("sess");
-		verify(roomManager, never()).leave(anyString(), anyString());
+		verify(roomManager, never()).leave(anyString(), anyString(), anyString());
 	}
 
 	@Test
@@ -286,7 +289,7 @@ class GameWebSocketTeamBattleTest {
 			}
 		});
 		verify(sessions, never()).unregister(anyString());
-		verify(roomManager, never()).leave(anyString(), anyString());
+		verify(roomManager, never()).leave(anyString(), anyString(), anyString());
 	}
 
 	@Test
@@ -300,14 +303,14 @@ class GameWebSocketTeamBattleTest {
 				ws().onClose(session);
 			}
 		});
-		verify(roomManager).leave("123456", "u1");
+		verify(roomManager).leave(eq("123456"), eq("u1"), anyString());
 	}
 
 	@Test
 	void closeSurvivesLeaveFailure() {
 		props.put("pin", "123456");
 		props.put("playerUuid", "u1");
-		doThrow(new RuntimeException("db down")).when(roomManager).leave("123456", "u1");
+		doThrow(new RuntimeException("db down")).when(roomManager).leave(eq("123456"), eq("u1"), anyString());
 		assertDoesNotThrow(new org.junit.jupiter.api.function.Executable() {
 			@Override
 			public void execute() {
@@ -326,7 +329,7 @@ class GameWebSocketTeamBattleTest {
 				ws().onError(session, new RuntimeException("reset"));
 			}
 		});
-		verify(roomManager).leave("123456", "u1");
+		verify(roomManager).leave(eq("123456"), eq("u1"), anyString());
 	}
 
 	@Test

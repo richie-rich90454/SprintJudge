@@ -28,8 +28,12 @@ public class AdminRequestOriginFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
+		// Browsers send Origin on cross-site writes; Referer is the fallback when a
+		// client omits Origin. Requests with neither are left to the CSRF cookie.
 		String origin = request.getHeader("Origin");
-		if (origin != null && !com.sprintjudge.websocket.SecureHandshakeConfigurator.originAllowed(origin,
+		String referer = request.getHeader("Referer");
+		String candidate = origin != null ? origin : referer;
+		if (candidate != null && !com.sprintjudge.websocket.SecureHandshakeConfigurator.originAllowed(candidate,
 				request.getHeader("Host"))) {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN, "origin_not_allowed");
 			return;

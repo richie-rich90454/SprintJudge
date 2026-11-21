@@ -21,7 +21,7 @@ public class SubmissionRepository {
 
 	public Submission save(Submission s) {
 		String id = s.getId() != null ? s.getId() : Ids.uuid();
-		long now = Instant.now().getEpochSecond();
+		long now = Instant.now().toEpochMilli();
 		// ponytail: atomic upsert replaces the TOCTOU check-then-insert.
 		dsl.insertInto(Tables.SUBMISSIONS)
 				.columns(Tables.SUB_ID, Tables.SUB_SESS, Tables.SUB_QUESTION, Tables.SUB_PNAME, Tables.SUB_PUUID,
@@ -91,7 +91,7 @@ public class SubmissionRepository {
 		org.jooq.BatchBindStep step = dsl.batch(stmt);
 		for (Submission s : batch) {
 			String id = s.getId() != null ? s.getId() : Ids.uuid();
-			long now = Instant.now().getEpochSecond();
+			long now = Instant.now().toEpochMilli();
 			step.bind(id, s.getGameSessionId(), s.getQuestionId(), s.getPlayerName(), s.getPlayerUuid(),
 					s.getResponseData(), s.getScoreEarned(), s.isCorrect(), s.getJudgeLog(), s.getAttemptCount(), now);
 		}
@@ -103,6 +103,6 @@ public class SubmissionRepository {
 		return new Submission(r.get(Tables.SUB_ID), r.get(Tables.SUB_SESS), r.get(Tables.SUB_QUESTION),
 				r.get(Tables.SUB_PNAME), r.get(Tables.SUB_PUUID), r.get(Tables.SUB_DATA), r.get(Tables.SUB_SCORE),
 				correct != null && correct, r.get(Tables.SUB_LOG), r.get(Tables.SUB_ATTEMPTS),
-				at == null ? null : Instant.ofEpochSecond(at));
+				at == null ? null : Instant.ofEpochMilli(at));
 	}
 }

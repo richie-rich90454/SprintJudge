@@ -319,6 +319,17 @@ class BasisAuthFlowTest {
 	}
 
 	@Test
+	void revocationRejectsNonNumericValidAfter() throws Exception {
+		RSAKey key = BasisTestJwt.key();
+		BasisBackchannelController controller = controller(verifier(key), new BasisSessionService(),
+				new BasisRevocationStore());
+		String token = BasisTestJwt.sign(key, "at-revocation+jwt", ISSUER, AUDIENCE, null,
+				Map.of("access_token_jti", "jti-x", "valid_after", System.currentTimeMillis() / 1000L));
+		assertEquals(400, controller.receive(Map.of("action", "revoke_access_token", "revocation_token", token, "jti",
+				"jti-x", "valid_after", "not-a-number")).getStatusCode().value());
+	}
+
+	@Test
 	void revocationPrunesOldEntriesBeyondCap() throws Exception {
 		BasisRevocationStore store = new BasisRevocationStore();
 		java.lang.reflect.Field storedAt = BasisRevocationStore.class.getDeclaredField("storedAt");

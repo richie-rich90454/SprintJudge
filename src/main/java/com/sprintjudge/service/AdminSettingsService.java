@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AdminSettingsService {
 
 	private final AdminSettingsRepository repository;
+	private final Map<String, String> defaults = Map.of("mcq_max_attempts", "1", "show_board_during_game", "true",
+			"practice_auto_advance_ms", "2000");
 	private final Map<String, String> cache = new ConcurrentHashMap<>();
 	private volatile boolean loaded = false;
 
@@ -24,6 +26,7 @@ public class AdminSettingsService {
 
 	public synchronized void refresh() {
 		cache.clear();
+		cache.putAll(defaults);
 		cache.putAll(repository.findAllAsMap());
 		loaded = true;
 	}

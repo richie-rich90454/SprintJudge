@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurator {
 
 	public static final String AUTHENTICATED = "oq.authenticated";
+	public static final String ADMIN = "oq.admin";
 	public static final String REMOTE_ADDR = "oq.remoteAddr";
 
 	private static volatile ApplicationContext context;
@@ -42,6 +43,10 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 		ApplicationContext ctx = context;
 		if (ctx == null)
 			return "";
+		// getProperty(key, "") never returns null, so only emptiness needs checking.
+		String configured = ctx.getEnvironment().getProperty("sprintjudge.cors.allowed-origins", "");
+		if (!configured.isEmpty())
+			return configured;
 		return ctx.getEnvironment().getProperty("SPRINTJUDGE_CORS_ALLOWED_ORIGINS", "");
 	}
 
@@ -142,8 +147,14 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 		String token = java.util.UUID.randomUUID().toString();
 		if (staged.size() >= STAGE_MAX)
 			evictStale();
-		staged.put(token, new Staged(remoteAddr, isAuthenticated(request), System.nanoTime()));
+		org.springframework.security.core.Authentication auth = authentication(request);
+		boolean authenticated = auth != null && auth.isAuthenticated()
+				&& !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken);
+		boolean admin = authenticated
+				&& auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+		staged.put(token, new Staged(remoteAddr, authenticated, System.nanoTime()));
 		sec.getUserProperties().put(REMOTE_ADDR, token);
+		sec.getUserProperties().put(ADMIN, admin);
 	}
 
 	public static final class StagedConnection {
@@ -198,24 +209,27 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 		return consumeStaged(config).getIp();
 	}
 
-	private boolean isAuthenticated(HandshakeRequest request) {
-		if (request.getUserPrincipal() != null)
-			return true;
+	private org.springframework.security.core.Authentication authentication(HandshakeRequest request) {
+		if (request.getUserPrincipal() instanceof org.springframework.security.core.Authentication)
+			return (org.springframework.security.core.Authentication) request.getUserPrincipal();
+		if (request.getUserPrincipal() != null) {
+			// A container principal (no Spring authorities) is authenticated but
+			// never admin: host operations still require ROLE_ADMIN.
+			return new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+					request.getUserPrincipal(), null, java.util.List
+							.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER")));
+		}
 		try {
 			Object httpSession = request.getHttpSession();
 			if (httpSession instanceof jakarta.servlet.http.HttpSession) {
-				jakarta.servlet.http.HttpSession session = (jakarta.servlet.http.HttpSession) httpSession;
-				Object ctx = session.getAttribute("SPRING_SECURITY_CONTEXT");
+				Object ctx = ((jakarta.servlet.http.HttpSession) httpSession).getAttribute("SPRING_SECURITY_CONTEXT");
 				if (ctx instanceof org.springframework.security.core.context.SecurityContext) {
-					org.springframework.security.core.context.SecurityContext security = (org.springframework.security.core.context.SecurityContext) ctx;
-					org.springframework.security.core.Authentication auth = security.getAuthentication();
-					return auth != null && auth.isAuthenticated()
-							&& !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken);
+					return ((org.springframework.security.core.context.SecurityContext) ctx).getAuthentication();
 				}
 			}
 		} catch (Exception ignored) {
 		}
-		return false;
+		return null;
 	}
 
 	private static void evictStale() {

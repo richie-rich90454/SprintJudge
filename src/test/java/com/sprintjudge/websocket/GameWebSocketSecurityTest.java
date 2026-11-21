@@ -107,7 +107,7 @@ class GameWebSocketSecurityTest {
 		props.put("playerUuid", "uuid-1");
 		ws().onClose(session);
 		verify(sessions).unregister("sess");
-		verify(roomManager).leave("123456", "uuid-1");
+		verify(roomManager).leave(eq("123456"), eq("uuid-1"), anyString());
 	}
 
 	@Test
@@ -116,6 +116,7 @@ class GameWebSocketSecurityTest {
 		when(session.getUserPrincipal()).thenReturn(principal);
 		Map<String, Object> h = new HashMap<>();
 		h.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		h.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		h.put(SecureHandshakeConfigurator.REMOTE_ADDR, "10.0.0.7");
 		EndpointConfig cfg = org.mockito.Mockito.mock(EndpointConfig.class);
 		lenient().when(cfg.getUserProperties()).thenReturn(h);
@@ -229,6 +230,7 @@ class GameWebSocketSecurityTest {
 	@Test
 	void nextQuestionForwardedByHostSession() {
 		props.put("oq.authenticated", Boolean.TRUE);
+		props.put("oq.admin", Boolean.TRUE);
 		props.put("role", "host");
 		props.put("pin", "123456");
 		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
@@ -238,6 +240,7 @@ class GameWebSocketSecurityTest {
 	@Test
 	void endGameForwardedByHostSession() {
 		props.put("oq.authenticated", Boolean.TRUE);
+		props.put("oq.admin", Boolean.TRUE);
 		props.put("role", "host");
 		props.put("pin", "123456");
 		ws().onMessage(session, "{\"type\":\"END_GAME\"}");
@@ -272,8 +275,17 @@ class GameWebSocketSecurityTest {
 	}
 
 	@Test
+	void hostJoinRequiresAdminEvenWhenAuthenticated() {
+		props.put("oq.authenticated", Boolean.TRUE);
+		props.put("oq.admin", Boolean.FALSE);
+		ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Host\",\"role\":\"host\"}");
+		assertTrue(lastMessage().contains("admin"));
+	}
+
+	@Test
 	void hostCommandRequiresHostRoleEvenWhenAuthenticated() {
 		props.put("oq.authenticated", Boolean.TRUE);
+		props.put("oq.admin", Boolean.TRUE);
 		ws().onMessage(session, "{\"type\":\"END_GAME\"}");
 		assertTrue(lastMessage().contains("Forbidden"));
 	}
@@ -281,6 +293,7 @@ class GameWebSocketSecurityTest {
 	@Test
 	void extendTimerSecondsAreClampedHigh() {
 		props.put("oq.authenticated", Boolean.TRUE);
+		props.put("oq.admin", Boolean.TRUE);
 		props.put("role", "host");
 		props.put("pin", "123456");
 		ws().onMessage(session, "{\"type\":\"EXTEND_TIMER\",\"seconds\":99999}");
@@ -290,6 +303,7 @@ class GameWebSocketSecurityTest {
 	@Test
 	void extendTimerSecondsAreClampedLow() {
 		props.put("oq.authenticated", Boolean.TRUE);
+		props.put("oq.admin", Boolean.TRUE);
 		props.put("role", "host");
 		props.put("pin", "123456");
 		ws().onMessage(session, "{\"type\":\"EXTEND_TIMER\",\"seconds\":-50}");
@@ -299,6 +313,7 @@ class GameWebSocketSecurityTest {
 	@Test
 	void kickForwardsPlayerUuidForHost() {
 		props.put("oq.authenticated", Boolean.TRUE);
+		props.put("oq.admin", Boolean.TRUE);
 		props.put("role", "host");
 		props.put("pin", "123456");
 		ws().onMessage(session, "{\"type\":\"KICK_PLAYER\",\"playerUuid\":\"u-42\"}");
@@ -342,6 +357,7 @@ class GameWebSocketSecurityTest {
 	@Test
 	void authenticatedHostJoinSucceeds() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		when(rateLimiter.tryJoin(anyString())).thenReturn(true);
 		Player p = new Player("uuid-host", "Host", 0, "sess", true);
 		when(roomManager.join(eq("123456"), eq("Host"), eq("sess"), eq("host"), any())).thenReturn(p);
@@ -434,6 +450,17 @@ class GameWebSocketSecurityTest {
 		verify(roomManager, never()).nextQuestion(anyString());
 	}
 
+	@Test
+	void hostRoleWithoutAdminForbiddenAtHostGuard() {
+		props.put("role", "host");
+		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.FALSE);
+		props.put("pin", "123456");
+		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).nextQuestion(anyString());
+	}
+
 	// ---------- remaining message types ----------
 
 	@Test
@@ -458,6 +485,7 @@ class GameWebSocketSecurityTest {
 	@Test
 	void extendTimerDefaultsTo30WhenSecondsMissing() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		props.put("role", "host");
 		props.put("pin", "123456");
 		ws().onMessage(session, "{\"type\":\"EXTEND_TIMER\"}");
@@ -467,6 +495,7 @@ class GameWebSocketSecurityTest {
 	@Test
 	void kickDefaultsToEmptyUuidWhenMissing() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		props.put("role", "host");
 		props.put("pin", "123456");
 		ws().onMessage(session, "{\"type\":\"KICK_PLAYER\"}");
@@ -488,7 +517,7 @@ class GameWebSocketSecurityTest {
 	void onCloseWithoutPinSkipsLeave() {
 		ws().onClose(session);
 		verify(sessions).unregister("sess");
-		verify(roomManager, never()).leave(anyString(), anyString());
+		verify(roomManager, never()).leave(anyString(), anyString(), anyString());
 	}
 
 	@Test
@@ -511,7 +540,7 @@ class GameWebSocketSecurityTest {
 		props.put("pin", "123456");
 		ws().onClose(session);
 		verify(sessions).unregister("sess");
-		verify(roomManager, never()).leave(anyString(), anyString());
+		verify(roomManager, never()).leave(anyString(), anyString(), anyString());
 	}
 
 	@Test
@@ -523,13 +552,14 @@ class GameWebSocketSecurityTest {
 		when(roomManager.getRoomState(anyString()))
 				.thenReturn(new RoomState("ROOM", "LOBBY", 0, null, java.util.List.of(), "STANDARD"));
 		ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Al\"}");
-		verify(roomManager, never()).leave(anyString(), anyString());
+		verify(roomManager, never()).leave(anyString(), anyString(), anyString());
 		verify(roomManager).join(eq("123456"), eq("Al"), eq("sess"), eq("player"), any());
 	}
 
 	@Test
 	void forceSubmitForwardedByHostSession() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		props.put("role", "host");
 		props.put("pin", "123456");
 		ws().onMessage(session, "{\"type\":\"FORCE_SUBMIT\"}");

@@ -53,6 +53,40 @@ class SecureHandshakeConfiguratorExtraTest {
 	}
 
 	@Test
+	void springConfiguredOriginPropertyIsHonoured() throws Exception {
+		org.springframework.mock.env.MockEnvironment env = new org.springframework.mock.env.MockEnvironment();
+		env.setProperty("sprintjudge.cors.allowed-origins", "https://configured.example");
+		env.setProperty("SPRINTJUDGE_CORS_ALLOWED_ORIGINS", "https://raw.example");
+		GenericWebApplicationContext ctx = new GenericWebApplicationContext(new MockServletContext());
+		ctx.setEnvironment(env);
+		ctx.refresh();
+		setContext(ctx);
+		assertEquals("https://configured.example", SecureHandshakeConfigurator.allowedOrigins());
+		assertTrue(SecureHandshakeConfigurator.originAllowed("https://configured.example", "quiz.example.org"));
+	}
+
+	@Test
+	void springAuthenticationPrincipalGrantsHostRole() throws Exception {
+		org.springframework.security.core.Authentication auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+				"admin", "secret",
+				List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN")));
+		jakarta.websocket.server.HandshakeRequest request = org.mockito.Mockito
+				.mock(jakarta.websocket.server.HandshakeRequest.class);
+		org.mockito.Mockito.when(request.getHeaders()).thenReturn(Map.of("X-Forwarded-For", List.of("1.2.3.4")));
+		org.mockito.Mockito.when(request.getUserPrincipal()).thenReturn(auth);
+		java.util.Map<String, Object> props = new java.util.HashMap<>();
+		jakarta.websocket.server.ServerEndpointConfig sec = org.mockito.Mockito
+				.mock(jakarta.websocket.server.ServerEndpointConfig.class);
+		org.mockito.Mockito.when(sec.getUserProperties()).thenReturn(props);
+		new SecureHandshakeConfigurator().modifyHandshake(sec, request,
+				org.mockito.Mockito.mock(jakarta.websocket.HandshakeResponse.class));
+		assertEquals(Boolean.TRUE, props.get(SecureHandshakeConfigurator.ADMIN));
+		com.sprintjudge.websocket.SecureHandshakeConfigurator.StagedConnection staged = com.sprintjudge.websocket.SecureHandshakeConfigurator
+				.consumeStaged(sec);
+		assertEquals("1.2.3.4", staged.getIp());
+	}
+
+	@Test
 	void explicitAllowlistMatchesFullOrigin() throws Exception {
 		setContext(
 				contextWith("SPRINTJUDGE_CORS_ALLOWED_ORIGINS", "https://app.example.org, https://admin.example.org"));

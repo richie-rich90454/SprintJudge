@@ -124,6 +124,7 @@ class GameWebSocketExtraTest {
 	@Test
 	void hostActionThrowingBecomesInternalError() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		props.put("role", "host");
 		props.put("pin", "123456");
 		doThrow(new RuntimeException("db down")).when(roomManager).nextQuestion("123456");
@@ -167,7 +168,7 @@ class GameWebSocketExtraTest {
 		props.put("playerUuid", "uuid-1");
 		ws().onError(session, new RuntimeException("boom"));
 		verify(sessions).unregister("sess");
-		verify(roomManager).leave("123456", "uuid-1");
+		verify(roomManager).leave(eq("123456"), eq("uuid-1"), anyString());
 	}
 
 	@Test
@@ -180,6 +181,7 @@ class GameWebSocketExtraTest {
 	@Test
 	void endGameForbiddenWhenRoleMissing() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		props.put("pin", "123456");
 		ws().onMessage(session, "{\"type\":\"END_GAME\"}");
 		assertTrue(lastMessage().contains("Forbidden"));
@@ -189,6 +191,7 @@ class GameWebSocketExtraTest {
 	@Test
 	void createTeamManagerErrorBecomesInternalError() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		props.put("role", "host");
 		props.put("pin", "123456");
 		when(roomManager.createTeam(anyString(), anyString())).thenThrow(new RuntimeException("x"));
@@ -204,7 +207,7 @@ class GameWebSocketExtraTest {
 		Player p = new Player("uuid-1", "Al", 0, "sess", true);
 		when(roomManager.join(anyString(), anyString(), anyString(), anyString(), any())).thenReturn(p);
 		ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Al\"}");
-		verify(roomManager, never()).leave(anyString(), anyString());
+		verify(roomManager, never()).leave(anyString(), anyString(), anyString());
 		assertEquals("123456", props.get("pin"));
 	}
 
@@ -264,6 +267,7 @@ class GameWebSocketExtraTest {
 
 	private void mxJoinHost() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		when(rateLimiter.tryJoin(anyString())).thenReturn(true);
 		Player p = new Player("uuid-h", "Host", 0, "s", true);
 		lenient().when(roomManager.join(eq("123456"), eq("Host"), anyString(), eq("host"), any())).thenReturn(p);
@@ -300,6 +304,7 @@ class GameWebSocketExtraTest {
 	void mxPlayerNextQuestionForbidden() {
 		mxJoinPlayer("123456", "Bob");
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
 		assertTrue(lastMessage().contains("Forbidden"));
 		verify(roomManager, never()).nextQuestion(anyString());
@@ -309,6 +314,7 @@ class GameWebSocketExtraTest {
 	void mxPlayerForceSubmitForbidden() {
 		mxJoinPlayer("123456", "Bob");
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		ws().onMessage(session, "{\"type\":\"FORCE_SUBMIT\"}");
 		assertTrue(lastMessage().contains("Forbidden"));
 		verify(roomManager, never()).forceSubmit(anyString());
@@ -318,6 +324,7 @@ class GameWebSocketExtraTest {
 	void mxPlayerEndGameForbidden() {
 		mxJoinPlayer("123456", "Bob");
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		ws().onMessage(session, "{\"type\":\"END_GAME\"}");
 		assertTrue(lastMessage().contains("Forbidden"));
 		verify(roomManager, never()).endGame(anyString());
@@ -440,6 +447,7 @@ class GameWebSocketExtraTest {
 	@Test
 	void mxHostJoinAuthenticatedHappy() {
 		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
 		when(rateLimiter.tryJoin(anyString())).thenReturn(true);
 		Player p = new Player("uuid-h", "Host", 0, "s", true);
 		when(roomManager.join(eq("123456"), eq("Host"), anyString(), eq("host"), any())).thenReturn(p);
@@ -493,7 +501,7 @@ class GameWebSocketExtraTest {
 				.thenThrow(new IllegalArgumentException("room full"));
 		lenient().when(roomManager.join(eq("111111"), eq("Bob"), anyString(), eq("player"), any())).thenReturn(first);
 		ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"222222\",\"name\":\"Bob\"}");
-		verify(roomManager, never()).leave(anyString(), anyString());
+		verify(roomManager, never()).leave(anyString(), anyString(), anyString());
 	}
 
 	@Test
@@ -571,7 +579,7 @@ class GameWebSocketExtraTest {
 		org.mockito.Mockito.clearInvocations(sessions);
 		ws().onClose(session);
 		verify(sessions).unregister("sess");
-		verify(roomManager, never()).leave(anyString(), anyString());
+		verify(roomManager, never()).leave(anyString(), anyString(), anyString());
 	}
 
 	@Test
@@ -580,7 +588,7 @@ class GameWebSocketExtraTest {
 		org.mockito.Mockito.clearInvocations(sessions);
 		ws().onClose(session);
 		verify(sessions).unregister("sess");
-		verify(roomManager).leave("123456", "uuid-9");
+		verify(roomManager).leave(eq("123456"), eq("uuid-9"), anyString());
 	}
 
 	@Test
@@ -588,7 +596,7 @@ class GameWebSocketExtraTest {
 		org.mockito.Mockito.clearInvocations(sessions);
 		ws().onError(session, new RuntimeException("net-reset"));
 		verify(sessions).unregister("sess");
-		verify(roomManager, never()).leave(anyString(), anyString());
+		verify(roomManager, never()).leave(anyString(), anyString(), anyString());
 	}
 
 	@Test
@@ -598,7 +606,7 @@ class GameWebSocketExtraTest {
 		org.mockito.Mockito.clearInvocations(roomManager);
 		ws().onError(session, new RuntimeException("net-reset"));
 		verify(sessions).unregister("sess");
-		verify(roomManager).leave("123456", "uuid-9");
+		verify(roomManager).leave(eq("123456"), eq("uuid-9"), anyString());
 	}
 
 	@Test

@@ -60,10 +60,12 @@ public class BasisTokenVerifier {
 				return null;
 			Date expiry = claims.getExpirationTime();
 			Instant now = Instant.now();
-			if (expiry == null || expiry.toInstant().isBefore(now.minusSeconds(30)))
+			// Small clock-skew allowance only; a 30s grace kept revoked/expired
+			// tokens usable for half a minute after their stated expiry.
+			if (expiry == null || expiry.toInstant().isBefore(now.minusSeconds(5)))
 				return null;
 			Date notBefore = claims.getNotBeforeTime();
-			if (notBefore != null && notBefore.toInstant().isAfter(now.plusSeconds(30)))
+			if (notBefore != null && notBefore.toInstant().isAfter(now.plusSeconds(5)))
 				return null;
 			JWK key = keys().getKeyByKeyId(jwt.getHeader().getKeyID());
 			if (!(key instanceof RSAKey))

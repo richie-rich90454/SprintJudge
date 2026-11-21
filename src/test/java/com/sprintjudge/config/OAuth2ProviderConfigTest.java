@@ -156,6 +156,36 @@ class OAuth2ProviderConfigTest {
 	}
 
 	@Test
+	void subjectExtractionHandlesMissingValues() {
+		MockEnvironment env = new MockEnvironment();
+		env.setProperty("SPRINTJUDGE_ADMIN_SUBJECTS", "subject-1");
+		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
+		OidcIdToken token = new OidcIdToken("v", java.time.Instant.now(), java.time.Instant.now().plusSeconds(60),
+				Map.of("email_verified", true, "email", "a@b.c"));
+		assertTrue(mapper.mapAuthorities(List.of(new OidcUserAuthority(token))).stream()
+				.anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
+		assertTrue(mapper.mapAuthorities(List.of(new OAuth2UserAuthority(Map.of("email", "a@b.c")))).stream()
+				.anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
+	}
+
+	@Test
+	void adminCanBeGrantedByStableSubjectWhenEmailIsUnverified() {
+		MockEnvironment env = new MockEnvironment();
+		env.setProperty("SPRINTJUDGE_ADMIN_SUBJECTS", "provider-subject-1");
+		GrantedAuthoritiesMapper mapper = config.oauthAuthoritiesMapper(env);
+		assertTrue(mapper
+				.mapAuthorities(List.of(
+						new OAuth2UserAuthority(Map.of("sub", "provider-subject-1", "email", "nobody@example.org"))))
+				.stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
+		OidcIdToken token = new OidcIdToken("v", java.time.Instant.now(), java.time.Instant.now().plusSeconds(60),
+				Map.of("sub", "provider-subject-1"));
+		assertTrue(mapper.mapAuthorities(List.of(new OidcUserAuthority(token))).stream()
+				.anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
+		assertTrue(mapper.mapAuthorities(List.of(new OAuth2UserAuthority(Map.of("id", "provider-subject-1")))).stream()
+				.anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
+	}
+
+	@Test
 	void verifiedEmailAttributeWithoutEmailStillGetsUserRole() {
 		MockEnvironment env = new MockEnvironment();
 		env.setProperty("SPRINTJUDGE_ADMIN_EMAILS", "admin@example.org");

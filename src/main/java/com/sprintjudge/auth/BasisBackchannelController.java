@@ -74,10 +74,17 @@ public class BasisBackchannelController {
 		Object validAfter = claims.getClaim("valid_after");
 		if (jti == null || validAfter == null)
 			return ResponseEntity.badRequest().build();
-		if (!String.valueOf(jti).equals(form.get("jti"))
-				|| Long.parseLong(String.valueOf(validAfter)) != Long.parseLong(form.get("valid_after")))
+		long formValidAfter;
+		long claimValidAfter;
+		try {
+			formValidAfter = Long.parseLong(form.get("valid_after"));
+			claimValidAfter = Long.parseLong(String.valueOf(validAfter));
+		} catch (NumberFormatException e) {
 			return ResponseEntity.badRequest().build();
-		revocations.deny(String.valueOf(jti), Long.parseLong(String.valueOf(validAfter)));
+		}
+		if (!String.valueOf(jti).equals(form.get("jti")) || claimValidAfter != formValidAfter)
+			return ResponseEntity.badRequest().build();
+		revocations.deny(String.valueOf(jti), claimValidAfter);
 		return ResponseEntity.noContent().build();
 	}
 
