@@ -58,8 +58,8 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource,
 			LoginRateLimitFilter loginRateLimitFilter,
-			org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper oauthAuthoritiesMapper)
-			throws Exception {
+			org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper oauthAuthoritiesMapper,
+			com.sprintjudge.auth.BasisSignInSuccessHandler basisSignInSuccessHandler) throws Exception {
 		http.cors(
 				new org.springframework.security.config.Customizer<org.springframework.security.config.annotation.web.configurers.CorsConfigurer<HttpSecurity>>() {
 					@Override
@@ -78,7 +78,8 @@ public class SecurityConfig {
 								// Public endpoints and the WebSocket handshake carry no session
 								// state; every admin API is CSRF-protected (the Axios client
 								// echoes XSRF-TOKEN in X-XSRF-TOKEN).
-								.ignoringRequestMatchers("/api/public/**", "/ws", "/admin/login", "/admin/logout")
+								.ignoringRequestMatchers("/api/public/**", "/api/auth/**", "/ws", "/admin/login",
+										"/admin/logout")
 								.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 								// Axios echoes the raw cookie value. Spring Security 7's default
 								// XOR handler expects an encoded token and rejects the raw one
@@ -150,8 +151,9 @@ public class SecurityConfig {
 							public void customize(
 									org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
 								auth.requestMatchers("/", "/index.html", "/assets/**", "/fonts/**", "/sw.js",
-										"/favicon.ico", "/favicon.svg", "/api/public/**", "/ws", "/admin/login",
-										"/oauth2/**", "/login/oauth2/**", "/actuator/health").permitAll()
+										"/favicon.ico", "/favicon.svg", "/api/public/**", "/api/auth/**", "/ws",
+										"/admin/login", "/oauth2/**", "/login/oauth2/**", "/actuator/health")
+										.permitAll()
 										// Public SPA deep links (mirrors SpaWebConfig forward + router.tsx):
 										// join QR codes point at /j/<pin> on this origin.
 										.requestMatchers("/j/**", "/join", "/play", "/host", "/results", "/solo",
@@ -177,7 +179,7 @@ public class SecurityConfig {
 							public void customize(
 									org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer<HttpSecurity> oauth2) {
 								oauth2.loginPage("/admin/login").defaultSuccessUrl("/admin/dashboard", true)
-										.userInfoEndpoint(
+										.successHandler(basisSignInSuccessHandler).userInfoEndpoint(
 												new org.springframework.security.config.Customizer<org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer<org.springframework.security.config.annotation.web.builders.HttpSecurity>.UserInfoEndpointConfig>() {
 													@Override
 													public void customize(
