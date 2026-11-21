@@ -37,13 +37,19 @@ if [ -f "${DB}-wal" ]; then
     echo "db-wal: ${WAL_BYTES} bytes"
 fi
 
-# 3. Executor toolchain (nsjail)
-if [ ! -x "$NSJAIL" ]; then
-    fail "nsjail binary not executable: $NSJAIL"
+# 3. Executor toolchain. Only the sandboxed mode requires nsjail; native
+# installs legitimately run without it.
+MODE="${SPRINTJUDGE_EXECUTOR_MODE:-nsjail}"
+if [ "$MODE" = "nsjail" ]; then
+    if [ ! -x "$NSJAIL" ]; then
+        fail "nsjail binary not executable: $NSJAIL"
+    fi
+    if ! "$NSJAIL" --version >/dev/null 2>&1; then
+        fail "nsjail --version failed: $NSJAIL"
+    fi
+    echo "executor: nsjail ok ($NSJAIL)"
+else
+    echo "executor: native ($MODE)"
 fi
-if ! "$NSJAIL" --version >/dev/null 2>&1; then
-    fail "nsjail --version failed: $NSJAIL"
-fi
-echo "executor: nsjail ok ($NSJAIL)"
 
 echo "RESULT: all checks passed"

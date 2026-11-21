@@ -89,6 +89,10 @@ All runtime knobs are plain environment variables:
 | `SPRINTJUDGE_ADMIN_USERNAME` / `SPRINTJUDGE_ADMIN_PASSWORD` | Admin sign-in. Production refuses to boot with the default password. |
 | `SPRINTJUDGE_COOKIE_SECURE` | Secure session cookies (default `true` in prod; set `false` only for plain-HTTP LAN use) |
 | `SPRINTJUDGE_CORS_ALLOWED_ORIGINS` | Comma-separated origins when the UI is served from another host |
+| `SPRINTJUDGE_GOOGLE_*`, `SPRINTJUDGE_GITHUB_*`, `SPRINTJUDGE_MICROSOFT_*`, `SPRINTJUDGE_FACEBOOK_*`, `SPRINTJUDGE_GITLAB_*`, `SPRINTJUDGE_LINKEDIN_*`, `SPRINTJUDGE_OKTA_*` | Optional OAuth2 providers (see `.env.example`) |
+| `SPRINTJUDGE_OIDC_*`, `SPRINTJUDGE_OAUTH_*` | Generic OIDC / OAuth2 provider |
+| `BASIS_AUTH_*` | Optional basis-auth OIDC provider (issuer, client, resource, secret, internal URL) |
+| `SPRINTJUDGE_ADMIN_EMAILS` | Verified OAuth2 emails that receive the ADMIN role |
 | `SPRINTJUDGE_AI_*` | Optional OpenAI-compatible AI grading (disabled by default) |
 
 `.env` is loaded by `make` and by the systemd unit (`EnvironmentFile`), not by a

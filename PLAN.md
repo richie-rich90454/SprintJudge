@@ -13,7 +13,7 @@ Base: `main` at `4008918d`.
 2. Reorganize the repository so the root contains source and config only, and all
    transient runtime state lives in clearly named, gitignored directories.
 3. Give every question-bank file a consistent `<subject>-<unit>-<topic>.json` name.
-4. Convert the backend to AP-CSA-readable, null-safe, warning-free Java that uses no
+4. Convert the backend to student-readable, null-safe, warning-free Java that uses no
    post-Java-8 syntax, with no performance compromise.
 5. Make developer experience excellent: one-command setup, fast feedback, clear errors,
    accurate docs.

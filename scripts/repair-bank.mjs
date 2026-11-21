@@ -1,5 +1,7 @@
-// Structural bank repair. Fixes only genuine schema violations so check-bank's
-// contract gate passes. Never pads text or invents pedagogical content.
+// Structural bank repair. Fixes only genuine schema/structural violations so
+// check-bank's contract gate passes. Never pads text or invents pedagogical
+// content: missing stems, explanations, keys, hints or option text are hard
+// errors reported with the question id for the content team to fix by hand.
 // Idempotent. Usage: node scripts/repair-bank.mjs
 import fs from "node:fs";
 import path from "node:path";
@@ -7,64 +9,73 @@ import path from "node:path";
 const ROOT = "src/main/resources/bank";
 const REQUIRED = ["id", "subject", "unit", "topic", "scope", "cognitiveDemand", "format",
   "stem", "answer", "explanation", "hint", "difficulty", "provenance", "version"];
+const CONTENT_FIELDS = new Set(["stem", "explanation", "hint", "unit", "topic"]);
 const BLOOMS = ["REMEMBER", "UNDERSTAND", "APPLY", "ANALYZE", "EVALUATE", "CREATE"];
+const FORMAT_ALIASES = {
+  "DATA_INTERPREPATION": "DATA_INTERPRETATION",
+  "WRITTEN": "COMPOSITION",
+  "MCQ": "CONCEPT_MCQ",
+  "NUMERIC_CALCULATION": "NUMERIC",
+  "ANALYZE": "CONCEPTUAL_REASONING",
+};
 const NEEDS_OPTIONS = new Set(["STIMULUS_MCQ", "CONCEPT_MCQ", "MULTI_SELECT", "ORDERING",
   "BUG_SPOTTING", "CODE_COMPLETION", "CODE_TRACING", "DIAGRAM", "IMAGE_INTERPRETATION"]);
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 let files = 0, questions = 0, fixed = 0;
 const tally = {};
+const fatal = [];
 const bump = (k) => { tally[k] = (tally[k] || 0) + 1; };
+const flag = (q, msg) => fatal.push(`${q && q.id ? q.id : "<no-id>"}: ${msg}`);
 
 function repair(q) {
   let changed = false;
   const mark = () => { changed = true; };
 
-  // Required scalar fields: supply a schema-valid placeholder value so the
-  // record is structurally complete (content team can refine wording later).
-  for (const f of REQUIRED) {
-    if (q[f] === undefined || q[f] === null) {
-      mark();
-      bump("missing:" + f);
-      if (f === "stem" || f === "explanation" || f === "hint" || f === "unit" || f === "topic") q[f] = "(review needed)";
-      else if (f === "cognitiveDemand") q[f] = { bloom: "UNDERSTAND", dok: 2 };
-      else if (f === "difficulty") q[f] = 0.5;
-      else if (f === "answer") q[f] = {};
-      else if (f === "provenance") q[f] = { author: "bank-team", reviewer: "bank-review", aiAssisted: false, attestation: "pending review" };
-      else if (f === "version") q[f] = 1;
-      else q[f] = "";
-    }
-  }
-  if (typeof q.stem !== "string") { q.stem = String(q.stem); mark(); bump("stemType"); }
-  if (typeof q.difficulty !== "number" || q.difficulty < 0 || q.difficulty > 1) {
-    q.difficulty = 0.5; mark(); bump("difficultyRange");
-  }
-  // cognitiveDemand enum/range.
-  const cd = q.cognitiveDemand && typeof q.cognitiveDemand === "object" ? q.cognitiveDemand : {};
-  if (!BLOOMS.includes(cd.bloom) || ![1, 2, 3, 4].includes(cd.dok)) {
-    q.cognitiveDemand = {
-      bloom: BLOOMS.includes(cd.bloom) ? cd.bloom : "UNDERSTAND",
-      dok: [1, 2, 3, 4].includes(cd.dok) ? cd.dok : 2,
-    };
-    mark(); bump("cognitive");
-  }
-  // provenance attestation/reviewer/author non-empty (schema minLength 1).
-  const p = q.provenance;
-  if (typeof p.author !== "string" || !p.author) { p.author = "bank-team"; mark(); bump("prov.author"); }
-  if (typeof p.reviewer !== "string" || !p.reviewer) { p.reviewer = "bank-review"; mark(); bump("prov.reviewer"); }
-  if (typeof p.attestation !== "string" || !p.attestation) { p.attestation = "pending review"; mark(); bump("prov.attestation"); }
-  if (typeof p.aiAssisted !== "boolean") { p.aiAssisted = false; mark(); bump("prov.ai"); }
-  if (p.aiAssisted && (typeof p.humanReviewer !== "string" || !p.humanReviewer)) {
-    p.humanReviewer = "orchestrator-spotcheck"; mark(); bump("prov.human");
+  if (typeof q.format === "string" && FORMAT_ALIASES[q.format]) {
+    q.format = FORMAT_ALIASES[q.format];
+    mark();
+    bump("formatAlias");
   }
 
-  // Options: field types + unique ids.
+  // Missing required content is a hard error - never synthesize a placeholder
+  // that would pass check-bank's minLength rules and ship as real pedagogy.
+  for (const f of REQUIRED) {
+    if (q[f] === undefined || q[f] === null) {
+      bump("missing:" + f);
+      flag(q, `missing required field ${f}`);
+    } else if (CONTENT_FIELDS.has(f) && typeof q[f] === "string" && q[f].trim().length === 0) {
+      bump("blank:" + f);
+      flag(q, `blank required field ${f}`);
+    }
+  }
+  if (typeof q.stem !== "string") { flag(q, "stem is not text"); }
+  if (typeof q.difficulty !== "number" || q.difficulty < 0 || q.difficulty > 1) {
+    bump("difficultyRange");
+    flag(q, "difficulty out of range");
+  }
+  const cd = q.cognitiveDemand && typeof q.cognitiveDemand === "object" ? q.cognitiveDemand : {};
+  if (cd.bloom !== undefined && !BLOOMS.includes(cd.bloom)) { bump("cognitive"); flag(q, "bad bloom level"); }
+  if (cd.dok !== undefined && ![1, 2, 3, 4].includes(cd.dok)) { bump("cognitive"); flag(q, "bad DOK"); }
+
+  const p = q.provenance;
+  if (p && typeof p === "object") {
+    for (const f of ["author", "reviewer", "attestation"]) {
+      if (typeof p[f] !== "string" || !p[f]) { bump("prov." + f); flag(q, `missing provenance.${f}`); }
+    }
+    if (typeof p.aiAssisted !== "boolean") { bump("prov.ai"); flag(q, "missing provenance.aiAssisted"); }
+  }
+
+  // Options: structural fixes only (non-object options, unique ids).
   const opts = Array.isArray(q.options) ? q.options : null;
   if (opts) {
     const used = new Set();
     opts.forEach((o, i) => {
-      if (!o || typeof o !== "object") { opts[i] = { id: LETTERS[i] || "OPT" + i, text: "", misconception: "" }; mark(); bump("optObject"); }
-      const opt = opts[i];
+      if (!o || typeof o !== "object") {
+        flag(q, `option ${i} is not an object`);
+        return;
+      }
+      const opt = o;
       if (typeof opt.id !== "string" || !opt.id || used.has(opt.id)) {
         let id = LETTERS[i] || "OPT" + i;
         let n = 1;
@@ -73,7 +84,7 @@ function repair(q) {
       }
       used.add(opt.id);
       for (const f of ["text", "misconception"]) {
-        if (typeof opt[f] !== "string") { opt[f] = ""; mark(); bump("opt." + f); }
+        if (typeof opt[f] !== "string") { bump("opt." + f); flag(q, `option ${i} ${f} is not text`); }
       }
     });
 
@@ -92,27 +103,16 @@ function repair(q) {
     if (hasFreeAnswer && opts.length && opts[0].text === "") {
       delete q.options; mark(); bump("noAnswerDropDummyOptions");
     }
-    // Undo any earlier repair that fabricated a key on a dummy first option.
     if (hasFreeAnswer && opts.length && a.correctId === opts[0].id && opts[0].text === "") {
       delete a.correctId; delete q.options; mark(); bump("noAnswerUnfabricate");
-    }
-    // A genuine MCQ with no key is left for the content team: guessing option A
-    // would ship wrong answers. check-bank still reports it.
-    const hasKey = typeof a.correctId === "string" || (Array.isArray(a.correctIds) && a.correctIds.length);
-    if (!hasKey && opts.length && !hasFreeAnswer) {
-      bump("noAnswerUnresolved");
     }
     q.answer = a;
   }
 
-  // Multi-option formats need at least two options.
+  // Multi-option formats need at least two options; never fabricate their text.
   if (NEEDS_OPTIONS.has(q.format) && (!opts || opts.length < 2)) {
-    if (!Array.isArray(q.options)) q.options = [];
-    while (q.options.length < 2) {
-      const i = q.options.length;
-      q.options.push({ id: LETTERS[i] || "OPT" + i, text: "(review needed)", misconception: "" });
-      mark(); bump("needOptions");
-    }
+    bump("needOptions");
+    flag(q, `${q.format} needs at least two options`);
   }
   return changed;
 }
@@ -138,3 +138,9 @@ function visit(dir) {
 }
 visit(ROOT);
 console.log(JSON.stringify({ filesChanged: files, questions, questionsFixed: fixed, tally }, null, 2));
+if (fatal.length) {
+  console.error(`repair-bank: ${fatal.length} content issues need a human author (first 40):`);
+  for (const line of fatal.slice(0, 40)) console.error("  " + line);
+  if (fatal.length > 40) console.error(`  ... and ${fatal.length - 40} more`);
+  process.exit(1);
+}

@@ -6,6 +6,7 @@ import path from "node:path";
 
 const SCHEMA = JSON.parse(fs.readFileSync("contracts/question-schema.json", "utf8"));
 const REQUIRED = SCHEMA.required;
+const FORMATS = new Set(SCHEMA.properties.format.enum);
 
 const ROOTS = process.argv.slice(2).length > 0 ? process.argv.slice(2) : ["src/main/resources/bank"];
 const SUBJECTS = new Set(["JAVA_PROGRAMMING", "COMPUTING_FOUNDATIONS", "CHEMISTRY", "CALCULUS_I",
@@ -82,6 +83,7 @@ function checkQuestion(file, q, index) {
   const cd = q.cognitiveDemand ?? {};
   if (!BLOOMS.has(cd.bloom) || ![1, 2, 3, 4].includes(cd.dok)) err(file, id, "bad cognitiveDemand");
   if (typeof q.format !== "string" || q.format.length === 0) err(file, id, "missing format");
+  else if (!FORMATS.has(q.format)) err(file, id, `format ${q.format} is not in the schema contract`);
   // Contract floor: schema requires non-empty stem/explanation (minLength 1).
   if (typeof q.stem !== "string" || q.stem.trim().length === 0) err(file, id, "stem missing");
   if (typeof q.explanation !== "string" || q.explanation.trim().length === 0) err(file, id, "explanation missing");
