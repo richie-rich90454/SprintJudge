@@ -92,8 +92,23 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
 
     saveQuestion: async () => {
         const draft = get().draft as QuestionPayload;
-        if (draft.id) await adminApi.updateQuestion(draft);
-        else await adminApi.addQuestion(draft);
+        const config = { ...((draft.config as Record<string, unknown> | null) ?? {}) };
+        // The wizard edits these as text; the validator and evaluator expect arrays.
+        if (typeof config["correctOrder"] === "string") {
+            config["correctOrder"] = String(config["correctOrder"])
+                .split(",")
+                .map((part) => Number(part.trim()))
+                .filter((n) => Number.isFinite(n));
+        }
+        if (typeof config["correctIndices"] === "string") {
+            config["correctIndices"] = String(config["correctIndices"])
+                .split(",")
+                .map((part) => Number(part.trim()))
+                .filter((n) => Number.isFinite(n));
+        }
+        const payload = { ...draft, config } as QuestionPayload;
+        if (draft.id) await adminApi.updateQuestion(payload);
+        else await adminApi.addQuestion(payload);
         const activeQuizId = get().activeQuizId;
         if (activeQuizId) await get().loadQuestions(activeQuizId);
         set({ wizardOpen: false });

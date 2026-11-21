@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
@@ -15,6 +15,20 @@ import { adminApi } from "../services/AdminApiService";
 type ReviewTab = "podium" | "answers" | "students" | "teams" | "analysis";
 
 export function ResultView() {
+    const [isAdmin, setIsAdmin] = useState(false);
+    useEffect(() => {
+        let active = true;
+        fetch("/api/admin/settings", { credentials: "include" })
+            .then((response) => {
+                if (active) setIsAdmin(response.ok);
+            })
+            .catch(() => {
+                if (active) setIsAdmin(false);
+            });
+        return () => {
+            active = false;
+        };
+    }, []);
     const leaderboard = useGameStore((s) => s.leaderboard);
     const review = useGameStore((s) => s.review) as GameReview | null;
     const wsError = useGameStore((s) => s.error);
@@ -204,20 +218,24 @@ export function ResultView() {
 
                                 <div className="flex flex-col items-center gap-3 border-t border-[var(--oq-border)] pt-6">
                                     <div className="flex flex-wrap justify-center gap-3">
-                                        <Button
-                                            variant="secondary"
-                                            onClick={exportCsv}
-                                            disabled={!review?.sessionId || exporting}
-                                        >
-                                            {exporting ? "Exporting" : "Export CSV"}
-                                        </Button>
-                                        <Button
-                                            variant="secondary"
-                                            onClick={practiceNext}
-                                            disabled={!review?.sessionId || practicing}
-                                        >
-                                            {practicing ? "Building" : "Practice next"}
-                                        </Button>
+                                        {isAdmin && (
+                                            <>
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={exportCsv}
+                                                    disabled={!review?.sessionId || exporting}
+                                                >
+                                                    {exporting ? "Exporting" : "Export CSV"}
+                                                </Button>
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={practiceNext}
+                                                    disabled={!review?.sessionId || practicing}
+                                                >
+                                                    {practicing ? "Building" : "Practice next"}
+                                                </Button>
+                                            </>
+                                        )}
                                         <Button
                                             variant="secondary"
                                             onClick={() => navigate({ to: "/" })}

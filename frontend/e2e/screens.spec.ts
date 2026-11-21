@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 // Form login is served by the backend, not the Vite dev server. The admin a11y
 // tests authenticate directly against it, then scan the backend-served SPA.
 const BACKEND = process.env.SPRINTJUDGE_BACKEND_URL ?? "http://127.0.0.1:8080";
-const ADMIN_PASSWORD = process.env.SPRINTJUDGE_ADMIN_PASSWORD ?? "changeme";
+const ADMIN_PASSWORD = process.env.SPRINTJUDGE_ADMIN_PASSWORD ?? "ci-admin-password";
 
 const VIEWPORTS = [
     { name: "desktop", width: 1440, height: 900 },

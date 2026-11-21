@@ -64,12 +64,22 @@ describe("ResultView", () => {
         vi.unstubAllGlobals();
     });
 
-    test("renders empty results and disabled action buttons", () => {
+    test("renders empty results and disabled action buttons", async () => {
         render(<ResultView />);
         expect(screen.getByText("Results")).toBeInTheDocument();
         expect(screen.getByText("No results yet.")).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: /Export CSV/i })).toBeDisabled();
+        const exportBtn = await screen.findByRole("button", { name: /Export CSV/i });
+        expect(exportBtn).toBeDisabled();
         expect(screen.getByRole("button", { name: /Practice next/i })).toBeDisabled();
+    });
+
+    test("hides admin-only actions from non-admin players", async () => {
+        vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
+        render(<ResultView />);
+        await waitFor(() =>
+            expect(screen.queryByRole("button", { name: /Export CSV/i })).not.toBeInTheDocument(),
+        );
+        expect(screen.queryByRole("button", { name: /Practice next/i })).not.toBeInTheDocument();
     });
 
     test("switches tabs", async () => {
@@ -95,7 +105,8 @@ describe("ResultView", () => {
         buildBankQuizMock.mockReset();
         buildBankQuizMock.mockResolvedValue({ quizId: "p1", questions: 5, skipped: 0 });
         render(<ResultView />);
-        fireEvent.click(screen.getByRole("button", { name: /Practice next/i }));
+        const practiceBtn = await screen.findByRole("button", { name: /Practice next/i });
+        fireEvent.click(practiceBtn);
         await waitFor(() =>
             expect(screen.getByText("Practice quiz ready: p1")).toBeInTheDocument(),
         );
@@ -116,7 +127,8 @@ describe("ResultView", () => {
         });
         vi.stubGlobal("fetch", fetchMock);
         render(<ResultView />);
-        fireEvent.click(screen.getByRole("button", { name: /Export CSV/i }));
+        const exportBtn = await screen.findByRole("button", { name: /Export CSV/i });
+        fireEvent.click(exportBtn);
         await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     });
 });

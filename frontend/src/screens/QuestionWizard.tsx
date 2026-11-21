@@ -177,6 +177,15 @@ function ConfigForm() {
                     >
                         Add line
                     </button>
+                    <label className="text-sm text-[var(--oq-ink-soft)]">
+                        Correct order (line numbers, comma separated)
+                    </label>
+                    <input
+                        placeholder="e.g. 2,0,1"
+                        value={(config["correctOrder"] as string) ?? lines.map((_, i) => i).join(",")}
+                        onChange={(e) => set({ correctOrder: e.target.value })}
+                        className="input-underline"
+                    />
                 </div>
             );
         }
@@ -210,12 +219,20 @@ function ConfigForm() {
         }
         case "CODE_COMPLETION":
             return (
-                <textarea
-                    placeholder="Skeleton / starter code (editable region)"
-                    value={(config["skeleton"] as string) ?? ""}
-                    onChange={(e) => set({ skeleton: e.target.value })}
-                    className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
-                />
+                <div className="flex flex-col gap-4">
+                    <textarea
+                        placeholder="Skeleton / starter code (editable region)"
+                        value={(config["skeleton"] as string) ?? ""}
+                        onChange={(e) => set({ skeleton: e.target.value })}
+                        className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
+                    />
+                    <textarea
+                        placeholder="Expected completed code (used to grade)"
+                        value={(config["expected"] as string) ?? ""}
+                        onChange={(e) => set({ expected: e.target.value })}
+                        className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
+                    />
+                </div>
             );
         case "OJ_FULL":
         case "OJ_PATCH": {
