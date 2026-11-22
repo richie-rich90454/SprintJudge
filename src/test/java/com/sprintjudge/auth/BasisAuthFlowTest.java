@@ -50,6 +50,43 @@ class BasisAuthFlowTest {
 	}
 
 	@Test
+	void webhookTestIsRateLimitedPerRequestIp() throws Exception {
+		BasisBackchannelController controller = controller(verifier(BasisTestJwt.key()), new BasisSessionService(),
+				new BasisRevocationStore());
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRemoteAddr("198.51.100.77");
+		org.springframework.web.context.request.RequestContextHolder
+				.setRequestAttributes(new org.springframework.web.context.request.ServletRequestAttributes(request));
+		try {
+			for (int i = 0; i < 10; i++)
+				assertEquals(202, controller.receive(Map.of("action", "test")).getStatusCode().value());
+			assertEquals(429, controller.receive(Map.of("action", "test")).getStatusCode().value());
+		} finally {
+			org.springframework.web.context.request.RequestContextHolder.resetRequestAttributes();
+		}
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void webhookTestWindowExpiryResetsTheCounter() throws Exception {
+		BasisBackchannelController controller = controller(verifier(BasisTestJwt.key()), new BasisSessionService(),
+				new BasisRevocationStore());
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRemoteAddr("198.51.100.78");
+		java.lang.reflect.Field f = BasisBackchannelController.class.getDeclaredField("TEST_WINDOW");
+		f.setAccessible(true);
+		((java.util.Map<String, long[]>) f.get(null)).put("198.51.100.78",
+				new long[]{System.currentTimeMillis() - 120_000L, 99});
+		org.springframework.web.context.request.RequestContextHolder
+				.setRequestAttributes(new org.springframework.web.context.request.ServletRequestAttributes(request));
+		try {
+			assertEquals(202, controller.receive(Map.of("action", "test")).getStatusCode().value());
+		} finally {
+			org.springframework.web.context.request.RequestContextHolder.resetRequestAttributes();
+		}
+	}
+
+	@Test
 	void logoutTokenEndsLocalSessions() throws Exception {
 		RSAKey key = BasisTestJwt.key();
 		BasisSessionService sessions = new BasisSessionService();

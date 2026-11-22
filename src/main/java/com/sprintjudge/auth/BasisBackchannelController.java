@@ -8,6 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.HexFormat;
 
 import org.springframework.core.env.Environment;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +30,11 @@ public class BasisBackchannelController {
 	private final String resource;
 	private final String resourceSecret;
 
+	/** Per-IP budget for the unauthenticated issuer verification ping. */
+	private static final java.util.concurrent.ConcurrentHashMap<String, long[]> TEST_WINDOW = new java.util.concurrent.ConcurrentHashMap<>();
+	private static final int TEST_LIMIT = 10;
+	private static final long WINDOW_MS = 60_000L;
+
 	public BasisBackchannelController(BasisTokenVerifier verifier, BasisSessionService sessions,
 			BasisRevocationStore revocations, BasisInternalClient internal, Environment environment) {
 		this.verifier = verifier;
@@ -41,6 +49,8 @@ public class BasisBackchannelController {
 	public ResponseEntity<Void> receive(@RequestParam Map<String, String> form) {
 		String action = form.get("action");
 		if ("test".equals(action)) {
+			if (testRateLimited())
+				return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
 			verifyWebhook(form.get("nonce"), form.get("challenge"));
 			return ResponseEntity.accepted().build();
 		}
@@ -51,6 +61,28 @@ public class BasisBackchannelController {
 			return ResponseEntity.badRequest().build();
 		}
 		return logout(form.get("logout_token"));
+	}
+
+	/**
+	 * The issuer's verification ping is permitAll, so an attacker could otherwise
+	 * use it to make the server POST the shared secret to the issuer repeatedly.
+	 * Bound it per client IP. Direct in-process calls (tests) are not throttled.
+	 */
+	private boolean testRateLimited() {
+		RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+		if (!(attrs instanceof ServletRequestAttributes))
+			return false;
+		jakarta.servlet.http.HttpServletRequest request = ((ServletRequestAttributes) attrs).getRequest();
+		String ip = com.sprintjudge.util.ClientIpResolver.resolve(request.getRemoteAddr(),
+				request.getHeader("X-Forwarded-For"), request.getHeader("X-Real-IP"));
+		long now = System.currentTimeMillis();
+		long[] slot = TEST_WINDOW.compute(ip, (k, v) -> {
+			if (v == null || now - v[0] > WINDOW_MS)
+				return new long[]{now, 1};
+			v[1]++;
+			return v;
+		});
+		return slot[1] > TEST_LIMIT;
 	}
 
 	private void verifyWebhook(String nonce, String challenge) {
