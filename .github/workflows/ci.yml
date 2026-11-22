@@ -179,16 +179,18 @@ jobs:
         run: |
           npm ci
           npm audit --audit-level=high
-      - name: OWASP dependency check (fails on CVSS >= 7)
-        env:
-          # Do NOT call this NVD_API_KEY: dependency-check reads that env var
-          # directly and chokes on an empty value when the secret is absent.
-          OQ_NVD_KEY: ${{ secrets.NVD_API_KEY }}
+      # Keyless, unconditional backend dependency scan (OSV.dev). OWASP
+      # dependency-check needs an NVD API key and silently no-ops without one;
+      # OSV has no such requirement, so the gate can never be skipped.
+      - name: Backend dependency scan (OSV-Scanner, keyless)
         run: |
-          extra=""
-          if [ -n "${OQ_NVD_KEY:-}" ]; then extra="-DnvdApiKey=$OQ_NVD_KEY"; fi
-          ./mvnw -B -ntp org.owasp:dependency-check-maven:check \
-            -DfailBuildOnCVSS=7 -DskipTests $extra
+          set -euo pipefail
+          VER=v2.7.1
+          curl -fsSLO "https://github.com/google/osv-scanner/releases/download/${VER}/osv-scanner_linux_amd64"
+          curl -fsSLO "https://github.com/google/osv-scanner/releases/download/${VER}/osv-scanner_SHA256SUMS"
+          grep ' osv-scanner_linux_amd64$' osv-scanner_SHA256SUMS | sha256sum --check -
+          chmod +x osv-scanner_linux_amd64
+          ./osv-scanner_linux_amd64 scan source --lockfile=pom.xml .
 
   deploy-config:
     name: Deploy configuration
