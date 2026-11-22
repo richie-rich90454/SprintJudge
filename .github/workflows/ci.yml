@@ -201,7 +201,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Bank schema, volume and unit floors
+      - name: Bank schema, volume and shipped-unit floors (unshipped units advisory)
         run: |
           node scripts/check-bank.mjs
           node scripts/check-volume.mjs
@@ -220,10 +220,13 @@ jobs:
             echo "deploy-config: stray heredoc terminator in a config file" >&2
             exit 1
           fi
-      - name: systemd unit syntax (when available)
+      - name: systemd unit syntax
         run: |
-          if command -v systemd-analyze >/dev/null 2>&1; then
-            systemd-analyze verify deploy/sprintjudge.service
-          else
-            echo "systemd-analyze unavailable; skipped"
+          # ubuntu-latest has no systemd-analyze by default; install it so this
+          # step is a real gate rather than a permanent no-op.
+          if ! command -v systemd-analyze >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq systemd
           fi
+          command -v systemd-analyze
+          systemd-analyze verify deploy/sprintjudge.service

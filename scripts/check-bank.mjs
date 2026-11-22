@@ -9,13 +9,8 @@ const REQUIRED = SCHEMA.required;
 const FORMATS = new Set(SCHEMA.properties.format.enum);
 
 const ROOTS = process.argv.slice(2).length > 0 ? process.argv.slice(2) : ["src/main/resources/bank"];
-const SUBJECTS = new Set(["JAVA_PROGRAMMING", "COMPUTING_FOUNDATIONS", "CHEMISTRY", "CALCULUS_I",
-  "CALCULUS_II", "PHYSICS_I", "PHYSICS_II", "PHYSICS_MECHANICS", "PHYSICS_EM", "EUROPEAN_HISTORY",
-  "US_HISTORY", "WORLD_HISTORY", "MACROECONOMICS", "MICROECONOMICS", "STATISTICS", "US_GOVERNMENT",
-  "COMPARATIVE_GOVERNMENT", "PSYCHOLOGY", "ENVIRONMENTAL_SCIENCE", "HUMAN_GEOGRAPHY", "ENGLISH_LANGUAGE",
-  "ENGLISH_LITERATURE", "BIOLOGY", "SPANISH", "FRENCH", "GERMAN", "CHINESE", "ART_HISTORY",
-  "MUSIC_THEORY", "PRECALCULUS", "RESEARCH_METHODS", "SEMINAR", "ALGEBRA_I", "ALGEBRA_II", "GEOMETRY",
-  "INTEGRATED_1", "INTEGRATED_2", "INTEGRATED_3", "PYTHON", "WEB_DEVELOPMENT", "CYBERSECURITY", "DATA_SCIENCE"]);
+// Single source of truth: check-volume and check-unit-volume read this too.
+const SUBJECTS = new Set(SCHEMA.properties.subject.enum);
 const SCOPES = new Set(["current-scope", "legacy-scope", "core-scope"]);
 const BLOOMS = new Set(["REMEMBER", "UNDERSTAND", "APPLY", "ANALYZE", "EVALUATE", "CREATE"]);
 // ponytail: word-boundary brand scan only; lowercase prose never matches.

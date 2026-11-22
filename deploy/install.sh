@@ -25,6 +25,11 @@ if [ -z "${SPRINTJUDGE_ADMIN_PASSWORD:-}" ]; then
     fi
 fi
 [ -n "$SPRINTJUDGE_ADMIN_PASSWORD" ] || fail "admin password must not be empty"
+# systemd's EnvironmentFile parser cannot represent newlines; reject control
+# characters up front so install never reports success with an unusable secret.
+case "$SPRINTJUDGE_ADMIN_PASSWORD" in
+    *$'\n'*|*$'\r'*|*$'\t'*) fail "admin password must not contain control characters" ;;
+esac
 command -v nginx >/dev/null 2>&1 || fail "nginx is required"
 command -v systemctl >/dev/null 2>&1 || fail "systemd is required"
 [ -x /usr/bin/nsjail ] || fail "nsjail must be executable at /usr/bin/nsjail"
@@ -48,7 +53,11 @@ if [ ! -f "$INSTALL_DIR/.env" ]; then
     printf 'SPRINTJUDGE_DB_PATH=%s\n' "${DATA_DIR}/sprintjudge.db" >> "$INSTALL_DIR/.env"
     printf 'SPRINTJUDGE_PORT=%s\n' "${PORT}" >> "$INSTALL_DIR/.env"
     printf 'SPRINTJUDGE_ADMIN_USERNAME=%s\n' "${SPRINTJUDGE_ADMIN_USERNAME:-admin}" >> "$INSTALL_DIR/.env"
-    printf 'SPRINTJUDGE_ADMIN_PASSWORD=%s\n' "${SPRINTJUDGE_ADMIN_PASSWORD}" >> "$INSTALL_DIR/.env"
+    # Quote the value and escape systemd's own escapes so spaces, '#', '$'
+    # and quotes survive EnvironmentFile parsing intact.
+    env_password=$(printf '%s' "$SPRINTJUDGE_ADMIN_PASSWORD" \
+        | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
+    printf 'SPRINTJUDGE_ADMIN_PASSWORD="%s"\n' "$env_password" >> "$INSTALL_DIR/.env"
 fi
 
 chown -R sprintjudge:sprintjudge "$INSTALL_DIR" "$DATA_DIR" "$LOG_DIR"

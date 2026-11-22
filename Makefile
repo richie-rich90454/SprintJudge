@@ -124,11 +124,11 @@ test: ## Full backend test suite.
 	@$(LOAD_ENV); $(MVNW) test
 
 .PHONY: verify
-verify: ## Full gates: backend tests + 100% coverage (needs fresh SPA: run make build first).
+verify: ## Full gates: backend tests + 100% Java branch coverage (needs fresh SPA: run make build first).
 	@$(LOAD_ENV); $(MVNW) verify
 
 .PHONY: test-frontend
-test-frontend: ## Frontend typecheck + unit tests with 100% coverage.
+test-frontend: ## Frontend typecheck + 100% coverage of pure-logic .ts (UI .tsx verified by Playwright E2E).
 	cd $(FRONTEND) && $(NPX) tsc --noEmit && $(NPM) run test:unit
 
 .PHONY: test-e2e

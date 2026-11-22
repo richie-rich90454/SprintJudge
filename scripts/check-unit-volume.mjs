@@ -94,4 +94,4 @@ if (failed) {
   console.error("unit-volume: floor not met");
   process.exit(1);
 }
-console.log("unit-volume: floors met");
+console.log(`unit-volume: shipped units pass; ${short.length} unshipped unit(s) reported advisory`);
