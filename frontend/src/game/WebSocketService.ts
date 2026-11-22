@@ -74,7 +74,7 @@ export class WebSocketService {
             // failed first handshake still flushes on reconnect. Only an
             // intentional disconnect discards queued messages.
             if (this._intentionalClose) this.pending = [];
-            this.status$.next("closed");
+            if (this.status$.value !== "closed") this.status$.next("closed");
             if (!this._intentionalClose && this._url) {
                 this._scheduleReconnect();
             }
@@ -127,6 +127,9 @@ export class WebSocketService {
         }
         this.socket?.close();
         this.socket = null;
+        // onclose runs asynchronously and returns early for a superseded socket,
+        // so publish the terminal state here as well (exactly once).
+        if (this.status$.value !== "closed") this.status$.next("closed");
     }
 }
 

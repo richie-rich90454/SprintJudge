@@ -13,6 +13,7 @@ import { QuestionWizard } from "./QuestionWizard";
 import { useStaggerIn } from "../hooks/useMotion";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
+import { AboutDialog } from "../components/AboutDialog";
 import { LogoMark } from "../components/LogoMark";
 
 type AdminTab = "dashboard" | "quizzes" | "questions" | "games" | "settings";
@@ -40,6 +41,7 @@ function SettingsTab() {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
+    const [settingsError, setSettingsError] = useState(false);
     const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -55,7 +57,10 @@ function SettingsTab() {
                 setSettings(s);
                 setLoading(false);
             })
-            .catch(() => setLoading(false));
+            .catch(() => {
+                setSettingsError(true);
+                setLoading(false);
+            });
     }, []);
 
     const handleSave = async () => {
@@ -91,7 +96,14 @@ function SettingsTab() {
     return (
         <div className="tab-panel" key="settings">
             <h2 className="text-lg font-extrabold mb-4">Settings</h2>
-            {Object.keys(settings).length === 0 ? (
+            {settingsError ? (
+                <div className="flex flex-col items-start gap-3">
+                    <p role="alert" className="text-[var(--oq-danger)] text-sm">
+                        Could not load settings. Check the server and try again.
+                    </p>
+                    <Button variant="secondary" onClick={() => window.location.reload()}>Retry</Button>
+                </div>
+            ) : Object.keys(settings).length === 0 ? (
                 <p className="text-[var(--oq-ink-soft)]">No settings configured.</p>
             ) : (
                 <Card className="max-w-lg p-6">
@@ -133,6 +145,7 @@ function SettingsTab() {
 }
 
 export function AdminDashboard() {
+    const loginFailed = new URLSearchParams(window.location.search).has("error");
     const { quizzes, questions, activeQuizId, loadQuizzes, loadQuestions, openWizard, createQuiz } =
         useAdminStore();
     const wizardOpen = useAdminStore((s) => s.wizardOpen);
@@ -189,9 +202,8 @@ export function AdminDashboard() {
                                 name="username"
                                 placeholder="admin"
                                 autoComplete="username"
-                                aria-required="true"
-                                aria-invalid="false"
-                                aria-describedby="admin-auth-error"
+                                required
+                                aria-invalid={loginFailed}
                             />
                             <label className="label-caps block mb-1" htmlFor="pw">
                                 Password
@@ -202,15 +214,14 @@ export function AdminDashboard() {
                                 type="password"
                                 placeholder="password"
                                 autoComplete="current-password"
-                                aria-required="true"
-                                aria-invalid="false"
-                                aria-describedby="admin-auth-error"
+                                required
+                                aria-invalid={loginFailed}
                             />
-                            <p
-                                id="admin-auth-error"
-                                role="alert"
-                                className="hidden text-[var(--oq-danger)] text-sm"
-                            />
+                            {loginFailed && (
+                                <p id="admin-auth-error" role="alert" className="text-[var(--oq-danger)] text-sm">
+                                    Wrong username or password. Please try again.
+                                </p>
+                            )}
                             <Button type="submit" variant="primary" className="w-full">
                                 Sign in
                             </Button>
@@ -247,8 +258,13 @@ export function AdminDashboard() {
             const game = await adminApi.createGame(built.quizId, "STANDARD");
             setPin(game.pinCode);
             navigate({ to: "/host", search: { pin: game.pinCode, projector: false } });
-        } catch {
-            setBannerError("Could not build the CSA game. Try the bank again.");
+        } catch (e) {
+            const status = (e as { response?: { status?: number } })?.response?.status;
+            setBannerError(
+                status === 403
+                    ? "Your session expired. Sign in again and retry."
+                    : "Could not build the CSA game. Check the bank and retry.",
+            );
         } finally {
             setCsaBusy(null);
         }
@@ -303,8 +319,9 @@ export function AdminDashboard() {
                         <span className="font-extrabold tracking-tight text-lg">SprintJudge</span>
                     </div>
                     <div className="flex-1" />
-                    <SoundToggle />
-                    <MotionToggle />
+                    <SoundToggle className="header-icon" />
+                    <MotionToggle className="header-icon" />
+                    <AboutDialog />
                     <Button variant="secondary" size="sm" onClick={() => navigate({ to: "/" })}>
                         Player view
                     </Button>
@@ -518,11 +535,16 @@ export function AdminDashboard() {
                                             <Button
                                                 variant="primary"
                                                 onClick={async () => {
-                                                    if (title.trim()) {
+                                                    if (!title.trim()) return;
+                                                    try {
                                                         await createQuiz(title.trim(), desc.trim());
                                                         setTitle("");
                                                         setDesc("");
                                                         setShowCreate(false);
+                                                    } catch (e) {
+                                                        setBannerError(
+                                                            `Could not create the quiz: ${(e as Error)?.message ?? "unknown error"}`,
+                                                        );
                                                     }
                                                 }}
                                             >
@@ -554,7 +576,9 @@ export function AdminDashboard() {
                                                         variant="secondary"
                                                         size="sm"
                                                         onClick={() => {
-                                                            loadQuestions(q.id);
+                                                            loadQuestions(q.id).catch(() =>
+                                                                setBannerError("Could not load questions. Try again."),
+                                                            );
                                                             setTab("questions");
                                                         }}
                                                     >
@@ -611,7 +635,10 @@ export function AdminDashboard() {
                                     <select
                                         value={activeQuizId ?? ""}
                                         onChange={(e) => {
-                                            if (e.target.value) loadQuestions(e.target.value);
+                                            if (e.target.value)
+                                                loadQuestions(e.target.value).catch(() =>
+                                                    setBannerError("Could not load questions. Try again."),
+                                                );
                                         }}
                                         aria-label="Select quiz set"
                                         className="input-underline text-sm max-w-xs"

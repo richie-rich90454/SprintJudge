@@ -1,4 +1,5 @@
-# SprintJudge — GNU Make workflows (run from git-bash / WSL / Linux / macOS).
+# SprintJudge — GNU Make workflows. On Windows, run from Git Bash/MSYS2 (a
+# POSIX shell); no WSL is needed. Linux/macOS use the shell directly.
 #
 #   make [tab]            list targets grouped by section
 #   make run              production single-jar launch (BUILD=1 rebuilds first)
@@ -12,7 +13,11 @@ MVNW := ./mvnw
 JAR := target/sprintjudge.jar
 FRONTEND := frontend
 VERIFY_PORT ?= 8091
-HEAP ?= 2g
+# BankStore keeps answer-free headers in interned columnar arrays, so the whole
+# 169000-question bank boots in ~128m. Override with SPRINTJUDGE_HEAP for very
+# large rooms.
+HEAP ?= 512m
+DEV_HEAP ?= 256m
 
 # Windows needs the .cmd shims; POSIX shells use the bare names.
 ifeq ($(OS),Windows_NT)
@@ -67,7 +72,7 @@ dev: ## Backend + frontend side by side (parallel).
 dev-backend: ## API + WebSocket on :8080 (dev profile).
 	@$(LOAD_ENV); $(MVNW) spring-boot:run \
 		-Dspring-boot.run.profiles=dev \
-		"-Dspring-boot.run.jvmArguments=-Xms512m -Xmx768m -XX:+UseStringDeduplication -XX:+PerfDisableSharedMem"
+		"-Dspring-boot.run.jvmArguments=-Xms64m -Xmx$(DEV_HEAP) -XX:+UseStringDeduplication -XX:+PerfDisableSharedMem"
 
 .PHONY: dev-frontend
 dev-frontend: ## UI on :5173 (proxies /api and /ws).
@@ -86,7 +91,7 @@ build-frontend: ## Build the SPA only.
 
 .PHONY: package
 package: ## SPA + fat jar (SKIP_FRONTEND=1 skips the SPA).
-	@pkill -f 'sprintjudge\.jar' 2>/dev/null && sleep 1 || true
+	@if command -v pkill >/dev/null 2>&1; then pkill -f 'sprintjudge\.jar' 2>/dev/null && sleep 1 || true; fi
 	@if [ "$(SKIP_FRONTEND)" != "1" ]; then $(MAKE) build-frontend; fi
 	$(MVNW) -q clean package -DskipTests
 	@test -f $(JAR) || (echo "BUILD INCOMPLETE: $(JAR) missing"; exit 1)
@@ -103,6 +108,7 @@ package: ## SPA + fat jar (SKIP_FRONTEND=1 skips the SPA).
 check-env: ## Audit the toolchain.
 	@echo "== SprintJudge environment check =="
 	@java -version 2>&1 | head -1
+	@if command -v java >/dev/null 2>&1; then java -version 2>&1 | head -1 | grep -Eq 'version .(2[5-9]|[3-9][0-9])' || (echo "[MISS] JDK 25+ is required"; exit 1); else echo "[WARN] java not on this shell's PATH"; fi
 	@test -f .mvn/wrapper/maven-wrapper.properties && echo "[OK]   Maven wrapper present (no Maven install needed)" || (echo "[MISS] Maven wrapper"; exit 1)
 	@node --version
 	@$(NPM) --version
@@ -118,11 +124,11 @@ test: ## Full backend test suite.
 	@$(LOAD_ENV); $(MVNW) test
 
 .PHONY: verify
-verify: ## Full gates: backend tests + 100% coverage (needs fresh SPA: run make build first).
+verify: ## Full gates: backend tests + 100% Java branch coverage (needs fresh SPA: run make build first).
 	@$(LOAD_ENV); $(MVNW) verify
 
 .PHONY: test-frontend
-test-frontend: ## Frontend typecheck + unit tests with 100% coverage.
+test-frontend: ## Frontend typecheck + 100% coverage of pure-logic .ts (UI .tsx verified by Playwright E2E).
 	cd $(FRONTEND) && $(NPX) tsc --noEmit && $(NPM) run test:unit
 
 .PHONY: test-e2e
@@ -135,16 +141,16 @@ verify-prod: ## Boot prod jar on :8091 and probe health (PORT=, SKIP_BUILD=1).
 	@if [ "$(SKIP_BUILD)" != "1" ]; then $(MAKE) package; fi
 	@echo "Booting prod jar on :$(VERIFY_PORT) for health checks..."
 	@$(LOAD_ENV); \
-	logdir="$${TMPDIR:-$${TEMP:-/tmp}}"; \
+	logdir="$$(mktemp -d)"; \
 	java -jar $(JAR) --spring.profiles.active=prod --server.port=$(VERIFY_PORT) >"$$logdir/sprintjudge-verify.log" 2>&1 & \
 	pid=$$!; \
-	trap 'kill $$pid 2>/dev/null' EXIT; \
+	trap 'kill $$pid 2>/dev/null; rm -rf "$$logdir"' EXIT; \
 	ok=0; \
 	for i in $$(seq 1 60); do \
-		if curl -fsS http://localhost:$(VERIFY_PORT)/api/public/quizzes >/dev/null 2>&1; then ok=1; break; fi; \
+		if curl -fsS http://localhost:$(VERIFY_PORT)/actuator/health 2>/dev/null | grep -q '"UP"'; then ok=1; break; fi; \
 		sleep 2; \
 	done; \
-	if [ "$$ok" = "1" ]; then echo "VERIFY OK: /api/public/quizzes serves on :$(VERIFY_PORT)"; \
+	if [ "$$ok" = "1" ]; then echo "VERIFY OK: /actuator/health is UP on :$(VERIFY_PORT)"; \
 	else echo "VERIFY FAILED (see $$logdir/sprintjudge-verify.log)"; tail -20 "$$logdir/sprintjudge-verify.log"; exit 1; fi
 
 ##@ Maintain
@@ -184,7 +190,7 @@ check-volume: ## Every bank subject meets the per-course floor.
 	@node scripts/check-volume.mjs
 
 .PHONY: check-unit-volume
-check-unit-volume: ## Every bank unit meets the per-unit floor and coverage rules.
+check-unit-volume: ## Report units below the floor; fail only for shipped units (pass --strict to fail all).
 	@node scripts/check-unit-volume.mjs
 
 .PHONY: check-bank
@@ -192,13 +198,25 @@ check-bank: ## Validate bank records, rules, uniqueness, and brand scan.
 	@node scripts/check-bank.mjs
 
 .PHONY: backup-db
-backup-db: ## WAL-safe SQLite backup into backups/ (DB=, OUT=).
+backup-db: ## WAL-safe SQLite backup into database/backups/ (DB=, OUT=).
 	@$(LOAD_ENV); ./scripts/backup-db.sh "$(DB)" "$(OUT)"
 
 .PHONY: restore-db
 restore-db: ## Restore a backup while the server is stopped (FILE=, DB=).
 	@test -n "$(FILE)" || (echo "FILE=<backup.db> is required"; exit 1)
 	@$(LOAD_ENV); ./scripts/restore-db.sh "$(FILE)" "$(DB)"
+
+.PHONY: seed-banks
+seed-banks: ## Build a few playable quiz sets per subject from the bank.
+	@node scripts/seed-playable-banks.mjs
+
+.PHONY: lint
+lint: ## Run all static checks: format, checkstyle, PMD, compiler warnings.
+	@$(LOAD_ENV); $(MVNW) -q spotless:check checkstyle:check pmd:check compile test-compile
+
+.PHONY: fix
+fix: ## Apply auto-fixes (formatting + unused imports) under report-and-confirm.
+	@$(LOAD_ENV); $(MVNW) -q spotless:apply rewrite:run
 
 .PHONY: check-ui
 check-ui: ## Enforce the UI design rules (copy, tokens, typography, resets).

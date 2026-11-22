@@ -11,11 +11,12 @@ concurrency:
 
 env:
   SPRINTJUDGE_ADMIN_PASSWORD: ci-admin-password
-  SPRINTJUDGE_DB_PATH: ${{ runner.temp }}/sprintjudge-ci.db
 
 jobs:
   backend:
-    runs-on: ubuntu-latest
+    # Several executor tests drive `cmd` directly and are Windows-only.
+    runs-on: windows-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -38,6 +39,7 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -82,10 +84,13 @@ jobs:
         working-directory: frontend
         run: |
           npm ci
+          npm run build
           npx playwright install --with-deps chromium
-      - name: Start the backend
+      - name: Package and start the backend
         run: |
-          ./mvnw -B spring-boot:run -Dspring-boot.run.profiles=dev > backend.log 2>&1 &
+          ./mvnw -B -DskipTests package > package.log 2>&1
+          java -jar target/sprintjudge.jar --spring.profiles.active=prod --server.port=8080 \
+            --sprintjudge.executor.public-run=true > backend.log 2>&1 &
           for i in $(seq 1 120); do
             if curl -fsS http://localhost:8080/actuator/health > /dev/null; then exit 0; fi
             sleep 2
@@ -144,6 +149,15 @@ jobs:
             sleep 2
           done
           echo "jar did not become healthy"; tail -150 jar.log; exit 1
+      - name: Install Chromium
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: CSA admin flow (production-served SPA)
+        working-directory: frontend
+        env:
+          CI: "true"
+          SPRINTJUDGE_BACKEND_URL: http://127.0.0.1:8091
+        run: npx playwright test e2e/admin.spec.ts --project=chromium
 
   security:
     runs-on: ubuntu-latest
@@ -165,10 +179,54 @@ jobs:
         run: |
           npm ci
           npm audit --audit-level=high
-      - name: Backend dependency scan
+      # Keyless, unconditional backend dependency scan (OSV.dev). OWASP
+      # dependency-check needs an NVD API key and silently no-ops without one;
+      # OSV has no such requirement, so the gate can never be skipped.
+      - name: Backend dependency scan (OSV-Scanner, keyless)
         run: |
-          ./mvnw -B -ntp dependency:resolve -Dsilent=true
-          # OWASP dependency-check; heavy but runs in a dedicated job.
-          ./mvnw -B -ntp org.owasp:dependency-check-maven:check \
-            -DfailBuildOnCVSS=7 -DskipTests -DnvdApiKey=${{ secrets.NVD_API_KEY }} \
-            || true
+          set -euo pipefail
+          VER=v2.7.1
+          curl -fsSLO "https://github.com/google/osv-scanner/releases/download/${VER}/osv-scanner_linux_amd64"
+          curl -fsSLO "https://github.com/google/osv-scanner/releases/download/${VER}/osv-scanner_SHA256SUMS"
+          grep ' osv-scanner_linux_amd64$' osv-scanner_SHA256SUMS | sha256sum --check -
+          chmod +x osv-scanner_linux_amd64
+          ./osv-scanner_linux_amd64 scan source --lockfile=pom.xml .
+
+  bank-quality:
+    name: Question bank quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Bank schema, volume and shipped-unit floors (unshipped units advisory)
+        run: |
+          node scripts/check-bank.mjs
+          node scripts/check-volume.mjs
+          node scripts/check-unit-volume.mjs
+
+  deploy-config:
+    name: Deploy configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax and stray-marker check
+        run: |
+          bash -n deploy/*.sh scripts/*.sh executor/compile-scripts/*.sh
+          if grep -R -n -E '^(EOF|ENVFILE)$' deploy/ scripts/; then
+            echo "deploy-config: stray heredoc terminator in a config file" >&2
+            exit 1
+          fi
+      - name: systemd unit syntax
+        run: |
+          # ubuntu-latest has no systemd-analyze by default; install it so this
+          # step is a real gate rather than a permanent no-op.
+          if ! command -v systemd-analyze >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq systemd
+          fi
+          command -v systemd-analyze
+          systemd-analyze verify deploy/sprintjudge.service

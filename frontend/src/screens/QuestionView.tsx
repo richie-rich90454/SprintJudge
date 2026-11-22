@@ -11,6 +11,7 @@ import { ErrorBoundary } from "../components/ErrorBoundary";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { Chip } from "../ui/Primitives";
+import { AboutDialog } from "../components/AboutDialog";
 import { QuestionPreview } from "../components/host/QuestionPreview";
 import { FormattedText } from "../components/host/FormattedText";
 import { useStageEnter } from "../motion/useStageMotion";
@@ -88,7 +89,7 @@ export function QuestionView() {
         setFeedback({
             ok,
             text: isCoding(q.type)
-                ? `${sub.passed}/${sub.totalTests} tests passed, +${sub.score}${aiNote}`
+                ? `${sub.passed ?? 0}/${sub.totalTests ?? 0} tests passed, +${sub.score ?? 0}${aiNote}`
                 : ok
                   ? `+${sub.score} pts`
                   : "Not quite",
@@ -328,7 +329,7 @@ export function QuestionView() {
                                                     {t.name}
                                                 </span>
                                                 <span className="mono font-bold tabular-nums">
-                                                    {t.score.toLocaleString()}
+                                                    {(Number.isFinite(t.score) ? t.score : 0).toLocaleString()}
                                                 </span>
                                             </li>
                                         ))}
@@ -415,6 +416,11 @@ export function QuestionView() {
                             {wsError}
                         </p>
                     )}
+                    <p className="mt-4 text-sm">
+                        <Link to="/join" className="underline underline-offset-4">
+                            Change PIN
+                        </Link>
+                    </p>
                 </div>
             </div>
         );
@@ -453,6 +459,7 @@ export function QuestionView() {
                         {q.pointsBase} points
                     </span>
                     <div className="flex-1" />
+                    <AboutDialog />
                     {boardLocked && gameMode === "EXAM" && (
                         <Chip tone="neutral">Board hidden until the end</Chip>
                     )}
@@ -489,7 +496,7 @@ export function QuestionView() {
                 }`}
             >
                 <section
-                    className={`min-w-0 ${coding ? "flex flex-col overflow-y-auto" : ""}`}
+                    className={`min-w-0 [overflow-wrap:anywhere] ${coding ? "flex flex-col overflow-y-auto" : ""}`}
                     aria-live="polite"
                 >
                     <p className="label-caps mb-3">Question</p>
@@ -509,11 +516,26 @@ export function QuestionView() {
                         </p>
                     )}
                     {feedback && (
-                        <div
-                            aria-live="polite"
-                            className={`feedback-banner mt-5 ${feedback.ok ? "ok" : "bad"}`}
-                        >
-                            {feedback.text}
+                        <div className="relative">
+                            {feedback.ok && (
+                                <div className="motes" aria-hidden="true">
+                                    {Array.from({ length: 8 }, (_, i) => (
+                                        <i
+                                            key={i}
+                                            style={{
+                                                left: `${(i + 1) * 11}%`,
+                                                animationDelay: `${i * 70}ms`,
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                            <div
+                                aria-live="polite"
+                                className={`feedback-banner mt-5 ${feedback.ok ? "ok" : "bad"}`}
+                            >
+                                <span className={feedback.ok ? "score-pop" : ""}>{feedback.text}</span>
+                            </div>
                         </div>
                     )}
                 </section>

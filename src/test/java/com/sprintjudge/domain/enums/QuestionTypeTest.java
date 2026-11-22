@@ -2,70 +2,93 @@ package com.sprintjudge.domain.enums;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("all")
 class QuestionTypeTest {
 
-    @Test
-    void allConstantsDefined() {
-        assertEquals(12, QuestionType.values().length);
-        assertSame(QuestionType.MCQ, QuestionType.valueOf("MCQ"));
-        assertSame(QuestionType.OJ_FULL, QuestionType.valueOf("OJ_FULL"));
-        assertSame(QuestionType.OJ_PATCH, QuestionType.valueOf("OJ_PATCH"));
-    }
+	private static final List<String> ALL = Arrays.asList(QuestionType.MCQ, QuestionType.TRUE_FALSE,
+			QuestionType.MULTIPLE_SELECT, QuestionType.NUMERIC, QuestionType.OUTPUT_PRED, QuestionType.FILL_BLANK,
+			QuestionType.DRAG_SORT, QuestionType.CLICK_BUG, QuestionType.CODE_COMPLETION, QuestionType.COMPLEXITY,
+			QuestionType.OJ_FULL, QuestionType.OJ_PATCH);
 
-    @Test
-    void fromNormalizesCaseAndWhitespace() {
-        assertSame(QuestionType.MCQ, QuestionType.from("mcq"));
-        assertSame(QuestionType.OJ_FULL, QuestionType.from(" oj_full "));
-        assertSame(QuestionType.TRUE_FALSE, QuestionType.from("True_False"));
-    }
+	@Test
+	void allConstantsDefined() {
+		assertEquals(12, ALL.size());
+		assertEquals(QuestionType.MCQ, QuestionType.from("MCQ"));
+		assertEquals(QuestionType.OJ_FULL, QuestionType.from("OJ_FULL"));
+		assertEquals(QuestionType.OJ_PATCH, QuestionType.from("OJ_PATCH"));
+	}
 
-    @Test
-    void fromNullIsRequired() {
-        assertThrows(IllegalArgumentException.class, () -> QuestionType.from(null));
-    }
+	@Test
+	void fromNormalizesCaseAndWhitespace() {
+		assertEquals(QuestionType.MCQ, QuestionType.from("mcq"));
+		assertEquals(QuestionType.OJ_FULL, QuestionType.from(" oj_full "));
+		assertEquals(QuestionType.TRUE_FALSE, QuestionType.from("True_False"));
+	}
 
-    @Test
-    void fromBlankIsRequired() {
-        assertThrows(IllegalArgumentException.class, () -> QuestionType.from(""));
-        assertThrows(IllegalArgumentException.class, () -> QuestionType.from("   "));
-    }
+	@Test
+	void fromNullIsRequired() {
+		assertThrows(IllegalArgumentException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() {
+				QuestionType.from(null);
+			}
+		});
+	}
 
-    @Test
-    void fromUnknownThrows() {
-        assertThrows(IllegalArgumentException.class, () -> QuestionType.from("ESSAY"));
-    }
+	@Test
+	void fromBlankIsRequired() {
+		assertThrows(IllegalArgumentException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() {
+				QuestionType.from("");
+			}
+		});
+		assertThrows(IllegalArgumentException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() {
+				QuestionType.from("   ");
+			}
+		});
+	}
 
-    @Test
-    void codingTypesAreCoding() {
-        assertTrue(QuestionType.OJ_FULL.isCoding());
-        assertTrue(QuestionType.OJ_PATCH.isCoding());
-    }
+	@Test
+	void fromUnknownThrows() {
+		assertThrows(IllegalArgumentException.class, new org.junit.jupiter.api.function.Executable() {
+			@Override
+			public void execute() {
+				QuestionType.from("ESSAY");
+			}
+		});
+	}
 
-    @Test
-    void nonCodingTypesAreNotCoding() {
-        assertFalse(QuestionType.MCQ.isCoding());
-        assertFalse(QuestionType.TRUE_FALSE.isCoding());
-        assertFalse(QuestionType.MULTIPLE_SELECT.isCoding());
-        assertFalse(QuestionType.NUMERIC.isCoding());
-        assertFalse(QuestionType.OUTPUT_PRED.isCoding());
-        assertFalse(QuestionType.FILL_BLANK.isCoding());
-        assertFalse(QuestionType.DRAG_SORT.isCoding());
-        assertFalse(QuestionType.CLICK_BUG.isCoding());
-        assertFalse(QuestionType.CODE_COMPLETION.isCoding());
-        assertFalse(QuestionType.COMPLEXITY.isCoding());
-    }
+	@Test
+	void codingTypesAreCoding() {
+		assertTrue(QuestionType.isCoding(QuestionType.OJ_FULL));
+		assertTrue(QuestionType.isCoding(QuestionType.OJ_PATCH));
+	}
 
-    @Test
-    void everyFromValueRoundTrips() {
-        for (QuestionType t : QuestionType.values()) {
-            assertSame(t, QuestionType.from(t.name()));
-            assertSame(t, QuestionType.from(t.name().toLowerCase()));
-        }
-    }
+	@Test
+	void nonCodingTypesAreNotCoding() {
+		for (String type : ALL) {
+			if (!QuestionType.OJ_FULL.equals(type) && !QuestionType.OJ_PATCH.equals(type)) {
+				assertFalse(QuestionType.isCoding(type), type);
+			}
+		}
+	}
+
+	@Test
+	void everyFromValueRoundTrips() {
+		for (String type : ALL) {
+			assertEquals(type, QuestionType.from(type));
+			assertEquals(type, QuestionType.from(type.toLowerCase()));
+		}
+	}
 }

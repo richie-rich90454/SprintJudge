@@ -16,114 +16,128 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("all")
 class SecureHandshakeConfiguratorTest {
 
-    private final SecureHandshakeConfigurator configurator = new SecureHandshakeConfigurator();
+	private final SecureHandshakeConfigurator configurator = new SecureHandshakeConfigurator();
 
-    private ServerEndpointConfig secWith(Map<String, Object> props) {
-        ServerEndpointConfig sec = mock(ServerEndpointConfig.class);
-        when(sec.getUserProperties()).thenReturn(props);
-        return sec;
-    }
+	private ServerEndpointConfig secWith(Map<String, Object> props) {
+		ServerEndpointConfig sec = mock(ServerEndpointConfig.class);
+		when(sec.getUserProperties()).thenReturn(props);
+		return sec;
+	}
 
-    private HandshakeRequest requestWith(Map<String, List<String>> headers, Principal principal) {
-        HandshakeRequest req = mock(HandshakeRequest.class);
-        when(req.getHeaders()).thenReturn(headers);
-        when(req.getUserPrincipal()).thenReturn(principal);
-        when(req.getHttpSession()).thenReturn(null);
-        return req;
-    }
+	private HandshakeRequest requestWith(Map<String, List<String>> headers, Principal principal) {
+		HandshakeRequest req = mock(HandshakeRequest.class);
+		when(req.getHeaders()).thenReturn(headers);
+		when(req.getUserPrincipal()).thenReturn(principal);
+		when(req.getHttpSession()).thenReturn(null);
+		return req;
+	}
 
-    private String stagedIp(Map<String, Object> props) {
-        return SecureHandshakeConfigurator.consumeStaged(secWith(props)).ip();
-    }
+	private String stagedIp(Map<String, Object> props) {
+		return SecureHandshakeConfigurator.consumeStaged(secWith(props)).getIp();
+	}
 
-    @Test
-    void stagesIpFromForwardedFor() {
-        Map<String, Object> props = new HashMap<>();
-        configurator.modifyHandshake(secWith(props),
-                requestWith(Map.of("X-Forwarded-For", List.of("1.2.3.4")), null),
-                mock(HandshakeResponse.class));
-        assertEquals("1.2.3.4", stagedIp(props));
-    }
+	@Test
+	void foreignOriginIsBlocked() {
+		Map<String, Object> props = new HashMap<>();
+		configurator.modifyHandshake(secWith(props),
+				requestWith(Map.of("Origin", List.of("https://evil.example"), "Host", List.of("quiz.example.org")),
+						null),
+				mock(HandshakeResponse.class));
+		assertEquals("blocked", props.get(SecureHandshakeConfigurator.REMOTE_ADDR));
+	}
 
-    @Test
-    void forwardedForTakesLastSegment() {
-        Map<String, Object> props = new HashMap<>();
-        configurator.modifyHandshake(secWith(props),
-                requestWith(Map.of("X-Forwarded-For", List.of(" 1.2.3.4 , 5.6.7.8 ")), null),
-                mock(HandshakeResponse.class));
-        assertEquals("5.6.7.8", stagedIp(props));
-    }
+	@Test
+	void sameHostOriginIsAllowed() {
+		Map<String, Object> props = new HashMap<>();
+		configurator.modifyHandshake(secWith(props),
+				requestWith(Map.of("Origin", List.of("https://quiz.example.org"), "Host", List.of("quiz.example.org")),
+						null),
+				mock(HandshakeResponse.class));
+		assertEquals("unresolved", stagedIp(props));
+	}
 
-    @Test
-    void fallsBackToRealIp() {
-        Map<String, Object> props = new HashMap<>();
-        configurator.modifyHandshake(secWith(props),
-                requestWith(Map.of("X-Real-IP", List.of("9.9.9.9")), null),
-                mock(HandshakeResponse.class));
-        assertEquals("9.9.9.9", stagedIp(props));
-    }
+	@Test
+	void stagesIpFromForwardedFor() {
+		Map<String, Object> props = new HashMap<>();
+		configurator.modifyHandshake(secWith(props), requestWith(Map.of("X-Forwarded-For", List.of("1.2.3.4")), null),
+				mock(HandshakeResponse.class));
+		assertEquals("1.2.3.4", stagedIp(props));
+	}
 
-    @Test
-    void unresolvedWhenNoHeaders() {
-        Map<String, Object> props = new HashMap<>();
-        configurator.modifyHandshake(secWith(props),
-                requestWith(Map.of(), null),
-                mock(HandshakeResponse.class));
-        assertEquals("unresolved", stagedIp(props));
-    }
+	@Test
+	void forwardedForTakesLastSegment() {
+		Map<String, Object> props = new HashMap<>();
+		configurator.modifyHandshake(secWith(props),
+				requestWith(Map.of("X-Forwarded-For", List.of(" 1.2.3.4 , 5.6.7.8 ")), null),
+				mock(HandshakeResponse.class));
+		assertEquals("5.6.7.8", stagedIp(props));
+	}
 
-    @Test
-    void forwardedForPreferredOverRealIp() {
-        Map<String, Object> props = new HashMap<>();
-        configurator.modifyHandshake(secWith(props),
-                requestWith(Map.of("X-Forwarded-For", List.of("1.1.1.1"),
-                        "X-Real-IP", List.of("2.2.2.2")), null),
-                mock(HandshakeResponse.class));
-        assertEquals("1.1.1.1", stagedIp(props));
-    }
+	@Test
+	void fallsBackToRealIp() {
+		Map<String, Object> props = new HashMap<>();
+		configurator.modifyHandshake(secWith(props), requestWith(Map.of("X-Real-IP", List.of("9.9.9.9")), null),
+				mock(HandshakeResponse.class));
+		assertEquals("9.9.9.9", stagedIp(props));
+	}
 
-    @Test
-    void consumeStagedRoundTripsIpAndAuth() {
-        Map<String, Object> props = new HashMap<>();
-        Principal principal = mock(Principal.class);
-        ServerEndpointConfig sec = secWith(props);
-        configurator.modifyHandshake(sec,
-                requestWith(Map.of("X-Forwarded-For", List.of("3.3.3.3")), principal),
-                mock(HandshakeResponse.class));
-        var staged = SecureHandshakeConfigurator.consumeStaged(sec);
-        assertEquals("3.3.3.3", staged.ip());
-        assertTrue(staged.authed());
-    }
+	@Test
+	void unresolvedWhenNoHeaders() {
+		Map<String, Object> props = new HashMap<>();
+		configurator.modifyHandshake(secWith(props), requestWith(Map.of(), null), mock(HandshakeResponse.class));
+		assertEquals("unresolved", stagedIp(props));
+	}
 
-    @Test
-    void consumeStagedRemovesEntries() {
-        Map<String, Object> props = new HashMap<>();
-        ServerEndpointConfig sec = secWith(props);
-        configurator.modifyHandshake(sec,
-                requestWith(Map.of("X-Forwarded-For", List.of("4.4.4.4")), null),
-                mock(HandshakeResponse.class));
-        assertEquals("4.4.4.4", SecureHandshakeConfigurator.consumeStaged(sec).ip());
-        var second = SecureHandshakeConfigurator.consumeStaged(sec);
-        assertEquals("unresolved", second.ip());
-        assertFalse(second.authed());
-    }
+	@Test
+	void forwardedForPreferredOverRealIp() {
+		Map<String, Object> props = new HashMap<>();
+		configurator.modifyHandshake(secWith(props),
+				requestWith(Map.of("X-Forwarded-For", List.of("1.1.1.1"), "X-Real-IP", List.of("2.2.2.2")), null),
+				mock(HandshakeResponse.class));
+		assertEquals("1.1.1.1", stagedIp(props));
+	}
 
-    @Test
-    void consumeWithoutTokenReturnsUnresolved() {
-        var staged = SecureHandshakeConfigurator.consumeStaged(secWith(new HashMap<>()));
-        assertEquals("unresolved", staged.ip());
-        assertFalse(staged.authed());
-    }
+	@Test
+	void consumeStagedRoundTripsIpAndAuth() {
+		Map<String, Object> props = new HashMap<>();
+		Principal principal = mock(Principal.class);
+		ServerEndpointConfig sec = secWith(props);
+		configurator.modifyHandshake(sec, requestWith(Map.of("X-Forwarded-For", List.of("3.3.3.3")), principal),
+				mock(HandshakeResponse.class));
+		SecureHandshakeConfigurator.StagedConnection staged = SecureHandshakeConfigurator.consumeStaged(sec);
+		assertEquals("3.3.3.3", staged.getIp());
+		assertTrue(staged.isAuthed());
+	}
 
-    @Test
-    void consumeStagedIPReturnsIpOnly() {
-        Map<String, Object> props = new HashMap<>();
-        ServerEndpointConfig sec = secWith(props);
-        configurator.modifyHandshake(sec,
-                requestWith(Map.of("X-Real-IP", List.of("7.7.7.7")), null),
-                mock(HandshakeResponse.class));
-        assertEquals("7.7.7.7", SecureHandshakeConfigurator.consumeStagedIP(sec));
-    }
+	@Test
+	void consumeStagedRemovesEntries() {
+		Map<String, Object> props = new HashMap<>();
+		ServerEndpointConfig sec = secWith(props);
+		configurator.modifyHandshake(sec, requestWith(Map.of("X-Forwarded-For", List.of("4.4.4.4")), null),
+				mock(HandshakeResponse.class));
+		assertEquals("4.4.4.4", SecureHandshakeConfigurator.consumeStaged(sec).getIp());
+		SecureHandshakeConfigurator.StagedConnection second = SecureHandshakeConfigurator.consumeStaged(sec);
+		assertEquals("unresolved", second.getIp());
+		assertFalse(second.isAuthed());
+	}
+
+	@Test
+	void consumeWithoutTokenReturnsUnresolved() {
+		SecureHandshakeConfigurator.StagedConnection staged = SecureHandshakeConfigurator
+				.consumeStaged(secWith(new HashMap<>()));
+		assertEquals("unresolved", staged.getIp());
+		assertFalse(staged.isAuthed());
+	}
+
+	@Test
+	void consumeStagedIPReturnsIpOnly() {
+		Map<String, Object> props = new HashMap<>();
+		ServerEndpointConfig sec = secWith(props);
+		configurator.modifyHandshake(sec, requestWith(Map.of("X-Real-IP", List.of("7.7.7.7")), null),
+				mock(HandshakeResponse.class));
+		assertEquals("7.7.7.7", SecureHandshakeConfigurator.consumeStagedIP(sec));
+	}
 }

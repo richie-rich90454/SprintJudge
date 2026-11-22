@@ -1,5 +1,6 @@
 import { FormattedText } from "./FormattedText";
 import type { QuestionDto, RoundResult } from "../../types";
+import { formatAnswer } from "../../game/reviewFormat";
 
 type Config = Record<string, unknown>;
 
@@ -181,6 +182,20 @@ export function QuestionPreview({
                     </span>
                 </div>
             )}
+            {reveal &&
+                !(optionRows && options.length > 0) &&
+                question.type !== "TRUE_FALSE" &&
+                question.type !== "NUMERIC" &&
+                question.type !== "FILL_BLANK" && (
+                    <div className="mt-6 rounded-[2px] border border-[var(--stage-border)] bg-[var(--stage-surface)] px-4 py-4">
+                        <p className="label-caps mb-2">Correct answer</p>
+                        <p className="text-lg leading-snug">
+                            {answer.exemplar != null
+                                ? String(answer.exemplar)
+                                : formatAnswer(question.type, answer, stringList(config["options"]))}
+                        </p>
+                    </div>
+                )}
         </div>
     );
 }

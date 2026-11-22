@@ -1,4 +1,4 @@
-/** Brutal lockdown palette — single source. Indexes match theme.ts myColor. */
+/** Muted brand-derived answer hues. Single source, defined in index.css. */
 export const myColor = [
     "#fff0e4",
     "#ffe0cf",

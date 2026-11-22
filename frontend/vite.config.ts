@@ -40,6 +40,9 @@ export default defineConfig({
         ],
         coverage: {
             provider: "v8",
+            // 100% unit coverage applies to pure-logic .ts modules. UI .tsx
+            // components are verified in a real browser by the Playwright
+            // E2E suite (e2e/*.spec.ts), which is the right layer for UI.
             include: ["src/**/*.ts"],
             exclude: ["src/**/*.test.ts", "src/vite-env.d.ts"],
             thresholds: { lines: 100, branches: 100, functions: 100, statements: 100 },

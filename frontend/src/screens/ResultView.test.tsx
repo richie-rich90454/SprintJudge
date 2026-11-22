@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -16,6 +17,14 @@ const uiMock = vi.hoisted(() => ({
 }));
 
 const navigateMock = vi.hoisted(() => vi.fn());
+const buildBankQuizMock = vi.hoisted(() => vi.fn());
+
+vi.mock("../services/AdminApiService", () => ({
+    adminApi: {
+        buildBankQuiz: (...args: unknown[]) => buildBankQuizMock(...args),
+        exportBank: vi.fn(),
+    },
+}));
 
 vi.mock("../stores/useGameStore", () => ({
     useGameStore: (selector: (s: any) => unknown) => selector(gameMock.state),
@@ -28,6 +37,7 @@ vi.mock("../stores/useUIStore", () => ({
 
 vi.mock("@tanstack/react-router", () => ({
     useNavigate: () => navigateMock,
+    Link: ({ children, to }: { children: ReactNode; to: string }) => <a href={to}>{children}</a>,
 }));
 
 vi.mock("../motion/useStageMotion", () => ({
@@ -56,12 +66,22 @@ describe("ResultView", () => {
         vi.unstubAllGlobals();
     });
 
-    test("renders empty results and disabled action buttons", () => {
+    test("renders empty results and disabled action buttons", async () => {
         render(<ResultView />);
         expect(screen.getByText("Results")).toBeInTheDocument();
         expect(screen.getByText("No results yet.")).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: /Export CSV/i })).toBeDisabled();
+        const exportBtn = await screen.findByRole("button", { name: /Export CSV/i });
+        expect(exportBtn).toBeDisabled();
         expect(screen.getByRole("button", { name: /Practice next/i })).toBeDisabled();
+    });
+
+    test("hides admin-only actions from non-admin players", async () => {
+        vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
+        render(<ResultView />);
+        await waitFor(() =>
+            expect(screen.queryByRole("button", { name: /Export CSV/i })).not.toBeInTheDocument(),
+        );
+        expect(screen.queryByRole("button", { name: /Practice next/i })).not.toBeInTheDocument();
     });
 
     test("switches tabs", async () => {
@@ -80,21 +100,17 @@ describe("ResultView", () => {
             teams: [],
             rankings: [],
         };
-        const fetchMock = vi
-            .fn()
-            .mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({ subject: "math", unit: "u", topic: "t", count: 5 }),
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({ quizId: "p1" }),
-            });
-        vi.stubGlobal("fetch", fetchMock);
+        vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => ({ subject: "math", unit: "u", topic: "t", count: 5 }),
+        }));
+        buildBankQuizMock.mockReset();
+        buildBankQuizMock.mockResolvedValue({ quizId: "p1", questions: 5, skipped: 0 });
         render(<ResultView />);
-        fireEvent.click(screen.getByRole("button", { name: /Practice next/i }));
+        const practiceBtn = await screen.findByRole("button", { name: /Practice next/i });
+        fireEvent.click(practiceBtn);
         await waitFor(() =>
-            expect(screen.getByText("Practice quiz ready: p1")).toBeInTheDocument(),
+            expect(screen.getByRole("link", { name: /Open it in the dashboard/i })).toBeInTheDocument(),
         );
     });
 
@@ -113,7 +129,8 @@ describe("ResultView", () => {
         });
         vi.stubGlobal("fetch", fetchMock);
         render(<ResultView />);
-        fireEvent.click(screen.getByRole("button", { name: /Export CSV/i }));
+        const exportBtn = await screen.findByRole("button", { name: /Export CSV/i });
+        fireEvent.click(exportBtn);
         await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     });
 });

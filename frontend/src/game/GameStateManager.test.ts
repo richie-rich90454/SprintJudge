@@ -178,8 +178,6 @@ describe("GameStateManager basics", () => {
 
 describe("GameStateManager JOINED", () => {
     test("JOINED seeds session, clears stale game data and resyncs", () => {
-        localStorage.setItem("sprintjudge_code_q1", "cached");
-        localStorage.setItem("other", "keep");
         joined("u9");
         const s = gameStateManager.state;
         expect(s.playerUuid).toBe("u9");
@@ -191,6 +189,18 @@ describe("GameStateManager JOINED", () => {
         expect(s.review).toBeNull();
         expect(s.error).toBeNull();
         expect(fakeWs.send).toHaveBeenCalledWith({ type: "RESYNC_LEADERBOARD" });
+    });
+
+    test("JOINED keeps code drafts intact across a reconnect", () => {
+        localStorage.setItem("sprintjudge_code_q1", "in-progress");
+        joined("u9");
+        expect(localStorage.getItem("sprintjudge_code_q1")).toBe("in-progress");
+    });
+
+    test("joining a genuinely new game clears stale code drafts", () => {
+        localStorage.setItem("sprintjudge_code_q1", "old-game");
+        localStorage.setItem("other", "keep");
+        gameStateManager.join("1234", "Ada");
         expect(localStorage.getItem("sprintjudge_code_q1")).toBeNull();
         expect(localStorage.getItem("other")).toBe("keep");
     });

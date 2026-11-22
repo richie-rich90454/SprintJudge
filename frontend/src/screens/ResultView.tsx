@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Tabs, TabPanel } from "../ui/Tabs";
@@ -7,15 +7,65 @@ import { useGameStore } from "../stores/useGameStore";
 import { formatAnswer } from "../game/reviewFormat";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
+import { AboutDialog } from "../components/AboutDialog";
 import { useCountUp } from "../motion/useStageMotion";
 import { GameReview } from "../types";
+import { adminApi } from "../services/AdminApiService";
 
 type ReviewTab = "podium" | "answers" | "students" | "teams" | "analysis";
 
+// Malformed review payloads must never render "NaN" to a student.
+function whole(value: unknown): number {
+    return Math.round(Number.isFinite(value) ? (value as number) : 0);
+}
+function pct(ratio: unknown): number {
+    return whole(Number.isFinite(ratio) ? (ratio as number) * 100 : 0);
+}
+
 export function ResultView() {
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [reviewTimedOut, setReviewTimedOut] = useState(false);
+    useEffect(() => {
+        if (reviewTimedOut) return;
+        const timer = window.setTimeout(() => setReviewTimedOut(true), 10_000);
+        return () => window.clearTimeout(timer);
+    }, [reviewTimedOut]);
+    useEffect(() => {
+        let active = true;
+        fetch("/api/admin/settings", { credentials: "include" })
+            .then((response) => {
+                if (active) setIsAdmin(response.ok);
+            })
+            .catch(() => {
+                if (active) setIsAdmin(false);
+            });
+        return () => {
+            active = false;
+        };
+    }, []);
     const leaderboard = useGameStore((s) => s.leaderboard);
     const review = useGameStore((s) => s.review) as GameReview | null;
     const wsError = useGameStore((s) => s.error);
+    // One stable ordering for anonymous "Player N" labels in every tab.
+    // Sorting independently per tab let the same student get different numbers.
+    const sortedPlayers = useMemo(
+        () => [...(review?.players ?? [])].sort((a, b) => b.totalScore - a.totalScore),
+        [review],
+    );
+    // GAME_REVIEW is a one-shot push: restore the last review on reload or deep
+    // link so /results is not a permanent "Review unavailable" dead end.
+    useEffect(() => {
+        if (review) return;
+        try {
+            const raw = sessionStorage.getItem("sprintjudge_last_review");
+            if (!raw) return;
+            const data = JSON.parse(raw) as { review?: GameReview; leaderboard?: unknown[] };
+            if (data.review)
+                useGameStore.setState({ review: data.review, leaderboard: data.leaderboard ?? [] } as never);
+        } catch {
+            /* ignore malformed cache */
+        }
+    }, [review]);
     const navigate = useNavigate();
     const [tab, setTab] = useState<ReviewTab>("podium");
     const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
@@ -68,19 +118,12 @@ export function ResultView() {
             if (!rec.subject || !rec.unit || rec.count <= 0) {
                 throw new Error("no bank match");
             }
-            const buildRes = await fetch("/api/admin/bank/build", {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    subject: rec.subject,
-                    unit: rec.unit,
-                    count: Math.min(10, rec.count),
-                    title: `Practice: ${rec.topic || rec.unit}`,
-                }),
+            const built = await adminApi.buildBankQuiz({
+                subject: rec.subject,
+                unit: rec.unit,
+                count: Math.min(10, rec.count),
+                title: `Practice: ${rec.topic || rec.unit}`,
             });
-            if (!buildRes.ok) throw new Error("build failed");
-            const built = (await buildRes.json()) as { quizId: string };
             setPracticeQuizId(built.quizId);
         } catch {
             setPracticeError("Could not build a practice quiz. Sign in as admin and retry.");
@@ -123,8 +166,9 @@ export function ResultView() {
                         </p>
                     </div>
                     <div className="flex gap-1">
-                        <SoundToggle />
-                        <MotionToggle />
+                        <SoundToggle className="header-icon" />
+                        <MotionToggle className="header-icon" />
+                        <AboutDialog />
                     </div>
                 </div>
                 <div className="mt-6 border-b border-[var(--oq-border-strong)]" />
@@ -208,32 +252,38 @@ export function ResultView() {
 
                                 <div className="flex flex-col items-center gap-3 border-t border-[var(--oq-border)] pt-6">
                                     <div className="flex flex-wrap justify-center gap-3">
-                                        <Button
-                                            variant="secondary"
-                                            onClick={exportCsv}
-                                            disabled={!review?.sessionId || exporting}
-                                        >
-                                            {exporting ? "Exporting" : "Export CSV"}
-                                        </Button>
-                                        <Button
-                                            variant="secondary"
-                                            onClick={practiceNext}
-                                            disabled={!review?.sessionId || practicing}
-                                        >
-                                            {practicing ? "Building" : "Practice next"}
-                                        </Button>
+                                        {isAdmin && (
+                                            <>
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={exportCsv}
+                                                    disabled={!review?.sessionId || exporting}
+                                                >
+                                                    {exporting ? "Exporting" : "Export CSV"}
+                                                </Button>
+                                                <Button
+                                                    variant="secondary"
+                                                    onClick={practiceNext}
+                                                    disabled={!review?.sessionId || practicing}
+                                                >
+                                                    {practicing ? "Building" : "Practice next"}
+                                                </Button>
+                                            </>
+                                        )}
                                         <Button
                                             variant="secondary"
                                             onClick={() => navigate({ to: "/" })}
                                         >
                                             Leave results
                                         </Button>
-                                        <Button
-                                            variant="primary"
-                                            onClick={() => navigate({ to: "/admin" })}
-                                        >
-                                            New game
-                                        </Button>
+                                        {isAdmin && (
+                                            <Button
+                                                variant="primary"
+                                                onClick={() => navigate({ to: "/admin" })}
+                                            >
+                                                New game
+                                            </Button>
+                                        )}
                                     </div>
                                     {exportError && (
                                         <p role="alert" className="text-sm text-[var(--oq-danger)]">
@@ -247,7 +297,13 @@ export function ResultView() {
                                     )}
                                     {practiceQuizId && (
                                         <p className="text-sm text-[var(--oq-muted)]">
-                                            Practice quiz ready: {practiceQuizId}
+                                            Practice quiz ready.{" "}
+                                            <Link
+                                                to="/admin"
+                                                className="underline underline-offset-4"
+                                            >
+                                                Open it in the dashboard
+                                            </Link>
                                         </p>
                                     )}
                                 </div>
@@ -278,7 +334,9 @@ export function ResultView() {
                                             ))}
                                         </div>
                                         <p className="text-[var(--oq-ink-soft)] text-sm mt-4">
-                                            Loading review… no review data yet.
+                                            {reviewTimedOut
+                                                ? "Review unavailable. Reload to try again."
+                                                : "Loading review…"}
                                         </p>
                                     </div>
                                 ) : !review.questions || review.questions.length === 0 ? (
@@ -322,7 +380,7 @@ export function ResultView() {
                                                                           : "text-[var(--oq-danger)]"
                                                                 }
                                                             >
-                                                                {Math.round(q.correctRate * 100)}%
+                                                                {pct(q.correctRate)}%
                                                             </span>{" "}
                                                             correct
                                                         </p>
@@ -342,7 +400,7 @@ export function ResultView() {
                                                 )}
                                                 {selectedQuestion === q.questionId && (
                                                     <div className="mt-3 border-t border-[var(--oq-border)] pt-3 flex flex-col gap-2">
-                                                        {(review.players ?? []).map((p, pi) => {
+                                                        {sortedPlayers.map((p, pi) => {
                                                             const a = p.answers.find(
                                                                 (x) =>
                                                                     x.questionId === q.questionId,
@@ -417,7 +475,9 @@ export function ResultView() {
                                             ))}
                                         </div>
                                         <p className="text-[var(--oq-ink-soft)] text-sm mt-4">
-                                            Loading review… no student results yet.
+                                            {reviewTimedOut
+                                                ? "Review unavailable. Reload to try again."
+                                                : "Loading review…"}
                                         </p>
                                     </div>
                                 ) : !review.players || review.players.length === 0 ? (
@@ -426,9 +486,7 @@ export function ResultView() {
                                     </p>
                                 ) : (
                                     <div className="flex flex-col gap-4">
-                                        {[...review.players]
-                                            .sort((a, b) => b.totalScore - a.totalScore)
-                                            .map((p, i) => (
+                                        {sortedPlayers.map((p, i) => (
                                                 <button
                                                     key={p.playerUuid}
                                                     type="button"
@@ -552,7 +610,9 @@ export function ResultView() {
                                             ))}
                                         </div>
                                         <p className="text-[var(--oq-ink-soft)] text-sm">
-                                            Loading analysis… no class stats yet.
+                                            {reviewTimedOut
+                                                ? "Analysis unavailable. Reload to try again."
+                                                : "Loading analysis…"}
                                         </p>
                                     </div>
                                 ) : review.questions.length === 0 ? (
@@ -571,19 +631,18 @@ export function ResultView() {
                                             <div className="stat-block border border-[var(--oq-border)] rounded-[8px] p-6 text-center">
                                                 <p className="label-caps mb-1">Avg Score</p>
                                                 <p className="stat-value">
-                                                    {Math.round(review.classStats.avgScore)}
+                                                    {whole(review.classStats.avgScore)}
                                                 </p>
                                             </div>
                                             <div className="stat-block border border-[var(--oq-border)] rounded-[8px] p-6 text-center">
                                                 <p className="label-caps mb-1">Correct Rate</p>
                                                 <p className="stat-value">
-                                                    {review.classStats.totalAttempts > 0
-                                                        ? Math.round(
-                                                              (review.classStats.totalCorrect /
-                                                                  review.classStats.totalAttempts) *
-                                                                  100,
-                                                          )
-                                                        : 0}
+                                                    {pct(
+                                                        review.classStats.totalAttempts > 0
+                                                            ? review.classStats.totalCorrect /
+                                                                review.classStats.totalAttempts
+                                                            : 0,
+                                                    )}
                                                     %
                                                 </p>
                                             </div>
@@ -613,7 +672,7 @@ export function ResultView() {
                                                                       : "text-[var(--oq-danger)]"
                                                             }`}
                                                         >
-                                                            {Math.round(q.correctRate * 100)}%
+                                                            {pct(q.correctRate)}%
                                                         </span>
                                                     </div>
                                                 ))}

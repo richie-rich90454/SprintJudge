@@ -94,6 +94,13 @@ describe("formatAnswer", () => {
         expect(formatAnswer("CODE_COMPLETION", {}, null)).toBe("Expected:\n?");
     });
 
+    test("OJ formats point to test-case results", () => {
+        expect(formatAnswer("OJ_FULL", {}, null)).toBe(
+            "Graded by hidden test cases - see your submission result.",
+        );
+        expect(formatAnswer("OJ_PATCH", null, null)).toBe("?");
+    });
+
     test("unknown types dump JSON", () => {
         expect(formatAnswer("WAT", { a: 1 }, null)).toBe('Correct: {"a":1}');
     });

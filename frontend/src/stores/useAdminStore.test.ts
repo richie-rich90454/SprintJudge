@@ -112,6 +112,12 @@ describe("useAdminStore wizard", () => {
         useAdminStore.getState().openWizard("quiz-1");
         useAdminStore.getState().setDraft({ config: { options: ["a", "b"] } });
         useAdminStore.getState().setType("NUMERIC");
+        expect(useAdminStore.getState().draft.config).toEqual({ answer: 0, tolerance: 0 });
+    });
+
+    test("unknown question type gets an empty config", () => {
+        useAdminStore.setState({ activeQuizId: "qz", draft: {} });
+        useAdminStore.getState().setType("UNKNOWN" as never);
         expect(useAdminStore.getState().draft.config).toEqual({});
     });
 
@@ -174,6 +180,37 @@ describe("useAdminStore persistence", () => {
         expect(adminMock.addQuestion).toHaveBeenCalled();
         expect(adminMock.getQuestions).not.toHaveBeenCalled();
         expect(useAdminStore.getState().wizardOpen).toBe(false);
+    });
+
+    test("saveQuestion converts wizard text order fields to numeric arrays", async () => {
+        adminMock.addQuestion.mockResolvedValue({ id: "new-q" });
+        adminMock.getQuestions.mockResolvedValue([]);
+        useAdminStore.getState().openWizard("quiz-1");
+        useAdminStore.getState().setType("DRAG_SORT");
+        useAdminStore.getState().setDraft({
+            title: "Order",
+            config: { correctOrder: "2, 0, 1, nope", correctIndices: "0,2" },
+        });
+        await useAdminStore.getState().saveQuestion();
+        expect(adminMock.addQuestion).toHaveBeenCalledWith(
+            expect.objectContaining({
+                config: expect.objectContaining({
+                    correctOrder: [2, 0, 1],
+                    correctIndices: [0, 2],
+                }),
+            }),
+        );
+    });
+
+    test("saveQuestion handles a null config by sending an empty object", async () => {
+        adminMock.addQuestion.mockResolvedValue({ id: "new-q" });
+        adminMock.getQuestions.mockResolvedValue([]);
+        useAdminStore.getState().openWizard("quiz-1");
+        useAdminStore.setState({ draft: { ...useAdminStore.getState().draft, config: null } as any });
+        await useAdminStore.getState().saveQuestion();
+        expect(adminMock.addQuestion).toHaveBeenCalledWith(
+            expect.objectContaining({ config: {} }),
+        );
     });
 
     test("createQuiz creates, reloads quizzes and returns the id", async () => {
@@ -258,7 +295,7 @@ describe("useAdminStore wizard workflows", () => {
         const d = useAdminStore.getState().draft;
         expect(d.title).toBe("T");
         expect(d.description).toBe("D");
-        expect(d.config).toEqual({});
+        expect(d.config).toEqual({ answer: 0, tolerance: 0 });
         expect(d.questionType).toBe("NUMERIC");
     });
 

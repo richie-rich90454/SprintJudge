@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAdminStore, WizardStep } from "../stores/useAdminStore";
 import { ALL_QUESTION_TYPES, QuestionType } from "../types";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Dialog } from "../ui/Dialog";
@@ -177,6 +178,15 @@ function ConfigForm() {
                     >
                         Add line
                     </button>
+                    <label className="text-sm text-[var(--oq-ink-soft)]">
+                        Correct order (line numbers, comma separated)
+                    </label>
+                    <input
+                        placeholder="e.g. 2,0,1"
+                        value={(config["correctOrder"] as string) ?? lines.map((_, i) => i).join(",")}
+                        onChange={(e) => set({ correctOrder: e.target.value })}
+                        className="input-underline"
+                    />
                 </div>
             );
         }
@@ -210,12 +220,20 @@ function ConfigForm() {
         }
         case "CODE_COMPLETION":
             return (
-                <textarea
-                    placeholder="Skeleton / starter code (editable region)"
-                    value={(config["skeleton"] as string) ?? ""}
-                    onChange={(e) => set({ skeleton: e.target.value })}
-                    className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
-                />
+                <div className="flex flex-col gap-4">
+                    <textarea
+                        placeholder="Skeleton / starter code (editable region)"
+                        value={(config["skeleton"] as string) ?? ""}
+                        onChange={(e) => set({ skeleton: e.target.value })}
+                        className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
+                    />
+                    <textarea
+                        placeholder="Expected completed code (used to grade)"
+                        value={(config["expected"] as string) ?? ""}
+                        onChange={(e) => set({ expected: e.target.value })}
+                        className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
+                    />
+                </div>
             );
         case "OJ_FULL":
         case "OJ_PATCH": {
@@ -315,8 +333,9 @@ export function QuestionWizard() {
         setSaving(true);
         try {
             await saveQuestion();
-        } catch {
-            setValidationError("Save failed - are you still logged in?");
+        } catch (error) {
+            const detail = (error as { response?: { data?: { error?: string } } })?.response?.data?.error;
+            setValidationError(detail ? `Save failed: ${detail}` : "Save failed. Check the fields and your sign-in, then retry.");
         } finally {
             setSaving(false);
         }
@@ -434,16 +453,24 @@ export function QuestionWizard() {
                                 {/* Key on content: the host only remounts on
                                             type/id, so statement/config edits need
                                             an explicit remount signal. */}
-                                <QuestionRendererHost
-                                    key={JSON.stringify([
-                                        previewQuestion.type,
-                                        previewQuestion.title,
-                                        previewQuestion.description,
-                                        previewQuestion.config,
-                                    ])}
-                                    question={previewQuestion}
-                                    onResponse={() => {}}
-                                />
+                                <ErrorBoundary
+                                    fallback={
+                                        <p className="text-[var(--oq-ink-soft)] text-sm">
+                                            Preview unavailable for this configuration. Check the fields above.
+                                        </p>
+                                    }
+                                >
+                                    <QuestionRendererHost
+                                        key={JSON.stringify([
+                                            previewQuestion.type,
+                                            previewQuestion.title,
+                                            previewQuestion.description,
+                                            previewQuestion.config,
+                                        ])}
+                                        question={previewQuestion}
+                                        onResponse={() => {}}
+                                    />
+                                </ErrorBoundary>
                             </div>
                         </Card>
                         {validationError && (

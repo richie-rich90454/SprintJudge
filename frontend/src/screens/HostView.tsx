@@ -10,6 +10,7 @@ import { useUIStore } from "../stores/useUIStore";
 import { webSocketService, type WsMessage } from "../game/WebSocketService";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
+import { AboutDialog } from "../components/AboutDialog";
 import { useVirtualWindow } from "../hooks/useVirtualWindow";
 import { useFlipList } from "../motion/useStageMotion";
 import { HostStage } from "../components/host/HostStage";
@@ -63,7 +64,7 @@ function TeamBoard() {
                                 {t.memberUuids.length === 1 ? "member" : "members"}
                             </span>
                             <span className="mono font-bold tabular-nums">
-                                {t.score.toLocaleString()}
+                                {(Number.isFinite(t.score) ? t.score : 0).toLocaleString()}
                             </span>
                         </li>
                     ))}
@@ -246,6 +247,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
 }
 
 function ControlsPanel() {
+    const advanceLock = useRef(false);
     const hostCommand = useGameStore((s) => s.hostCommand);
     const extendTimer = useGameStore((s) => s.extendTimer);
     const kickPlayer = useGameStore((s) => s.kick);
@@ -344,7 +346,14 @@ function ControlsPanel() {
                         <Button
                             variant="primary"
                             className="w-full"
-                            onClick={() => hostCommand("NEXT_QUESTION")}
+                            onClick={() => {
+                                // A double-click would otherwise advance two
+                                // rounds (each NEXT reveals and advances).
+                                if (advanceLock.current) return;
+                                advanceLock.current = true;
+                                window.setTimeout(() => { advanceLock.current = false; }, 600);
+                                hostCommand("NEXT_QUESTION");
+                            }}
                         >
                             {status === "LOBBY" ? "Start round" : "Next question"}
                         </Button>
@@ -622,8 +631,9 @@ export function HostView() {
                                 Projector view
                             </Link>
                         </div>
-                        <SoundToggle />
-                        <MotionToggle />
+                        <SoundToggle className="header-icon" />
+                        <MotionToggle className="header-icon" />
+                        <AboutDialog />
                     </div>
                     <p className="mono text-xs text-[var(--oq-ink-soft)] mt-3 break-all">
                         {joinUrl}

@@ -3,6 +3,7 @@ import { Card } from "../ui/Card";
 import { JoinForm } from "../components/JoinForm";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
+import { AboutDialog } from "../components/AboutDialog";
 
 /**
  * Join-only landing: one wordmark, one card, the PIN field as the loudest
@@ -13,8 +14,9 @@ export function LandingView() {
     return (
         <div className="pattern-exam min-h-[100dvh] flex flex-col">
             <header className="w-full max-w-3xl mx-auto px-6 pt-4 flex items-center justify-end gap-1">
-                <SoundToggle />
-                <MotionToggle />
+                <SoundToggle className="header-icon" />
+                <MotionToggle className="header-icon" />
+                <AboutDialog />
             </header>
 
             <main className="flex-1 flex items-center justify-center px-6 py-10">

@@ -13,21 +13,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class SpaWebConfig implements WebMvcConfigurer {
 
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/{spring:[^.]*}").setViewName("forward:/index.html");
-        registry.addViewController("/**/{spring:[^.]*}").setViewName("forward:/index.html");
-    }
+	@Override
+	public void addViewControllers(ViewControllerRegistry registry) {
+		registry.addViewController("/{spring:[^.]*}").setViewName("forward:/index.html");
+		registry.addViewController("/**/{spring:[^.]*}").setViewName("forward:/index.html");
+	}
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // The shell references hashed assets, but index.html itself must never
-        // be cached: otherwise browsers keep booting the previous deployment's
-        // JS after an upgrade and report already-fixed bugs as still present.
-        // (Location is the static ROOT: pointing at the file itself makes
-        // Spring treat it as a directory and every forward 404s.)
-        registry.addResourceHandler("/index.html")
-                .addResourceLocations("classpath:/static/")
-                .setCacheControl(CacheControl.noStore());
-    }
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		// The shell references hashed assets, but index.html itself must never
+		// be cached: otherwise browsers keep booting the previous deployment's
+		// JS after an upgrade and report already-fixed bugs as still present.
+		// (Location is the static ROOT: pointing at the file itself makes
+		// Spring treat it as a directory and every forward 404s.)
+		registry.addResourceHandler("/index.html").addResourceLocations("classpath:/static/")
+				.setCacheControl(CacheControl.noStore());
+	}
 }

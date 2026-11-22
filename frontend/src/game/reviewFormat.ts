@@ -44,6 +44,9 @@ export function formatAnswer(type: string, answer: unknown, options: string[] | 
             return `Buggy line: ${String(a["bugLine"] ?? "?")}`;
         case "CODE_COMPLETION":
             return `Expected:\n${String(a["expected"] ?? "?")}`;
+        case "OJ_FULL":
+        case "OJ_PATCH":
+            return "Graded by hidden test cases - see your submission result.";
         default:
             return `Correct: ${JSON.stringify(answer)}`;
     }

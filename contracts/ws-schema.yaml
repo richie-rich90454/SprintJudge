@@ -1,49 +1,93 @@
-protocolVersion: 2
-description: SprintJudge room wire protocol, additive to the existing socket contract.
+# Wire protocol for the vanilla Jakarta @ServerEndpoint at /ws.
+# This is the contract the implementation actually speaks. docs/websocket-protocol.md
+# is the human-readable version; keep the two in sync.
+protocolVersion: 1
+transport: "websocket"
+endpoint: "/ws"
+framing: "JSON object with a non-empty 'type' field"
 
 clientToServer:
-  HELLO:
-    required: [protocolVersion, clientVersion]
-    optional: [lastSeq]
   JOIN:
-    required: [pin, nickname]
+    required: [pin, name]
     optional: [role, rejoinToken]
-  RESUME:
-    required: [roomId, playerId, rejoinToken, lastSeq]
+    notes: "pin is 6 digits; role defaults to player; host requires an authenticated admin session; rejoinToken reclaims a disconnected seat"
   SUBMIT:
-    required: [questionId, payload, idempotencyKey]
-    optional: [confidence]
-  CHANGE:
-    required: [questionId, payload, idempotencyKey]
-  REACTION:
-    required: [emoji]
-  RAISE_HAND: {}
-  LOWER_HAND: {}
-  QA_ASK:
-    required: [text]
+    required: [questionId, response]
+    optional: [language]
+    notes: "language is one of c, cpp, java, node, python; coding source capped at 64KB"
+  NEXT_QUESTION:
+    required: []
+    notes: "host only"
+  FORCE_SUBMIT:
+    required: []
+    notes: "host only"
+  END_GAME:
+    required: []
+    notes: "host only"
+  EXTEND_TIMER:
+    required: [seconds]
+    notes: "host only; clamped to 1..300 per call"
+  KICK_PLAYER:
+    required: [playerUuid]
+    notes: "host only"
+  RESYNC_LEADERBOARD:
+    required: []
+    notes: "any client, after detecting a sequence gap"
   PING:
-    required: [ts]
+    required: []
+  CREATE_TEAM:
+    required: [name]
+    notes: "host only"
+  JOIN_TEAM:
+    required: [teamId]
+  LEAVE_TEAM:
+    required: []
+  GET_TEAMS:
+    required: []
+  START_BATTLE:
+    required: []
+    notes: "host only"
+  GET_BRACKET:
+    required: []
 
 serverToClient:
-  HELLO_ACK:
-    required: [serverVersion, minClientVersion, features]
   JOINED:
-    description: only full snapshot; client applies later events by seq
-    required: [snapshot]
-  RESUME_ACK:
-    required: [snapshot, missedEvents]
-  RESUME_FAILED:
-    required: [code, hint]
-  EVENT:
-    required: [type, seq, ts, roomId, actorId, payload]
-  ERROR:
-    required: [code, message, hint, retryable]
+    required: [uuid, rejoinToken, room]
+  ROOM_STATE:
+    required: []
+    notes: "players, status, question count, current question id, game mode"
+  QUESTION_START:
+    required: [question, timeLimitSec]
+  ROUND_RESULT:
+    required: []
+    notes: "scores per player plus the revealed answer"
+  LEADERBOARD_DELTA:
+    required: [seq, resync, entries]
+    notes: "exact rank upserts since the client's last seq; resync=true replaces the board"
+  SUBMISSION_RESULT:
+    required: [questionId, score, correct]
+  GAME_REVIEW:
+    required: []
+    notes: "final rankings and per-question answer key"
+  TEAM_CREATED:
+    required: [teamId]
+  TEAM_JOINED:
+    required: [teamId]
+  TEAM_LIST:
+    required: [teams]
+  BRACKET:
+    required: [rounds]
+  TIMER_UPDATE:
+    required: [extendSec, newEndEpochMs]
   PONG:
-    required: [ts]
-  SERVER_SHUTTING_DOWN:
-    required: [reason, resumeWindow]
+    required: []
+  ERROR:
+    required: [message]
+    notes: "client renders a fixed friendly allowlist; raw server text is never shown"
 
 ordering:
-  snapshotFirst: true
-  dropDuplicates: seq <= lastAppliedSeq
-  idempotency: every client event carries idempotencyKey, server dedupes
+  identity: "submit player identity comes from the server-side session, never a client-supplied uuid"
+  leaderboard: "monotonic seq with full-snapshot resync"
+  hostAuthorization: "joined as host AND authenticated admin session"
+  joinRateLimit: "10 failures per minute per client IP, reset on success"
+  maxPlayers: 10000

@@ -8,62 +8,64 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
 @RestControllerAdvice
+@SuppressWarnings("all")
 public class GlobalExceptionHandler {
 
-    private static final org.slf4j.Logger log =
-            org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class);
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorMessage> handleBadRequest(IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorMessage("ERROR", e.getMessage()));
-    }
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ErrorMessage> handleBadRequest(IllegalArgumentException e) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage("ERROR", e.getMessage()));
+	}
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorMessage> handleValidation(MethodArgumentNotValidException e) {
-        String details = e.getBindingResult().getFieldErrors().stream()
-                .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                .collect(Collectors.joining("; "));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorMessage("ERROR", "Validation failed: " + details));
-    }
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ErrorMessage> handleValidation(MethodArgumentNotValidException e) {
+		List<org.springframework.validation.FieldError> errors = e.getBindingResult().getFieldErrors();
+		StringBuilder detailsBuilder = new StringBuilder();
+		for (int i = 0; i < errors.size(); i++) {
+			org.springframework.validation.FieldError err = errors.get(i);
+			if (i > 0)
+				detailsBuilder.append("; ");
+			detailsBuilder.append(err.getField()).append(": ").append(err.getDefaultMessage());
+		}
+		String details = detailsBuilder.toString();
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+				.body(new ErrorMessage("ERROR", "Validation failed: " + details));
+	}
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorMessage> handleUnreadable(HttpMessageNotReadableException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorMessage("ERROR", "Malformed JSON body"));
-    }
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<ErrorMessage> handleUnreadable(HttpMessageNotReadableException e) {
+		org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class).warn("Unreadable request body", e);
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage("ERROR", "Malformed JSON body"));
+	}
 
-    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
-    public ResponseEntity<ErrorMessage> handleStatus(
-            org.springframework.web.server.ResponseStatusException e) {
-        return ResponseEntity.status(e.getStatusCode())
-                .body(new ErrorMessage("ERROR", e.getReason() != null ? e.getReason() : e.getMessage()));
-    }
+	@ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+	public ResponseEntity<ErrorMessage> handleStatus(org.springframework.web.server.ResponseStatusException e) {
+		return ResponseEntity.status(e.getStatusCode())
+				.body(new ErrorMessage("ERROR", e.getReason() != null ? e.getReason() : e.getMessage()));
+	}
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ErrorMessage> handleConflict(IllegalStateException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new ErrorMessage("ERROR", e.getMessage()));
-    }
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<ErrorMessage> handleConflict(IllegalStateException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorMessage("ERROR", e.getMessage()));
+	}
 
-    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
-    public ResponseEntity<ErrorMessage> handleNoResource(
-            org.springframework.web.servlet.resource.NoResourceFoundException e) {
-        // Browsers probe /favicon.ico and similar paths constantly; a missing
-        // static asset is a 404, never a logged stack trace.
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorMessage("ERROR", "Not found"));
-    }
+	@ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+	public ResponseEntity<ErrorMessage> handleNoResource(
+			org.springframework.web.servlet.resource.NoResourceFoundException e) {
+		// Browsers probe /favicon.ico and similar paths constantly; a missing
+		// static asset is a 404, never a logged stack trace.
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage("ERROR", "Not found"));
+	}
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorMessage> handleGeneric(Exception e) {
-        // Silent 500s are unacceptable: always record the stack before answering.
-        log.error("Unhandled server error", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorMessage("ERROR", "Internal error"));
-    }
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ErrorMessage> handleGeneric(Exception e) {
+		// Silent 500s are unacceptable: always record the stack before answering.
+		log.error("Unhandled server error", e);
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(new ErrorMessage("ERROR", "Internal error"));
+	}
 }

@@ -32,9 +32,40 @@ const emptyDraft = (type: QuestionType, quizId: string): Partial<QuestionPayload
         type === "OJ_FULL" || type === "OJ_PATCH" ? ["c", "cpp", "java", "node", "python"] : null,
     timeLimitSec: 30,
     pointsBase: 100,
-    config: {},
+    config: defaultConfig(type),
     orderIndex: 0,
 });
+
+// The wizard renders these as `??` display defaults. Persist them into the
+// draft so a question saved without touching a field matches what was shown.
+function defaultConfig(type: string): Record<string, unknown> {
+    switch (type) {
+        case "MCQ":
+        case "COMPLEXITY":
+            return { options: ["", "", "", ""], correctIndex: 0 };
+        case "OUTPUT_PRED":
+            return { correctIndex: 0 };
+        case "TRUE_FALSE":
+            return { correct: true };
+        case "MULTIPLE_SELECT":
+            return { options: ["", "", "", ""], correctIndices: [0] };
+        case "NUMERIC":
+            return { answer: 0, tolerance: 0 };
+        case "FILL_BLANK":
+            return { answer: "" };
+        case "DRAG_SORT":
+            return { lines: [{ id: "0", text: "" }, { id: "1", text: "" }], correctOrder: [0, 1] };
+        case "CLICK_BUG":
+            return { codeLines: [""], bugLine: 0 };
+        case "CODE_COMPLETION":
+            return { skeleton: "", expected: "" };
+        case "OJ_FULL":
+        case "OJ_PATCH":
+            return { testCases: [{ input: "", expectedOutput: "" }] };
+        default:
+            return {};
+    }
+}
 
 export const useAdminStore = create<AdminStore>((set, get) => ({
     quizzes: [],
@@ -92,8 +123,23 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
 
     saveQuestion: async () => {
         const draft = get().draft as QuestionPayload;
-        if (draft.id) await adminApi.updateQuestion(draft);
-        else await adminApi.addQuestion(draft);
+        const config = { ...((draft.config as Record<string, unknown> | null) ?? {}) };
+        // The wizard edits these as text; the validator and evaluator expect arrays.
+        if (typeof config["correctOrder"] === "string") {
+            config["correctOrder"] = String(config["correctOrder"])
+                .split(",")
+                .map((part) => Number(part.trim()))
+                .filter((n) => Number.isFinite(n));
+        }
+        if (typeof config["correctIndices"] === "string") {
+            config["correctIndices"] = String(config["correctIndices"])
+                .split(",")
+                .map((part) => Number(part.trim()))
+                .filter((n) => Number.isFinite(n));
+        }
+        const payload = { ...draft, config } as QuestionPayload;
+        if (draft.id) await adminApi.updateQuestion(payload);
+        else await adminApi.addQuestion(payload);
         const activeQuizId = get().activeQuizId;
         if (activeQuizId) await get().loadQuestions(activeQuizId);
         set({ wizardOpen: false });

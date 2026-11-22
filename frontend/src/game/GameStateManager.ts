@@ -1,5 +1,6 @@
 import { BehaviorSubject } from "rxjs";
 import { webSocketService, WsMessage } from "./WebSocketService";
+import { friendlyError } from "./friendlyError";
 import {
     GameState,
     QuestionDto,
@@ -94,6 +95,10 @@ export class GameStateManager {
         // On reconnect, rejoin and resync if the player was already connected.
         webSocketService.onStatus().subscribe((status) => {
             if (status === "open" && this.state.playerUuid) {
+                // A fresh transport invalidates sequence numbers and any resync
+                // that was in flight on the dead socket.
+                this.lastSeq = null;
+                this.resyncInFlight = false;
                 webSocketService.send({
                     type: "JOIN",
                     role: this.state.role,
@@ -132,7 +137,12 @@ export class GameStateManager {
         // previous game must never leak into this one (replay guard).
         this.lastSeq = null;
         this.resyncInFlight = false;
-        if (!rejoinToken) clearStoredSession();
+        if (!rejoinToken) {
+            clearStoredSession();
+            // Only a genuinely new game discards cached code drafts; a reconnect
+            // reuses the same JOINED message and must preserve in-progress work.
+            this.clearStaleDrafts();
+        }
         this.patch({
             role,
             pin,
@@ -254,7 +264,6 @@ export class GameStateManager {
                 if (joinedMode) this.patch({ gameMode: joinedMode });
                 if (joinedMode === "TEAM") this.requestTeams();
                 if (joinedMode === "BATTLE") this.requestBracket();
-                this.clearStaleDrafts();
                 if (
                     this.state.role === "player" &&
                     this.state.pin &&
@@ -334,6 +343,16 @@ export class GameStateManager {
             case "GAME_REVIEW": {
                 const review = m as unknown as GameReview;
                 clearStoredSession();
+                // Keep the final review across reloads/deep links to /results;
+                // GAME_REVIEW is a one-shot push that is gone on refresh.
+                try {
+                    sessionStorage.setItem("sprintjudge_last_review", JSON.stringify({
+                        review,
+                        leaderboard: review.rankings ?? [],
+                    }));
+                } catch {
+                    /* storage unavailable - live view still works */
+                }
                 this.patch({
                     status: "ENDED",
                     review,
@@ -356,7 +375,7 @@ export class GameStateManager {
                 break;
             case "ERROR":
                 this.resyncInFlight = false;
-                this.patch({ error: m.message as string });
+                this.patch({ error: friendlyError(m.message) });
                 break;
             case "TEAM_CREATED":
             case "TEAM_JOINED":
