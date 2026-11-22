@@ -470,7 +470,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		boolean correct = fraction >= 1.0;
 		int base = scoringEngine.scoreSelection(fraction, taken, q.getTimeLimitSec(), attempts, q.getPointsBase(),
 				settingsService.asMap());
-		int bonus = streakBonus(room, playerUuid, correct, base);
+		int bonus = streakBonus(room, questionId, playerUuid, correct, base);
 		int total = base + bonus;
 		int awarded = room.applyBestScore(questionId, playerUuid, total);
 
@@ -534,7 +534,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 					if (!"ACTIVE".equals(room.getStatus()) || !questionId.equals(room.getCurrentQuestionId()))
 						return;
 					boolean correct = allPassed;
-					bonus = streakBonus(room, uuid, correct, baseScore);
+					bonus = streakBonus(room, questionId, uuid, correct, baseScore);
 					int awarded = room.applyBestScore(questionId, uuid, baseScore + bonus);
 					awardedToPlayer[0] = awarded;
 					room.recordRound(uuid, baseScore, bonus, correct);
@@ -610,11 +610,15 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		return limit;
 	}
 
-	private int streakBonus(GameRoom room, String uuid, boolean correct, int base) {
+	private int streakBonus(GameRoom room, String questionId, String uuid, boolean correct, int base) {
 		if (!correct) {
 			room.resetStreak(uuid);
 			return 0;
 		}
+		// A correct retry on an already-solved question must not extend the
+		// streak: only newly solved questions count toward the bonus.
+		if (room.bestScore(questionId, uuid) > 0)
+			return 0;
 		int streak = room.bumpStreak(uuid);
 		if (streak < 2)
 			return 0;

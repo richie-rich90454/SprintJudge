@@ -1057,7 +1057,7 @@ class GameRoomManagerTest {
 	}
 
 	@Test
-	void twoConsecutiveCorrectAnswersTriggerStreakBonus() {
+	void repeatedCorrectAnswerOnSameQuestionDoesNotTriggerStreakBonus() {
 		GameRoomManager mgr = manager();
 		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
 		when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
@@ -1073,7 +1073,7 @@ class GameRoomManagerTest {
 				.forClass(com.sprintjudge.domain.models.Submission.class);
 		verify(writeBuffer, org.mockito.Mockito.times(2)).offer(saved.capture());
 		assertEquals(900, saved.getAllValues().get(0).getScoreEarned()); // no streak yet
-		assertEquals(90, saved.getAllValues().get(1).getScoreEarned()); // delta over previous best
+		assertEquals(0, saved.getAllValues().get(1).getScoreEarned()); // retry earns no bonus or delta
 	}
 
 	@Test

@@ -81,8 +81,8 @@ public class PublicController {
 		// code as the service user and read its secrets.
 		if (!"native".equalsIgnoreCase(executorMode))
 			return true;
-		if (!environment.acceptsProfiles(org.springframework.core.env.Profiles.of("prod")))
-			return true;
+		// Unsandboxed execution is anonymous RCE, so it always requires an
+		// explicit opt-in -- in dev just as much as in prod.
 		return Boolean.parseBoolean(environment.getProperty("sprintjudge.executor.public-run", "false"));
 	}
 

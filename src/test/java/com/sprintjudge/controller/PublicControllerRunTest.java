@@ -43,6 +43,7 @@ class PublicControllerRunTest {
 	void injectEnvironment() throws Exception {
 		org.springframework.mock.env.MockEnvironment env = new org.springframework.mock.env.MockEnvironment();
 		env.setActiveProfiles("dev");
+		env.setProperty("sprintjudge.executor.public-run", "true");
 		org.springframework.test.util.ReflectionTestUtils.setField(controller, "environment", env);
 		org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "native");
 	}
@@ -401,6 +402,23 @@ class PublicControllerRunTest {
 	}
 
 	@Test
+	void nativePublicRunnerWithoutOptInReturns403() {
+		org.springframework.mock.env.MockEnvironment env = new org.springframework.mock.env.MockEnvironment();
+		env.setActiveProfiles("dev");
+		org.springframework.test.util.ReflectionTestUtils.setField(controller, "environment", env);
+		org.springframework.web.server.ResponseStatusException ex = org.junit.jupiter.api.Assertions.assertThrows(
+				org.springframework.web.server.ResponseStatusException.class,
+				new org.junit.jupiter.api.function.Executable() {
+					@Override
+					public void execute() {
+						controller.run(req("python", "print(1)"), http);
+					}
+				});
+		org.junit.jupiter.api.Assertions.assertEquals(org.springframework.http.HttpStatus.FORBIDDEN,
+				ex.getStatusCode());
+	}
+
+	@Test
 	void disabledPublicRunnerReturns403() {
 		PublicController disabled = new PublicController(
 				org.mockito.Mockito.mock(com.sprintjudge.repository.QuizRepository.class),
@@ -424,7 +442,11 @@ class PublicControllerRunTest {
 	}
 
 	@Test
-	void publicRunnerStaysAvailableOutsideProd() {
+	void nativePublicRunnerNeedsExplicitOptInOutsideProd() {
+		org.springframework.mock.env.MockEnvironment dev = new org.springframework.mock.env.MockEnvironment();
+		dev.setActiveProfiles("dev");
+		dev.setProperty("sprintjudge.executor.public-run", "true");
+		org.springframework.test.util.ReflectionTestUtils.setField(controller, "environment", dev);
 		org.springframework.test.util.ReflectionTestUtils.setField(controller, "executorMode", "native");
 		when(http.getRemoteAddr()).thenReturn("dev-ip");
 		when(executor.run(any())).thenReturn(new RunResult(true, "dev", "", "ok"));

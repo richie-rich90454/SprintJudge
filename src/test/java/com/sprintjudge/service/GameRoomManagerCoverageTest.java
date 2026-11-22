@@ -2211,7 +2211,7 @@ class GameRoomManagerCoverageTest {
 	}
 
 	@Test
-	void sevenConsecutiveCorrectCapsStreakBonusAtFiveSteps() {
+	void repeatedCorrectRetryDoesNotGrowStreakOrFarmBonus() {
 		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
 		when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
@@ -2222,11 +2222,11 @@ class GameRoomManagerCoverageTest {
 		mgr.startQuestion("123456");
 		for (int i = 0; i < 7; i++)
 			mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-		assertEquals(7, roomOf(mgr).streakOf(a.getUuid()));
+		assertEquals(1, roomOf(mgr).streakOf(a.getUuid()));
 		int[] round = roomOf(mgr).roundOf(a.getUuid());
 		assertEquals(100, round[0]);
-		assertEquals(50, round[1]);
-		assertEquals(150, roomOf(mgr).getPlayer(a.getUuid()).getScore());
+		assertEquals(0, round[1]);
+		assertEquals(100, roomOf(mgr).getPlayer(a.getUuid()).getScore());
 	}
 
 	@Test
@@ -2527,7 +2527,7 @@ class GameRoomManagerCoverageTest {
 	}
 
 	@Test
-	void secondSubmitSameRoundAddsStreakBonusToTotal() {
+	void secondSubmitSameRoundDoesNotAddStreakBonus() {
 		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(mcq("q1")));
 		when(questionRepository.findById("q1")).thenReturn(Optional.of(mcq("q1")));
@@ -2538,7 +2538,7 @@ class GameRoomManagerCoverageTest {
 		mgr.startQuestion("123456");
 		mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
 		mgr.submit("123456", "q1", a.getUuid(), "python", Json.readTree("{\"selectedIndex\":0}"));
-		assertEquals(220, roomOf(mgr).getPlayer(a.getUuid()).getScore());
+		assertEquals(200, roomOf(mgr).getPlayer(a.getUuid()).getScore());
 		assertEquals(2, roomOf(mgr).attemptCount("q1", a.getUuid()));
 	}
 
