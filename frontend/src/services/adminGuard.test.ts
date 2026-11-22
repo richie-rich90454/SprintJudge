@@ -44,18 +44,13 @@ describe("requireAdmin", () => {
         await expect(requireAdmin()).rejects.toBeInstanceOf(Response);
     });
 
-    test("bounces to the login page on 500", async () => {
+    test("shows a retry error on 500 without logging the admin out", async () => {
         getSettings.mockRejectedValue(authError(500));
-        await expect(requireAdmin()).rejects.toBeInstanceOf(Response);
+        await expect(requireAdmin()).rejects.toThrow(/admin service is unavailable/);
     });
 
-    test("bounces to the login page when the backend is down", async () => {
+    test("shows a retry error when the backend is down", async () => {
         getSettings.mockRejectedValue(new Error("network down"));
-        const err = (await requireAdmin().then(
-            () => null,
-            (e: unknown) => e,
-        )) as Response | null;
-        expect(err).toBeInstanceOf(Response);
-        expect((err as unknown as { options?: { to?: string } })?.options?.to).toBe("/admin/login");
+        await expect(requireAdmin()).rejects.toThrow(/admin service is unavailable/);
     });
 });

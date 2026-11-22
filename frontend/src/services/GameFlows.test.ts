@@ -659,9 +659,9 @@ describe("GameFlows error storms", () => {
         expect(resyncs.length).toBeGreaterThanOrEqual(2);
     });
 
-    test("empty error message still surfaces and recovers on next join", () => {
+    test("empty error message shows a friendly fallback and recovers on next join", () => {
         msg({ type: "ERROR", message: "" });
-        expect(gameStateManager.state.error).toBe("");
+        expect(gameStateManager.state.error).toMatch(/Something went wrong/);
         msg({ type: "ERROR", message: "real" });
         expect(gameStateManager.state.error).toBe("real");
         gameStateManager.join("0000", "Tester");

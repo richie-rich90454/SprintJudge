@@ -134,6 +134,7 @@ function SettingsTab() {
 }
 
 export function AdminDashboard() {
+    const loginFailed = new URLSearchParams(window.location.search).has("error");
     const { quizzes, questions, activeQuizId, loadQuizzes, loadQuestions, openWizard, createQuiz } =
         useAdminStore();
     const wizardOpen = useAdminStore((s) => s.wizardOpen);
@@ -190,9 +191,8 @@ export function AdminDashboard() {
                                 name="username"
                                 placeholder="admin"
                                 autoComplete="username"
-                                aria-required="true"
-                                aria-invalid="false"
-                                aria-describedby="admin-auth-error"
+                                required
+                                aria-invalid={loginFailed}
                             />
                             <label className="label-caps block mb-1" htmlFor="pw">
                                 Password
@@ -203,15 +203,14 @@ export function AdminDashboard() {
                                 type="password"
                                 placeholder="password"
                                 autoComplete="current-password"
-                                aria-required="true"
-                                aria-invalid="false"
-                                aria-describedby="admin-auth-error"
+                                required
+                                aria-invalid={loginFailed}
                             />
-                            <p
-                                id="admin-auth-error"
-                                role="alert"
-                                className="hidden text-[var(--oq-danger)] text-sm"
-                            />
+                            {loginFailed && (
+                                <p id="admin-auth-error" role="alert" className="text-[var(--oq-danger)] text-sm">
+                                    Wrong username or password. Please try again.
+                                </p>
+                            )}
                             <Button type="submit" variant="primary" className="w-full">
                                 Sign in
                             </Button>
@@ -253,7 +252,7 @@ export function AdminDashboard() {
             setBannerError(
                 status === 403
                     ? "Your session expired. Sign in again and retry."
-                    : `Could not build the CSA game${status ? ` (HTTP ${status})` : ""}. Check the bank and retry.`,
+                    : "Could not build the CSA game. Check the bank and retry.",
             );
         } finally {
             setCsaBusy(null);

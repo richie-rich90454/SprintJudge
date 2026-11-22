@@ -51,7 +51,8 @@ class SecurityPermitMatrixTest {
 
 	@Test
 	void spaRoutesServeShellLoggedOut() throws Exception {
-		for (String path : new String[]{"/join", "/play", "/host", "/results", "/solo", "/practice", "/explore"}) {
+		for (String path : new String[]{"/join", "/play", "/host", "/results", "/solo", "/practice", "/explore",
+				"/watch/123456"}) {
 			mvc.perform(get(path)).andExpect(status().isOk()).andExpect(forwardedUrl("/index.html"));
 		}
 	}

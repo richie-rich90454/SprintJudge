@@ -1,5 +1,6 @@
 import { BehaviorSubject } from "rxjs";
 import { webSocketService, WsMessage } from "./WebSocketService";
+import { friendlyError } from "./friendlyError";
 import {
     GameState,
     QuestionDto,
@@ -360,7 +361,7 @@ export class GameStateManager {
                 break;
             case "ERROR":
                 this.resyncInFlight = false;
-                this.patch({ error: m.message as string });
+                this.patch({ error: friendlyError(m.message) });
                 break;
             case "TEAM_CREATED":
             case "TEAM_JOINED":

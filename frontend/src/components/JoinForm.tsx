@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "../ui/Button";
 import { TextInput } from "../ui/TextInput";
@@ -20,11 +20,21 @@ function sanitizePin(value: string): string {
 export function JoinForm({ initialPin = "", heading, submitClassName = "" }: JoinFormProps) {
     const [name, setName] = useState("");
     const [pin, setPinState] = useState(() => sanitizePin(initialPin));
+    const [joining, setJoining] = useState(false);
+
     const error = useGameStore((s) => s.error);
+    const playerUuid = useGameStore((s) => s.playerUuid);
+    const clearError = useGameStore((s) => s.clearError);
     const connect = useGameStore((s) => s.connect);
     const join = useGameStore((s) => s.join);
     const setPin = useUIStore((s) => s.setPin);
     const navigate = useNavigate();
+
+    // Only leave the form once the server confirms the seat. Navigating early
+    // stranded users on a Standby screen with an error and no way back.
+    useEffect(() => {
+        if (joining && playerUuid) navigate({ to: "/play" });
+    }, [joining, playerUuid, navigate]);
 
     const canSubmit = pin.length === 6 && name.trim().length > 0;
 
@@ -32,12 +42,13 @@ export function JoinForm({ initialPin = "", heading, submitClassName = "" }: Joi
         e.preventDefault();
         if (!canSubmit) return;
         const cleanName = name.trim();
+        clearError();
+        setJoining(true);
         const proto = location.protocol === "https:" ? "wss" : "ws";
         connect(`${proto}://${location.host}/ws`);
         join(pin, cleanName);
         setPin(pin);
         audio.play("start");
-        navigate({ to: "/play" });
     };
 
     return (
@@ -68,6 +79,15 @@ export function JoinForm({ initialPin = "", heading, submitClassName = "" }: Joi
             {error && (
                 <p role="alert" className="text-[var(--oq-danger)] text-sm">
                     {error}
+                </p>
+            )}
+            {!canSubmit && (pin.length > 0 || name.length > 0) && (
+                <p className="text-[var(--oq-ink-soft)] text-sm" role="status">
+                    {!name.trim()
+                        ? "Enter your name to join."
+                        : pin.length < 6
+                          ? `Enter all 6 digits of the PIN (${pin.length}/6).`
+                          : ""}
                 </p>
             )}
             <Button

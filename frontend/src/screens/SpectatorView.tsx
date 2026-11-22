@@ -36,11 +36,18 @@ export function SpectatorView() {
                 </div>
                 <div className="text-center">
                     <p className="label-caps mb-2">Projector</p>
-                    <p className="text-[var(--oq-ink-soft)]">Connecting to room {pin}…</p>
+                    <p className="text-[var(--oq-ink-soft)]">
+                        {wsError ? "Projector unavailable" : `Connecting to room ${pin}…`}
+                    </p>
                     {wsError && (
-                        <p role="alert" className="mt-3 text-sm text-[var(--oq-danger)]">
-                            {wsError}
-                        </p>
+                        <>
+                            <p role="alert" className="mt-3 text-sm text-[var(--oq-danger)]">
+                                {wsError}
+                            </p>
+                            <p className="mt-2 text-sm text-[var(--oq-ink-soft)]">
+                                Check the PIN on the projector link and try again.
+                            </p>
+                        </>
                     )}
                     <p className="mt-6 text-sm">
                         <Link to="/" className="underline underline-offset-4">

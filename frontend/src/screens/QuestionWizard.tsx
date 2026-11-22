@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAdminStore, WizardStep } from "../stores/useAdminStore";
 import { ALL_QUESTION_TYPES, QuestionType } from "../types";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Dialog } from "../ui/Dialog";
@@ -451,16 +452,24 @@ export function QuestionWizard() {
                                 {/* Key on content: the host only remounts on
                                             type/id, so statement/config edits need
                                             an explicit remount signal. */}
-                                <QuestionRendererHost
-                                    key={JSON.stringify([
-                                        previewQuestion.type,
-                                        previewQuestion.title,
-                                        previewQuestion.description,
-                                        previewQuestion.config,
-                                    ])}
-                                    question={previewQuestion}
-                                    onResponse={() => {}}
-                                />
+                                <ErrorBoundary
+                                    fallback={
+                                        <p className="text-[var(--oq-ink-soft)] text-sm">
+                                            Preview unavailable for this configuration. Check the fields above.
+                                        </p>
+                                    }
+                                >
+                                    <QuestionRendererHost
+                                        key={JSON.stringify([
+                                            previewQuestion.type,
+                                            previewQuestion.title,
+                                            previewQuestion.description,
+                                            previewQuestion.config,
+                                        ])}
+                                        question={previewQuestion}
+                                        onResponse={() => {}}
+                                    />
+                                </ErrorBoundary>
                             </div>
                         </Card>
                         {validationError && (

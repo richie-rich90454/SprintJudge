@@ -14,6 +14,14 @@ import { adminApi } from "../services/AdminApiService";
 
 type ReviewTab = "podium" | "answers" | "students" | "teams" | "analysis";
 
+// Malformed review payloads must never render "NaN" to a student.
+function whole(value: unknown): number {
+    return Math.round(Number.isFinite(value) ? (value as number) : 0);
+}
+function pct(ratio: unknown): number {
+    return whole(Number.isFinite(ratio) ? (ratio as number) * 100 : 0);
+}
+
 export function ResultView() {
     const [isAdmin, setIsAdmin] = useState(false);
     useEffect(() => {
@@ -242,12 +250,14 @@ export function ResultView() {
                                         >
                                             Leave results
                                         </Button>
-                                        <Button
-                                            variant="primary"
-                                            onClick={() => navigate({ to: "/admin" })}
-                                        >
-                                            New game
-                                        </Button>
+                                        {isAdmin && (
+                                            <Button
+                                                variant="primary"
+                                                onClick={() => navigate({ to: "/admin" })}
+                                            >
+                                                New game
+                                            </Button>
+                                        )}
                                     </div>
                                     {exportError && (
                                         <p role="alert" className="text-sm text-[var(--oq-danger)]">
@@ -336,7 +346,7 @@ export function ResultView() {
                                                                           : "text-[var(--oq-danger)]"
                                                                 }
                                                             >
-                                                                {Math.round(q.correctRate * 100)}%
+                                                                {pct(q.correctRate)}%
                                                             </span>{" "}
                                                             correct
                                                         </p>
@@ -585,19 +595,18 @@ export function ResultView() {
                                             <div className="stat-block border border-[var(--oq-border)] rounded-[8px] p-6 text-center">
                                                 <p className="label-caps mb-1">Avg Score</p>
                                                 <p className="stat-value">
-                                                    {Math.round(review.classStats.avgScore)}
+                                                    {whole(review.classStats.avgScore)}
                                                 </p>
                                             </div>
                                             <div className="stat-block border border-[var(--oq-border)] rounded-[8px] p-6 text-center">
                                                 <p className="label-caps mb-1">Correct Rate</p>
                                                 <p className="stat-value">
-                                                    {review.classStats.totalAttempts > 0
-                                                        ? Math.round(
-                                                              (review.classStats.totalCorrect /
-                                                                  review.classStats.totalAttempts) *
-                                                                  100,
-                                                          )
-                                                        : 0}
+                                                    {pct(
+                                                        review.classStats.totalAttempts > 0
+                                                            ? review.classStats.totalCorrect /
+                                                                review.classStats.totalAttempts
+                                                            : 0,
+                                                    )}
                                                     %
                                                 </p>
                                             </div>
@@ -627,7 +636,7 @@ export function ResultView() {
                                                                       : "text-[var(--oq-danger)]"
                                                             }`}
                                                         >
-                                                            {Math.round(q.correctRate * 100)}%
+                                                            {pct(q.correctRate)}%
                                                         </span>
                                                     </div>
                                                 ))}

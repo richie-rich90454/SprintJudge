@@ -89,7 +89,7 @@ export function QuestionView() {
         setFeedback({
             ok,
             text: isCoding(q.type)
-                ? `${sub.passed}/${sub.totalTests} tests passed, +${sub.score}${aiNote}`
+                ? `${sub.passed ?? 0}/${sub.totalTests ?? 0} tests passed, +${sub.score ?? 0}${aiNote}`
                 : ok
                   ? `+${sub.score} pts`
                   : "Not quite",
@@ -329,7 +329,7 @@ export function QuestionView() {
                                                     {t.name}
                                                 </span>
                                                 <span className="mono font-bold tabular-nums">
-                                                    {t.score.toLocaleString()}
+                                                    {(Number.isFinite(t.score) ? t.score : 0).toLocaleString()}
                                                 </span>
                                             </li>
                                         ))}
@@ -416,6 +416,11 @@ export function QuestionView() {
                             {wsError}
                         </p>
                     )}
+                    <p className="mt-4 text-sm">
+                        <Link to="/join" className="underline underline-offset-4">
+                            Change PIN
+                        </Link>
+                    </p>
                 </div>
             </div>
         );
@@ -491,7 +496,7 @@ export function QuestionView() {
                 }`}
             >
                 <section
-                    className={`min-w-0 ${coding ? "flex flex-col overflow-y-auto" : ""}`}
+                    className={`min-w-0 [overflow-wrap:anywhere] ${coding ? "flex flex-col overflow-y-auto" : ""}`}
                     aria-live="polite"
                 >
                     <p className="label-caps mb-3">Question</p>

@@ -64,7 +64,7 @@ function TeamBoard() {
                                 {t.memberUuids.length === 1 ? "member" : "members"}
                             </span>
                             <span className="mono font-bold tabular-nums">
-                                {t.score.toLocaleString()}
+                                {(Number.isFinite(t.score) ? t.score : 0).toLocaleString()}
                             </span>
                         </li>
                     ))}

@@ -14,6 +14,7 @@ interface AuthProvider {
 
 export function AdminLoginView() {
     const [providers, setProviders] = useState<AuthProvider[]>([]);
+    const loginFailed = new URLSearchParams(window.location.search).has("error");
     useEffect(() => {
         let active = true;
         fetch("/api/public/auth/providers")
@@ -47,9 +48,8 @@ export function AdminLoginView() {
                                 name="username"
                                 placeholder="admin"
                                 autoComplete="username"
-                                aria-required="true"
-                                aria-invalid={false}
-                                aria-describedby="al-error"
+                                required
+                                aria-invalid={loginFailed}
                             />
                             <label className="label-caps block mb-1" htmlFor="al-pass">
                                 Password
@@ -60,15 +60,14 @@ export function AdminLoginView() {
                                 type="password"
                                 placeholder="password"
                                 autoComplete="current-password"
-                                aria-required={true}
-                                aria-invalid={false}
-                                aria-describedby="al-error"
+                                required
+                                aria-invalid={loginFailed}
                             />
-                            <p
-                                id="al-error"
-                                role="alert"
-                                className="hidden text-[var(--oq-danger)] text-sm"
-                            />
+                            {loginFailed && (
+                                <p id="al-error" role="alert" className="text-[var(--oq-danger)] text-sm">
+                                    Wrong username or password. Please try again.
+                                </p>
+                            )}
                             <Button type="submit" variant="primary" className="w-full">
                                 Sign in
                             </Button>

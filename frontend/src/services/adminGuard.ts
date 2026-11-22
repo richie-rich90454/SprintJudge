@@ -14,7 +14,11 @@ import { adminApi } from "./AdminApiService";
 export async function requireAdmin(): Promise<void> {
     try {
         await adminApi.getSettings();
-    } catch {
-        throw redirect({ to: "/admin/login" });
+    } catch (error) {
+        const status = (error as { response?: { status?: number } })?.response?.status;
+        if (status === 401 || status === 403) throw redirect({ to: "/admin/login" });
+        // A backend outage must not silently log a valid admin out. Let the
+        // error boundary show a retry prompt for transient failures.
+        throw new Error("The admin service is unavailable. Reload to try again.");
     }
 }
