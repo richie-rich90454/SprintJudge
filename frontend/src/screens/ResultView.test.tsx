@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -36,6 +37,7 @@ vi.mock("../stores/useUIStore", () => ({
 
 vi.mock("@tanstack/react-router", () => ({
     useNavigate: () => navigateMock,
+    Link: ({ children, to }: { children: ReactNode; to: string }) => <a href={to}>{children}</a>,
 }));
 
 vi.mock("../motion/useStageMotion", () => ({
@@ -108,7 +110,7 @@ describe("ResultView", () => {
         const practiceBtn = await screen.findByRole("button", { name: /Practice next/i });
         fireEvent.click(practiceBtn);
         await waitFor(() =>
-            expect(screen.getByText("Practice quiz ready: p1")).toBeInTheDocument(),
+            expect(screen.getByRole("link", { name: /Open it in the dashboard/i })).toBeInTheDocument(),
         );
     });
 

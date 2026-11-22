@@ -59,36 +59,56 @@ class PublicControllerTest {
 		return new GameSession("s", "q1", pin, "host", status, "STANDARD", 0, null, null, null, Instant.now());
 	}
 
+	private HttpServletRequest http() {
+		return http("203.0.113.7");
+	}
+
+	private HttpServletRequest http(String ip) {
+		HttpServletRequest req = mock(HttpServletRequest.class);
+		org.mockito.Mockito.lenient().when(req.getRemoteAddr()).thenReturn(ip);
+		return req;
+	}
+
 	@Test
 	void noPinListsNothing() {
-		assertTrue(controller.listQuizzes(null).isEmpty());
-		assertTrue(controller.listQuizzes("  ").isEmpty());
+		assertTrue(controller.listQuizzes(null, http()).isEmpty());
+		assertTrue(controller.listQuizzes("  ", http()).isEmpty());
 	}
 
 	@Test
 	void unknownPinListsNothing() {
 		when(sessionRepository.findByPin("000000")).thenReturn(Optional.empty());
-		assertTrue(controller.listQuizzes("000000").isEmpty());
+		assertTrue(controller.listQuizzes("000000", http()).isEmpty());
 	}
 
 	@Test
 	void endedPinListsNothing() {
 		when(sessionRepository.findByPin("111111")).thenReturn(Optional.of(session("111111", "ENDED")));
-		assertTrue(controller.listQuizzes("111111").isEmpty());
+		assertTrue(controller.listQuizzes("111111", http()).isEmpty());
+	}
+
+	@Test
+	void pinLookupIsRateLimitedPerIp() {
+		HttpServletRequest req = http("198.51.100.23");
+		when(sessionRepository.findByPin("333333")).thenReturn(Optional.empty());
+		for (int i = 0; i < 10; i++)
+			assertTrue(controller.listQuizzes("333333", req).isEmpty());
+		assertThrows(org.springframework.web.server.ResponseStatusException.class,
+				() -> controller.listQuizzes("333333", req));
 	}
 
 	@Test
 	void livePinReturnsItsQuiz() {
 		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456", "LOBBY")));
 		when(quizRepository.findById("q1")).thenReturn(Optional.of(new Quiz("q1", "T", null, null, null, false)));
-		assertEquals(1, controller.listQuizzes("123456").size());
+		assertEquals(1, controller.listQuizzes("123456", http()).size());
 	}
 
 	@Test
 	void livePinWithMissingQuizListsNothing() {
 		when(sessionRepository.findByPin("222222")).thenReturn(Optional.of(session("222222", "ACTIVE")));
 		when(quizRepository.findById("q1")).thenReturn(Optional.empty());
-		assertTrue(controller.listQuizzes(" 222222 ").isEmpty());
+		assertTrue(controller.listQuizzes(" 222222 ", http()).isEmpty());
 	}
 
 	private Quiz quiz(String id, boolean template) {

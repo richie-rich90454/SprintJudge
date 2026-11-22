@@ -477,6 +477,17 @@ public class GameRoom {
 		board.remove(uuid);
 	}
 
+	/** Session id of the seat a fresh rejoin would take over, if any. */
+	public synchronized String supersededSessionId(String token) {
+		if (token == null)
+			return null;
+		for (Player p : players.values()) {
+			if (!p.isConnected() && token.equals(p.getToken()))
+				return p.getSessionId();
+		}
+		return null;
+	}
+
 	public synchronized Player reclaim(String token, String sessionId) {
 		if (token == null)
 			return null;

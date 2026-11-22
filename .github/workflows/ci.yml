@@ -192,6 +192,21 @@ jobs:
           chmod +x osv-scanner_linux_amd64
           ./osv-scanner_linux_amd64 scan source --lockfile=pom.xml .
 
+  bank-quality:
+    name: Question bank quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Bank schema, volume and unit floors
+        run: |
+          node scripts/check-bank.mjs
+          node scripts/check-volume.mjs
+          node scripts/check-unit-volume.mjs
+
   deploy-config:
     name: Deploy configuration
     runs-on: ubuntu-latest

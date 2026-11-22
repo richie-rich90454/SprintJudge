@@ -51,17 +51,20 @@ public class GameWebSocket {
 		// Auth comes from the staged handshake (form-login session); the container
 		// principal is a fallback for tests and non-standard containers.
 		boolean authed;
+		boolean admin = false;
 		String addr;
 		if (config instanceof jakarta.websocket.server.ServerEndpointConfig) {
 			jakarta.websocket.server.ServerEndpointConfig sec = (jakarta.websocket.server.ServerEndpointConfig) config;
 			SecureHandshakeConfigurator.StagedConnection staged = SecureHandshakeConfigurator.consumeStaged(sec);
 			addr = staged.getIp();
 			authed = staged.isAuthed() || session.getUserPrincipal() != null;
+			admin = staged.isAdmin();
 		} else {
 			authed = session.getUserPrincipal() != null;
 			addr = "unresolved";
 		}
 		session.getUserProperties().put(AUTHED_KEY, authed);
+		session.getUserProperties().put(ADMIN_KEY, admin);
 		session.getUserProperties().put(IP_KEY, addr);
 		// Without registration the fan-out map stays empty and every broadcast
 		// (QUESTION_START, ROOM_STATE, LEADERBOARD_DELTA) is silently dropped.

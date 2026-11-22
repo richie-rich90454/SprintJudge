@@ -80,9 +80,9 @@ class SecureHandshakeConfiguratorExtraTest {
 		org.mockito.Mockito.when(sec.getUserProperties()).thenReturn(props);
 		new SecureHandshakeConfigurator().modifyHandshake(sec, request,
 				org.mockito.Mockito.mock(jakarta.websocket.HandshakeResponse.class));
-		assertEquals(Boolean.TRUE, props.get(SecureHandshakeConfigurator.ADMIN));
 		com.sprintjudge.websocket.SecureHandshakeConfigurator.StagedConnection staged = com.sprintjudge.websocket.SecureHandshakeConfigurator
 				.consumeStaged(sec);
+		assertTrue(staged.isAdmin());
 		assertEquals("1.2.3.4", staged.getIp());
 	}
 

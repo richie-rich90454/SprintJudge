@@ -219,10 +219,19 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 			}
 			// Rejoin: reclaim a disconnected seat by token so scores survive.
 			if (rejoinToken != null) {
+				String superseded = room.supersededSessionId(rejoinToken);
 				Player reclaimed = room.reclaim(rejoinToken, sessionId);
 				if (reclaimed != null) {
 					room.touch();
 					broadcastLeaderboard(pin);
+					if (superseded != null && !superseded.equals(sessionId)) {
+						// The old tab can still have a live socket. Tell it why it
+						// is being disconnected, then drop it; its onClose guard
+						// keeps it from evicting the newly reclaimed seat.
+						ws.send(superseded, new com.sprintjudge.domain.dto.ErrorMessage("ERROR",
+								"This game is open in another tab. Close that tab and reload to continue."));
+						ws.close(superseded);
+					}
 					return reclaimed;
 				}
 			}
@@ -291,6 +300,11 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
 	public void startQuestion(String pin) {
 		GameRoom room = require(pin);
+		// Validate the quiz before flipping to ACTIVE: an empty quiz must not
+		// wedge the room in ACTIVE with no question id and no timer.
+		List<Question> questions = questionRepository.findByQuiz(room.getQuizId());
+		if (questions == null || questions.isEmpty())
+			throw new IllegalStateException("Quiz has no questions");
 		synchronized (room) {
 			// Atomic LOBBY/REVIEW -> ACTIVE flip: a racing timer expiry must
 			// not double-fire QUESTION_START for the same round.
@@ -298,9 +312,6 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				return;
 			room.setStatus("ACTIVE");
 		}
-		List<Question> questions = questionRepository.findByQuiz(room.getQuizId());
-		if (questions.isEmpty())
-			throw new IllegalStateException("Quiz has no questions");
 		if (room.getCurrentQuestionIndex() >= questions.size()) {
 			endGame(pin);
 			return;
@@ -903,10 +914,12 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		String status;
 		String mode;
 		long end;
+		String questionId;
 		synchronized (room) {
 			status = room.getStatus();
 			mode = room.getGameMode();
 			end = room.getCurrentQuestionEndEpochMs();
+			questionId = room.getCurrentQuestionId();
 		}
 		if (!"ACTIVE".equals(status))
 			return;
@@ -928,11 +941,12 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 			});
 			return;
 		}
+		final String firedQuestionId = questionId;
 		sweeper.execute(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					transitionToReview(pin);
+					transitionToReview(pin, firedQuestionId);
 				} catch (RuntimeException e) {
 					log.warn("Async round expiry failed for room {}", pin, e);
 				}
@@ -941,11 +955,18 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 	}
 
 	private void transitionToReview(String pin) {
+		transitionToReview(pin, null);
+	}
+
+	/** expectedQuestionId guards against a stale timer revealing a newer round. */
+	private void transitionToReview(String pin, String expectedQuestionId) {
 		GameRoom room = require(pin);
 		synchronized (room) {
 			// Atomic ACTIVE -> REVIEW flip: timer expiry and force-submit race
 			// here, and a double transition would double-publish results.
 			if (!"ACTIVE".equals(room.getStatus()))
+				return;
+			if (expectedQuestionId != null && !expectedQuestionId.equals(room.getCurrentQuestionId()))
 				return;
 			room.setStatus("REVIEW");
 		}

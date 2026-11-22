@@ -56,12 +56,14 @@ class GameRoomTest {
 	void reclaimFlow() {
 		GameRoom r = new GameRoom("s", "q", "pin", "ACTIVE", 10);
 		assertNull(r.reclaim(null, "s"));
+		assertNull(r.supersededSessionId(null));
 		// a connected player forces the reclaim loop's !connected() short-circuit
 		// branch
 		r.addPlayer(new Player("u0", "z", 0, "ss", true, "othertok"));
 		// a disconnected player with a non-matching token exercises the && false branch
 		r.addPlayer(new Player("ux", "x", 0, "ss", false, "wrongtok"));
 		r.addPlayer(new Player("u1", "a", 0, "old", false, "tok"));
+		assertEquals("old", r.supersededSessionId("tok"));
 		Player reclaimed = r.reclaim("tok", "news");
 		assertNotNull(reclaimed);
 		assertTrue(reclaimed.isConnected());
@@ -71,6 +73,7 @@ class GameRoomTest {
 		List<Player> list = r.getPlayers();
 		assertEquals(3, list.size());
 		assertNull(r.reclaim("wrong", "x"));
+		assertNull(r.supersededSessionId("wrong"));
 	}
 
 	@Test

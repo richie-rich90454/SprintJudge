@@ -83,11 +83,13 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 	private static final class Staged {
 		private String ip;
 		private boolean authed;
+		private boolean admin;
 		private long nanos;
 
-		public Staged(String ip, boolean authed, long nanos) {
+		public Staged(String ip, boolean authed, boolean admin, long nanos) {
 			this.ip = ip;
 			this.authed = authed;
+			this.admin = admin;
 			this.nanos = nanos;
 		}
 
@@ -97,6 +99,10 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 
 		public boolean isAuthed() {
 			return authed;
+		}
+
+		public boolean isAdmin() {
+			return admin;
 		}
 
 		public long getNanos() {
@@ -152,22 +158,25 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 				&& !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken);
 		boolean admin = authenticated
 				&& auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
-		staged.put(token, new Staged(remoteAddr, authenticated, System.nanoTime()));
+		// Admin travels with the per-handshake staged entry, never on the shared
+		// ServerEndpointConfig user-properties map (which is reused per endpoint).
+		staged.put(token, new Staged(remoteAddr, authenticated, admin, System.nanoTime()));
 		sec.getUserProperties().put(REMOTE_ADDR, token);
-		sec.getUserProperties().put(ADMIN, admin);
 	}
 
 	public static final class StagedConnection {
 		private String ip;
 		private boolean authed;
+		private boolean admin;
 
 		@SuppressWarnings("all")
 		public StagedConnection() {
 		}
 
-		public StagedConnection(String ip, boolean authed) {
+		public StagedConnection(String ip, boolean authed, boolean admin) {
 			this.ip = ip;
 			this.authed = authed;
+			this.admin = admin;
 		}
 
 		public String getIp() {
@@ -185,6 +194,10 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 		public void setAuthed(boolean authed) {
 			this.authed = authed;
 		}
+
+		public boolean isAdmin() {
+			return admin;
+		}
 	}
 
 	/**
@@ -194,11 +207,11 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 	public static StagedConnection consumeStaged(ServerEndpointConfig config) {
 		Object token = config.getUserProperties().get(REMOTE_ADDR);
 		if (token == null)
-			return new StagedConnection("unresolved", false);
+			return new StagedConnection("unresolved", false, false);
 		Staged s = staged.remove(token.toString());
 		if (s == null)
-			return new StagedConnection("unresolved", false);
-		return new StagedConnection(s.getIp() != null ? s.getIp() : "unresolved", s.isAuthed());
+			return new StagedConnection("unresolved", false, false);
+		return new StagedConnection(s.getIp() != null ? s.getIp() : "unresolved", s.isAuthed(), s.isAdmin());
 	}
 
 	/**

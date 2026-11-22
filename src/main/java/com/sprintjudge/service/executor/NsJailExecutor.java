@@ -48,8 +48,8 @@ public class NsJailExecutor extends AbstractScriptExecutor {
 				// jailed judge fails on invisible files. Tmpfs /tmp keeps
 				// compiler temp files off the host disk.
 				"--bindmount", runDir.toString() + ":" + runDir.toString(), "-R", scriptsDir.toString(), "--tmpfsmount",
-				"/tmp", "--", "bash", scriptPath(language).toString(), sourceFile.toString(), inputFile.toString(),
-				runDir.toString()));
+				"/tmp", "--", "bash", scriptPath(language).toAbsolutePath().toString(), sourceFile.toString(),
+				inputFile.toString(), runDir.toString()));
 		return cmd;
 	}
 }

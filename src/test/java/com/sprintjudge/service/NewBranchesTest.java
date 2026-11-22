@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -91,6 +92,77 @@ class NewBranchesTest {
 
 		mgr.leave("123456", "p1", "new-session");
 		assertEquals(false, room.getPlayer("p1").isConnected());
+	}
+
+	@Test
+	void staleTimerDoesNotRevealANewerQuestion() throws Exception {
+		GameRoomManager mgr = manager();
+		GameRoom room = new GameRoom("s", "q", "123456", "ACTIVE", 10);
+		room.setCurrentQuestionId("q2");
+		registry(mgr).put(123456, room);
+		java.lang.reflect.Method m = GameRoomManager.class.getDeclaredMethod("transitionToReview", String.class,
+				String.class);
+		m.setAccessible(true);
+		m.invoke(mgr, "123456", "q1");
+		assertEquals("ACTIVE", room.getStatus());
+	}
+
+	@Test
+	void startQuestionWithNullQuestionListFailsWithoutFlippingActive() {
+		GameRoomManager mgr = manager();
+		GameRoom room = new GameRoom("s", "q", "123456", "LOBBY", 10);
+		registry(mgr).put(123456, room);
+		when(questionRepository.findByQuiz("q")).thenReturn(null);
+		assertThrows(IllegalStateException.class, () -> mgr.startQuestion("123456"));
+		assertEquals("LOBBY", room.getStatus());
+	}
+
+	@Test
+	void rejoinNotifiesAndClosesTheSupersededTab() {
+		when(sessionRepository.findByPin("123456"))
+				.thenReturn(java.util.Optional.of(new com.sprintjudge.domain.models.GameSession("sid", "q", "123456",
+						"host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now())));
+		GameRoomManager mgr = manager();
+		Player p = mgr.join("123456", "Alice", "old-session", "player", null);
+		registry(mgr).get(123456).softRemove(p.getUuid());
+
+		Player reclaimed = mgr.join("123456", "Alice", "new-session", "player", p.getToken());
+		assertEquals(p.getUuid(), reclaimed.getUuid());
+		org.mockito.Mockito.verify(ws).send(org.mockito.ArgumentMatchers.eq("old-session"),
+				org.mockito.ArgumentMatchers.any());
+		org.mockito.Mockito.verify(ws).close("old-session");
+	}
+
+	@Test
+	void rejoinOfSeatWithNoRecordedSessionDoesNotNotify() {
+		when(sessionRepository.findByPin("123456"))
+				.thenReturn(java.util.Optional.of(new com.sprintjudge.domain.models.GameSession("sid", "q", "123456",
+						"host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now())));
+		GameRoomManager mgr = manager();
+		Player p = mgr.join("123456", "Alice", "session-a", "player", null);
+		GameRoom room = registry(mgr).get(123456);
+		room.hardRemove(p.getUuid());
+		room.addPlayer(new Player(p.getUuid(), "Alice", 0, null, false, p.getToken()));
+
+		Player reclaimed = mgr.join("123456", "Alice", "session-b", "player", p.getToken());
+		assertEquals(p.getUuid(), reclaimed.getUuid());
+		org.mockito.Mockito.verify(ws, org.mockito.Mockito.never()).send(org.mockito.ArgumentMatchers.anyString(),
+				org.mockito.ArgumentMatchers.any());
+	}
+
+	@Test
+	void rejoinWithSameSessionDoesNotNotifyOrClose() {
+		when(sessionRepository.findByPin("123456"))
+				.thenReturn(java.util.Optional.of(new com.sprintjudge.domain.models.GameSession("sid", "q", "123456",
+						"host", "LOBBY", "STANDARD", 0, null, null, null, Instant.now())));
+		GameRoomManager mgr = manager();
+		Player p = mgr.join("123456", "Alice", "same-session", "player", null);
+		registry(mgr).get(123456).softRemove(p.getUuid());
+
+		mgr.join("123456", "Alice", "same-session", "player", p.getToken());
+		org.mockito.Mockito.verify(ws, org.mockito.Mockito.never()).send(org.mockito.ArgumentMatchers.anyString(),
+				org.mockito.ArgumentMatchers.any());
+		org.mockito.Mockito.verify(ws, org.mockito.Mockito.never()).close(org.mockito.ArgumentMatchers.anyString());
 	}
 
 	@Test

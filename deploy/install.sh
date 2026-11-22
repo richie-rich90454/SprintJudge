@@ -66,6 +66,9 @@ sed "s/127\.0\.0\.1:8080/127.0.0.1:${PORT}/g" deploy/nginx-sprintjudge-http.conf
     > /etc/nginx/sites-available/sprintjudge
 chmod 0644 /etc/nginx/sites-available/sprintjudge
 install -m 0644 deploy/sprintjudge.logrotate /etc/logrotate.d/sprintjudge
+# Ubuntu's default vhost also claims default_server on :80; two of them make
+# `nginx -t` fail and abort the whole install.
+rm -f /etc/nginx/sites-enabled/default
 ln -sfn /etc/nginx/sites-available/sprintjudge /etc/nginx/sites-enabled/sprintjudge
 
 nginx -t

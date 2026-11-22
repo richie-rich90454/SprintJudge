@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Tabs, TabPanel } from "../ui/Tabs";
@@ -46,6 +46,26 @@ export function ResultView() {
     const leaderboard = useGameStore((s) => s.leaderboard);
     const review = useGameStore((s) => s.review) as GameReview | null;
     const wsError = useGameStore((s) => s.error);
+    // One stable ordering for anonymous "Player N" labels in every tab.
+    // Sorting independently per tab let the same student get different numbers.
+    const sortedPlayers = useMemo(
+        () => [...(review?.players ?? [])].sort((a, b) => b.totalScore - a.totalScore),
+        [review],
+    );
+    // GAME_REVIEW is a one-shot push: restore the last review on reload or deep
+    // link so /results is not a permanent "Review unavailable" dead end.
+    useEffect(() => {
+        if (review) return;
+        try {
+            const raw = sessionStorage.getItem("sprintjudge_last_review");
+            if (!raw) return;
+            const data = JSON.parse(raw) as { review?: GameReview; leaderboard?: unknown[] };
+            if (data.review)
+                useGameStore.setState({ review: data.review, leaderboard: data.leaderboard ?? [] } as never);
+        } catch {
+            /* ignore malformed cache */
+        }
+    }, [review]);
     const navigate = useNavigate();
     const [tab, setTab] = useState<ReviewTab>("podium");
     const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
@@ -277,7 +297,13 @@ export function ResultView() {
                                     )}
                                     {practiceQuizId && (
                                         <p className="text-sm text-[var(--oq-muted)]">
-                                            Practice quiz ready: {practiceQuizId}
+                                            Practice quiz ready.{" "}
+                                            <Link
+                                                to="/admin"
+                                                className="underline underline-offset-4"
+                                            >
+                                                Open it in the dashboard
+                                            </Link>
                                         </p>
                                     )}
                                 </div>
@@ -374,7 +400,7 @@ export function ResultView() {
                                                 )}
                                                 {selectedQuestion === q.questionId && (
                                                     <div className="mt-3 border-t border-[var(--oq-border)] pt-3 flex flex-col gap-2">
-                                                        {(review.players ?? []).map((p, pi) => {
+                                                        {sortedPlayers.map((p, pi) => {
                                                             const a = p.answers.find(
                                                                 (x) =>
                                                                     x.questionId === q.questionId,
@@ -460,9 +486,7 @@ export function ResultView() {
                                     </p>
                                 ) : (
                                     <div className="flex flex-col gap-4">
-                                        {[...review.players]
-                                            .sort((a, b) => b.totalScore - a.totalScore)
-                                            .map((p, i) => (
+                                        {sortedPlayers.map((p, i) => (
                                                 <button
                                                     key={p.playerUuid}
                                                     type="button"

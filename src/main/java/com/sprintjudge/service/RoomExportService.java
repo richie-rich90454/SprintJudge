@@ -87,7 +87,11 @@ public class RoomExportService {
 
 	private static String escape(String value) {
 		String text = value == null ? "" : value;
-		if (text.contains(",") || text.contains("\"") || text.contains("\n")) {
+		// A leading formula marker is executed by Excel when a teacher opens the
+		// export; prefix it with a quote so it stays literal text.
+		if (!text.isEmpty() && "=+-@\t\r".indexOf(text.charAt(0)) >= 0)
+			text = "'" + text;
+		if (text.contains(",") || text.contains("\"") || text.contains("\n") || text.contains("\r")) {
 			return "\"" + text.replace("\"", "\"\"") + "\"";
 		}
 		return text;

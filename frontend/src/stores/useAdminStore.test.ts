@@ -112,6 +112,12 @@ describe("useAdminStore wizard", () => {
         useAdminStore.getState().openWizard("quiz-1");
         useAdminStore.getState().setDraft({ config: { options: ["a", "b"] } });
         useAdminStore.getState().setType("NUMERIC");
+        expect(useAdminStore.getState().draft.config).toEqual({ answer: 0, tolerance: 0 });
+    });
+
+    test("unknown question type gets an empty config", () => {
+        useAdminStore.setState({ activeQuizId: "qz", draft: {} });
+        useAdminStore.getState().setType("UNKNOWN" as never);
         expect(useAdminStore.getState().draft.config).toEqual({});
     });
 
@@ -289,7 +295,7 @@ describe("useAdminStore wizard workflows", () => {
         const d = useAdminStore.getState().draft;
         expect(d.title).toBe("T");
         expect(d.description).toBe("D");
-        expect(d.config).toEqual({});
+        expect(d.config).toEqual({ answer: 0, tolerance: 0 });
         expect(d.questionType).toBe("NUMERIC");
     });
 

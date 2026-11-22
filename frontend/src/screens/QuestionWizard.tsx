@@ -333,8 +333,9 @@ export function QuestionWizard() {
         setSaving(true);
         try {
             await saveQuestion();
-        } catch {
-            setValidationError("Save failed - are you still logged in?");
+        } catch (error) {
+            const detail = (error as { response?: { data?: { error?: string } } })?.response?.data?.error;
+            setValidationError(detail ? `Save failed: ${detail}` : "Save failed. Check the fields and your sign-in, then retry.");
         } finally {
             setSaving(false);
         }

@@ -65,6 +65,23 @@ class RoomExportServiceTest {
 	}
 
 	@Test
+	void csvNeutralisesLeadingFormulaMarkers() {
+		Submission formula = new Submission("id", "s1", "=cmd|'/c calc'!A1", "Ann", "'+name", "{}", 1, true, "", 1,
+				Instant.EPOCH);
+		when(submissions.findBySession("s1")).thenReturn(List.of(formula));
+		assertEquals("playerUuid,questionId,scoreEarned,correct,attemptCount\n" + "'+name,'=cmd|'/c calc'!A1,1,true,1",
+				exporter.exportCsv("s1"));
+	}
+
+	@Test
+	void csvEscapesCarriageReturns() {
+		Submission lined = new Submission("id", "s1", "q1", "Ann", "Lee\rAnn", "{}", 1, true, "", 1, Instant.EPOCH);
+		when(submissions.findBySession("s1")).thenReturn(List.of(lined));
+		assertEquals("playerUuid,questionId,scoreEarned,correct,attemptCount\n\"Lee\rAnn\",q1,1,true,1",
+				exporter.exportCsv("s1"));
+	}
+
+	@Test
 	void csvEscapesQuotesAndNewlinesThatCarryNoComma() {
 		Submission quoted = new Submission("id", "s1", "q1", "Ann", "Ann \"Ace\"", "{}", 1, true, "", 1, Instant.EPOCH);
 		Submission lined = new Submission("id2", "s1", "q2", "Lee", "Lee\nAnn", "{}", 2, false, "", 1, Instant.EPOCH);

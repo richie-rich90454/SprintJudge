@@ -91,9 +91,13 @@ public class SubmissionRepository {
 		org.jooq.BatchBindStep step = dsl.batch(stmt);
 		for (Submission s : batch) {
 			String id = s.getId() != null ? s.getId() : Ids.uuid();
-			long now = Instant.now().toEpochMilli();
+			// Preserve the offer-time timestamp: generating one per flush gives
+			// every submission in a batch the same value and makes "latest answer"
+			// ordering depend on a random UUID tie-break.
+			Instant offered = s.getSubmittedAt();
+			long at = offered == null ? Instant.now().toEpochMilli() : offered.toEpochMilli();
 			step.bind(id, s.getGameSessionId(), s.getQuestionId(), s.getPlayerName(), s.getPlayerUuid(),
-					s.getResponseData(), s.getScoreEarned(), s.isCorrect(), s.getJudgeLog(), s.getAttemptCount(), now);
+					s.getResponseData(), s.getScoreEarned(), s.isCorrect(), s.getJudgeLog(), s.getAttemptCount(), at);
 		}
 		step.execute();
 	}

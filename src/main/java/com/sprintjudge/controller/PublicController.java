@@ -128,9 +128,14 @@ public class PublicController {
 	 * anonymously - without a live PIN there is nothing to see.
 	 */
 	@GetMapping("/quizzes")
-	public List<Quiz> listQuizzes(@RequestParam(value = "pin", required = false) String pin) {
+	public List<Quiz> listQuizzes(@RequestParam(value = "pin", required = false) String pin, HttpServletRequest http) {
 		if (pin == null || pin.isBlank())
 			return List.of();
+		// Same per-IP budget as /practice: without it this endpoint is a free
+		// PIN oracle for brute-forcing live rooms before spending JOIN attempts.
+		if (overLimit(practiceWindow, clientIp(http), PRACTICE_LIMIT_PER_MIN))
+			throw new org.springframework.web.server.ResponseStatusException(
+					org.springframework.http.HttpStatus.TOO_MANY_REQUESTS, "rate_limited");
 		java.util.Optional<GameSession> sessionOpt = sessionRepository.findByPin(pin.trim());
 		if (!sessionOpt.isPresent())
 			return List.of();

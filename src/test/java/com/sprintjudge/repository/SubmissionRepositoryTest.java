@@ -65,6 +65,14 @@ class SubmissionRepositoryTest {
 	}
 
 	@Test
+	void saveAllWithoutSubmittedAtUsesCurrentTime() {
+		Submission s = sub("no-time", "s9", "q9", "u9", 1, true);
+		s.setSubmittedAt(null);
+		repo.saveAll(List.of(s));
+		assertEquals(1, repo.findBySession("s9").size());
+	}
+
+	@Test
 	void findBestFound() {
 		repo.save(sub("a", "s1", "q1", "u1", 5, true));
 		repo.save(sub("b", "s1", "q1", "u1", 9, true));

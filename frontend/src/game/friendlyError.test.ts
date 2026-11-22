@@ -25,6 +25,8 @@ describe("friendlyError", () => {
         expect(friendlyError("rejoin token expired")).toMatch(/session changed/);
         expect(friendlyError("The host left the game. Ask them to reopen the host screen to continue."))
             .toMatch(/host left/);
+        expect(friendlyError("This game is open in another tab. Close that tab and reload to continue."))
+            .toMatch(/another tab/);
     });
 
     test("keeps short safe messages verbatim", () => {

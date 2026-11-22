@@ -166,14 +166,24 @@ function checkQuestion(file, q, index) {
   if (q.stimulus && (typeof q.stimulus.license !== "string" || q.stimulus.license.length === 0)) {
     err(file, id, "stimulus needs a license");
   }
-  const text = `${q.stem} ${q.explanation} ${(q.options ?? []).map((o) => o.text).join(" ")}`;
+  const text = `${q.stem} ${q.explanation} ${q.hint ?? ""} ${q.stimulus?.body ?? ""} ` +
+    `${(q.options ?? []).map((o) => `${o.text} ${o.misconception ?? ""}`).join(" ")}`;
   for (const re of BRAND) if (re.test(text)) err(file, id, "branded program name in content");
   if (AP_WORD.test(text)) err(file, id, "standalone branded initialism in content");
   // Only unambiguous unfinished-content markers are hard errors. "todo" was
   // removed (matches Spanish "todos los domingos") and "placeholder(s)" was
   // removed (legitimate math/CS subject matter, e.g. zero coefficients acting
   // as placeholders). What remains reliably indicates an unfinished item.
-  if (/(lorem ipsum|\bfixme\b|\bquestion \d+ about\b)/i.test(text)) err(file, id, "placeholder text");
+  if (/(lorem ipsum|\bfixme\b|\bquestion \d+ about\b|\(review needed\)|\bI set [A-D]\.|Error\. Leave|need only one correct|I.ll edit mentally|final output uses corrected|The correct answer is [A-D])/i.test(text)) {
+    err(file, id, "placeholder or author-scratch text");
+  }
+  // A self-correction that names a different key than the stored answer means
+  // students are graded against an answer the author rejected.
+  const scratchKey = text.match(/The correct answer is ([A-D])/i)?.[1];
+  const storedKey = q.answer?.correctId;
+  if (scratchKey && storedKey && scratchKey.toUpperCase() !== String(storedKey).toUpperCase()) {
+    err(file, id, "explanation contradicts the answer key");
+  }
   const key = normStem(typeof q.stem === "string" ? q.stem : `__badstem__${q.id ?? index}`);
   // Stem uniqueness is an editorial goal (variety), not a schema contract;
   // identical stems still have unique ids and play correctly. Advisory only.

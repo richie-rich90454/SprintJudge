@@ -20,6 +20,8 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
         "Your session changed. Reload the page to rejoin."],
     [/host left|host (?:has )?(?:left|disconnected)/i,
         "The host left the game. Ask them to reopen the host screen to continue."],
+    [/another tab/i,
+        "This game is open in another tab. Close that tab and reload to continue."],
 ];
 
 const FALLBACK = "Something went wrong. Please try again.";

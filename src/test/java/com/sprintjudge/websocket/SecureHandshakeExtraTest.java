@@ -69,10 +69,14 @@ class SecureHandshakeExtraTest {
 	}
 
 	private Object staged(String ip, boolean authed, long nanos) throws Exception {
+		return staged(ip, authed, false, nanos);
+	}
+
+	private Object staged(String ip, boolean authed, boolean admin, long nanos) throws Exception {
 		Class<?> c = Class.forName("com.sprintjudge.websocket.SecureHandshakeConfigurator$Staged");
-		Constructor<?> ctor = c.getDeclaredConstructor(String.class, boolean.class, long.class);
+		Constructor<?> ctor = c.getDeclaredConstructor(String.class, boolean.class, boolean.class, long.class);
 		ctor.setAccessible(true);
-		return ctor.newInstance(ip, authed, nanos);
+		return ctor.newInstance(ip, authed, admin, nanos);
 	}
 
 	@Test
