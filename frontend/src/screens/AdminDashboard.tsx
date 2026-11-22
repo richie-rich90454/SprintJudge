@@ -41,6 +41,7 @@ function SettingsTab() {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
+    const [settingsError, setSettingsError] = useState(false);
     const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -56,7 +57,10 @@ function SettingsTab() {
                 setSettings(s);
                 setLoading(false);
             })
-            .catch(() => setLoading(false));
+            .catch(() => {
+                setSettingsError(true);
+                setLoading(false);
+            });
     }, []);
 
     const handleSave = async () => {
@@ -92,7 +96,14 @@ function SettingsTab() {
     return (
         <div className="tab-panel" key="settings">
             <h2 className="text-lg font-extrabold mb-4">Settings</h2>
-            {Object.keys(settings).length === 0 ? (
+            {settingsError ? (
+                <div className="flex flex-col items-start gap-3">
+                    <p role="alert" className="text-[var(--oq-danger)] text-sm">
+                        Could not load settings. Check the server and try again.
+                    </p>
+                    <Button variant="secondary" onClick={() => window.location.reload()}>Retry</Button>
+                </div>
+            ) : Object.keys(settings).length === 0 ? (
                 <p className="text-[var(--oq-ink-soft)]">No settings configured.</p>
             ) : (
                 <Card className="max-w-lg p-6">
@@ -524,11 +535,16 @@ export function AdminDashboard() {
                                             <Button
                                                 variant="primary"
                                                 onClick={async () => {
-                                                    if (title.trim()) {
+                                                    if (!title.trim()) return;
+                                                    try {
                                                         await createQuiz(title.trim(), desc.trim());
                                                         setTitle("");
                                                         setDesc("");
                                                         setShowCreate(false);
+                                                    } catch (e) {
+                                                        setBannerError(
+                                                            `Could not create the quiz: ${(e as Error)?.message ?? "unknown error"}`,
+                                                        );
                                                     }
                                                 }}
                                             >
@@ -560,7 +576,9 @@ export function AdminDashboard() {
                                                         variant="secondary"
                                                         size="sm"
                                                         onClick={() => {
-                                                            loadQuestions(q.id);
+                                                            loadQuestions(q.id).catch(() =>
+                                                                setBannerError("Could not load questions. Try again."),
+                                                            );
                                                             setTab("questions");
                                                         }}
                                                     >
@@ -617,7 +635,10 @@ export function AdminDashboard() {
                                     <select
                                         value={activeQuizId ?? ""}
                                         onChange={(e) => {
-                                            if (e.target.value) loadQuestions(e.target.value);
+                                            if (e.target.value)
+                                                loadQuestions(e.target.value).catch(() =>
+                                                    setBannerError("Could not load questions. Try again."),
+                                                );
                                         }}
                                         aria-label="Select quiz set"
                                         className="input-underline text-sm max-w-xs"
