@@ -94,6 +94,16 @@ class NewBranchesTest {
 	}
 
 	@Test
+	void hostLeavingAnEndedRoomDoesNotBroadcastNotice() {
+		GameRoomManager mgr = manager();
+		GameRoom room = new GameRoom("s", "q", "123456", "ENDED", 10);
+		room.setHostUuid("host-1");
+		registry(mgr).put(123456, room);
+		mgr.leave("123456", "host-1", "sess");
+		assertEquals(null, room.getHostUuid());
+	}
+
+	@Test
 	void nextQuestionAfterGameEndIsNoOp() {
 		GameRoomManager mgr = manager();
 		GameRoom room = new GameRoom("s", "q", "123456", "ENDED", 10);

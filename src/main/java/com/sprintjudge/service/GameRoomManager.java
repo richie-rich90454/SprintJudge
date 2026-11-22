@@ -259,6 +259,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		GameRoom room = registry.get(Integer.parseInt(pin));
 		if (room == null)
 			return;
+		boolean wasHost;
 		synchronized (room) {
 			if (closingSessionId != null) {
 				Player current = room.getPlayer(playerUuid);
@@ -266,7 +267,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 					return;
 				}
 			}
-			if (playerUuid.equals(room.getHostUuid()))
+			wasHost = playerUuid.equals(room.getHostUuid());
+			if (wasHost)
 				room.setHostUuid(null);
 			room.removeSpectator(playerUuid);
 			// ponytail: soft-remove keeps score in the board so a rejoin
@@ -275,6 +277,12 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 			room.softRemove(playerUuid);
 		}
 		eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.PlayerLeft(pin, playerUuid));
+		if (wasHost && !"ENDED".equals(room.getStatus())) {
+			// Players must not sit on "Waiting for the host" forever after the
+			// host disconnects. The notice is rendered by the existing ERROR UI.
+			broadcastToRoom(pin, new com.sprintjudge.domain.dto.ErrorMessage("ERROR",
+					"The host left the game. Ask them to reopen the host screen to continue."));
+		}
 		broadcastRoomState(pin);
 		broadcastLeaderboard(pin);
 	}

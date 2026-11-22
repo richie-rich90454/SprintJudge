@@ -21,8 +21,10 @@ describe("friendlyError", () => {
         expect(friendlyError("Round is locked")).toMatch(/locked/);
     });
 
-    test("maps rejoin and seat errors", () => {
+    test("maps rejoin, seat and host-left errors", () => {
         expect(friendlyError("rejoin token expired")).toMatch(/session changed/);
+        expect(friendlyError("The host left the game. Ask them to reopen the host screen to continue."))
+            .toMatch(/host left/);
     });
 
     test("keeps short safe messages verbatim", () => {

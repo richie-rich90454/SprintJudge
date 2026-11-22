@@ -18,6 +18,8 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
         "That round is already locked."],
     [/rejoin|seat|token/i,
         "Your session changed. Reload the page to rejoin."],
+    [/host left|host (?:has )?(?:left|disconnected)/i,
+        "The host left the game. Ask them to reopen the host screen to continue."],
 ];
 
 const FALLBACK = "Something went wrong. Please try again.";

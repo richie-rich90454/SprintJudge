@@ -18,7 +18,10 @@ import { adminApi } from "../services/AdminApiService";
  */
 export function PracticeView() {
     const [name, setName] = useState("");
-    const [bankId, setBankId] = useState<string | null>(null);
+    // An Explore card can preselect its bank via ?bank=<id>.
+    const [bankId, setBankId] = useState<string | null>(
+        () => new URLSearchParams(window.location.search).get("bank"),
+    );
     const [query, setQuery] = useState("");
     const [limit, setLimit] = useState(20);
     const [busy, setBusy] = useState(false);

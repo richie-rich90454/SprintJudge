@@ -24,6 +24,12 @@ function pct(ratio: unknown): number {
 
 export function ResultView() {
     const [isAdmin, setIsAdmin] = useState(false);
+    const [reviewTimedOut, setReviewTimedOut] = useState(false);
+    useEffect(() => {
+        if (reviewTimedOut) return;
+        const timer = window.setTimeout(() => setReviewTimedOut(true), 10_000);
+        return () => window.clearTimeout(timer);
+    }, [reviewTimedOut]);
     useEffect(() => {
         let active = true;
         fetch("/api/admin/settings", { credentials: "include" })
@@ -302,7 +308,9 @@ export function ResultView() {
                                             ))}
                                         </div>
                                         <p className="text-[var(--oq-ink-soft)] text-sm mt-4">
-                                            Loading review… no review data yet.
+                                            {reviewTimedOut
+                                                ? "Review unavailable. Reload to try again."
+                                                : "Loading review…"}
                                         </p>
                                     </div>
                                 ) : !review.questions || review.questions.length === 0 ? (
@@ -441,7 +449,9 @@ export function ResultView() {
                                             ))}
                                         </div>
                                         <p className="text-[var(--oq-ink-soft)] text-sm mt-4">
-                                            Loading review… no student results yet.
+                                            {reviewTimedOut
+                                                ? "Review unavailable. Reload to try again."
+                                                : "Loading review…"}
                                         </p>
                                     </div>
                                 ) : !review.players || review.players.length === 0 ? (
@@ -576,7 +586,9 @@ export function ResultView() {
                                             ))}
                                         </div>
                                         <p className="text-[var(--oq-ink-soft)] text-sm">
-                                            Loading analysis… no class stats yet.
+                                            {reviewTimedOut
+                                                ? "Analysis unavailable. Reload to try again."
+                                                : "Loading analysis…"}
                                         </p>
                                     </div>
                                 ) : review.questions.length === 0 ? (

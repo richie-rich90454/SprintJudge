@@ -101,6 +101,7 @@ export function ExploreView() {
                                     <div className="flex flex-wrap gap-2 mt-3">
                                         <Link
                                             to="/practice"
+                                            search={{ bank: quiz.id }}
                                             className="btn btn-primary btn-sm font-bold"
                                         >
                                             Practice solo
