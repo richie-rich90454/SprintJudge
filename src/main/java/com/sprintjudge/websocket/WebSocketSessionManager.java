@@ -22,8 +22,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebSocketSessionManager {
 
 	private final Map<String, Session> sessions = new ConcurrentHashMap<>();
+	/**
+	 * Bound anonymous handshake floods: unregistered sockets cannot be attacked.
+	 */
+	private static final int MAX_SESSIONS = 10_000;
 
 	public void register(String sessionId, Session session) {
+		if (!sessions.containsKey(sessionId) && sessions.size() >= MAX_SESSIONS) {
+			try {
+				session.close();
+			} catch (Exception ignored) {
+				// A broken overflow socket is already unusable; drop it silently.
+			}
+			return;
+		}
 		sessions.put(sessionId, session);
 	}
 

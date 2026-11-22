@@ -78,7 +78,7 @@ public class SecurityConfig {
 								// Public endpoints and the WebSocket handshake carry no session
 								// state; every admin API is CSRF-protected (the Axios client
 								// echoes XSRF-TOKEN in X-XSRF-TOKEN).
-								.ignoringRequestMatchers("/api/public/**", "/ws", "/admin/login", "/admin/logout",
+								.ignoringRequestMatchers("/api/public/**", "/ws", "/admin/login",
 										"/api/auth/basis/backchannel", "/api/auth/backchannel")
 								.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 								// Axios echoes the raw cookie value. Spring Security 7's default

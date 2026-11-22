@@ -98,6 +98,20 @@ class BasisTokenVerifierTest {
 	}
 
 	@Test
+	void failedKeyFetchIsNegativeCached() throws Exception {
+		RSAKey key = BasisTestJwt.key();
+		int[] calls = {0};
+		BasisTokenVerifier verifier = new BasisTokenVerifier(() -> {
+			calls[0]++;
+			throw new IllegalStateException("issuer down");
+		}, ISSUER, AUDIENCE);
+		String token = BasisTestJwt.sign(key, "logout+jwt", ISSUER, AUDIENCE, "u", Map.of());
+		assertNull(verifier.verify(token, "logout+jwt"));
+		assertNull(verifier.verify(token, "logout+jwt"));
+		assertEquals(1, calls[0]);
+	}
+
+	@Test
 	void cachesKeysUntilRefresh() throws Exception {
 		RSAKey key = BasisTestJwt.key();
 		int[] calls = {0};

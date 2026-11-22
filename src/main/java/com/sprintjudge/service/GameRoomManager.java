@@ -904,6 +904,29 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		return round[0] + round[1];
 	}
 
+	/**
+	 * Selection submissions persist the awarded delta, coding submissions the
+	 * running best. Summing both units double-counts improved coding attempts, so
+	 * collapse coding rows to their best per question before totalling.
+	 */
+	private static int finalScore(java.util.List<Submission> submissions, java.util.Set<String> codingQuestions) {
+		java.util.Map<String, Integer> perQuestion = new java.util.HashMap<>();
+		for (Submission s : submissions) {
+			if (s == null || s.getQuestionId() == null)
+				continue;
+			String qid = s.getQuestionId();
+			int value = s.getScoreEarned();
+			if (codingQuestions.contains(qid))
+				perQuestion.merge(qid, value, Math::max);
+			else
+				perQuestion.merge(qid, value, Integer::sum);
+		}
+		int total = 0;
+		for (int v : perQuestion.values())
+			total += v;
+		return total;
+	}
+
 	private void onTimerExpired(String pin) {
 		GameRoom room = registry.get(Integer.parseInt(pin));
 		if (room == null)
@@ -1120,6 +1143,13 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 			list2.add(s);
 		}
 
+		java.util.Set<String> codingQuestions = new java.util.HashSet<>();
+		for (Question q : questions) {
+			String t = QuestionType.from(q.getQuestionType());
+			if ("OJ_FULL".equals(t) || "OJ_PATCH".equals(t))
+				codingQuestions.add(q.getId());
+		}
+
 		List<GameReview.PlayerReview> pReviews = new java.util.ArrayList<>();
 		int totalCorrect = 0, totalAttempts = 0;
 		double totalScore = 0;
@@ -1139,8 +1169,8 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				if (s.isCorrect())
 					totalCorrect++;
 				totalAttempts += s.getAttemptCount();
-				pScore += s.getScoreEarned();
 			}
+			pScore = finalScore(pSubs, codingQuestions);
 			pReviews.add(new GameReview.PlayerReview(p.getUuid(), p.getName(), pScore, answers));
 			totalScore += pScore;
 		}
@@ -1232,9 +1262,17 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 			String restoredStatus = s.getStatus() == null ? "LOBBY" : s.getStatus();
 			GameRoom room = new GameRoom(s.getId(), s.getQuizId(), s.getPinCode(), restoredStatus, maxPlayers, mode);
 			room.setCurrentQuestionIndex(s.getCurrentQuestionIndex());
+			java.util.Set<String> codingQuestions = new java.util.HashSet<>();
 			try {
 				java.util.List<com.sprintjudge.domain.models.Question> questions = questionRepository
 						.findByQuiz(s.getQuizId());
+				if (questions != null) {
+					for (Question q : questions) {
+						String t = QuestionType.from(q.getQuestionType());
+						if ("OJ_FULL".equals(t) || "OJ_PATCH".equals(t))
+							codingQuestions.add(q.getId());
+					}
+				}
 				int index = s.getCurrentQuestionIndex();
 				if (questions != null && index >= 0 && index < questions.size()) {
 					room.setCurrentQuestionId(questions.get(index).getId());
@@ -1254,20 +1292,19 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				java.util.List<Submission> subs = submissionRepository.findBySession(s.getId());
 				if (subs != null) {
 					java.util.Map<String, String> names = new java.util.HashMap<>();
-					java.util.Map<String, Integer> scores = new java.util.HashMap<>();
+					java.util.Map<String, java.util.List<Submission>> byUuid = new java.util.HashMap<>();
 					for (Submission sub : subs) {
 						if (sub == null || sub.getPlayerUuid() == null || sub.getPlayerUuid().isBlank())
 							continue;
 						names.putIfAbsent(sub.getPlayerUuid(), sub.getPlayerName());
-						Integer prev = scores.get(sub.getPlayerUuid());
-						scores.put(sub.getPlayerUuid(), (prev == null ? 0 : prev) + sub.getScoreEarned());
+						byUuid.computeIfAbsent(sub.getPlayerUuid(), k -> new java.util.ArrayList<>()).add(sub);
 					}
 					for (java.util.Map.Entry<String, String> e : names.entrySet()) {
 						String uuid = e.getKey();
 						String name = e.getValue();
 						if (name == null || name.isBlank())
 							name = "Player";
-						int score = scores.getOrDefault(uuid, 0);
+						int score = finalScore(byUuid.getOrDefault(uuid, List.of()), codingQuestions);
 						Player p = new Player(uuid, name, 0, null, false, null);
 						String savedToken = playerSessionRepository.findByRoom(s.getId()).stream()
 								.filter(ps -> uuid.equals(ps.getPlayerId()))

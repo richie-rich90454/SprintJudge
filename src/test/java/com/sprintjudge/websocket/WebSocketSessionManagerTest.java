@@ -29,6 +29,24 @@ class WebSocketSessionManagerTest {
 	}
 
 	@Test
+	void registrationCapClosesOverflowSockets() throws Exception {
+		WebSocketSessionManager mgr = new WebSocketSessionManager();
+		Session shared = openSession("x", mock(RemoteEndpoint.Basic.class));
+		for (int i = 0; i < 10_000; i++)
+			mgr.register("s" + i, shared);
+		assertEquals(10_000, mgr.size());
+		Session overflow = openSession("overflow", mock(RemoteEndpoint.Basic.class));
+		mgr.register("overflow", overflow);
+		assertEquals(10_000, mgr.size());
+		verify(overflow).close();
+
+		Session broken = openSession("broken", mock(RemoteEndpoint.Basic.class));
+		org.mockito.Mockito.doThrow(new java.io.IOException("already gone")).when(broken).close();
+		mgr.register("broken", broken);
+		assertEquals(10_000, mgr.size());
+	}
+
+	@Test
 	void registerAndUnregisterAdjustSize() {
 		WebSocketSessionManager mgr = new WebSocketSessionManager();
 		Session s = openSession("a", mock(RemoteEndpoint.Basic.class));

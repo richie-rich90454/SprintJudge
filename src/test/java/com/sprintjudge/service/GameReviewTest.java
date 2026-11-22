@@ -88,7 +88,24 @@ class GameReviewTest {
 				Instant.now());
 	}
 
+	private Question oj(String id) {
+		return new Question(id, "qz", "OJ", "D", "OJ_FULL", null, 30, 100, "{}", 0, Instant.now());
+	}
+
 	// ---------- tests ----------
+
+	@Test
+	void buildReviewAggregatesCodingScoresByBestNotSum() throws Exception {
+		GameRoomManager mgr = manager();
+		GameRoom room = room("123456");
+		room.addPlayer(new com.sprintjudge.service.Player("p1", "Ann", 0, "s", true, null));
+		Question patch = new Question("oj2", "qz", "Patch", "D", "OJ_PATCH", null, 30, 100, "{}", 0, Instant.now());
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(oj("oj1"), patch));
+		when(submissionRepository.findBySession("s1"))
+				.thenReturn(List.of(sub("oj1", "p1", true, 100, 1), sub("oj1", "p1", true, 200, 1)));
+		GameReview review = invokeBuildReview(mgr, room);
+		assertEquals(200, review.getPlayers().get(0).getTotalScore());
+	}
 
 	@Test
 	void buildReviewReturnsCorrectStructure() throws Exception {

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.sprintjudge.domain.models.GameSession;
+import com.sprintjudge.domain.models.Submission;
 import com.sprintjudge.repository.GameSessionRepository;
 import com.sprintjudge.repository.QuestionRepository;
 import com.sprintjudge.repository.QuizRepository;
@@ -92,6 +93,22 @@ class NewBranchesTest {
 
 		mgr.leave("123456", "p1", "new-session");
 		assertEquals(false, room.getPlayer("p1").isConnected());
+	}
+
+	@Test
+	void finalScoreHandlesCodingAndSelectionUnits() throws Exception {
+		java.lang.reflect.Method m = GameRoomManager.class.getDeclaredMethod("finalScore", java.util.List.class,
+				java.util.Set.class);
+		m.setAccessible(true);
+		Submission coding1 = new Submission("a", "s", "oj", "p", "u", "{}", 100, true, "", 1, Instant.now());
+		Submission coding2 = new Submission("b", "s", "oj", "p", "u", "{}", 200, true, "", 1, Instant.now());
+		Submission sel1 = new Submission("c", "s", "mcq", "p", "u", "{}", 60, true, "", 1, Instant.now());
+		Submission sel2 = new Submission("d", "s", "mcq", "p", "u", "{}", 40, true, "", 1, Instant.now());
+		Submission malformed = new Submission("e", "s", null, "p", "u", "{}", 999, true, "", 1, Instant.now());
+		int total = (Integer) m.invoke(null, java.util.Arrays.asList(coding1, coding2, sel1, sel2, malformed, null),
+				java.util.Set.of("oj"));
+		// Coding collapses to the best (200), selection deltas sum (100).
+		assertEquals(300, total);
 	}
 
 	@Test
@@ -204,8 +221,11 @@ class NewBranchesTest {
 		GameSession session = new GameSession("sid4", "qz", "654324", "host", "ACTIVE", "STANDARD", 9, null, null, null,
 				Instant.now());
 		when(sessionRepository.findAllNonEnded()).thenReturn(List.of(session));
-		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(new com.sprintjudge.domain.models.Question("q1",
-				"qz", "Q", "D", "MCQ", null, 30, 100, "{}", 0, Instant.now())));
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(
+				new com.sprintjudge.domain.models.Question("q1", "qz", "Q", "D", "OJ_FULL", null, 30, 100, "{}", 0,
+						Instant.now()),
+				new com.sprintjudge.domain.models.Question("q2", "qz", "Q2", "D", "OJ_PATCH", null, 30, 100, "{}", 1,
+						Instant.now())));
 		mgr.restoreRooms();
 		GameRoom room = registry(mgr).get(654324);
 		assertNotNull(room);
@@ -251,6 +271,17 @@ class NewBranchesTest {
 		when(questionRepository.findByQuiz("qz")).thenReturn(null);
 		mgr.restoreRooms();
 		assertNotNull(registry(mgr).get(654323));
+	}
+
+	@Test
+	void restoreHandlesNullQuestionList() {
+		GameRoomManager mgr = manager();
+		GameSession session = new GameSession("sid7", "qz", "654327", "host", "LOBBY", "STANDARD", 0, null, null, null,
+				Instant.now());
+		when(sessionRepository.findAllNonEnded()).thenReturn(List.of(session));
+		when(questionRepository.findByQuiz("qz")).thenReturn(null);
+		mgr.restoreRooms();
+		assertNotNull(registry(mgr).get(654327));
 	}
 
 	@Test

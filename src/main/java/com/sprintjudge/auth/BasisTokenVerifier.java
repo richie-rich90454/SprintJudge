@@ -81,7 +81,16 @@ public class BasisTokenVerifier {
 	private synchronized JWKSet keys() throws java.text.ParseException {
 		long now = System.currentTimeMillis();
 		if (cached == null || now - cachedAt > CACHE_MS) {
-			cached = JWKSet.parse(source.load());
+			try {
+				cached = JWKSet.parse(source.load());
+			} catch (RuntimeException e) {
+				// Negative-cache a failed fetch: an attacker sending well-formed
+				// but unsigned tokens must not trigger a blocking HTTP GET per
+				// request and exhaust the servlet thread pool.
+				cached = new JWKSet(java.util.List.of());
+				cachedAt = now - CACHE_MS + 5_000L; // retry after 5 seconds
+				return cached;
+			}
 			cachedAt = now;
 		}
 		return cached;

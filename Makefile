@@ -190,7 +190,7 @@ check-volume: ## Every bank subject meets the per-course floor.
 	@node scripts/check-volume.mjs
 
 .PHONY: check-unit-volume
-check-unit-volume: ## Every bank unit meets the per-unit floor and coverage rules.
+check-unit-volume: ## Report units below the floor; fail only for shipped units (pass --strict to fail all).
 	@node scripts/check-unit-volume.mjs
 
 .PHONY: check-bank

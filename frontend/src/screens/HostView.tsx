@@ -247,6 +247,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
 }
 
 function ControlsPanel() {
+    const advanceLock = useRef(false);
     const hostCommand = useGameStore((s) => s.hostCommand);
     const extendTimer = useGameStore((s) => s.extendTimer);
     const kickPlayer = useGameStore((s) => s.kick);
@@ -345,7 +346,14 @@ function ControlsPanel() {
                         <Button
                             variant="primary"
                             className="w-full"
-                            onClick={() => hostCommand("NEXT_QUESTION")}
+                            onClick={() => {
+                                // A double-click would otherwise advance two
+                                // rounds (each NEXT reveals and advances).
+                                if (advanceLock.current) return;
+                                advanceLock.current = true;
+                                window.setTimeout(() => { advanceLock.current = false; }, 600);
+                                hostCommand("NEXT_QUESTION");
+                            }}
                         >
                             {status === "LOBBY" ? "Start round" : "Next question"}
                         </Button>

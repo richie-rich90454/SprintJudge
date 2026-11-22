@@ -90,11 +90,16 @@ function repair(q) {
 
     // Answer refs must point to existing option ids.
     const a = q.answer && typeof q.answer === "object" ? q.answer : {};
-    if (typeof a.correctId === "string" && !used.has(a.correctId)) { delete a.correctId; mark(); bump("answerRef"); }
+    // A dangling answer ref means corrupt data. Deleting the key silently
+    // turns an answerable item into an unanswerable one; report it for a human.
+    if (typeof a.correctId === "string" && !used.has(a.correctId)) {
+      bump("answerRef");
+      flag(q, `answer ref ${a.correctId} has no matching option`);
+    }
     if (Array.isArray(a.correctIds)) {
-      const kept = a.correctIds.filter((c) => used.has(c));
-      if (kept.length !== a.correctIds.length) { mark(); bump("answerRef"); }
-      if (kept.length) a.correctIds = kept; else delete a.correctIds;
+      for (const c of a.correctIds) {
+        if (!used.has(c)) { bump("answerRef"); flag(q, `answer ref ${c} has no matching option`); }
+      }
     }
     // Free-response questions sometimes carried dummy option arrays. Never
     // invent a correct answer: drop the dummy options and keep the exemplar.
