@@ -60,6 +60,11 @@ item cannot merge even if a human reviewer misses it:
 | each option length within 0.3x-3.5x of the median | a short giveaway or a sentence among numerals breaks the item |
 | stems at least 20 characters, no exact or 12-word-opening repeats | no padding, no number-swapped twins |
 | exactly one correct option unless multi-select | no ambiguity |
+| format matches the answer shape the runtime builder consumes | a record counted in volume but skipped at import is a defect |
+| no exact duplicate option text | a duplicated distractor cannot be answered |
+| no author scratch (`Wait compute`, `Let me keep`, anchored `Use `<n>`.`) | self-corrections must not ship |
+| explanation ends with terminal punctuation and is not a fragment | teaching text must be complete |
+| keyed verdict agrees with its explanation | no "claim is wrong" + "matches" contradictions |
 | reviewer differs from author, stimulus licensed, attestation present | legal and provenance gates |
 
 ## Pipeline

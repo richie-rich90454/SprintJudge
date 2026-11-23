@@ -24,7 +24,8 @@ German Language and Culture, Chinese Language and Culture, Art History,
 Music Theory, Precalculus, Research Methods, Interdisciplinary Seminar,
 Biology, Algebra I, Algebra II, Geometry, Integrated Math I,
 Integrated Math II, Integrated Math III, Python Programming,
-Web Development, Cybersecurity, Data Science.
+Web Development, Cybersecurity, Data Science, C Programming,
+C++ Programming, JavaScript Programming, Discrete Mathematics.
 
 ## Frameworks as references
 

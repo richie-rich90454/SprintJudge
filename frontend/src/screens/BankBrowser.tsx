@@ -57,6 +57,10 @@ const SUBJECT_CODES: Record<string, string> = {
     "Web Development": "WEB_DEVELOPMENT",
     Cybersecurity: "CYBERSECURITY",
     "Data Science": "DATA_SCIENCE",
+    "C Programming": "C",
+    "C++ Programming": "CPP",
+    "JavaScript Programming": "JAVASCRIPT",
+    "Discrete Mathematics": "MATH",
 };
 
 const SUBJECTS: string[] = [
@@ -102,6 +106,10 @@ const SUBJECTS: string[] = [
     "Web Development",
     "Cybersecurity",
     "Data Science",
+    "C Programming",
+    "C++ Programming",
+    "JavaScript Programming",
+    "Discrete Mathematics",
 ];
 
 const SCOPES: { value: BankScope; label: string }[] = [

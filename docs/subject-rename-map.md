@@ -47,6 +47,10 @@ No external program names appear here or anywhere else in the repo.
 | Web Development | web | elective |
 | Cybersecurity | cyber | elective |
 | Data Science | datasci | elective |
+| C Programming | cseed | converted legacy set, growing to floor |
+| C++ Programming | cppseed | converted legacy set, growing to floor |
+| JavaScript Programming | jsseed | converted legacy set, growing to floor |
+| Discrete Mathematics | mathseed | converted legacy set, growing to floor |
 
 ## Trademark notice
 

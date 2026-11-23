@@ -63,6 +63,14 @@ stateDiagram-v2
     note right of ACTIVE: judge queue drains<br/>in the background
 ```
 
+## Bank conversion note
+
+Legacy quiz-export files were converted into bank records and archived under
+`archive/seed-sets/`. Their online-judge test cases do not fit the bank record
+shape: OJ_FULL items become numeric records whose key is the first sample
+expected output, while judged execution stays in `seed/master-bundle.json`.
+Converted records carry a `converted-seed` tag and distinct id prefixes.
+
 ## Submission pipeline (Online Judge)
 
 ```mermaid
