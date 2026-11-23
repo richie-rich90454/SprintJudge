@@ -197,6 +197,18 @@ check-unit-volume: ## Report units below the floor; fail only for shipped units 
 check-bank: ## Validate bank records, rules, uniqueness, and brand scan.
 	@node scripts/check-bank.mjs
 
+.PHONY: check-seed-sets
+check-seed-sets: ## Validate the archived legacy quiz-export files.
+	@node scripts/check-seed-sets.mjs
+
+.PHONY: check-regression
+check-regression: ## One-command no-regression gate (--full adds builds and E2E).
+	@node scripts/check-regression.mjs $(ARGS)
+
+.PHONY: repair-bank-playability
+repair-bank-playability: ## Idempotently retype records whose format disagrees with their answer.
+	@node scripts/repair-bank-playability.mjs
+
 .PHONY: backup-db
 backup-db: ## WAL-safe SQLite backup into database/backups/ (DB=, OUT=).
 	@$(LOAD_ENV); ./scripts/backup-db.sh "$(DB)" "$(OUT)"

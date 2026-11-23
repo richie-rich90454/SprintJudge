@@ -13,6 +13,20 @@ const ROOTS = process.argv.slice(2).length > 0 ? process.argv.slice(2) : ["src/m
 const SUBJECTS = new Set(SCHEMA.properties.subject.enum);
 const SCOPES = new Set(["current-scope", "legacy-scope", "core-scope"]);
 const BLOOMS = new Set(["REMEMBER", "UNDERSTAND", "APPLY", "ANALYZE", "EVALUATE", "CREATE"]);
+// Playability sets mirror BankQuizBuilder.java:32-41 so a record that cannot
+// produce a playable question is a hard error, not a silent skip at import.
+const PLAY_MCQ = new Set(["CONCEPT_MCQ", "STIMULUS_MCQ", "SOURCE_BASED", "ERROR_ANALYSIS",
+  "DATA_INTERPRETATION", "CONCEPTUAL_REASONING", "RHETORICAL_ANALYSIS", "SYNTHESIS", "DIAGRAM",
+  "CODE_TRACING", "BUG_SPOTTING", "CODE_COMPLETION", "MCQ", "TWO_STAGE", "ORDERING", "DATA_INTERPREPATION"]);
+const PLAY_NUMERIC = new Set(["NUMERIC", "FORMULA_APPLICATION", "CALCULATION_WITH_UNITS",
+  "NUMERIC_CALCULATION", "FILE_DATASET", "JUDGED_PROBLEM"]);
+const PLAY_FREE = new Set(["EXPLANATION", "EXPERIMENT_DESIGN", "PROOF", "FREE_RESPONSE",
+  "IMAGE_INTERPRETATION", "LISTENING_RESPONSE", "COMPOSITION", "WRITTEN"]);
+// Author scratch that leaked into shipped content. "Use <n>" is anchored to
+// sentence end: unanchored it matches ordinary prose ("because 140").
+const SCRATCH = /\bWait compute\b|\bWait recompute\b|\bLet me keep\b|intended answer is|final output uses corrected|I.ll edit mentally|need only one correct|Error\. Leave|\bUse\s+\d+(?:\.\d+)?\.$/i;
+const TERMINAL = /[.!?]['")\]]?$/;
+const DANGLING = /\b(?:an|the|of|to|in|on|for|with|at|by|from|and|or|into)\s*[.!?]*$/i;
 // ponytail: word-boundary brand scan only; lowercase prose never matches.
 const BRAND = [/\bAdvanced Placement\b/, /\bPre-AP\b/, /AP Central/, /AP Vertical Teams/, /\bSpringBoard\b/, /\bPSAT\b/, /\bNMSQT\b/];
 const AP_WORD = /\bAP\b/;
@@ -178,6 +192,41 @@ function checkQuestion(file, q, index) {
   const storedKey = q.answer?.correctId;
   if (scratchKey && storedKey && scratchKey.toUpperCase() !== String(storedKey).toUpperCase()) {
     err(file, id, "explanation contradicts the answer key");
+  }
+  // ---- Content correctness gates (promoted from advisories after full audit) ----
+  // Playability: the builder returns null for these shapes, so the record is
+  // counted in volume but can never appear in a game.
+  if (PLAY_MCQ.has(q.format)) {
+    if (options.length === 0 || !correctIds.size) err(file, id, "MCQ format has no options/answer: not playable");
+  } else if (q.format === "MULTI_SELECT") {
+    if (correctIds.size < 2) err(file, id, "MULTI_SELECT needs 2+ correctIds: not playable");
+  } else if (PLAY_NUMERIC.has(q.format)) {
+    if (typeof q.answer?.value !== "number" && typeof q.answer?.answer !== "number") {
+      err(file, id, `${q.format} needs answer.value: not playable`);
+    }
+  } else if (PLAY_FREE.has(q.format)) {
+    if (typeof q.answer?.exemplar !== "string" || q.answer.exemplar.trim().length === 0) {
+      err(file, id, `${q.format} needs answer.exemplar: not playable`);
+    }
+  }
+  // Exact duplicate option text makes one distractor unanswerable. Do NOT
+  // normalize away +/-/. : signed and decimal options collide under that rule.
+  const exactOptions = new Set();
+  for (const o of options) {
+    if (typeof o.text !== "string") continue;
+    const t = o.text.trim().toLowerCase();
+    if (t && exactOptions.has(t)) err(file, id, `duplicate option text: ${o.id}`);
+    exactOptions.add(t);
+  }
+  if (SCRATCH.test(text)) err(file, id, "author scratch text in question content");
+  const expl = (q.explanation ?? "").trim();
+  if (expl.length > 0 && !TERMINAL.test(expl)) {
+    if (DANGLING.test(expl)) err(file, id, "explanation ends mid-phrase");
+    else err(file, id, "explanation has no terminal punctuation");
+  }
+  if (/student.s answer matches|claim is correct/i.test(expl) &&
+      options.some((o) => /^the claim is wrong/i.test(o.text ?? ""))) {
+    err(file, id, "verdict contradiction: keyed 'claim is wrong' but explanation says it matches");
   }
   const key = normStem(typeof q.stem === "string" ? q.stem : `__badstem__${q.id ?? index}`);
   // Stem uniqueness is an editorial goal (variety), not a schema contract;
