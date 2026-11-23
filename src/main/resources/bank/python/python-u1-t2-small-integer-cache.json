@@ -456,34 +456,34 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "In a city planner memo, x = 256; y = 256; what is x is y in CPython?",
+      "stem": "CPython caches small integers from -5 through 256 inclusive. Evaluate this code:\n```python\nx = int('256')\ny = int('256')\nprint(x is y)\n```\nWhat does it print?",
       "options": [
         {
           "id": "A",
-          "text": "True, because 256 is still cached.",
-          "misconception": "256 is outside default cache"
+          "text": "True - 256 is inside the cached -5..256 range.",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "False only in interactive mode.",
-          "misconception": "mode is not the deciding factor"
+          "text": "False - 256 is just outside the cached range.",
+          "misconception": "Treats the inclusive upper endpoint 256 as excluded (off-by-one on the cache range)"
         },
         {
           "id": "C",
-          "text": "True only when run in a script file.",
-          "misconception": "cache range, not file context"
+          "text": "True only in interactive mode; in a script it is False.",
+          "misconception": "Assumes execution mode, not the cache range, decides identity"
         },
         {
           "id": "D",
-          "text": "False, because 256 exceeds the small-int cache range.",
-          "misconception": ""
+          "text": "False - int() always creates distinct objects.",
+          "misconception": "Assumes int() bypasses the small-integer cache"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
-      "explanation": "The default small-int cache covers -5 to 256, but 256 itself is the upper boundary behavior varies; here 256 is not guaranteed cached, so identity may be False.",
-      "hint": "Check the exact boundary.",
+      "explanation": "CPython pre-creates and reuses the integers -5 through 256, so int('256') returns the same object twice and `x is y` is True. Option B is wrong because 256 is the inclusive upper endpoint, not outside the range. Option C is wrong because the cache is a runtime rule independent of interactive versus script execution. Option D is wrong because int() still returns the cached singleton for values in range; only values such as 257 are freshly allocated, where `is` would be False.",
+      "hint": "Is 256 inside the cached range, and is the upper endpoint included?",
       "difficulty": 0.25,
       "discrimination": 0.5,
       "responseTimeBaseline": {
@@ -494,7 +494,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T12:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -509,7 +509,7 @@
         "unit-1",
         "small-integer-cache"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.2-0009",

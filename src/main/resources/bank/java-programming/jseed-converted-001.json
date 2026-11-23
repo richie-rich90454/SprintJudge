@@ -246,7 +246,7 @@
       },
       "format": "BUG_SPOTTING",
       "stimulus": null,
-      "stem": "Click the line that contains the bug. Code under test: double avg = sum / count; System.out.println(avg);",
+      "stem": "Which line is the bug?\n```java\nint sum = 7;\nint count = 2;\ndouble avg = sum / count;\nSystem.out.println(avg);\n```",
       "options": [
         {
           "id": "A",
@@ -256,13 +256,23 @@
         {
           "id": "B",
           "text": "System.out.println(avg);",
-          "misconception": "treats this line as the source of the fault"
+          "misconception": "Blames the print, which only reports the already-computed value"
+        },
+        {
+          "id": "C",
+          "text": "int sum = 7;",
+          "misconception": "Blames the input initialization, which is valid"
+        },
+        {
+          "id": "D",
+          "text": "int count = 2;",
+          "misconception": "Blames the divisor initialization instead of the division that truncates"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "The fault is on line 1: double avg = sum / count;. The remaining lines are valid in this context, so changing them does not remove the defect.",
+      "explanation": "sum and count are both int, so sum / count is integer division: 7 / 2 truncates to 3 before the result is widened to double, printing 3.0 rather than 3.5. Option B is wrong because println only displays the value. Options C and D are wrong because the initializations are valid; the defect is the missing cast, (double) sum / count.",
       "hint": "Read each line in execution order and ask which one breaks the stated intent.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -274,7 +284,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T10:21:26.186Z",
+        "reviewedAt": "2026-11-23T12:00:00Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -289,7 +299,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 4
+      "version": 5
     },
     {
       "id": "jseed-1.1-0006",

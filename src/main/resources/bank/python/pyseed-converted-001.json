@@ -118,7 +118,7 @@
       },
       "format": "BUG_SPOTTING",
       "stimulus": null,
-      "stem": "Click the line that contains the bug. Code under test: if status = \"ready\": launch()",
+      "stem": "Which line contains the bug?\n```python\nstatus = \"ready\"\nif status = \"ready\":\n    launch()\nprint(\"done\")\n```",
       "options": [
         {
           "id": "A",
@@ -128,14 +128,24 @@
         {
           "id": "B",
           "text": "    launch()",
-          "misconception": "points at a line that is sound in this context"
+          "misconception": "Points at the call, which is valid once the condition is fixed"
+        },
+        {
+          "id": "C",
+          "text": "status = \"ready\"",
+          "misconception": "Treats a normal assignment as the defect"
+        },
+        {
+          "id": "D",
+          "text": "print(\"done\")",
+          "misconception": "Blames an unrelated trailing statement"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "The condition writes a single =, which assigns to status instead of comparing it, so the test never checks the value; it needs == to compare.",
-      "hint": "Follow the lines as written and find the one whose behaviour departs from the intended task.",
+      "explanation": "Line A uses a single = in an if condition, which is assignment syntax rather than comparison; Python rejects `if status = \"ready\":` with a SyntaxError. The equality operator is ==. Lines B, C and D are valid statements, so none of them is the bug.",
+      "hint": "Which operator tests equality in Python?",
       "difficulty": 0.5,
       "discrimination": 0.35,
       "responseTimeBaseline": {
@@ -161,7 +171,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 4
+      "version": 5
     },
     {
       "id": "pyseed-1.1-0004",
@@ -241,7 +251,7 @@
       },
       "format": "BUG_SPOTTING",
       "stimulus": null,
-      "stem": "Click the line that contains the bug. Code under test: for i in range(1, n): print(i)",
+      "stem": "Which line is the bug? The loop should walk every index of items.\n```python\nn = len(items)\nfor i in range(1, n):\n    print(i)\nprint(\"done\")\n```",
       "options": [
         {
           "id": "A",
@@ -251,13 +261,23 @@
         {
           "id": "B",
           "text": "    print(i)",
-          "misconception": "points at a line that is sound in this context"
+          "misconception": "Points at the body, which merely prints the index it is given"
+        },
+        {
+          "id": "C",
+          "text": "n = len(items)",
+          "misconception": "Blames the length lookup, which is correct"
+        },
+        {
+          "id": "D",
+          "text": "print(\"done\")",
+          "misconception": "Blames an unrelated trailing statement"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "range(1, n) starts at index 1, so index 0 is skipped and the value n is never reached; walking the whole sequence requires starting at 0.",
+      "explanation": "range(1, n) starts at 1, so index 0 is never visited even though the loop is meant to walk every index; range(n) starts at 0 and stops before n, covering them all. Option B is wrong because print only displays the index supplied by the loop. Option C is wrong because len(items) is the correct upper bound. Option D is wrong because it is a separate statement after the loop.",
       "hint": "Follow the lines as written and find the one whose behaviour departs from the intended task.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -284,7 +304,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 4
+      "version": 5
     },
     {
       "id": "pyseed-1.1-0006",
@@ -300,17 +320,17 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "A set comprehension uses…",
+      "stem": "Consider this expression:\n```python\n{n * n for n in range(1, 4)}\n```\nIts result is a set. Which delimiters enclose that result when printed?",
       "options": [
         {
           "id": "A",
           "text": "()",
-          "misconception": "expects the result to be ()"
+          "misconception": "Confuses a set with a tuple, whose literal uses parentheses"
         },
         {
           "id": "B",
           "text": "[]",
-          "misconception": "expects the result to be []"
+          "misconception": "Confuses a set with a list, whose literal uses brackets"
         },
         {
           "id": "C",
@@ -320,14 +340,14 @@
         {
           "id": "D",
           "text": "<>",
-          "misconception": "takes <> as the output"
+          "misconception": "Uses angle brackets, which Python has no construct for"
         }
       ],
       "answer": {
         "correctId": "C"
       },
-      "explanation": "Braces are the syntax for a set comprehension, so the result is a set written with {}. Parentheses would build a tuple and brackets a list, while <> is not a Python construct.",
-      "hint": "Test each choice against the behaviour of the construct.",
+      "explanation": "The comprehension evaluates to {1, 4, 9} - a set, which Python displays with braces. Option A is wrong because parentheses would produce a tuple literal or a generator expression. Option B is wrong because brackets build a list. Option D is wrong because <> is not valid Python syntax; it was removed as the not-equal operator long ago.",
+      "hint": "Which brackets build a set literal?",
       "difficulty": 0.5,
       "discrimination": 0.35,
       "responseTimeBaseline": {
@@ -353,7 +373,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "pyseed-1.1-0007",
@@ -697,7 +717,7 @@
       },
       "format": "BUG_SPOTTING",
       "stimulus": null,
-      "stem": "Click the line that contains the bug. Code under test: if name is \"admin\": unlock()",
+      "stem": "Which line is the bug?\n```python\nname = \"admin\"\nif name is \"admin\":\n    unlock()\nprint(\"checked\")\n```",
       "options": [
         {
           "id": "A",
@@ -707,13 +727,23 @@
         {
           "id": "B",
           "text": "    unlock()",
-          "misconception": "points at a line that is sound in this context"
+          "misconception": "Blames the action call, which is correct once the test is fixed"
+        },
+        {
+          "id": "C",
+          "text": "name = \"admin\"",
+          "misconception": "Blames the assignment that sets up the test value"
+        },
+        {
+          "id": "D",
+          "text": "print(\"checked\")",
+          "misconception": "Blames an unrelated trailing statement"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "The test uses is, which checks object identity rather than value equality; comparing a string to a literal calls for ==.",
+      "explanation": "The test uses is, which compares object identity, not string contents; comparing a string to a literal calls for ==. Option B is wrong because unlock is the intended action. Option C is wrong because the assignment is a valid setup. Option D is wrong because the print is independent of the condition.",
       "hint": "Follow the lines as written and find the one whose behaviour departs from the intended task.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -740,7 +770,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 4
+      "version": 5
     },
     {
       "id": "pyseed-1.1-0013",
@@ -1412,23 +1442,33 @@
       },
       "format": "BUG_SPOTTING",
       "stimulus": null,
-      "stem": "Click the line that contains the bug. Code under test: for w in words: if not w: words.remove(w)",
+      "stem": "Which line is the bug?\n```python\nwords = [\"a\", \"\", \"b\"]\nfor w in words:\n    if not w:\n        words.remove(w)\nprint(words)\n```",
       "options": [
         {
           "id": "A",
           "text": "for w in words:",
-          "misconception": "points at a line that is sound in this context"
+          "misconception": "Points at the loop header, which is sound in this context"
         },
         {
           "id": "B",
-          "text": "    if not w: words.remove(w)",
+          "text": "        words.remove(w)",
           "misconception": ""
+        },
+        {
+          "id": "C",
+          "text": "words = [\"a\", \"\", \"b\"]",
+          "misconception": "Blames the sample list instead of the mutation during traversal"
+        },
+        {
+          "id": "D",
+          "text": "print(words)",
+          "misconception": "Blames the final display of the mutated list"
         }
       ],
       "answer": {
         "correctId": "B"
       },
-      "explanation": "Removing from words while iterating over it shifts the remaining entries and makes the loop skip elements, so the list is mutated during traversal.",
+      "explanation": "Removing from words while iterating shifts the remaining entries left, so the iterator skips the next element and can leave empty strings behind; iterating over a copy, such as for w in words[:], avoids the problem. Option A is wrong because the loop itself is valid. Option C is wrong because the sample data is fine. Option D is wrong because print only displays the result.",
       "hint": "Follow the lines as written and find the one whose behaviour departs from the intended task.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -1455,7 +1495,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 4
+      "version": 5
     },
     {
       "id": "pyseed-1.1-0024",
