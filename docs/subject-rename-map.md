@@ -52,6 +52,43 @@ No external program names appear here or anywhere else in the repo.
 | JavaScript Programming | jsseed | converted legacy set, growing to floor |
 | Discrete Mathematics | mathseed | converted legacy set, growing to floor |
 
+| African American Studies | africanamericanstudies | onboarding |
+| Computing Principles | computingprinciples | onboarding |
+| Italian Language and Culture | italian | onboarding |
+| Japanese Language and Culture | japanese | onboarding |
+| Latin | latin | onboarding |
+| Organic Chemistry I | organicchemistryi | onboarding |
+| Organic Chemistry II | organicchemistryii | onboarding |
+| Physical Chemistry | physicalchemistry | onboarding |
+| Analytical Chemistry | analyticalchemistry | onboarding |
+| Biochemistry | biochemistry | onboarding |
+| Linear Algebra | linearalgebra | onboarding |
+| Differential Equations | differentialequations | onboarding |
+| Discrete Mathematics II | discretemathematicsii | onboarding |
+| Data Structures and Algorithms | datastructures | onboarding |
+| Operating Systems | operatingsystems | onboarding |
+| Computer Networks | computernetworks | onboarding |
+| Databases | databases | onboarding |
+| Artificial Intelligence and Machine Learning | aiml | onboarding |
+| Modern Physics | modernphysics | onboarding |
+| Thermodynamics | thermodynamics | onboarding |
+| Personal Finance | personalfinance | onboarding |
+| Business and Entrepreneurship | businessentrepreneurship | onboarding |
+| Accounting | accounting | onboarding |
+| Marketing | marketing | onboarding |
+| Introduction to Law | introlaw | onboarding |
+| Ethics and Philosophy | ethicsphilosophy | onboarding |
+| World Religions | worldreligions | onboarding |
+| Sociology | sociology | onboarding |
+| Anthropology | anthropology | onboarding |
+| Astronomy | astronomy | onboarding |
+| Earth Science | earthscience | onboarding |
+| Nutrition and Health | nutritionhealth | onboarding |
+| Film Studies | filmstudies | onboarding |
+| Graphic Design | graphicdesign | onboarding |
+| Arabic Language and Culture | arabic | onboarding |
+| Korean Language and Culture | korean | onboarding |
+
 ## Trademark notice
 
 All trademarks belong to their respective owners. This catalog lists
