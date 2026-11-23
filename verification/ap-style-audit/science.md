@@ -1,4 +1,4 @@
-# AP-Style Audit — Science (28,107 questions, 7 banks)
+# the course framework-Style Audit — Science (28,107 questions, 7 banks)
 
 Counts: terse<80 **7,546**; no-scenario **3,207**; MCQ<4 options **3**; REMEMBER **1,460**; explanations<100 **5,526**; generic distractors **28 items** (broad "thinks/confuses" 11,311; empty fields 373); mojibake stems **566**; fake-scenario prefixes **3,664**. Two tiers: data-rich files (circular, acids, climate) pass; generated `*-uN-tN-*` files hold most failures. Read ≥20 flagged + 12 unflagged per bank.
 

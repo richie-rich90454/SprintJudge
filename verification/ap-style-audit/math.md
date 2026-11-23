@@ -1,4 +1,4 @@
-# AP-Style Audit — Math (28,113 questions, 7 banks)
+# the course framework-Style Audit — Math (28,113 questions, 7 banks)
 
 Counts: terse <80 **8,481**; no scenario **8,605**; MCQs <4 options **11**; REMEMBER **1,039**; explanations <100 **6,581**; generic distractors **668 items** (1,058/42,924 options, 2.5%).
 

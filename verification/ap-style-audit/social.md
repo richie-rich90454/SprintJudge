@@ -1,4 +1,4 @@
-# AP-Style Quality Audit — Social Sciences / History
+# the course framework-Style Quality Audit — Social Sciences / History
 
 Scope: `us-history`, `world-history`, `european-history`, `us-government`,
 `comparative-government`, `psychology`, `human-geography`. Read-only; no bank files edited.
@@ -33,7 +33,7 @@ human-geography contain **zero** SOURCE_BASED items. 2,917 source-based items ov
 ## Cross-cutting findings
 
 1. **Two-tier bank.** Topic-narrative files (`us-history-founding.json`,
-   `world-history-networks.json`, `compgov-elections.json`) are strong AP-style:
+   `world-history-networks.json`, `compgov-elections.json`) are strong course-framework-style:
    real passages/data, 4 parallel options, misconception-specific distractors,
    150–250-char teaching explanations. The `uN-tM-*` drill files are the problem:
    terse, REMEMBER-heavy, no stimulus, ~80-char "answer + wrong-option" explanations.
@@ -41,7 +41,7 @@ human-geography contain **zero** SOURCE_BASED items. 2,917 source-based items ov
 2. **Decorative pseudo-context.** Thousands of drills bolt on a token persona
    ("A hive diary asks…", "An astronomer logs…", "A legal file asks…", "Nurse 56…")
    that carries no information the item uses. This is a scenario in name only and
-   is worse than a plain question because it mimics AP framing without doing the work.
+   is worse than a plain question because it mimics the course framework framing without doing the work.
 3. **Mass-produced templates.** The explanation "The correct option captures the
    main historical effect, while the others rest on common misconceptions about
    speed, cost, or authority." appears **180×**. Distractors explicitly labelled

@@ -1,4 +1,4 @@
-# Computing banks — AP-style audit (read-only)
+# Computing banks — course-framework-style audit (read-only)
 
 Scanned 25,256 questions; read 22 flagged + 12 clean/subject (math: 32 flagged, 0 clean). Counts: terse 7,325; no scenario 617; <4 options 51; REMEMBER 1,054; short explanations 5,155; code-format w/o code 1,889. Generic flags overcount. Templates: "clinician's note" 439, "correct choice follows…" 180, "Takes/Mistakes/Assumes…result" 169, "Alpha team ticket" 60, 17 cloned c stems.
 

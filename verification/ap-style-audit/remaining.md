@@ -1,4 +1,4 @@
-# AP-Style Quality Audit — Remaining Subjects
+# the course framework-Style Quality Audit — Remaining Subjects
 
 Scope: `macroeconomics`, `microeconomics`, `research-methods`, `seminar`,
 `integrated-1`, `integrated-2`, `integrated-3` (the seven subjects in

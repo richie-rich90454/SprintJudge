@@ -1,4 +1,4 @@
-# AP-Style Quality Audit — Humanities / Language
+# the course framework-Style Quality Audit — Humanities / Language
 
 Scope: `english-language`, `english-literature`, `art-history`, `music-theory`,
 `spanish`, `french`, `german`, `chinese`. Read-only; no bank files edited.
@@ -38,7 +38,7 @@ more** of them in one stem, a template-assembly defect. Format mix: CONCEPT_MCQ
 ## Cross-cutting findings
 
 1. **Two tiers.** Narrative/analysis files (e.g. `english-language-argument.json`,
-   `art-history` unit-10, `chinese` unit-10.2, `spanish` 1.8) are strong AP-style:
+   `art-history` unit-10, `chinese` unit-10.2, `spanish` 1.8) are strong course-framework-style:
    real passages, four parallel options, misconception-specific distractors,
    150–250-char teaching explanations that do close reading. Almost every failure
    lives in generated `*-uN-tN-*` drill files.
