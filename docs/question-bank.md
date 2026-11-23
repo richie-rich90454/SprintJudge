@@ -28,6 +28,19 @@ response-time baseline, provenance, tags, relations, and version.
 - Reading load fits the subject; free of bias and idioms.
 - Reviewer differs from author. Originality and license are 5/5 gates.
 
+## Exam-style craft
+
+Every question must work as a rigorous course-framework-style exam item:
+
+- The stem supplies a real problem, scenario, source excerpt, data display, or code — not bare-recall trivia or a decorative persona that adds no information.
+- Multiple-choice items carry four parallel, plausible options; each distractor names the specific wrong belief that makes it tempting.
+- The explanation teaches the governing principle, why the key holds, and why each alternative fails.
+- Cognitive demand matches the task: reasoning and analysis for data-bearing or source-based items, recall only for genuine definitions.
+- Stimuli are original and licensed in provenance; no protected framework text is copied.
+- Reading load fits the subject, and language courses keep target-language content where the subject expects it.
+
+Six parallel audits scored the full bank against this rubric and drove the enrichment passes recorded in `verification/ap-style-audit/`.
+
 ## Verification convention
 
 Every numeric answer, code trace, and pseudocode trace is **executed,

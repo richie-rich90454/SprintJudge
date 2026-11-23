@@ -18,6 +18,21 @@ The defects were applied in place with version bumps and refreshed review
 timestamps; no records were deleted. `node scripts/check-bank.mjs` is the
 machine re-check that the fixes landed.
 
+## Exam-style quality audits
+
+Six parallel audits scored every question against the exam-style rubric in
+`docs/question-bank.md`. Their reports live in `verification/ap-style-audit/`
+(math, science, social, computing, humanities, remaining subjects). Each report
+records heuristic counts for terse stems, missing scenarios, short explanations,
+generic distractors, and the fifteen worst items with verbatim quotes and fixes.
+
+The audit findings drove six parallel enrichment passes that added genuine
+stimuli and scenarios, expanded explanations, named misconceptions, expanded
+sub-four-option items to four, and repaired broken keys and corrupted text.
+A final bank-wide sweep cleared every duplicate-stem, near-duplicate-opening,
+option-length, and misconception advisory. The gate now reports zero warnings
+and zero errors across all 170,069 questions.
+
 ## What was verified
 
 - Stem asks a determinate question; keyed answer is correct; distractors are
