@@ -9,8 +9,11 @@ import { useGameStore } from "../stores/useGameStore";
 import { useUIStore } from "../stores/useUIStore";
 import { webSocketService, type WsMessage } from "../game/WebSocketService";
 import { SoundToggle } from "../components/SoundToggle";
+import { MusicToggle } from "../components/MusicToggle";
 import { MotionToggle } from "../components/MotionToggle";
 import { AboutDialog } from "../components/AboutDialog";
+import { FairnessControls, readFairness } from "../components/FairnessControls";
+import { StageThemePicker } from "../components/host/StageTheme";
 import { useVirtualWindow } from "../hooks/useVirtualWindow";
 import { useFlipList } from "../motion/useStageMotion";
 import { HostStage } from "../components/host/HostStage";
@@ -352,7 +355,7 @@ function ControlsPanel() {
                                 if (advanceLock.current) return;
                                 advanceLock.current = true;
                                 window.setTimeout(() => { advanceLock.current = false; }, 600);
-                                hostCommand("NEXT_QUESTION");
+                                hostCommand("NEXT_QUESTION", { ...readFairness() });
                             }}
                         >
                             {status === "LOBBY" ? "Start round" : "Next question"}
@@ -361,7 +364,7 @@ function ControlsPanel() {
                             <Button
                                 variant="secondary"
                                 className="w-full"
-                                onClick={() => send({ type: "START_BATTLE" })}
+                                onClick={() => send({ type: "START_BATTLE", ...readFairness() })}
                             >
                                 Start battle
                             </Button>
@@ -453,6 +456,14 @@ function ControlsPanel() {
                     </ul>
                 </div>
             )}
+
+            <div className="py-4 border-t border-[var(--oq-border)] flex flex-col gap-5">
+                <div>
+                    <p className="label-caps mb-3">Stage theme</p>
+                    <StageThemePicker />
+                </div>
+                <FairnessControls />
+            </div>
 
             <div className="pt-4 border-t border-[var(--oq-border)]">
                 <p className="label-caps mb-3">
@@ -632,6 +643,7 @@ export function HostView() {
                             </Link>
                         </div>
                         <SoundToggle className="header-icon" />
+                        <MusicToggle className="header-icon" />
                         <MotionToggle className="header-icon" />
                         <AboutDialog />
                     </div>

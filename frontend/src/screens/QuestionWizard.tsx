@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { useAdminStore, WizardStep } from "../stores/useAdminStore";
-import { ALL_QUESTION_TYPES, QuestionType } from "../types";
+import { QuestionType } from "../types";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Dialog } from "../ui/Dialog";
 import { QuestionDto } from "../types";
+import { ExtraQuestionType, extraDefaultConfig, isExtraQuestionType, WIZARD_QUESTION_TYPES } from "../components/authoring/authoringTypes";
+import { ExtraTypeConfigForm, ExtraTypePreview } from "../components/authoring/ExtraTypeConfigForm";
+import { RichStemEditor, RichStemPreview } from "../components/authoring/RichStemFields";
+import { readRichStem, RichStem } from "../components/authoring/richStem";
+import { ItemQualityPanel } from "../components/authoring/ItemQualityPanel";
 
 const STEPS: WizardStep[] = ["type", "statement", "config", "preview"];
 
@@ -16,6 +21,10 @@ function ConfigForm() {
     const type = draft.questionType as QuestionType;
     const config = (draft.config as Record<string, unknown>) ?? {};
     const set = (patch: Record<string, unknown>) => setDraft({ config: { ...config, ...patch } });
+
+    if (isExtraQuestionType(type as string)) {
+        return <ExtraTypeConfigForm type={type as ExtraQuestionType} config={config} onChange={set} />;
+    }
 
     switch (type) {
         case "MCQ":
@@ -312,6 +321,10 @@ export function QuestionWizard() {
         useAdminStore();
     const [validationError, setValidationError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
+    const config = (draft.config as Record<string, unknown>) ?? {};
+    const rich = readRichStem(config);
+    const setRich = (next: RichStem) => setDraft({ config: { ...config, rich: next } });
+    const previewExtra = isExtraQuestionType(draft.questionType ?? "");
     const previewQuestion: QuestionDto = {
         id: "preview",
         type: (draft.questionType as QuestionType) ?? "MCQ",
@@ -366,17 +379,20 @@ export function QuestionWizard() {
 
                 {wizardStep === "type" && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {ALL_QUESTION_TYPES.map((t) => (
+                        {WIZARD_QUESTION_TYPES.map((t) => (
                             <Button
                                 key={t}
                                 variant={wizardType === t ? "primary" : "secondary"}
                                 size="sm"
                                 onClick={() => {
-                                    setType(t);
+                                    setType(t as QuestionType);
+                                    if (isExtraQuestionType(t as string)) {
+                                        setDraft({ config: extraDefaultConfig(t as ExtraQuestionType) });
+                                    }
                                     setStep("statement");
                                 }}
                             >
-                                {t.replace("_", " ")}
+                                {t.replace(/_/g, " ")}
                             </Button>
                         ))}
                     </div>
@@ -403,6 +419,11 @@ export function QuestionWizard() {
                             onChange={(e) => setDraft({ description: e.target.value })}
                             className="min-h-[80px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] rounded-[2px]"
                         />
+                        <RichStemEditor value={rich} onChange={setRich} />
+                        <div className="border border-[var(--oq-border)] p-3 rounded-[2px]">
+                            <p className="text-xs text-[var(--oq-ink-soft)] mb-2">Live stem preview</p>
+                            <RichStemPreview value={rich} description={draft.description} />
+                        </div>
                         <div className="flex gap-4">
                             <label className="text-sm flex-1">
                                 Time limit (s)
@@ -436,6 +457,12 @@ export function QuestionWizard() {
                 {wizardStep === "config" && (
                     <div>
                         <ConfigForm />
+                        <ItemQualityPanel
+                            type={draft.questionType ?? ""}
+                            title={draft.title ?? ""}
+                            description={draft.description ?? ""}
+                            config={config}
+                        />
                         <Button
                             variant="primary"
                             className="mt-4"
@@ -450,27 +477,45 @@ export function QuestionWizard() {
                     <div>
                         <Card>
                             <div className="p-6">
-                                {/* Key on content: the host only remounts on
+                                {previewExtra ? (
+                                    <div className="flex flex-col gap-4">
+                                        <RichStemPreview value={rich} description={draft.description} />
+                                        <ExtraTypePreview type={draft.questionType as ExtraQuestionType} config={config} />
+                                        <p className="text-xs text-[var(--oq-ink-soft)]">
+                                            Authoring preview only. Runtime and server validation for this type are owned by the engine track.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Key on content: the host only remounts on
                                             type/id, so statement/config edits need
                                             an explicit remount signal. */}
-                                <ErrorBoundary
-                                    fallback={
-                                        <p className="text-[var(--oq-ink-soft)] text-sm">
-                                            Preview unavailable for this configuration. Check the fields above.
-                                        </p>
-                                    }
-                                >
-                                    <QuestionRendererHost
-                                        key={JSON.stringify([
-                                            previewQuestion.type,
-                                            previewQuestion.title,
-                                            previewQuestion.description,
-                                            previewQuestion.config,
-                                        ])}
-                                        question={previewQuestion}
-                                        onResponse={() => {}}
-                                    />
-                                </ErrorBoundary>
+                                        <ErrorBoundary
+                                            fallback={
+                                                <p className="text-[var(--oq-ink-soft)] text-sm">
+                                                    Preview unavailable for this configuration. Check the fields above.
+                                                </p>
+                                            }
+                                        >
+                                            <QuestionRendererHost
+                                                key={JSON.stringify([
+                                                    previewQuestion.type,
+                                                    previewQuestion.title,
+                                                    previewQuestion.description,
+                                                    previewQuestion.config,
+                                                ])}
+                                                question={previewQuestion}
+                                                onResponse={() => {}}
+                                            />
+                                        </ErrorBoundary>
+                                        { (rich.imageUrl || rich.audioUrl || rich.latex || rich.code) && (
+                                            <div className="mt-4 border-t border-[var(--oq-border)] pt-4">
+                                                <p className="text-xs text-[var(--oq-ink-soft)] mb-2">Rich stem media (author preview)</p>
+                                                <RichStemPreview value={rich} />
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                             </div>
                         </Card>
                         {validationError && (

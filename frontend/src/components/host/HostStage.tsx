@@ -5,6 +5,8 @@ import { CircularTimer } from "../Timer/CircularTimer";
 import { QuestionPreview } from "./QuestionPreview";
 import { FormattedText } from "./FormattedText";
 import { useRevealMotion, useStageEnter } from "../../motion/useStageMotion";
+import { formatAnswer } from "../../game/reviewFormat";
+import { stageThemeStyle, useStageTheme } from "./StageTheme";
 import type { RoundResult } from "../../types";
 
 type OptionMeta = { id?: string; misconception?: string };
@@ -60,6 +62,7 @@ export function HostStage({
     const lastResult = useGameStore((s) => s.lastResult);
     const end = useTimerStore((s) => s.endEpochMs);
     const totalSec = useTimerStore((s) => s.totalSec);
+    const [theme] = useStageTheme();
 
     const round =
         lastResult && "scores" in lastResult ? (lastResult as unknown as RoundResult) : null;
@@ -86,6 +89,11 @@ export function HostStage({
             : typeof config.explanation === "string"
               ? config.explanation
               : null;
+    const options = Array.isArray(config.options) ? (config.options as string[]) : null;
+    const answerText =
+        round && question && Object.keys(reveal).length > 0
+            ? formatAnswer(question.type, reveal, options)
+            : null;
 
     const stageRef = useStageEnter<HTMLDivElement>([question?.id, status, pin]);
     const revealRef = useRevealMotion<HTMLDivElement>(status === "REVIEW", [question?.id, status]);
@@ -97,6 +105,8 @@ export function HostStage({
                 className={`stage arch relative flex min-h-[420px] flex-col justify-between overflow-hidden p-8 md:p-12 ${
                     projector ? "min-h-[62vh]" : ""
                 }`}
+                data-stage-theme={theme}
+                style={stageThemeStyle(theme)}
             >
                 <div>
                     <p className="label-caps text-[var(--stage-ink-soft)]">
@@ -146,6 +156,8 @@ export function HostStage({
             ref={stageRef}
             className="stage arch relative overflow-hidden p-6 md:p-8"
             aria-live="polite"
+            data-stage-theme={theme}
+            style={stageThemeStyle(theme)}
         >
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
@@ -174,6 +186,14 @@ export function HostStage({
             </div>
 
             <div ref={revealRef} className="mt-6">
+                {isReview && answerText && (
+                    <div className="reveal-correct reveal-card mb-6 border-2 border-[var(--stage-accent)] bg-[var(--stage-surface)] p-5 text-center">
+                        <p className="label-caps text-[var(--stage-ink-soft)]">Correct answer</p>
+                        <p className="mt-1 whitespace-pre-wrap text-2xl font-black leading-tight text-[var(--stage-ink)] md:text-3xl">
+                            {answerText}
+                        </p>
+                    </div>
+                )}
                 <QuestionPreview question={question} round={round} />
             </div>
 

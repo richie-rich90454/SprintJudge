@@ -128,6 +128,26 @@ const volumeRoute = createRoute({
     component: lazyRouteComponent(() => import("./screens/VolumeReport"), "VolumeReport"),
 });
 
+const assignmentsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/admin/assignments",
+    beforeLoad: requireAdmin,
+    component: lazyRouteComponent(() => import("./screens/AssignmentView"), "AssignmentView"),
+});
+
+const analyticsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/admin/analytics",
+    beforeLoad: requireAdmin,
+    component: lazyRouteComponent(() => import("./screens/AnalyticsView"), "AnalyticsView"),
+});
+
+const profileRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/profile",
+    component: lazyRouteComponent(() => import("./screens/ProfileView"), "ProfileView"),
+});
+
 const routeTree = rootRoute.addChildren([
     indexRoute,
     joinPinRoute,
@@ -144,6 +164,9 @@ const routeTree = rootRoute.addChildren([
     adminLoginRoute,
     bankRoute,
     volumeRoute,
+    assignmentsRoute,
+    analyticsRoute,
+    profileRoute,
 ]);
 
 export const router = createRouter({

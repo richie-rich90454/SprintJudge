@@ -8,6 +8,9 @@ import { formatAnswer } from "../game/reviewFormat";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
 import { AboutDialog } from "../components/AboutDialog";
+import { ShareResultCard } from "../components/ShareResultCard";
+import { QuizActions } from "../components/QuizActions";
+import { CollectionsMenu } from "../components/CollectionsMenu";
 import { useCountUp } from "../motion/useStageMotion";
 import { GameReview } from "../types";
 import { adminApi } from "../services/AdminApiService";
@@ -44,6 +47,7 @@ export function ResultView() {
         };
     }, []);
     const leaderboard = useGameStore((s) => s.leaderboard);
+    const quizId = useGameStore((s) => s.quizId);
     const review = useGameStore((s) => s.review) as GameReview | null;
     const wsError = useGameStore((s) => s.error);
     // One stable ordering for anonymous "Player N" labels in every tab.
@@ -181,6 +185,29 @@ export function ResultView() {
                 >
                     <TabPanel value="podium">
                         <Card className="p-6 md:p-10">
+                            {podium.length > 0 && (
+                                <div className="mb-6">
+                                    <ShareResultCard
+                                        top={podium.map((p) => ({
+                                            name: p.name,
+                                            score: p.score,
+                                            rank: p.rank,
+                                        }))}
+                                        players={review?.classStats?.totalPlayers}
+                                        questions={review?.classStats?.totalQuestions}
+                                        accuracy={
+                                            review?.classStats
+                                                ? pct(
+                                                      review.classStats.totalAttempts > 0
+                                                          ? review.classStats.totalCorrect /
+                                                              review.classStats.totalAttempts
+                                                          : 0,
+                                                  )
+                                                : undefined
+                                        }
+                                    />
+                                </div>
+                            )}
                             <div ref={podiumRef} className="flex flex-col gap-8">
                                 <div className="flex min-h-[240px] items-end justify-center gap-4 overflow-x-auto pb-2 md:gap-8">
                                     {podium.length === 0 && (
@@ -268,6 +295,15 @@ export function ResultView() {
                                                 >
                                                     {practicing ? "Building" : "Practice next"}
                                                 </Button>
+                                            </>
+                                        )}
+                                        {isAdmin && (
+                                            <>
+                                                <QuizActions quizId={quizId} title="Played quiz" />
+                                                <CollectionsMenu
+                                                    quizId={quizId ?? review?.sessionId ?? "result"}
+                                                    title="This game"
+                                                />
                                             </>
                                         )}
                                         <Button

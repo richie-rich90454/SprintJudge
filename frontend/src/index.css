@@ -339,7 +339,7 @@ textarea {
     .table-dotted td {
         border-bottom: 1px solid var(--oq-border);
         padding: 10px 12px;
-        text-align: left;
+        text-align: start;
     }
     .table-dotted tbody tr:nth-child(even) {
         background: color-mix(in oklab, var(--oq-row-alt) 55%, transparent);
@@ -637,7 +637,7 @@ html.motion-reduced .tab-panel {
     display: flex;
     align-items: center;
     gap: 18px;
-    text-align: left;
+    text-align: start;
     cursor: pointer;
     transition:
         filter 160ms var(--ease-out),
@@ -836,4 +836,144 @@ html.motion-reduced .motes i {
 }
 html.motion-reduced .motes {
     display: none;
+}
+
+/* ---- Cross-cutting accessibility ------------------------------------ */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link {
+    position: fixed;
+    inset-block-start: 8px;
+    inset-inline-start: 8px;
+    z-index: 200;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 16px;
+    background: var(--oq-ink);
+    color: #ffffff;
+    border: 2px solid var(--oq-ink);
+    border-radius: var(--radius-panel);
+    font-weight: 700;
+    font-size: 14px;
+    transform: translateY(-200%);
+}
+.skip-link:focus {
+    transform: none;
+}
+
+/* Two-tone focus ring keeps a 3:1 boundary on both light and stage surfaces. */
+:focus-visible {
+    outline: 2px solid var(--oq-accent);
+    outline-offset: 2px;
+}
+.stage :focus-visible {
+    outline-color: var(--stage-ink);
+}
+.renderer-host .kahoot-options button:focus-visible {
+    outline: 3px solid var(--oq-ink);
+    outline-offset: 3px;
+}
+
+.oq-a11y-tools {
+    position: fixed;
+    inset-block-end: 12px;
+    inset-inline-start: 12px;
+    z-index: 90;
+}
+.oq-locale-select {
+    min-height: 44px;
+    padding: 0 10px;
+    border: 1px solid var(--oq-border-strong);
+    border-radius: var(--radius-panel);
+    background: var(--oq-surface);
+    color: var(--oq-ink);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+}
+
+.oq-update {
+    position: fixed;
+    inset-block-end: 12px;
+    inset-inline-end: 12px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: min(420px, calc(100vw - 24px));
+    padding: 12px 14px;
+    background: var(--oq-ink);
+    color: #ffffff;
+    border: 1px solid var(--oq-ink);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-overlay);
+    font-size: 14px;
+}
+.oq-update .btn-primary {
+    background: #ffffff;
+    color: var(--oq-ink);
+    border-color: #ffffff;
+}
+
+html[dir="rtl"] {
+    font-family: "Noto Sans", "Noto Naskh Arabic", Tahoma, sans-serif;
+}
+
+@media (prefers-contrast: more) {
+    :root {
+        --oq-ink: #000000;
+        --oq-ink-soft: #1a1a1a;
+        --oq-border: #6e2430;
+        --oq-border-strong: #6e2430;
+    }
+    .card,
+    .input-underline,
+    .renderer-host button {
+        border-width: 2px;
+    }
+}
+
+@media (forced-colors: active) {
+    :focus-visible,
+    .stage :focus-visible,
+    .renderer-host .kahoot-options button:focus-visible {
+        outline-color: Highlight;
+    }
+    .btn,
+    .renderer-host button,
+    .oq-locale-select {
+        border: 1px solid ButtonText;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+html.motion-reduced *,
+html.motion-reduced *::before,
+html.motion-reduced *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
 }

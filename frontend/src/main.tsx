@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { App } from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { applyStoredTheme, motionReduced, useUIStore, watchSystemTheme } from "./stores/useUIStore";
+import { applyStoredLocale } from "./i18n";
 import { audio } from "./services/AudioEngine";
 import { motion } from "./services/MotionService";
 import "@fontsource/noto-sans-mono/400.css";
@@ -16,6 +17,13 @@ import "./index.css";
 // Light-only lockdown (see useUIStore).
 applyStoredTheme();
 watchSystemTheme();
+applyStoredLocale();
+
+// PWA install metadata is injected here so index.html stays untouched.
+const manifestLink = document.createElement("link");
+manifestLink.rel = "manifest";
+manifestLink.href = "/manifest.webmanifest";
+document.head.appendChild(manifestLink);
 
 // Keep the imperative motion engine in sync with the persisted motion
 // preference (the system default honors the OS reduced-motion setting).
@@ -53,12 +61,3 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </QueryClientProvider>
     </React.StrictMode>,
 );
-
-// Instant repeat loads (production only; dev server must stay untouched).
-if (import.meta.env.PROD && "serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/sw.js").catch(() => {
-            /* offline shell is an enhancement, never a hard dependency */
-        });
-    });
-}

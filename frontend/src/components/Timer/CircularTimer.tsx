@@ -67,9 +67,16 @@ export function CircularTimer({ endEpochMs, totalSec, onExpire }: CircularTimerP
             <div
                 role="timer"
                 aria-label={`${secs} seconds remaining`}
-                className="absolute inset-0 flex items-center justify-center font-mono text-xl font-semibold"
+                className={`absolute inset-0 flex flex-col items-center justify-center font-mono font-semibold ${
+                    low ? "text-3xl text-[var(--oq-warning)]" : "text-xl"
+                }`}
             >
                 {secs}
+                {low && secs > 0 && (
+                    <span aria-hidden="true" className="label-caps text-[8px] tracking-widest">
+                        Hurry
+                    </span>
+                )}
             </div>
         </div>
     );

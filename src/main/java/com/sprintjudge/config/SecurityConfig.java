@@ -157,7 +157,7 @@ public class SecurityConfig {
 										// Public SPA deep links (mirrors SpaWebConfig forward + router.tsx):
 										// join QR codes point at /j/<pin> on this origin.
 										.requestMatchers("/j/**", "/join", "/play", "/host", "/results", "/solo",
-												"/practice", "/explore", "/watch/**")
+												"/practice", "/explore", "/watch/**", "/profile")
 										.permitAll().requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
 										// Ops endpoints stay admin-gated (health alone is public).
 										.requestMatchers("/actuator/prometheus", "/actuator/metrics", "/actuator/info")
