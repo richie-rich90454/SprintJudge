@@ -29,94 +29,97 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings("all")
 class AssignmentControllerTest {
 
-  private final AssignmentService service = mock(AssignmentService.class);
-  private final AssignmentController controller = new AssignmentController(service);
+	private final AssignmentService service = mock(AssignmentService.class);
+	private final AssignmentController controller = new AssignmentController(service);
 
-  @AfterEach
-  void clearContext() {
-    SecurityContextHolder.clearContext();
-  }
+	@AfterEach
+	void clearContext() {
+		SecurityContextHolder.clearContext();
+	}
 
-  @Test
-  void delegatesReadAndRosterEndpoints() {
-    Assignment assignment = new Assignment();
-    when(service.list()).thenReturn(List.of(assignment));
-    when(service.require("a1")).thenReturn(assignment);
-    when(service.roster("a1")).thenReturn(List.of(new RosterStudent()));
-    when(service.progress("a1")).thenReturn(List.of(new StudentProgress()));
-    when(service.importRoster("a1", "s1,u\n")).thenReturn(1);
-    when(service.start("a1", "s1")).thenReturn(new StudentProgress());
-    when(service.studentProgress("a1", "s1")).thenReturn(new StudentProgress());
+	@Test
+	void delegatesReadAndRosterEndpoints() {
+		Assignment assignment = new Assignment();
+		when(service.list()).thenReturn(List.of(assignment));
+		when(service.require("a1")).thenReturn(assignment);
+		when(service.roster("a1")).thenReturn(List.of(new RosterStudent()));
+		when(service.progress("a1")).thenReturn(List.of(new StudentProgress()));
+		when(service.importRoster("a1", "s1,u\n")).thenReturn(1);
+		when(service.start("a1", "s1")).thenReturn(new StudentProgress());
+		when(service.studentProgress("a1", "s1")).thenReturn(new StudentProgress());
 
-    assertEquals(1, controller.list().size());
-    assertEquals(assignment, controller.get("a1"));
-    assertEquals(1, controller.roster("a1").size());
-    assertEquals(1, controller.progress("a1").size());
-    assertEquals(1, controller.importRoster("a1", Map.of("csv", "s1,u\n")).get("imported"));
-    assertEquals(assignment, controller.publicGet("a1"));
-    assertNotNull(controller.start("a1", Map.of("studentId", "s1")));
-    assertNotNull(controller.studentProgress("a1", "s1"));
-    when(service.validateLtiLaunch(any())).thenReturn(Map.of("valid", true));
-    assertEquals(true, controller.ltiLaunch(Map.of("iss", "x")).get("valid"));
-  }
+		assertEquals(1, controller.list().size());
+		assertEquals(assignment, controller.get("a1"));
+		assertEquals(1, controller.roster("a1").size());
+		assertEquals(1, controller.progress("a1").size());
+		assertEquals(1, controller.importRoster("a1", Map.of("csv", "s1,u\n")).get("imported"));
+		assertEquals(assignment, controller.publicGet("a1"));
+		assertNotNull(controller.start("a1", Map.of("studentId", "s1")));
+		assertNotNull(controller.studentProgress("a1", "s1"));
+		when(service.validateLtiLaunch(any())).thenReturn(Map.of("valid", true));
+		assertEquals(true, controller.ltiLaunch(Map.of("iss", "x")).get("valid"));
+	}
 
-  @Test
-  void createResolvesHostFromSessionOnly() {
-    Assignment body = new Assignment();
-    when(service.create(any(), anyString())).thenReturn(body);
-    assertEquals(body, controller.create(body));
-    verify(service).create(body, "system@local");
+	@Test
+	void createResolvesHostFromSessionOnly() {
+		Assignment body = new Assignment();
+		when(service.create(any(), anyString())).thenReturn(body);
+		assertEquals(body, controller.create(body));
+		verify(service).create(body, "system@local");
 
-    assertEquals("host@x.y", hostFor("host@x.y"));
-    assertEquals("system@local", hostFor("   "));
-    assertEquals("system@local", hostFor(new Object()));
-    assertEquals("u@x.y", hostFor(User.withUsername("u@x.y").password("p").roles("ADMIN").build()));
-    assertEquals("oauth@x.y", hostFor(oauth("oauth@x.y")));
-    assertEquals("system@local", hostFor(oauth(null)));
-    assertEquals("system@local", hostFor(oauth("  ")));
-  }
+		assertEquals("host@x.y", hostFor("host@x.y"));
+		assertEquals("system@local", hostFor("   "));
+		assertEquals("system@local", hostFor(new Object()));
+		assertEquals("u@x.y", hostFor(User.withUsername("u@x.y").password("p").roles("ADMIN").build()));
+		assertEquals("oauth@x.y", hostFor(oauth("oauth@x.y")));
+		assertEquals("system@local", hostFor(oauth(null)));
+		assertEquals("system@local", hostFor(oauth("  ")));
+	}
 
-  private String hostFor(Object principal) {
-    org.mockito.Mockito.clearInvocations(service);
-    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(principal, "p"));
-    ArgumentCaptor<String> host = ArgumentCaptor.forClass(String.class);
-    controller.create(new Assignment());
-    verify(service).create(any(), host.capture());
-    SecurityContextHolder.clearContext();
-    return host.getValue();
-  }
+	private String hostFor(Object principal) {
+		org.mockito.Mockito.clearInvocations(service);
+		SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(principal, "p"));
+		ArgumentCaptor<String> host = ArgumentCaptor.forClass(String.class);
+		controller.create(new Assignment());
+		verify(service).create(any(), host.capture());
+		SecurityContextHolder.clearContext();
+		return host.getValue();
+	}
 
-  private static OAuth2User oauth(String email) {
-    OAuth2User user = mock(OAuth2User.class);
-    when(user.getAttribute("email")).thenReturn(email);
-    return user;
-  }
+	private static OAuth2User oauth(String email) {
+		OAuth2User user = mock(OAuth2User.class);
+		when(user.getAttribute("email")).thenReturn(email);
+		return user;
+	}
 
-  @Test
-  void recordGradeParsesAndDefaultsMax() {
-    assertEquals(400, assertThrows(ResponseStatusException.class,
-        () -> controller.recordGrade("a1", Map.of("score", 1))).getStatusCode().value());
-    assertEquals(400, assertThrows(ResponseStatusException.class,
-        () -> controller.recordGrade("a1", Map.of("studentId", "s1"))).getStatusCode().value());
+	@Test
+	void recordGradeParsesAndDefaultsMax() {
+		assertEquals(400,
+				assertThrows(ResponseStatusException.class, () -> controller.recordGrade("a1", Map.of("score", 1)))
+						.getStatusCode().value());
+		assertEquals(400, assertThrows(ResponseStatusException.class,
+				() -> controller.recordGrade("a1", Map.of("studentId", "s1"))).getStatusCode().value());
 
-    when(service.defaultMaxScore("a1")).thenReturn(50);
-    when(service.recordGrade(anyString(), anyString(), org.mockito.ArgumentMatchers.anyInt(),
-            org.mockito.ArgumentMatchers.anyInt()))
-        .thenReturn(new GradeResult());
-    assertNotNull(controller.recordGrade("a1", Map.of("studentId", "s1", "score", 10)));
-    verify(service).recordGrade("a1", "s1", 10, 50);
+		when(service.defaultMaxScore("a1")).thenReturn(50);
+		when(service.recordGrade(anyString(), anyString(), org.mockito.ArgumentMatchers.anyInt(),
+				org.mockito.ArgumentMatchers.anyInt())).thenReturn(new GradeResult());
+		assertNotNull(controller.recordGrade("a1", Map.of("studentId", "s1", "score", 10)));
+		verify(service).recordGrade("a1", "s1", 10, 50);
 
-    assertNotNull(controller.recordGrade("a1", Map.of("studentId", "s1", "score", "20", "maxScore", "80")));
-    verify(service).recordGrade("a1", "s1", 20, 80);
+		assertNotNull(controller.recordGrade("a1", Map.of("studentId", "s1", "score", "20", "maxScore", "80")));
+		verify(service).recordGrade("a1", "s1", 20, 80);
 
-    assertNotNull(controller.recordGrade("a1",
-        Map.of("studentId", "s1", "score", 5, "maxScore", Integer.valueOf(25))));
-    verify(service).recordGrade("a1", "s1", 5, 25);
+		assertNotNull(
+				controller.recordGrade("a1", Map.of("studentId", "s1", "score", 5, "maxScore", Integer.valueOf(25))));
+		verify(service).recordGrade("a1", "s1", 5, 25);
 
-    assertEquals(400, assertThrows(ResponseStatusException.class,
-        () -> controller.recordGrade("a1", Map.of("studentId", "s1", "score", "x"))).getStatusCode().value());
-    assertEquals(400, assertThrows(ResponseStatusException.class,
-        () -> controller.recordGrade("a1", Map.of("studentId", "s1", "score", 1, "maxScore", "x")))
-        .getStatusCode().value());
-  }
+		assertEquals(400,
+				assertThrows(ResponseStatusException.class,
+						() -> controller.recordGrade("a1", Map.of("studentId", "s1", "score", "x"))).getStatusCode()
+						.value());
+		assertEquals(400,
+				assertThrows(ResponseStatusException.class,
+						() -> controller.recordGrade("a1", Map.of("studentId", "s1", "score", 1, "maxScore", "x")))
+						.getStatusCode().value());
+	}
 }

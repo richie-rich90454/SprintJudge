@@ -35,7 +35,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-/** Persistence and rules for async assignments, rosters, progress and grades. */
+/**
+ * Persistence and rules for async assignments, rosters, progress and grades.
+ */
 @Service
 public class AssignmentService {
 
@@ -87,8 +89,8 @@ public class AssignmentService {
 	@PostConstruct
 	void initSchema() {
 		try (Connection conn = dataSource.getConnection()) {
-			EncodedResource resource = new EncodedResource(
-					new ClassPathResource("db/migration/V4__assignments.sql"), StandardCharsets.UTF_8);
+			EncodedResource resource = new EncodedResource(new ClassPathResource("db/migration/V4__assignments.sql"),
+					StandardCharsets.UTF_8);
 			ScriptUtils.executeSqlScript(conn, resource);
 		} catch (Exception e) {
 			throw new IllegalStateException("Assignment schema initialization failed", e);
@@ -148,7 +150,9 @@ public class AssignmentService {
 				.fetch(this::toRosterStudent);
 	}
 
-	/** Imports a CSV roster. Columns: student_id,name,email (name/email optional). */
+	/**
+	 * Imports a CSV roster. Columns: student_id,name,email (name/email optional).
+	 */
 	public int importRoster(String assignmentId, String csv) {
 		require(assignmentId);
 		if (csv == null || csv.isBlank())
@@ -185,8 +189,8 @@ public class AssignmentService {
 	}
 
 	private void saveRosterStudent(String assignmentId, String studentId, String name, String email) {
-		Integer known = dsl.selectCount().from(ROSTER)
-				.where(R_ASSIGNMENT.eq(assignmentId).and(R_STUDENT.eq(studentId))).fetchOne(0, Integer.class);
+		Integer known = dsl.selectCount().from(ROSTER).where(R_ASSIGNMENT.eq(assignmentId).and(R_STUDENT.eq(studentId)))
+				.fetchOne(0, Integer.class);
 		if (known != null && known > 0) {
 			dsl.update(ROSTER).set(R_NAME, name).set(R_EMAIL, email)
 					.where(R_ASSIGNMENT.eq(assignmentId).and(R_STUDENT.eq(studentId))).execute();
@@ -202,7 +206,9 @@ public class AssignmentService {
 				.fetch(this::toProgress);
 	}
 
-	/** Starts (or resumes) a student's work, enforcing release/due and roster rules. */
+	/**
+	 * Starts (or resumes) a student's work, enforcing release/due and roster rules.
+	 */
 	public StudentProgress start(String assignmentId, String studentId) {
 		Assignment assignment = require(assignmentId);
 		long now = Instant.now().getEpochSecond();
@@ -223,13 +229,13 @@ public class AssignmentService {
 	public StudentProgress studentProgress(String assignmentId, String studentId) {
 		require(assignmentId);
 		String student = requireStudent(studentId);
-		return findProgress(assignmentId, student).orElseGet(() -> new StudentProgress("", assignmentId, student,
-				"NOT_STARTED", null, null, null, null, null));
+		return findProgress(assignmentId, student).orElseGet(
+				() -> new StudentProgress("", assignmentId, student, "NOT_STARTED", null, null, null, null, null));
 	}
 
 	/** Records a grade and returns the generic grade-passback payload. */
 	public GradeResult recordGrade(String assignmentId, String studentId, int score, int maxScore) {
-		Assignment assignment = require(assignmentId);
+		require(assignmentId);
 		String student = requireStudent(studentId);
 		requireRosterMember(assignmentId, student);
 		if (maxScore <= 0 || score < 0 || score > maxScore)
@@ -268,7 +274,8 @@ public class AssignmentService {
 		String context = asText(claims.get("context_id"));
 		if (context != null)
 			result.put("contextId", context);
-		String payload = Json.write(Map.of("iss", issuer, "aud", audience, "sub", subject, "deployment_id", deployment));
+		String payload = Json
+				.write(Map.of("iss", issuer, "aud", audience, "sub", subject, "deployment_id", deployment));
 		String encoded = Base64.getUrlEncoder().withoutPadding()
 				.encodeToString(payload.getBytes(StandardCharsets.UTF_8));
 		result.put("signedLaunch", "PLACEHOLDER." + encoded + ".UNSIGNED");
@@ -277,7 +284,7 @@ public class AssignmentService {
 
 	private String requiredClaim(Map<String, ?> claims, String name) {
 		String value = asText(claims.get(name));
-		if (value == null || value.isEmpty() || value.length() > 512)
+		if (value == null || value.length() > 512)
 			throw fail(HttpStatus.BAD_REQUEST, "Invalid or missing launch claim: " + name);
 		return value;
 	}
@@ -329,8 +336,8 @@ public class AssignmentService {
 	}
 
 	private void requireRosterMember(String assignmentId, String student) {
-		Integer known = dsl.selectCount().from(ROSTER)
-				.where(R_ASSIGNMENT.eq(assignmentId).and(R_STUDENT.eq(student))).fetchOne(0, Integer.class);
+		Integer known = dsl.selectCount().from(ROSTER).where(R_ASSIGNMENT.eq(assignmentId).and(R_STUDENT.eq(student)))
+				.fetchOne(0, Integer.class);
 		if (known == null || known == 0)
 			throw fail(HttpStatus.FORBIDDEN, "Student is not in this assignment roster");
 	}
