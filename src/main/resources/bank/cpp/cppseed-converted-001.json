@@ -14,7 +14,7 @@
       },
       "format": "BUG_SPOTTING",
       "stimulus": null,
-      "stem": "Click the line that contains the bug.",
+      "stem": "A switch dispatches on mode, but selecting mode 1 unexpectedly runs the stop routine too. Which line is the bug?\nswitch (mode) {\ncase 1: start();\ncase 2: stop();\n        break;\n}",
       "options": [
         {
           "id": "A",
@@ -24,14 +24,24 @@
         {
           "id": "B",
           "text": "case 2: stop();",
-          "misconception": "treats this line as the source of the fault"
+          "misconception": "Blames a label whose own body is correct"
+        },
+        {
+          "id": "C",
+          "text": "        break;",
+          "misconception": "Blames the break that correctly ends case 2"
+        },
+        {
+          "id": "D",
+          "text": "switch (mode) {",
+          "misconception": "Blames the valid switch header"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "The fault is on line 1: case 1: start();. The remaining lines are valid in this context, so changing them does not remove the defect.",
-      "hint": "Read each line in execution order and ask which one breaks the stated intent.",
+      "explanation": "Line A is the bug: case 1 has no break, so after start() execution falls through into case 2 and stop() also runs. Adding break after start() would prevent that. The body of case 2 on B, its break on C, and the switch header on D are all correct; the missing break is the entire defect.",
+      "hint": "Trace what happens after the matching case body finishes.",
       "difficulty": 0.5,
       "discrimination": 0.35,
       "responseTimeBaseline": {
@@ -42,7 +52,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-22T13:52:45.426Z",
+        "reviewedAt": "2026-11-23T08:09:09.046Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -57,7 +67,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "cppseed-1.1-0002",
@@ -353,13 +363,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A warehouse reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -371,7 +381,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -386,7 +396,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0007",
@@ -402,7 +412,7 @@
       },
       "format": "BUG_SPOTTING",
       "stimulus": null,
-      "stem": "Click the line that contains the bug.",
+      "stem": "This loop is meant to print every element of vector v, but it reads one element too far. Which line is the bug?\nvector<int> v = {1, 2, 3};\nfor (size_t i = 0; i <= v.size(); ++i) {\n    cout << v[i];\n}",
       "options": [
         {
           "id": "A",
@@ -411,20 +421,25 @@
         },
         {
           "id": "B",
-          "text": "    cout << v[i];",
-          "misconception": "treats this line as the source of the fault"
+          "text": "vector<int> v = {1, 2, 3};",
+          "misconception": "Blames the valid vector initialization"
         },
         {
           "id": "C",
-          "text": "}",
-          "misconception": "treats this line as the source of the fault"
+          "text": "    cout << v[i];",
+          "misconception": "Blames the valid element output"
+        },
+        {
+          "id": "D",
+          "text": "    cout << endl;",
+          "misconception": "Blames the valid newline output"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "The fault is on line 1: for (size_t i = 0; i <= v.size(); ++i) {. The remaining lines are valid in this context, so changing them does not remove the defect.",
-      "hint": "Read each line in execution order and ask which one breaks the stated intent.",
+      "explanation": "Line A is the bug: for a vector of size 3 the valid indices are 0, 1, and 2, but i <= v.size() lets i reach 3, so v[3] is accessed out of range. The condition should be i < v.size(). The initialization on B, the cout on C, and the brace on D are all valid; only the loop bound is wrong.",
+      "hint": "Compare the largest index the loop reaches with size() minus one.",
       "difficulty": 0.5,
       "discrimination": 0.35,
       "responseTimeBaseline": {
@@ -435,7 +450,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-22T13:52:45.426Z",
+        "reviewedAt": "2026-11-23T08:09:09.046Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -450,7 +465,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "cppseed-1.1-0008",
@@ -677,13 +692,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A ticket desk reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -695,7 +710,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -710,7 +725,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0012",
@@ -864,34 +879,34 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "[&] captures variables by…",
+      "stem": "A C++ lambda uses a capture default of [&] to reach variables from the surrounding scope. How does it capture those variables?",
       "options": [
         {
           "id": "A",
-          "text": "value",
-          "misconception": "believes value is the correct result"
+          "text": "by value",
+          "misconception": "Confuses [&] with the [=] capture default"
         },
         {
           "id": "B",
-          "text": "reference",
+          "text": "by reference",
           "misconception": ""
         },
         {
           "id": "C",
-          "text": "move",
-          "misconception": "believes move is the correct result"
+          "text": "by move",
+          "misconception": "Mistakes a capture default for the std::move utility"
         },
         {
           "id": "D",
-          "text": "no capture",
-          "misconception": "believes no capture is the correct result"
+          "text": "not at all",
+          "misconception": "Reads the brackets as an empty capture list"
         }
       ],
       "answer": {
         "correctId": "B"
       },
-      "explanation": "The correct choice is reference. value is incorrect because it believes value is the correct result. move is incorrect because it believes move is the correct result. no capture is incorrect because it believes no capture is the correct result.",
-      "hint": "Compare each option against the relationship stated in the question.",
+      "explanation": "The ampersand in the capture default [&] specifies that outer variables are captured by reference, so the lambda can observe changes to them. Option A describes [=] instead; C introduces move semantics, which a plain capture default does not do; D would be true only for an empty [] list.",
+      "hint": "Match the symbol in the capture default to C++ reference syntax.",
       "difficulty": 0.5,
       "discrimination": 0.35,
       "responseTimeBaseline": {
@@ -902,7 +917,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-22T13:52:45.426Z",
+        "reviewedAt": "2026-11-23T08:13:20.395Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -917,7 +932,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "cppseed-1.1-0015",
@@ -1351,13 +1366,13 @@
         "body": "Input:\naaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A donation drive reads the line \"aaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 6,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 6. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 6 letters, so the program prints 6 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -1369,7 +1384,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -1384,7 +1399,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0022",
@@ -1469,34 +1484,34 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "[](){}() is a…",
+      "stem": "A C++ source file contains the compact expression [](){}(). What language construct does this expression create and immediately run?",
       "options": [
         {
           "id": "A",
-          "text": "function declaration",
-          "misconception": "believes function declaration is the correct result"
+          "text": "a named function",
+          "misconception": "Misses that the brackets define an unnamed callable"
         },
         {
           "id": "B",
-          "text": "lambda expression",
+          "text": "an invoked lambda",
           "misconception": ""
         },
         {
           "id": "C",
-          "text": "macro",
-          "misconception": "believes macro is the correct result"
+          "text": "a macro expansion",
+          "misconception": "Looks for preprocessor syntax where none exists"
         },
         {
           "id": "D",
-          "text": "template",
-          "misconception": "believes template is the correct result"
+          "text": "a template call",
+          "misconception": "Confuses parentheses with a template argument list"
         }
       ],
       "answer": {
         "correctId": "B"
       },
-      "explanation": "The correct choice is lambda expression. function declaration is incorrect because it believes function declaration is the correct result. macro is incorrect because it believes macro is the correct result. template is incorrect because it believes template is the correct result.",
-      "hint": "Compare each option against the relationship stated in the question.",
+      "explanation": "The tokens are an empty capture list [], an empty parameter list (), an empty body {}, and a trailing () that calls the resulting object, so it is a lambda that is defined and invoked on the spot. Option A expects a name that is absent; C invokes the preprocessor without a #define; D mistakes the parentheses for template arguments.",
+      "hint": "Identify the empty capture list and the call that follows the body.",
       "difficulty": 0.5,
       "discrimination": 0.35,
       "responseTimeBaseline": {
@@ -1507,7 +1522,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-22T13:52:45.426Z",
+        "reviewedAt": "2026-11-23T08:13:20.395Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -1522,7 +1537,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "cppseed-1.1-0024",
@@ -1611,13 +1626,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A sensor log reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -1629,7 +1644,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -1644,7 +1659,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0026",
@@ -2216,13 +2231,13 @@
         "body": "Input:\naaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A survey team reads the line \"aaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 5,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 5. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 5 letters, so the program prints 5 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -2234,7 +2249,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -2249,7 +2264,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0035",
@@ -2338,13 +2353,13 @@
         "body": "Input:\naaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A bakery reads the line \"aaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 6,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 6. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 6 letters, so the program prints 6 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -2356,7 +2371,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -2371,7 +2386,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0037",
@@ -2391,13 +2406,13 @@
         "body": "Input:\naaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A clinic reads the line \"aaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 5,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 5. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 5 letters, so the program prints 5 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -2409,7 +2424,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -2424,7 +2439,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0038",
@@ -2513,13 +2528,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A library reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -2531,7 +2546,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -2546,7 +2561,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0040",
@@ -2704,13 +2719,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A farm co-op reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -2722,7 +2737,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -2737,7 +2752,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0043",
@@ -2757,13 +2772,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A courier service reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -2775,7 +2790,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -2790,7 +2805,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0044",
@@ -2948,13 +2963,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A recycling depot reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -2966,7 +2981,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -2981,7 +2996,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0047",
@@ -2997,34 +3012,34 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "constexpr functions are evaluated…",
+      "stem": "A C++ developer declares a function constexpr and wants to know when it may be evaluated. Which statement is correct?",
       "options": [
         {
           "id": "A",
-          "text": "only at runtime",
-          "misconception": "believes only at runtime is the correct result"
+          "text": "only while the program runs",
+          "misconception": "Denies that compile-time evaluation is ever possible"
         },
         {
           "id": "B",
-          "text": "at compile time when possible",
+          "text": "during compilation when possible",
           "misconception": ""
         },
         {
           "id": "C",
-          "text": "never",
-          "misconception": "believes never is the correct result"
+          "text": "never, by any compiler",
+          "misconception": "Treats constexpr as a mere hint with no guarantee"
         },
         {
           "id": "D",
           "text": "only in debug builds",
-          "misconception": "believes only in debug builds is the correct result"
+          "misconception": "Confuses compile-time evaluation with a build configuration"
         }
       ],
       "answer": {
         "correctId": "B"
       },
-      "explanation": "The correct choice is at compile time when possible. only at runtime is incorrect because it believes only at runtime is the correct result. never is incorrect because it believes never is the correct result. only in debug builds is incorrect because it believes only in debug builds is the correct result.",
-      "hint": "Compare each option against the relationship stated in the question.",
+      "explanation": "A constexpr function is eligible for evaluation at compile time when its arguments are constant expressions, though it can still run at runtime otherwise. Option A and C wrongly rule out compile-time evaluation entirely, and D ties the behavior to debug builds, which has no bearing on constexpr semantics.",
+      "hint": "Consider what the compiler can do when all arguments are known constants.",
       "difficulty": 0.5,
       "discrimination": 0.35,
       "responseTimeBaseline": {
@@ -3035,7 +3050,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-22T13:52:45.428Z",
+        "reviewedAt": "2026-11-23T08:13:20.395Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3050,7 +3065,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "cppseed-1.1-0048",
@@ -3070,13 +3085,13 @@
         "body": "Input:\naaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A school cafeteria reads the line \"aaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 5,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 5. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 5 letters, so the program prints 5 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3088,7 +3103,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3103,7 +3118,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0049",
@@ -3123,13 +3138,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A hospital ward reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3141,7 +3156,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3156,7 +3171,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0050",
@@ -3176,13 +3191,13 @@
         "body": "Input:\naaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A hotel front desk reads the line \"aaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 5,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 5. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 5 letters, so the program prints 5 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3194,7 +3209,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3209,7 +3224,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0051",
@@ -3229,13 +3244,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A train station reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3247,7 +3262,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3262,7 +3277,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0052",
@@ -3420,13 +3435,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A call center reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3438,7 +3453,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3453,7 +3468,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0055",
@@ -3473,13 +3488,13 @@
         "body": "Input:\naaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A weather station reads the line \"aaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 6,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 6. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 6 letters, so the program prints 6 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3491,7 +3506,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3506,7 +3521,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0056",
@@ -3526,13 +3541,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A reservoir reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3544,7 +3559,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3559,7 +3574,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0057",
@@ -3579,13 +3594,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A bookstore reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3597,7 +3612,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3612,7 +3627,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0058",
@@ -3632,13 +3647,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A garden centre reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3650,7 +3665,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3665,7 +3680,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0059",
@@ -3685,13 +3700,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A toy factory reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3703,7 +3718,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3718,7 +3733,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0060",
@@ -3738,13 +3753,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A film studio reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3756,7 +3771,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3771,7 +3786,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0061",
@@ -3791,13 +3806,13 @@
         "body": "Input:\naaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A radio playlist reads the line \"aaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 6,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 6. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 6 letters, so the program prints 6 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3809,7 +3824,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3824,7 +3839,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0062",
@@ -3844,13 +3859,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A shipping port reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3862,7 +3877,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3877,7 +3892,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0063",
@@ -3897,13 +3912,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A community pantry reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3915,7 +3930,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3930,7 +3945,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0064",
@@ -3950,13 +3965,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A music festival reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -3968,7 +3983,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -3983,7 +3998,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0065",
@@ -4003,13 +4018,13 @@
         "body": "Input:\naaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A data centre reads the line \"aaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 6,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 6. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 6 letters, so the program prints 6 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -4021,7 +4036,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -4036,7 +4051,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0066",
@@ -4056,13 +4071,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A car dealership reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -4074,7 +4089,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -4089,7 +4104,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0067",
@@ -4109,13 +4124,13 @@
         "body": "Input:\naaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A vet clinic reads the line \"aaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 5,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 5. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 5 letters, so the program prints 5 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -4127,7 +4142,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -4142,7 +4157,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0068",
@@ -4162,13 +4177,13 @@
         "body": "Input:\naaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A print shop reads the line \"aaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 6,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 6. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 6 letters, so the program prints 6 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -4180,7 +4195,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -4195,7 +4210,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0069",
@@ -4215,13 +4230,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A post office reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -4233,7 +4248,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -4248,7 +4263,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0070",
@@ -4268,13 +4283,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A kitchen reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -4286,7 +4301,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -4301,7 +4316,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0071",
@@ -4321,13 +4336,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A greenhouse reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -4339,7 +4354,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -4354,7 +4369,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0072",
@@ -4374,13 +4389,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A museum reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -4392,7 +4407,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -4407,7 +4422,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0073",
@@ -4427,13 +4442,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A gym reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -4445,7 +4460,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -4460,7 +4475,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     },
     {
       "id": "cppseed-1.1-0074",
@@ -4480,13 +4495,13 @@
         "body": "Input:\naaaaaaa z",
         "license": "original"
       },
-      "stem": "Read one line of words; print the longest word's LENGTH.",
+      "stem": "A travel agency reads the line \"aaaaaaa z\"; what is the length of its longest word?",
       "options": [],
       "answer": {
         "value": 7,
         "tolerance": 0.01
       },
-      "explanation": "Applying the stated input to the task yields 7. The hidden cases check the same relationship with other inputs.",
+      "explanation": "The longest word in the line contains 7 letters, so the program prints 7 — the word's length, not the word itself.",
       "hint": "Trace the required transformation once on the sample input.",
       "difficulty": 0.5,
       "discrimination": 0.35,
@@ -4498,7 +4513,7 @@
       "provenance": {
         "author": "bank-team-seed-migration",
         "reviewer": "bank-review-seed-migration",
-        "reviewedAt": "2026-11-23T12:00:00.000Z",
+        "reviewedAt": "2026-11-23T08:11:21.577Z",
         "aiAssisted": true,
         "aiModel": "legacy-template",
         "aiRunId": "seed-conversion-1",
@@ -4513,7 +4528,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 2
+      "version": 3
     }
   ]
 }
