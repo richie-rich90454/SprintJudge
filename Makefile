@@ -132,9 +132,41 @@ test-frontend: ## Frontend typecheck + 100% coverage of pure-logic .ts (UI .tsx 
 	cd $(FRONTEND) && $(NPX) tsc --noEmit && $(NPM) run test:unit
 
 .PHONY: test-e2e
-test-e2e: ## Playwright specs (needs make dev-backend running).
+test-e2e: ## Playwright specs; boots a CI-equivalent backend on :8080 and Vite on :5173.
 	cd $(FRONTEND) && $(NPX) playwright install
-	$(NPM) run test:e2e --prefix $(FRONTEND)
+	@if [ "$(SKIP_BUILD)" != "1" ]; then pkill -f 'sprintjudge\.jar' 2>/dev/null || true; sleep 1; javatmpr=$$(mktemp -d -p .); $(MAKE) build-frontend && JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=$$javatmpr" $(MVNW) -q package -Dmaven.test.skip=true; rc=$$?; rm -rf "$$javatmpr"; exit $$rc; fi
+	@logdir=target/e2e-run; mkdir -p "$$logdir"; \
+	kill_backend() { \
+	  if [ "$(OS)" = "Windows_NT" ]; then \
+	    powershell.exe -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $$_.Name -eq "java.exe" -and ($$_.CommandLine -like "*sprintjudge.jar*" -or $$_.CommandLine -like "*e2e-backend.jar*") } | ForEach-Object { Stop-Process -Id $$_.ProcessId -Force }' >/dev/null 2>&1 || true; \
+	  else \
+	    pkill -f 'sprintjudge[.]jar' 2>/dev/null || true; pkill -f 'e2e-backend[.]jar' 2>/dev/null || true; \
+	  fi; \
+	}; \
+	kill_backend; \
+	cp $(JAR) target/e2e-backend.jar; \
+	echo "Booting CI-equivalent backend on :8080 (public-run=true, admin=ci-admin-password)..."; \
+	SPRINTJUDGE_ADMIN_PASSWORD=ci-admin-password \
+	  java -jar target/e2e-backend.jar --spring.profiles.active=prod --server.port=8080 \
+	    --sprintjudge.executor.public-run=true --server.servlet.session.cookie.secure=false \
+	    >"$$logdir/backend.log" 2>&1 & \
+	trap 'kill_backend; kill $${vite_pid:-} 2>/dev/null; rm -f target/e2e-backend.jar 2>/dev/null || true; rm -rf "$$logdir" 2>/dev/null || true' EXIT; \
+	ok=0; \
+	for i in $$(seq 1 120); do \
+	  if curl -fsS http://127.0.0.1:8080/actuator/health >/dev/null 2>&1; then ok=1; break; fi; \
+	  sleep 2; \
+	done; \
+	if [ "$$ok" != "1" ]; then echo "E2E backend failed to boot:"; tail -100 "$$logdir/backend.log"; exit 1; fi; \
+	if ! curl -fsS http://127.0.0.1:5173 >/dev/null 2>&1; then \
+	  echo "Starting Vite on :5173..."; \
+	  $(NPM) run dev --prefix $(FRONTEND) >"$$logdir/vite.log" 2>&1 & \
+	  vite_pid=$$!; \
+	  for i in $$(seq 1 60); do \
+	    if curl -fsS http://127.0.0.1:5173 >/dev/null 2>&1; then break; fi; \
+	    sleep 1; \
+	  done; \
+	fi; \
+	SPRINTJUDGE_ADMIN_PASSWORD=ci-admin-password $(NPM) run test:e2e --prefix $(FRONTEND)
 
 .PHONY: verify-prod
 verify-prod: ## Boot prod jar on :8091 and probe health (PORT=, SKIP_BUILD=1).

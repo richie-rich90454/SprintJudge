@@ -1,5 +1,9 @@
 import { test, expect } from "@playwright/test";
 
+// The PWA service worker claims the page and reloads on controllerchange,
+// cancelling the form POST before it reaches Spring Security.
+test.use({ serviceWorkers: "block" });
+
 /**
  * Regression guard for the CSA admin flow, run against the backend-served SPA
  * (the production path). A Spring Security 7 XOR CSRF handler once rejected the

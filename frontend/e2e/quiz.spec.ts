@@ -1,9 +1,10 @@
 import { test, expect } from "@playwright/test";
 
+test.use({ serviceWorkers: "block" });
+
 /**
- * Requires a running backend with a seeded library and the Vite dev server.
- * `make dev` is the intended runner. The tests use the public practice API so
- * they never depend on an admin session.
+ * `make test-e2e` boots the backend and Vite. The tests use the public
+ * practice API so they never depend on an admin session.
  */
 test.describe("SprintJudge live loop", () => {
     test("student joins a practice room, sees a question, and survives refresh", async ({

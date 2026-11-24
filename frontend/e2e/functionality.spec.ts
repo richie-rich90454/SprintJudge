@@ -1,6 +1,8 @@
 import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
+test.use({ serviceWorkers: "block" });
+
 const B = process.env.SPRINTJUDGE_BACKEND_URL ?? "http://127.0.0.1:8080";
 const PASSWORD = process.env.SPRINTJUDGE_ADMIN_PASSWORD ?? "ci-admin-password";
 
