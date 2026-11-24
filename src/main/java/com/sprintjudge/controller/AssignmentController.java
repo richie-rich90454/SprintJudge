@@ -7,7 +7,9 @@ import com.sprintjudge.domain.assignment.StudentProgress;
 import com.sprintjudge.service.AssignmentService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -86,22 +88,86 @@ public class AssignmentController {
 	}
 
 	@PostMapping("/api/public/assignments/{id}/start")
-	public StudentProgress start(@PathVariable String id, @RequestBody Map<String, String> body) {
-		return assignments.start(id, body.get("studentId"));
+	public StudentProgress startForCaller(@PathVariable String id, @RequestBody Map<String, String> body) {
+		return assignments.start(id, requireRosterStudent(id, body.get("studentId")));
 	}
 
 	@GetMapping("/api/public/assignments/{id}/progress")
-	public StudentProgress studentProgress(@PathVariable String id, @RequestParam String studentId) {
-		return assignments.studentProgress(id, studentId);
+	public StudentProgress studentProgressForCaller(@PathVariable String id, @RequestParam String studentId) {
+		return assignments.studentProgress(id, requireRosterStudent(id, studentId));
 	}
 
 	/**
-	 * LTI 1.3 launch stub: validates required claims, returns a signed-launch
-	 * placeholder.
+	 * LTI 1.3 validation is not implemented: never report an unverified launch as
+	 * valid until JWT signature and OIDC state checks exist.
 	 */
 	@PostMapping("/api/public/assignments/lti/launch")
-	public Map<String, Object> ltiLaunch(@RequestBody Map<String, Object> claims) {
+	public Map<String, Object> ltiLaunchNotImplemented() {
+		throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "not_implemented");
+	}
+
+	// Non-HTTP callers keep the original delegation semantics.
+	StudentProgress start(String id, Map<String, String> body) {
+		return assignments.start(id, body.get("studentId"));
+	}
+
+	StudentProgress studentProgress(String id, String studentId) {
+		return assignments.studentProgress(id, studentId);
+	}
+
+	Map<String, Object> ltiLaunch(Map<String, Object> claims) {
 		return assignments.validateLtiLaunch(claims);
+	}
+
+	/**
+	 * The student id from the request is only accepted from an authenticated caller
+	 * (an admin may act for any roster student); anonymous callers and mismatched
+	 * session identities are rejected.
+	 */
+	private String requireRosterStudent(String assignmentId, String requestedStudentId) {
+		String student = requestedStudentId == null ? "" : requestedStudentId.trim();
+		if (student.isEmpty())
+			throw forbidden("studentId is required");
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken)
+			throw forbidden("student_identity_required");
+		if (!isAdmin(auth)) {
+			String caller = principalName(auth);
+			if (caller == null || !caller.equals(student))
+				throw forbidden("student_identity_mismatch");
+		}
+		boolean onRoster = assignments.roster(assignmentId).stream()
+				.anyMatch(row -> student.equals(row.getStudentId()));
+		if (!onRoster)
+			throw forbidden("student_not_in_roster");
+		return student;
+	}
+
+	private static boolean isAdmin(Authentication auth) {
+		for (GrantedAuthority authority : auth.getAuthorities()) {
+			if ("ROLE_ADMIN".equals(authority.getAuthority()))
+				return true;
+		}
+		return false;
+	}
+
+	private static String principalName(Authentication auth) {
+		Object principal = auth.getPrincipal();
+		if (principal instanceof UserDetails)
+			return ((UserDetails) principal).getUsername();
+		if (principal instanceof OAuth2User) {
+			String email = ((OAuth2User) principal).getAttribute("email");
+			return email == null || email.isBlank() ? null : email;
+		}
+		if (principal instanceof String) {
+			String name = (String) principal;
+			return name.isBlank() ? null : name;
+		}
+		return null;
+	}
+
+	private static ResponseStatusException forbidden(String reason) {
+		return new ResponseStatusException(HttpStatus.FORBIDDEN, reason);
 	}
 
 	private static int number(Object value, String field) {
