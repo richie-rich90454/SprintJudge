@@ -72,13 +72,19 @@ export interface AdaptiveSetResult {
     difficultyBands: Record<string, number>;
 }
 
+/** Echo the Spring CSRF cookie, exactly like the Axios admin clients. */
+function xsrfHeaders(): Record<string, string> {
+    const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]*)/);
+    return match ? { "X-XSRF-TOKEN": match[1] } : {};
+}
+
 /** Same-origin cookies and JSON error messages as the other admin services. */
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
     let res: Response;
     try {
         res = await fetch(`/api${path}`, {
             credentials: "include",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...xsrfHeaders() },
             ...init,
         });
     } catch {

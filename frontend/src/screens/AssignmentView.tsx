@@ -18,7 +18,7 @@ function toEpoch(local: string): number | null {
 }
 
 function formatTime(seconds: number | null): string {
-    return seconds == null ? "—" : new Date(seconds * 1000).toLocaleString();
+    return seconds == null ? "-" : new Date(seconds * 1000).toLocaleString();
 }
 
 function tone(status: StudentProgress["status"]): "accent" | "neutral" | "success" | "danger" {
@@ -114,17 +114,30 @@ export function AssignmentView() {
                     </p>
                 </div>
 
-                <div className="flex gap-2">
-                    <Button variant={tab === "list" ? "primary" : "ghost"} onClick={() => setTab("list")}>
+                <div role="tablist" aria-label="Assignment views" className="flex gap-2">
+                    <Button
+                        id="assignment-list-tab"
+                        role="tab"
+                        aria-selected={tab === "list"}
+                        variant={tab === "list" ? "primary" : "ghost"}
+                        onClick={() => setTab("list")}
+                    >
                         All assignments
                     </Button>
-                    <Button variant={tab === "create" ? "primary" : "ghost"} onClick={() => setTab("create")}>
+                    <Button
+                        id="assignment-create-tab"
+                        role="tab"
+                        aria-selected={tab === "create"}
+                        variant={tab === "create" ? "primary" : "ghost"}
+                        onClick={() => setTab("create")}
+                    >
                         New assignment
                     </Button>
                 </div>
 
                 {tab === "create" && (
-                    <Card className="p-6 flex flex-col gap-4">
+                    <Card id="assignment-create-panel" role="tabpanel" aria-labelledby="assignment-create-tab"
+                        className="p-6 flex flex-col gap-4">
                         <Field label="Quiz" htmlFor="assignment-quiz">
                             <TextInput
                                 id="assignment-quiz"
@@ -181,7 +194,7 @@ export function AssignmentView() {
                 )}
 
                 {tab === "list" && (
-                    <>
+                    <div id="assignment-list-panel" role="tabpanel" aria-labelledby="assignment-list-tab">
                         {list.isPending && (
                             <div className="grid gap-4 md:grid-cols-2" role="status" aria-label="Loading assignments">
                                 <Skeleton className="h-28" />
@@ -230,7 +243,7 @@ export function AssignmentView() {
                                 ))}
                             </ul>
                         )}
-                    </>
+                    </div>
                 )}
 
                 {selectedId !== null && (
@@ -255,7 +268,9 @@ export function AssignmentView() {
                                     {importCsv.isPending ? "Importing…" : "Import CSV"}
                                 </Button>
                                 <span className="text-sm text-[var(--oq-ink-soft)]">
-                                    {roster.data?.length ?? 0} students in roster
+                                    {roster.isError
+                                        ? "Could not load roster"
+                                        : `${roster.data?.length ?? 0} students in roster`}
                                 </span>
                             </div>
                         </Card>
@@ -263,7 +278,16 @@ export function AssignmentView() {
                         <Card className="p-6 flex flex-col gap-3">
                             <p className="label-caps">Student progress</p>
                             {progress.isPending && <Skeleton className="h-20" />}
-                            {rows.length === 0 && <p className="text-sm text-[var(--oq-ink-soft)]">No progress yet.</p>}
+                            {progress.isError && (
+                                <EmptyState
+                                    title="Could not load student progress"
+                                    hint="Check your connection and try again."
+                                    action={<Button variant="secondary" onClick={() => progress.refetch()}>Retry</Button>}
+                                />
+                            )}
+                            {!progress.isPending && !progress.isError && rows.length === 0 && (
+                                <p className="text-sm text-[var(--oq-ink-soft)]">No progress yet.</p>
+                            )}
                             {rows.map((row) => {
                                 const draft = grades[row.studentId] ?? String(row.score ?? points);
                                 return (

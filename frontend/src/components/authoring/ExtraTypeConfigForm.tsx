@@ -209,7 +209,7 @@ export function ExtraTypePreview({ type, config }: PreviewProps) {
     return (
         <ol className="flex flex-col gap-2 text-sm m-0 pl-5">
             {parts.map((p, i) => (
-                <li key={p.id}>{p.prompt || `Part ${i + 1}`} — {p.kind}, {p.points} pt(s), answer: {p.answer || "(unset)"}</li>
+                <li key={p.id}>{p.prompt || `Part ${i + 1}`} - {p.kind}, {p.points} pt(s), answer: {p.answer || "(unset)"}</li>
             ))}
         </ol>
     );

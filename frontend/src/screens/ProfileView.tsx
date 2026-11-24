@@ -90,8 +90,9 @@ export function ProfileView() {
                         </Field>
                         {create.isError && (
                             <p className="text-sm text-[var(--oq-danger)]" role="alert">
-                                Could not create a profile: {String(create.error.message)}. Check the nickname and try
-                                again.
+                                Could not create a profile:{" "}
+                                {create.error instanceof Error ? create.error.message : "unknown error"}. Check the
+                                nickname and try again.
                             </p>
                         )}
                         <div>
@@ -137,8 +138,8 @@ export function ProfileView() {
                                 <p className="label-caps">Nickname</p>
                                 <h2 className="text-2xl font-extrabold">{data.profile.nickname}</h2>
                                 <p className="text-sm text-[var(--oq-ink-soft)] mt-1">
-                                    {data.stats.sessions} quiz{data.stats.sessions === 1 ? "" : "zes"} ·{" "}
-                                    {data.stats.totalScore} points · {data.stats.correct}/{data.stats.answers} correct
+                                    {data.stats.sessions} quiz{data.stats.sessions === 1 ? "" : "zes"} |{" "}
+                                    {data.stats.totalScore} points | {data.stats.correct}/{data.stats.answers} correct
                                 </p>
                             </div>
                             <div className="flex flex-wrap gap-2">
@@ -194,7 +195,7 @@ export function ProfileView() {
                                                 <div>
                                                     <p className="font-bold">{entry.quizTitle ?? "Quiz"}</p>
                                                     <p className="text-xs text-[var(--oq-ink-soft)]">
-                                                        {new Date(entry.playedAt).toLocaleDateString()} ·{" "}
+                                                        {new Date(entry.playedAt).toLocaleDateString()} |{" "}
                                                         {entry.correct}/{entry.answers} correct
                                                     </p>
                                                 </div>
@@ -218,7 +219,7 @@ export function ProfileView() {
                                                 <div>
                                                     <p className="font-bold">{entry.quizTitle ?? "Quiz"}</p>
                                                     <p className="text-xs text-[var(--oq-ink-soft)]">
-                                                        {entry.sessions} attempt{entry.sessions === 1 ? "" : "s"} · best{" "}
+                                                        {entry.sessions} attempt{entry.sessions === 1 ? "" : "s"} | best{" "}
                                                         {entry.bestScore} pts
                                                     </p>
                                                 </div>

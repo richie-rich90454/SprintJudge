@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAdminStore, WizardStep } from "../stores/useAdminStore";
 import { QuestionType } from "../types";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
@@ -321,6 +321,10 @@ export function QuestionWizard() {
         useAdminStore();
     const [validationError, setValidationError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
+    const stepButtons = useRef<Partial<Record<WizardStep, HTMLButtonElement | null>>>({});
+    useEffect(() => {
+        stepButtons.current[wizardStep]?.focus();
+    }, [wizardStep]);
     const config = (draft.config as Record<string, unknown>) ?? {};
     const rich = readRichStem(config);
     const setRich = (next: RichStem) => setDraft({ config: { ...config, rich: next } });
@@ -368,8 +372,10 @@ export function QuestionWizard() {
                     {STEPS.map((s) => (
                         <Button
                             key={s}
+                            ref={(el) => { stepButtons.current[s] = el; }}
                             variant={wizardStep === s ? "primary" : "secondary"}
                             size="sm"
+                            aria-current={wizardStep === s ? "step" : undefined}
                             onClick={() => setStep(s)}
                         >
                             {s.charAt(0).toUpperCase() + s.slice(1)}

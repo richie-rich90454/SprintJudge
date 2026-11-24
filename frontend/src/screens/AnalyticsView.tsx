@@ -142,7 +142,7 @@ export function AnalyticsView() {
                                     <p className="font-bold">{Math.round(classes.data.avgScore)}</p>
                                 </div>
                             </div>
-                            {classes.data.sessionStats.length > 0 && (
+                            {(classes.data.sessionStats?.length ?? 0) > 0 && (
                                 <div className="overflow-x-auto">
                                     <table className="table-dotted w-full text-sm">
                                         <thead>
@@ -153,7 +153,7 @@ export function AnalyticsView() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {classes.data.sessionStats.map((row) => (
+                                            {(classes.data.sessionStats ?? []).map((row) => (
                                                 <tr key={row.sessionId}>
                                                     <td className="p-3 font-mono text-xs">{row.sessionId}</td>
                                                     <td className="p-3">{row.players}</td>
@@ -176,6 +176,15 @@ export function AnalyticsView() {
                 <section className="flex flex-col gap-3" aria-label="Student report">
                     <h2 className="text-xl font-extrabold">Students</h2>
                     {students.isPending && <Skeleton className="h-32" />}
+                    {students.isError && (
+                        <Card className="p-4">
+                            <EmptyState
+                                title="Could not load the student report"
+                                hint="Check your connection and try again."
+                                action={<Button variant="secondary" onClick={() => students.refetch()}>Retry</Button>}
+                            />
+                        </Card>
+                    )}
                     {students.data && students.data.length === 0 && (
                         <Card className="p-4">
                             <EmptyState title="No submissions yet" hint="Reports appear after students answer." />
@@ -205,7 +214,7 @@ export function AnalyticsView() {
                                                 </div>
                                             </td>
                                             <td className="p-4">{Math.round(row.avgScore)}</td>
-                                            <td className="p-4">{row.avgAttemptsPerItem.toFixed(1)}</td>
+                                            <td className="p-4">{row.avgAttemptsPerItem?.toFixed(1) ?? "-"}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -233,6 +242,15 @@ export function AnalyticsView() {
                         </div>
                     </div>
                     {items.isPending && <Skeleton className="h-32" />}
+                    {items.isError && (
+                        <Card className="p-4">
+                            <EmptyState
+                                title="Could not load item data"
+                                hint="Check your connection and try again."
+                                action={<Button variant="secondary" onClick={() => items.refetch()}>Retry</Button>}
+                            />
+                        </Card>
+                    )}
                     {items.data && items.data.length === 0 && (
                         <Card className="p-4">
                             <EmptyState title="No item data yet" hint="Attempted bank items appear here." />
@@ -270,9 +288,9 @@ export function AnalyticsView() {
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="p-4">{row.discrimination.toFixed(2)}</td>
+                                            <td className="p-4">{row.discrimination?.toFixed(2) ?? "-"}</td>
                                             <td className="p-4">
-                                                {row.medianSec === null ? "-" : Math.round(row.medianSec)}
+                                                {row.medianSec == null ? "-" : Math.round(row.medianSec)}
                                             </td>
                                         </tr>
                                     ))}
@@ -346,10 +364,10 @@ export function AnalyticsView() {
                                 </p>
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
                                     Average difficulty {pct(result.avgDifficulty)}, discrimination{" "}
-                                    {result.avgDiscrimination.toFixed(2)}, {result.skipped} skipped.
+                                    {result.avgDiscrimination?.toFixed(2) ?? "-"}, {result.skipped} skipped.
                                 </p>
                                 <div className="flex flex-wrap gap-2">
-                                    {Object.entries(result.difficultyBands).map(([band, count]) => (
+                                    {Object.entries(result.difficultyBands ?? {}).map(([band, count]) => (
                                         <Chip key={band}>{band}: {count}</Chip>
                                     ))}
                                 </div>

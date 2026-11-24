@@ -17,36 +17,36 @@ export const STAGE_THEMES: StageTheme[] = [
         id: "light",
         label: "Light",
         tokens: {
-            "--stage-surface": "#f4efe4",
-            "--stage-ink": "#1a1714",
-            "--stage-ink-soft": "#5a5348",
-            "--stage-border": "#d6cdbb",
-            "--stage-border-strong": "#9c8f79",
-            "--stage-accent": "#b45309",
+            "--stage-surface": "rgb(244,239,228)",
+            "--stage-ink": "rgb(26,23,20)",
+            "--stage-ink-soft": "rgb(90,83,72)",
+            "--stage-border": "rgb(214,205,187)",
+            "--stage-border-strong": "rgb(156,143,121)",
+            "--stage-accent": "rgb(180,83,9)",
         },
     },
     {
         id: "neon",
         label: "Neon",
         tokens: {
-            "--stage-surface": "#0b1020",
-            "--stage-ink": "#e9f1ff",
-            "--stage-ink-soft": "#9fb3d9",
-            "--stage-border": "#243254",
-            "--stage-border-strong": "#3d5180",
-            "--stage-accent": "#38e8c6",
+            "--stage-surface": "rgb(11,16,32)",
+            "--stage-ink": "rgb(233,241,255)",
+            "--stage-ink-soft": "rgb(159,179,217)",
+            "--stage-border": "rgb(36,50,84)",
+            "--stage-border-strong": "rgb(61,81,128)",
+            "--stage-accent": "rgb(56,232,198)",
         },
     },
     {
         id: "arena",
         label: "Arena",
         tokens: {
-            "--stage-surface": "#1b0f0d",
-            "--stage-ink": "#fff3e6",
-            "--stage-ink-soft": "#d6a98f",
-            "--stage-border": "#5a2a1f",
-            "--stage-border-strong": "#8a4632",
-            "--stage-accent": "#ff6b35",
+            "--stage-surface": "rgb(27,15,13)",
+            "--stage-ink": "rgb(255,243,230)",
+            "--stage-ink-soft": "rgb(214,169,143)",
+            "--stage-border": "rgb(90,42,31)",
+            "--stage-border-strong": "rgb(138,70,50)",
+            "--stage-accent": "rgb(255,107,53)",
         },
     },
 ];
@@ -108,7 +108,7 @@ export function StageThemePicker({ className = "" }: { className?: string }) {
                     <span
                         aria-hidden="true"
                         className="inline-block h-4 w-4 rounded-full border border-[var(--oq-border)]"
-                        style={{ background: t.tokens["--stage-accent"] ?? "#151619" }}
+                        style={{ background: t.tokens["--stage-accent"] ?? "rgb(21,22,25)" }}
                     />
                     {t.label}
                 </button>

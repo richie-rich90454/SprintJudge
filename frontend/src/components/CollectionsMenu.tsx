@@ -70,7 +70,7 @@ export function CollectionsMenu({ quizId, title }: { quizId: string; title: stri
             </Button>
             <Dialog open={open} onOpenChange={setOpen} title="Save to a collection">
                 <p className="text-sm text-[var(--oq-ink-soft)] mb-4">
-                    {title} — folders are kept in this browser.
+                    {title} - folders are kept in this browser.
                 </p>
                 <ul className="flex flex-col gap-2 mb-4">
                     {collections.map((c) => (
