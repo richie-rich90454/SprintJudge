@@ -57,12 +57,12 @@ class AssignmentControllerCoverageTest {
 		authenticate("s1", "USER");
 		assertEquals(403, assertThrows(ResponseStatusException.class,
 				() -> controller.startForCaller("a1", Map.of("studentId", ""))).getStatusCode().value());
-		assertEquals(403, assertThrows(ResponseStatusException.class,
-				() -> controller.startForCaller("a1", Map.of())).getStatusCode().value());
+		assertEquals(403, assertThrows(ResponseStatusException.class, () -> controller.startForCaller("a1", Map.of()))
+				.getStatusCode().value());
 		Map<String, String> nullBody = new HashMap<>();
 		nullBody.put("studentId", null);
-		assertEquals(403, assertThrows(ResponseStatusException.class,
-				() -> controller.startForCaller("a1", nullBody)).getStatusCode().value());
+		assertEquals(403, assertThrows(ResponseStatusException.class, () -> controller.startForCaller("a1", nullBody))
+				.getStatusCode().value());
 		assertEquals(403,
 				assertThrows(ResponseStatusException.class, () -> controller.studentProgressForCaller("a1", "  "))
 						.getStatusCode().value());
