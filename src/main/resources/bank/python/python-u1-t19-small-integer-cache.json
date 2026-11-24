@@ -903,12 +903,12 @@
         {
           "id": "A",
           "text": "False because 1000 is outside the small integer cache.",
-          "misconception": ""
+          "misconception": "assumes literals outside the cache always create separate objects in one script"
         },
         {
           "id": "B",
-          "text": "True because equal integers always share one object.",
-          "misconception": "assumes equality implies identity"
+          "text": "True — the two 1000 literals in one script share one constant object, even though 1000 is outside the cache",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -922,9 +922,9 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
-      "explanation": "Only -5 through 256 are cached by default, so 1000 creates separate objects and identity is False. Equality remains True.",
+      "explanation": "Running the code as one script shows True. CPython merges the identical 1000 literals into one module constant, so both names bind to that single object; being outside the small-int cache only matters for values computed at run time. Option A therefore predicts the wrong output, C wrongly claims 1000 is cached, and D confuses a large integer with an overflow.",
       "hint": "Compare 1000 with the cached range.",
       "difficulty": 0.25,
       "discrimination": 0.35,
@@ -936,7 +936,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -951,7 +951,7 @@
         "unit-1",
         "small-integer-cache"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.19-0016",
@@ -2629,18 +2629,18 @@
       "options": [
         {
           "id": "A",
-          "text": "True because equal ints share objects.",
-          "misconception": "assumes equality implies identity"
+          "text": "True — the two 257 literals are folded into one constant in the same script, so both names bind to one object even though 257 is outside the small-int cache",
+          "misconception": ""
         },
         {
           "id": "B",
           "text": "True because 257 is still a small integer.",
-          "misconception": "overstates the cache limit"
+          "misconception": "overstates the cache limit by treating 257 as cached"
         },
         {
           "id": "C",
           "text": "False because 257 is outside the default cache.",
-          "misconception": ""
+          "misconception": "assumes literals outside the cache always create separate objects in one script"
         },
         {
           "id": "D",
@@ -2649,9 +2649,9 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
-      "explanation": "The default cache ends at 256, so 257 creates separate objects and identity is False. Equality is True.",
+      "explanation": "Running those statements as one script prints True. CPython stores equal literal constants once in the module constant table, so a and b reference the same 257 object. The small-integer cache still stops at 256, but it is not the reason for this particular identity: compile-time constant merging is. Equality (a == b) is also True, of course. Option B states the cache limit wrongly, C ignores constant merging, and D is wrong because 257 is well inside Python arbitrary-precision integer range.",
       "hint": "Compare 257 with 256.",
       "difficulty": 0.25,
       "discrimination": 0.35,
@@ -2678,7 +2678,7 @@
         "unit-1",
         "small-integer-cache"
       ],
-      "version": 2
+      "version": 3
     },
     {
       "id": "py-1.19-0044",
