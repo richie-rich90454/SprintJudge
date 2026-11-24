@@ -90,15 +90,18 @@ public class SecurityConfig {
 				})
 				// Materialize the deferred token on every request so the SPA gets
 				// the XSRF-TOKEN cookie before its first POST, not after a 403.
-				// CsrfFilter always sets this attribute, so the cast is safe.
+				// CsrfFilter skips ignored matchers (public endpoints, WS handshake,
+				// login), leaving no attribute, so guard against its absence.
 				.addFilterAfter(new jakarta.servlet.Filter() {
 					@Override
 					public void doFilter(jakarta.servlet.ServletRequest request,
 							jakarta.servlet.ServletResponse response, jakarta.servlet.FilterChain chain)
 							throws java.io.IOException, jakarta.servlet.ServletException {
-						((org.springframework.security.web.csrf.CsrfToken) request
-								.getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName()))
-								.getToken();
+						Object csrfToken = request
+								.getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
+						if (csrfToken instanceof org.springframework.security.web.csrf.CsrfToken token) {
+							token.getToken();
+						}
 						chain.doFilter(request, response);
 					}
 				}, org.springframework.security.web.csrf.CsrfFilter.class).headers(
