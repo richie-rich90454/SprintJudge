@@ -30,7 +30,9 @@ public class ProfileController {
 		this.service = service;
 	}
 
-	/** Creates a profile. Linking a game identity requires its live rejoin token. */
+	/**
+	 * Creates a profile. Linking a game identity requires its live rejoin token.
+	 */
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public ProfileReport create(@RequestBody(required = false) Map<String, String> body) {
@@ -38,7 +40,9 @@ public class ProfileController {
 		return service.create(fields.get("nickname"), fields.get("playerUuid"), fields.get("rejoinToken"));
 	}
 
-	/** Reads the caller's own profile: profile, stats, history, awards, portfolio. */
+	/**
+	 * Reads the caller's own profile: profile, stats, history, awards, portfolio.
+	 */
 	@GetMapping("/{id}")
 	public ProfileReport get(@PathVariable String id,
 			@RequestHeader(value = "Authorization", required = false) String authorization) {

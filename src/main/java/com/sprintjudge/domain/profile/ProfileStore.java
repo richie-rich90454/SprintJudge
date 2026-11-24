@@ -72,14 +72,14 @@ public class ProfileStore {
 		String id = Ids.uuid();
 		String token = newToken();
 		long now = System.currentTimeMillis();
-		dsl.execute("INSERT INTO player_profiles (id, nickname, link_token, created_at) VALUES (?, ?, ?, ?)",
-				id, nickname, token, now);
+		dsl.execute("INSERT INTO player_profiles (id, nickname, link_token, created_at) VALUES (?, ?, ?, ?)", id,
+				nickname, token, now);
 		return new PlayerProfile(id, nickname, null, token, now);
 	}
 
 	public Optional<PlayerProfile> findById(String id) {
-		Result<Record> rows = dsl.fetch("SELECT id, nickname, link_token, created_at "
-				+ "FROM player_profiles WHERE id = ?", id);
+		Result<Record> rows = dsl
+				.fetch("SELECT id, nickname, link_token, created_at " + "FROM player_profiles WHERE id = ?", id);
 		if (rows.isEmpty())
 			return Optional.empty();
 		Record r = rows.get(0);
@@ -93,25 +93,32 @@ public class ProfileStore {
 		return dsl.execute("UPDATE player_profiles SET nickname = ? WHERE id = ?", nickname, id) > 0;
 	}
 
-	/** Adds a game identity to the profile; a duplicate uuid is rejected by the DB. */
+	/**
+	 * Adds a game identity to the profile; a duplicate uuid is rejected by the DB.
+	 */
 	public void link(String profileId, String playerUuid) {
-		dsl.execute("INSERT INTO profile_links (profile_id, player_uuid, linked_at) VALUES (?, ?, ?)",
-				profileId, playerUuid, System.currentTimeMillis());
+		dsl.execute("INSERT INTO profile_links (profile_id, player_uuid, linked_at) VALUES (?, ?, ?)", profileId,
+				playerUuid, System.currentTimeMillis());
 	}
 
 	@Nullable
 	public String latestUuid(String profileId) {
-		Result<Record> rows = dsl.fetch("SELECT player_uuid FROM profile_links WHERE profile_id = ? "
-				+ "ORDER BY linked_at DESC LIMIT 1", profileId);
+		Result<Record> rows = dsl.fetch(
+				"SELECT player_uuid FROM profile_links WHERE profile_id = ? " + "ORDER BY linked_at DESC LIMIT 1",
+				profileId);
 		return rows.isEmpty() ? null : rows.get(0).get(F_UUID);
 	}
 
-	/** The rejoin token is the proof that a game identity belongs to this player. */
+	/**
+	 * The rejoin token is the proof that a game identity belongs to this player.
+	 */
 	public boolean validRejoin(String playerUuid, @Nullable String rejoinToken) {
 		if (rejoinToken == null || rejoinToken.isBlank())
 			return false;
-		return !dsl.fetch("SELECT 1 FROM player_sessions WHERE player_id = ? AND rejoin_token = ? "
-				+ "AND expires_at > ?", playerUuid, rejoinToken, System.currentTimeMillis()).isEmpty();
+		return !dsl
+				.fetch("SELECT 1 FROM player_sessions WHERE player_id = ? AND rejoin_token = ? " + "AND expires_at > ?",
+						playerUuid, rejoinToken, System.currentTimeMillis())
+				.isEmpty();
 	}
 
 	public List<ScoreEntry> history(String profileId) {

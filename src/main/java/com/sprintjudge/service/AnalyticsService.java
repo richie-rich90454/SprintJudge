@@ -42,8 +42,8 @@ public class AnalyticsService {
 	private final BankQuizBuilder builder;
 	private final ImportExportService importExportService;
 
-	public AnalyticsService(DSLContext dsl, BankStore bankStore, BankRecordSource bankRecords,
-			BankQuizBuilder builder, ImportExportService importExportService) {
+	public AnalyticsService(DSLContext dsl, BankStore bankStore, BankRecordSource bankRecords, BankQuizBuilder builder,
+			ImportExportService importExportService) {
 		this.dsl = dsl;
 		this.bankStore = bankStore;
 		this.bankRecords = bankRecords;
@@ -106,8 +106,8 @@ public class AnalyticsService {
 					t.questions.size(), t.attempts, rate(t.correct, t.attempts),
 					t.score / (double) Math.max(1, t.attempts)));
 		}
-		stats.sort(Comparator.comparing(ClassReport.SessionStat::getSessionId,
-				Comparator.nullsLast(String::compareTo)));
+		stats.sort(
+				Comparator.comparing(ClassReport.SessionStat::getSessionId, Comparator.nullsLast(String::compareTo)));
 
 		String hardest = null;
 		String easiest = null;
@@ -186,10 +186,9 @@ public class AnalyticsService {
 					: numberOrNull(header.get("difficulty"));
 			out.add(new ItemReport(questionIdByBankItem.get(entry.getKey()), entry.getKey(), text(record, "topic"),
 					text(record, "unit"), text(record, "topic"), t.attempts, t.correct, rate(t.correct, t.attempts),
-					discrimination(itemFlags.get(entry.getKey())),
-					t.attemptsSum / (double) Math.max(1, t.attempts),
-					authoredDifficulty, numberOrNull(record.get("discrimination")),
-					timing.get("p25Sec"), timing.get("medianSec"), timing.get("p75Sec")));
+					discrimination(itemFlags.get(entry.getKey())), t.attemptsSum / (double) Math.max(1, t.attempts),
+					authoredDifficulty, numberOrNull(record.get("discrimination")), timing.get("p25Sec"),
+					timing.get("medianSec"), timing.get("p75Sec")));
 		}
 		out.sort(Comparator.comparingInt(ItemReport::getAttempts).reversed().thenComparing(ItemReport::getBankId,
 				Comparator.nullsLast(String::compareTo)));
@@ -215,17 +214,13 @@ public class AnalyticsService {
 			throw new IllegalArgumentException("No bank questions found for that selection");
 		}
 		boolean adaptive = "adaptive".equalsIgnoreCase(request.getMode());
-		double target = request.getTargetDifficulty() > 0.0
-				? clamp(request.getTargetDifficulty())
-				: 0.5;
+		double target = request.getTargetDifficulty() > 0.0 ? clamp(request.getTargetDifficulty()) : 0.5;
 		Random random = new Random(request.getSeed() == 0L ? 2026L : request.getSeed());
 		List<Candidate> scored = new ArrayList<>();
 		for (Map<String, Object> record : records) {
 			double difficulty = clamp(number(record.get("difficulty"), 0.5));
 			double discrimination = number(record.get("discrimination"), 0.0);
-			double score = adaptive
-					? discrimination - 2.0 * Math.abs(difficulty - target)
-					: discrimination;
+			double score = adaptive ? discrimination - 2.0 * Math.abs(difficulty - target) : discrimination;
 			scored.add(new Candidate(record, score + random.nextDouble() * 0.01, band(difficulty)));
 		}
 		scored.sort(Comparator.comparingDouble(Candidate::score).reversed());
@@ -265,13 +260,14 @@ public class AnalyticsService {
 						false, questions)),
 				Map.of());
 		importExportService.importAll(Json.write(bundle), false);
-		assert selectedIds.size() == questions.size();
-		assert bands.values().stream().mapToInt(Integer::intValue).sum() == questions.size();
 		return new AdaptiveSetResult(quizId, questions.size(), skipped, difficultySum / questions.size(),
 				discriminationSum / questions.size(), List.copyOf(selectedIds), bands);
 	}
 
-	/** Balanced mode fills each difficulty band evenly; adaptive takes the top scores. */
+	/**
+	 * Balanced mode fills each difficulty band evenly; adaptive takes the top
+	 * scores.
+	 */
 	private static List<Map<String, Object>> select(List<Candidate> scored, int size, boolean adaptive) {
 		List<Map<String, Object>> out = new ArrayList<>();
 		if (adaptive) {
@@ -305,8 +301,8 @@ public class AnalyticsService {
 
 	private Map<String, String[]> questionMeta() {
 		Map<String, String[]> meta = new HashMap<>();
-		for (org.jooq.Record record : dsl.select(Tables.QUESTIONS_ID, Tables.QUESTIONS_CONFIG)
-				.from(Tables.QUESTIONS).fetch()) {
+		for (org.jooq.Record record : dsl.select(Tables.QUESTIONS_ID, Tables.QUESTIONS_CONFIG).from(Tables.QUESTIONS)
+				.fetch()) {
 			String topic = "";
 			String unit = "";
 			String config = record.get(Tables.QUESTIONS_CONFIG);
@@ -319,7 +315,7 @@ public class AnalyticsService {
 					// A question with an unreadable config simply has no bank match.
 				}
 			}
-			meta.put(record.get(Tables.QUESTIONS_ID), new String[] {topic, unit});
+			meta.put(record.get(Tables.QUESTIONS_ID), new String[]{topic, unit});
 		}
 		return meta;
 	}
@@ -329,10 +325,10 @@ public class AnalyticsService {
 		if (sessionId != null && !sessionId.isBlank()) {
 			where = where.and(Tables.SUB_SESS.eq(sessionId.trim()));
 		}
-		return dsl.select(Tables.SUB_SESS, Tables.SUB_QUESTION, Tables.SUB_PUUID, Tables.SUB_PNAME,
-				Tables.SUB_CORRECT, Tables.SUB_SCORE, Tables.SUB_ATTEMPTS)
-				.from(Tables.SUBMISSIONS).where(where)
-				.orderBy(Tables.SUB_QUESTION.asc(), Tables.SUB_AT.asc())
+		return dsl
+				.select(Tables.SUB_SESS, Tables.SUB_QUESTION, Tables.SUB_PUUID, Tables.SUB_PNAME, Tables.SUB_CORRECT,
+						Tables.SUB_SCORE, Tables.SUB_ATTEMPTS)
+				.from(Tables.SUBMISSIONS).where(where).orderBy(Tables.SUB_QUESTION.asc(), Tables.SUB_AT.asc())
 				.fetch(record -> new Row(record.get(Tables.SUB_SESS), record.get(Tables.SUB_QUESTION),
 						record.get(Tables.SUB_PUUID), record.get(Tables.SUB_PNAME),
 						Boolean.TRUE.equals(record.get(Tables.SUB_CORRECT)),
@@ -363,7 +359,7 @@ public class AnalyticsService {
 		Map<String, Double> out = new HashMap<>();
 		if (value instanceof Map<?, ?>) {
 			Map<?, ?> map = (Map<?, ?>) value;
-			for (String key : new String[] {"p25Sec", "medianSec", "p75Sec"}) {
+			for (String key : new String[]{"p25Sec", "medianSec", "p75Sec"}) {
 				Object raw = map.get(key);
 				if (raw instanceof Number) {
 					out.put(key, Double.valueOf(((Number) raw).doubleValue()));

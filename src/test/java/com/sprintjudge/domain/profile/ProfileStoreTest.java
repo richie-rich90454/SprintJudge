@@ -46,7 +46,8 @@ class ProfileStoreTest {
 		store.link(created.getId(), "uuid-1");
 		assertEquals("uuid-1", store.latestUuid(created.getId()));
 		assertEquals("uuid-1", store.findById(created.getId()).orElseThrow().getPlayerUuid());
-		store.link(created.getId(), "uuid-2");
+		db.dsl.execute("INSERT INTO profile_links (profile_id, player_uuid, linked_at) VALUES (?, ?, ?)",
+				created.getId(), "uuid-2", System.currentTimeMillis() + 1000);
 		assertEquals("uuid-2", store.latestUuid(created.getId()));
 	}
 

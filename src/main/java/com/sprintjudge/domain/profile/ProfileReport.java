@@ -6,7 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Read model returned by the profile API: identity, stats, history, awards, portfolio. */
+/**
+ * Read model returned by the profile API: identity, stats, history, awards,
+ * portfolio.
+ */
 public final class ProfileReport {
 
 	private final Profile profile;
@@ -271,7 +274,8 @@ public final class ProfileReport {
 		private final int bestScore;
 		private final long lastPlayedAt;
 
-		public PortfolioEntry(String quizId, @Nullable String quizTitle, int sessions, int bestScore, long lastPlayedAt) {
+		public PortfolioEntry(String quizId, @Nullable String quizTitle, int sessions, int bestScore,
+				long lastPlayedAt) {
 			this.quizId = quizId;
 			this.quizTitle = quizTitle;
 			this.sessions = sessions;

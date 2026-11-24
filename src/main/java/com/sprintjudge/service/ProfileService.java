@@ -15,7 +15,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.List;
 
-/** Optional profiles: a nickname plus progress, claimed with a game rejoin token. */
+/**
+ * Optional profiles: a nickname plus progress, claimed with a game rejoin
+ * token.
+ */
 @Service
 public class ProfileService {
 
@@ -47,8 +50,8 @@ public class ProfileService {
 		return report(id);
 	}
 
-	public ProfileReport update(String id, String token, @Nullable String rawNickname,
-			@Nullable String playerUuid, @Nullable String rejoinToken) {
+	public ProfileReport update(String id, String token, @Nullable String rawNickname, @Nullable String playerUuid,
+			@Nullable String rejoinToken) {
 		PlayerProfile current = require(id, token);
 		String nickname = rawNickname == null ? current.getNickname() : requireNickname(rawNickname);
 		try {
@@ -101,7 +104,7 @@ public class ProfileService {
 		List<ScoreEntry> history = store.history(id);
 		List<Boolean> flags = store.correctness(id);
 		ProfileReport.Stats stats = ProfileReport.stats(history, flags);
-		return new ProfileReport(new ProfileReport.Profile(profile), stats, history,
-				ProfileReport.achievements(stats), ProfileReport.portfolio(history));
+		return new ProfileReport(new ProfileReport.Profile(profile), stats, history, ProfileReport.achievements(stats),
+				ProfileReport.portfolio(history));
 	}
 }

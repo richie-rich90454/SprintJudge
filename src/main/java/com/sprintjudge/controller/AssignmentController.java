@@ -95,7 +95,10 @@ public class AssignmentController {
 		return assignments.studentProgress(id, studentId);
 	}
 
-	/** LTI 1.3 launch stub: validates required claims, returns a signed-launch placeholder. */
+	/**
+	 * LTI 1.3 launch stub: validates required claims, returns a signed-launch
+	 * placeholder.
+	 */
 	@PostMapping("/api/public/assignments/lti/launch")
 	public Map<String, Object> ltiLaunch(@RequestBody Map<String, Object> claims) {
 		return assignments.validateLtiLaunch(claims);
@@ -115,7 +118,9 @@ public class AssignmentController {
 		return new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
 	}
 
-	/** Host attribution is resolved from the session, never from the request body. */
+	/**
+	 * Host attribution is resolved from the session, never from the request body.
+	 */
 	private static String hostEmail() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null) {

@@ -15,8 +15,8 @@ public final class StudentReport {
 	public StudentReport() {
 	}
 
-	public StudentReport(String playerUuid, String playerName, int sessions, int attempts, int correct,
-			double accuracy, double avgScore, double avgAttemptsPerItem) {
+	public StudentReport(String playerUuid, String playerName, int sessions, int attempts, int correct, double accuracy,
+			double avgScore, double avgAttemptsPerItem) {
 		this.playerUuid = playerUuid;
 		this.playerName = playerName;
 		this.sessions = sessions;

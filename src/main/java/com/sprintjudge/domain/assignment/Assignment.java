@@ -5,7 +5,9 @@ import org.eclipse.jdt.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/** An async assignment created from a quiz, with an optional release/due window. */
+/**
+ * An async assignment created from a quiz, with an optional release/due window.
+ */
 public final class Assignment {
 
 	private String id;
