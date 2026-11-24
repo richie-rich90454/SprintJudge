@@ -3,10 +3,12 @@
 Hand-verification of every bank source file, run in parallel by subject
 groups. Each JSONL line records one file: `file`, `subject`, `questions`,
 `verdict` (PASS/DEFECT), `defects`, `verifier`, `verifiedAt`. The final
-verification ledgers live in `verification/merged-bank-verification/` (wave B,
-six ledgers) and `verification/new-course-audit/` (eight new-course groups);
-the wave A ledgers below remain in `verification/bank-verification/`, and the
-rubric audits in `verification/ap-style-audit/`.
+verification ledgers live in `verification/final-verification/` (final group
+sweeps, hygiene and platform reviews, and the integration gate summary),
+`verification/merged-bank-verification/` (wave B, six ledgers) and
+`verification/new-course-audit/` (eight new-course groups); the wave A ledgers
+below remain in `verification/bank-verification/`, and the rubric audits in
+`verification/ap-style-audit/`.
 
 | Ledger | Files | DEFECT files | Defect entries |
 |---|---:|---:|---:|
@@ -34,9 +36,10 @@ The audit findings drove six parallel enrichment passes that added genuine
 stimuli and scenarios, expanded explanations, named misconceptions, expanded
 sub-four-option items to four, and repaired broken keys and corrupted text.
 A final bank-wide sweep cleared every duplicate-stem, near-duplicate-opening,
-option-length, and misconception advisory. The gate now reports zero warnings
-and zero errors across all 329,652 questions in the 82-course catalog. All
-quality gates are green.
+option-length, and misconception advisory. The `check-bank` gate now reports
+zero warnings and zero errors across all 329,652 questions in the 82-course
+catalog. Question content was generator-authored with audited fixes applied,
+not bespoke hand-authoring. The full gate matrix is summarized below.
 
 ## What was verified
 
@@ -47,6 +50,17 @@ quality gates are green.
 - Explanations agree with keys, teach the why, and are complete sentences.
 - No author scratch text, no verdict contradictions, no branded tokens.
 - Format matches the answer shape the runtime builder consumes.
+
+## Gate matrix
+
+`node scripts/check-regression.mjs --full` runs ten gates: bank schema and
+content, volume floors, unit floors, seed sets, legal, UI, frontend typecheck
+and tests, frontend build, backend verify, and the production probe.
+`make test-e2e` is tracked separately. Recorded outcomes live in
+`verification/final-verification/integration.md`: regression clean, legal and
+UI clean, backend verify green; the local E2E run failed on an environment
+setup mismatch (test password and public-run flag), which CI configures
+explicitly.
 
 ## Known limits
 

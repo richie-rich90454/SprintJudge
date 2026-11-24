@@ -1,14 +1,20 @@
 # Course Coverage
 
-The bank ships 4,000 questions per course. This document tracks the final
+The bank ships at least 4,000 questions per course. This document tracks the final
 catalog. Names are self-standing; no external program or brand name is used.
 
 ## Shipping catalog (82 courses)
 
 The catalog is complete: 42 original courses, 4 fill courses, and 36 new
-courses, all at 4,000 questions each (329,652 total). Six platform feature
-tracks are implemented, and all quality gates are green. Final verification
-ledgers live in `verification/merged-bank-verification/` and
+courses, each at or above the 4,000-question floor (329,652 questions total).
+Question content was generator-authored with audited fixes applied, not
+bespoke hand-authoring. Six platform feature tracks are implemented:
+analytics, assignments/LMS, player profiles, localization, accessibility,
+and authoring/rich-stem tooling. All bank content gates are green; the full
+gate matrix and its recorded outcomes are in
+`verification/final-verification/integration.md`. Final verification ledgers
+live in `verification/final-verification/` (final group sweeps and integration
+summary), alongside `verification/merged-bank-verification/` and
 `verification/new-course-audit/`.
 
 ### Original (42)

@@ -29,6 +29,19 @@ force-submit, extend the timer (+30s per call, clamped to 1..300s, capped at +30
 deadline), kick players, and end the game. The live leaderboard
 updates after every submission and never includes the host.
 
+The host controls also include:
+
+- **Stage theme** — Classic, Light, Neon or Arena. The choice is stored in the
+  browser and carries to the projector view in another tab.
+- **Music note** — background music toggle, independent of the master sound
+  switch.
+- **Fairness** — switches for `shuffleOptions` and `shuffleQuestions`. They are
+  written to the persisted admin settings (and mirrored locally when logged
+  out) so games started afterwards use the chosen order; the flags also ride
+  along on the start-round / start-battle commands. Both start on.
+- **Countdown** — the host timer grows and turns amber inside the last ten
+  seconds; answer reveals lead with a large correct-answer plaque.
+
 ```mermaid
 flowchart TB
     H["Host console"] --> N["NEXT_QUESTION"]
@@ -76,6 +89,15 @@ flowchart TD
     ATT -->|"first"| KEEP
     HALF --> KEEP["Keep highest score per player"]
 ```
+
+## Reusing quizzes
+
+- **Duplicate** copies a quiz's questions into a new quiz in the dashboard.
+- **Remix** does the same but shuffles question order first.
+- **Collections** groups quizzes (or a finished game) into folders stored in
+  the browser; available from the library and the results podium.
+
+Both actions need an admin session and use the existing question endpoints.
 
 ## Import / Export
 
