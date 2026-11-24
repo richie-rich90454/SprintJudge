@@ -39,7 +39,7 @@ Every question must work as a rigorous course-framework-style exam item:
 - Stimuli are original and licensed in provenance; no protected framework text is copied.
 - Reading load fits the subject, and language courses keep target-language content where the subject expects it.
 
-Six parallel audits scored the full bank against this rubric and drove the enrichment passes recorded in `verification/ap-style-audit/`.
+Six parallel audits scored the full bank against this rubric and drove the enrichment passes recorded in `verification/ap-style-audit/`. The final verification ledgers live in `verification/merged-bank-verification/` and `verification/new-course-audit/`.
 
 ## Verification convention
 
@@ -89,6 +89,12 @@ timing) to versioned bank record. Old versions stay; past analytics
 stay valid.
 
 ## Coverage
+
+The shipping catalog holds 82 course-framework subjects: 42 original, 4 fill,
+and 36 new. All stand at 4,000 questions each (329,652 total). Six platform
+feature tracks are implemented, and all quality gates are green. Question
+content was generator-authored and corrected through the audited fix passes,
+not bespoke hand-authoring.
 
 Every unit ships every applicable format, both scopes where frameworks
 changed, balanced demand, and calibrated difficulty. Reports per

@@ -1,10 +1,17 @@
 # Course Coverage
 
-The bank ships 4,000 questions per course. This document tracks the catalog and
-the onboarding queue. Names are self-standing; no external program or brand
-name is used.
+The bank ships 4,000 questions per course. This document tracks the final
+catalog. Names are self-standing; no external program or brand name is used.
 
-## Shipping catalog (42 courses)
+## Shipping catalog (82 courses)
+
+The catalog is complete: 42 original courses, 4 fill courses, and 36 new
+courses, all at 4,000 questions each (329,652 total). Six platform feature
+tracks are implemented, and all quality gates are green. Final verification
+ledgers live in `verification/merged-bank-verification/` and
+`verification/new-course-audit/`.
+
+### Original (42)
 
 Java Programming, Computing Foundations, Chemistry, Calculus I, Calculus II,
 Physics I, Physics II, Physics: Mechanics, Physics: Electricity and Magnetism,
@@ -18,31 +25,24 @@ Interdisciplinary Seminar, Algebra I, Algebra II, Geometry, Integrated Math I,
 Integrated Math II, Integrated Math III, Python Programming, Web Development,
 Cybersecurity, Data Science.
 
-## Onboarding from converted legacy sets
+### Fill (4)
 
 C Programming, C++ Programming, JavaScript Programming, Discrete Mathematics.
-These carry converted records with `converted-seed` tags and distinct id
-prefixes (`cseed`, `cppseed`, `jsseed`, `mathseed`). They are below the floor
-until new questions are authored; CI reports them as short, not shipped.
+Converted records carry `converted-seed` tags and distinct id prefixes
+(`cseed`, `cppseed`, `jsseed`, `mathseed`); each course is now filled to 4,000.
 
-## Expansion queue
+### New (36)
 
-### Tier 1 — framework gaps
 African American Studies, Computing Principles, Italian Language and Culture,
-Japanese Language and Culture, Latin.
-
-### Tier 2 — advanced and higher-level
-Organic Chemistry I, Organic Chemistry II, Physical Chemistry, Analytical
-Chemistry, Biochemistry, Linear Algebra, Differential Equations, Discrete
-Mathematics II, Data Structures and Algorithms, Operating Systems, Computer
-Networks, Databases, Artificial Intelligence and Machine Learning, Modern
-Physics, Thermodynamics.
-
-### Tier 3 — practical and non-framework
-Personal Finance, Business and Entrepreneurship, Accounting, Marketing,
-Introduction to Law, Ethics and Philosophy, World Religions, Sociology,
-Anthropology, Astronomy, Earth Science, Nutrition and Health, Film Studies,
-Graphic Design, Arabic Language and Culture, Korean Language and Culture.
+Japanese Language and Culture, Latin, Organic Chemistry I, Organic Chemistry
+II, Physical Chemistry, Analytical Chemistry, Biochemistry, Linear Algebra,
+Differential Equations, Discrete Mathematics II, Data Structures and
+Algorithms, Operating Systems, Computer Networks, Databases, Artificial
+Intelligence and Machine Learning, Modern Physics, Thermodynamics, Personal
+Finance, Business and Entrepreneurship, Accounting, Marketing, Introduction to
+Law, Ethics and Philosophy, World Religions, Sociology, Anthropology,
+Astronomy, Earth Science, Nutrition and Health, Film Studies, Graphic Design,
+Arabic Language and Culture, Korean Language and Culture.
 
 ## Onboarding a course
 

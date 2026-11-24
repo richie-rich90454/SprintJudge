@@ -1,8 +1,12 @@
 # Bank Verification Ledger
 
-Wave A hand-verification of every bank source file, run in parallel by subject
+Hand-verification of every bank source file, run in parallel by subject
 groups. Each JSONL line records one file: `file`, `subject`, `questions`,
-`verdict` (PASS/DEFECT), `defects`, `verifier`, `verifiedAt`.
+`verdict` (PASS/DEFECT), `defects`, `verifier`, `verifiedAt`. The final
+verification ledgers live in `verification/merged-bank-verification/` (wave B,
+six ledgers) and `verification/new-course-audit/` (eight new-course groups);
+the wave A ledgers below remain in `verification/bank-verification/`, and the
+rubric audits in `verification/ap-style-audit/`.
 
 | Ledger | Files | DEFECT files | Defect entries |
 |---|---:|---:|---:|
@@ -31,7 +35,8 @@ stimuli and scenarios, expanded explanations, named misconceptions, expanded
 sub-four-option items to four, and repaired broken keys and corrupted text.
 A final bank-wide sweep cleared every duplicate-stem, near-duplicate-opening,
 option-length, and misconception advisory. The gate now reports zero warnings
-and zero errors across all 170,069 questions.
+and zero errors across all 329,652 questions in the 82-course catalog. All
+quality gates are green.
 
 ## What was verified
 
@@ -45,7 +50,8 @@ and zero errors across all 170,069 questions.
 
 ## Known limits
 
-Deep-reading every one of ~169,000 questions was not possible; flagged items
+Deep-reading every one of ~330,000 questions was not possible; flagged items
 and a representative sample of unflagged items were read in full, and every
 file was scanned by deterministic rules. Residual factual errors may remain
-in unread questions. Wave B repeats the sweep over the merged bank.
+in unread questions. Wave B completed the sweep over the merged bank; its
+ledgers are in `verification/merged-bank-verification/`.
