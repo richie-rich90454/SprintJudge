@@ -18,13 +18,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The two lines read TypeError outer failed then ValueError inner failed, and the three checks after them are True, True and True, because raising inside a handler sets the cause and the context to the same caught object and switches suppression on",
-          "misconception": ""
+          "text": "The two lines read TypeError outer failed then ValueError inner failed, and the three checks after them are False, True and True, because naming a cause leaves the context unset while the raised object keeps its own traceback",
+          "misconception": "believes naming a cause leaves the context unset"
         },
         {
           "id": "B",
-          "text": "The two lines read TypeError outer failed then ValueError inner failed, and the three checks after them are False, True and True, because naming a cause leaves the context unset while the raised object keeps its own traceback",
-          "misconception": "believes naming a cause leaves the context unset"
+          "text": "The two lines read TypeError outer failed then ValueError inner failed, and the three checks after them are True, True and True, because raising inside a handler sets the cause and the context to the same caught object and switches suppression on",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -38,7 +38,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A raise that happens while another exception is being handled picks that exception up as its context automatically, and naming it after the word from sets the same object as the cause on top of that. So the cause and the context end up pointing at one and the same caught object, which is why the identity check is True, and the traceback that hangs off the cause is the one built when the value error was first raised. Dropping the from clause leaves the context in place but the cause empty, and writing from None leaves the context in place and the cause empty while additionally asking the printer not to show the context, which is the difference between the two false readings above.",
       "hint": "Ask whether the two recorded links are the same object, and which of them the from clause fills in.",
@@ -52,7 +52,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -67,7 +67,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0002",
@@ -92,13 +92,13 @@
         },
         {
           "id": "B",
-          "text": "Both lists read [25, 'skip', 20, 'skip'], the comparison is True and the length is 4, because the two divisions that would divide by zero are replaced by a marker and nothing else changes",
-          "misconception": ""
+          "text": "The first list reads [25, 'skip', 20, 'skip', 'skip'] and the second reads [25, 'skip', 20, 'skip'], the comparison is True and the length is 4, because the walk stops recording one step earlier than the hand-written loop does",
+          "misconception": "believes the helper and the loop see different inputs"
         },
         {
           "id": "C",
-          "text": "The first list reads [25, 'skip', 20, 'skip', 'skip'] and the second reads [25, 'skip', 20, 'skip'], the comparison is True and the length is 4, because the walk stops recording one step earlier than the hand-written loop does",
-          "misconception": "believes the helper and the loop see different inputs"
+          "text": "Both lists read [25, 'skip', 20, 'skip'], the comparison is True and the length is 4, because the two divisions that would divide by zero are replaced by a marker and nothing else changes",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -107,7 +107,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Two of the four divisors are zero, and each of those two steps is the only thing the handler has to account for. The handler appends a marker rather than a number, so the recorded list has one slot per input and the two successful divisions keep their integer quotients of 25 and 20. An empty handler body would leave the list with two entries instead of four, which is what the last option describes, and using true division would leave the two successes as 25.0 and 20.0 with the markers still in place.",
       "hint": "Count how many entries the recorded list has, and ask whether a caught fault changes the kind of number a later success produces.",
@@ -121,7 +121,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -136,7 +136,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0003",
@@ -166,17 +166,17 @@
         },
         {
           "id": "C",
-          "text": "The lines read LookupError outer, RuntimeError inner, None, False and True, because the context is filled in from the handler that is running while the cause is only written when one is named after the word from",
-          "misconception": ""
+          "text": "The lines read LookupError outer, RuntimeError inner, None, False and False, because the current handler information still names the exception that was running when the handler was entered",
+          "misconception": "believes the current handler information keeps naming the earlier exception"
         },
         {
           "id": "D",
-          "text": "The lines read LookupError outer, RuntimeError inner, None, False and False, because the current handler information still names the exception that was running when the handler was entered",
-          "misconception": "believes the current handler information keeps naming the earlier exception"
+          "text": "The lines read LookupError outer, RuntimeError inner, None, False and True, because the context is filled in from the handler that is running while the cause is only written when one is named after the word from",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "A raise performed while a handler is running always records the exception being handled as its context; nothing has to be written for that to happen. The cause slot is different: it is only filled when the raise names an exception after the word from, so here it is empty and the printed value is None while the context still holds the runtime error. The last line checks the current handler information, which names the lookup error being handled at that moment rather than the runtime error that was handled a moment earlier and has already been left behind.",
       "hint": "Ask which of the two recorded links is filled in automatically and which one needs the from clause.",
@@ -190,7 +190,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -205,7 +205,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0004",
@@ -225,8 +225,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The lines read 6, None, False, ['now it exists'] and bare, because attaching a note and then re-raising without an argument abandons the error instead of passing it on",
-          "misconception": "believes a bare raise after add_note abandons the error"
+          "text": "The lines read 6, negative input, two note lines, False, ['now it exists'] and bare, because a note is stored on the exception object and only appears as an attribute once at least one has been added",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -240,12 +240,12 @@
         },
         {
           "id": "D",
-          "text": "The lines read 6, negative input, two note lines, False, ['now it exists'] and bare, because a note is stored on the exception object and only appears as an attribute once at least one has been added",
-          "misconception": ""
+          "text": "The lines read 6, None, False, ['now it exists'] and bare, because attaching a note and then re-raising without an argument abandons the error instead of passing it on",
+          "misconception": "believes a bare raise after add_note abandons the error"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "A note is written onto the exception object itself, so it travels with that object through the raise and is still there when the handler at the top level inspects it. The list is built up one entry at a time and a fresh exception has no such attribute at all, which is why the check on the plain error is False until a note is added and true afterwards. Printing the object shows only its message, so the notes are invisible in the last line even though the list beside it has one entry, and a second call adds a second entry rather than replacing the first.",
       "hint": "Ask whether the note list is part of the message or a separate attribute of the object.",
@@ -259,7 +259,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -274,7 +274,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0005",
@@ -294,13 +294,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The six handler lines read keys 1, values 1, keys 1, values 1, values 1 and types 1, then BaseExceptionGroup and True, because each star handler removes the members that match it and leaves the rest for the handlers below, including members of a nested group",
-          "misconception": ""
+          "text": "The six handler lines read keys 1, keys 1, keys 2, keys 1 and types 1, then BaseExceptionGroup and True, because a single star handler naming a tuple of types collects both of them at once and does not hand the second one to the next handler",
+          "misconception": "believes one star handler naming two types takes both and stops there"
         },
         {
           "id": "B",
-          "text": "The six handler lines read keys 1, keys 1, keys 2, keys 1 and types 1, then BaseExceptionGroup and True, because a single star handler naming a tuple of types collects both of them at once and does not hand the second one to the next handler",
-          "misconception": "believes one star handler naming two types takes both and stops there"
+          "text": "The six handler lines read keys 1, values 1, keys 1, values 1, values 1 and types 1, then BaseExceptionGroup and True, because each star handler removes the members that match it and leaves the rest for the handlers below, including members of a nested group",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A star handler never takes the whole group. It looks through it, including through any group nested inside it, takes the members that match the type it names, and hands what it took to the body; everything it did not take stays behind for the handlers below. That is why the third call fires two handlers in turn, once for the key error out of the nested group and once for the value error, and why the fourth call fires the value handler and then the type handler. The class printed at the end is the direct base of the group class, which is the wider base exception group rather than the ordinary error class, and that wider class is itself an ordinary error class.",
       "hint": "Ask whether a star handler empties the group or only takes the members that match it.",
@@ -328,7 +328,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -343,7 +343,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0006",
@@ -368,13 +368,13 @@
         },
         {
           "id": "B",
-          "text": "The lines read batch failed with 3 sub-exceptions, 3, the three type names, 2 and False, two value-error names, batch failed, ExceptionGroup 1 batch failed, KeyError and True, because splitting hands back the matches and a None for the empty remainder while deriving builds a fresh group that keeps the message",
-          "misconception": ""
+          "text": "The lines read batch failed with 3 sub-exceptions, 3, the three type names, 2 and False, two value-error names, batch failed, ExceptionGroup 3 batch failed, ValueError and False, because deriving a group adds the new members to the ones the group already holds and reuses the original objects",
+          "misconception": "believes derive adds to the group and reuses its members"
         },
         {
           "id": "C",
-          "text": "The lines read batch failed with 3 sub-exceptions, 3, the three type names, 2 and False, two value-error names, batch failed, ExceptionGroup 3 batch failed, ValueError and False, because deriving a group adds the new members to the ones the group already holds and reuses the original objects",
-          "misconception": "believes derive adds to the group and reuses its members"
+          "text": "The lines read batch failed with 3 sub-exceptions, 3, the three type names, 2 and False, two value-error names, batch failed, ExceptionGroup 1 batch failed, KeyError and True, because splitting hands back the matches and a None for the empty remainder while deriving builds a fresh group that keeps the message",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -383,7 +383,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Splitting is a division, not a filter: it returns a group holding the matching members and, for the other side, a group if anything is left over or None if the remainder is empty. Here two of the three members match and the single type error is the whole of the remainder, so the printed pair reports two and False rather than two and a count. Deriving is the opposite operation: it builds a brand new group from the members it is given, carrying the message across but sharing no member objects with the original, which is why the last check is True.",
       "hint": "Ask what splitting returns for a remainder that is empty, and whether deriving reuses the original members.",
@@ -397,7 +397,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -412,7 +412,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0007",
@@ -442,17 +442,17 @@
         },
         {
           "id": "C",
-          "text": "The program prints TypeError: Cannot nest BaseExceptions in an ExceptionGroup on the first line, then 1, then the raising line from the generated file, because the narrow group class refuses any member that is not an ordinary error and the check happens while the group is being constructed",
-          "misconception": ""
+          "text": "The program prints caught ExceptionGroup 1 and then rest BaseExceptionGroup 1, because naming the wider group class makes the second star handler produce the same class as the first",
+          "misconception": "believes a broad second star handler yields the same class as the first"
         },
         {
           "id": "D",
-          "text": "The program prints caught ExceptionGroup 1 and then rest BaseExceptionGroup 1, because naming the wider group class makes the second star handler produce the same class as the first",
-          "misconception": "believes a broad second star handler yields the same class as the first"
+          "text": "The program prints TypeError: Cannot nest BaseExceptions in an ExceptionGroup on the first line, then 1, then the raising line from the generated file, because the narrow group class refuses any member that is not an ordinary error and the check happens while the group is being constructed",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The narrow group class exists precisely so that a handler catching it can be sure everything inside is an ordinary error, so it refuses at construction time to hold an error that sits above that line, such as an interruption or a system exit. The refusal happens while the group object is being made, which is why the failure appears before any handler gets a chance to look at it, and why the frame reported is the one that raised rather than a handler frame. Widening the group class is the fix, and with both handlers present the value error arrives in a group of ordinary errors while the interruption arrives in a group of the wider kind.",
       "hint": "Ask whether the refusal is raised while the group is being built or while a handler is running.",
@@ -466,7 +466,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -481,7 +481,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0008",
@@ -501,8 +501,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The lines read 3, all failures with 3 sub-exceptions, ExceptionGroup 3 and all three messages twice, because a subgroup accepts a tuple of types and therefore keeps every member that was collected",
-          "misconception": "believes a subgroup given a tuple keeps every member"
+          "text": "The lines read 3, all failures with 3 sub-exceptions, ExceptionGroup 2, the two value messages and all three messages, because a subgroup builds a new group from the matching members and leaves the original group holding all three",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -516,12 +516,12 @@
         },
         {
           "id": "D",
-          "text": "The lines read 3, all failures with 3 sub-exceptions, ExceptionGroup 2, the two value messages and all three messages, because a subgroup builds a new group from the matching members and leaves the original group holding all three",
-          "misconception": ""
+          "text": "The lines read 3, all failures with 3 sub-exceptions, ExceptionGroup 3 and all three messages twice, because a subgroup accepts a tuple of types and therefore keeps every member that was collected",
+          "misconception": "believes a subgroup given a tuple keeps every member"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "A subgroup is a read of the existing group, not an edit of it: it walks the members, keeps the ones matching the type given, and wraps those in a fresh group, leaving the original untouched. That is why the last line still shows all three messages even though the subgroup line above it shows only the two value errors, and why the member counts add up to three on both sides. Deriving is the operation that builds a group from a list you supply, so calling it here would report one member and a made-up message rather than the two that match.",
       "hint": "Ask whether taking a subset changes the group it was taken from.",
@@ -535,7 +535,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -550,7 +550,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0009",
@@ -570,13 +570,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The lines read the division message, then demo.py 6 <module> with the text f(1,, then demo.py 3 f with the text return 1 / b, then 2 and then 1, because the call spans two source lines while the line that failed is a single line",
-          "misconception": ""
+          "text": "The lines read the division message, then demo.py 6 <module> with the text f(1,, then demo.py 3 f with the text return 1 / b, then 1 and then 1, because only the frame that raised is reported for a division by zero",
+          "misconception": "believes only the raising frame is reported"
         },
         {
           "id": "B",
-          "text": "The lines read the division message, then demo.py 6 <module> with the text f(1,, then demo.py 3 f with the text return 1 / b, then 1 and then 1, because only the frame that raised is reported for a division by zero",
-          "misconception": "believes only the raising frame is reported"
+          "text": "The lines read the division message, then demo.py 6 <module> with the text f(1,, then demo.py 3 f with the text return 1 / b, then 2 and then 1, because the call spans two source lines while the line that failed is a single line",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -590,7 +590,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "There are two frames in the generated file, the module frame holding the call and the frame of the function that did the division, and each record carries the file, the line the statement starts on, the function name and the source text of that line. The call is written across two lines, so that frame starts on line 6 and ends on line 7, a span of one, while the division is on a single line of the function, whose start and end coincide and whose span is zero. The width of a frame is a property of the statement that frame was executing, not of the depth of the call.",
       "hint": "Ask which frame is executing a statement that was written across more than one line.",
@@ -604,7 +604,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -619,7 +619,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0010",
@@ -644,13 +644,13 @@
         },
         {
           "id": "B",
-          "text": "The lines read 1, Traceback (most recent call last):, KeyError: 'k', True, True and 14, because the printed text is a header, a frame block, a source line and the error line, and it names both the file and the source",
-          "misconception": ""
+          "text": "The lines read 1, Traceback (most recent call last):, KeyError: 'k', True, True and 12, because two of the lines in the printed text are frame separators that do not count as lines of output",
+          "misconception": "believes two frame lines do not count as output lines"
         },
         {
           "id": "C",
-          "text": "The lines read 1, Traceback (most recent call last):, KeyError: 'k', True, True and 12, because two of the lines in the printed text are frame separators that do not count as lines of output",
-          "misconception": "believes two frame lines do not count as output lines"
+          "text": "The lines read 1, Traceback (most recent call last):, KeyError: 'k', True, True and 14, because the printed text is a header, a frame block, a source line and the error line, and it names both the file and the source",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -659,7 +659,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The printed form of a caught error is a block of text: a header line, one entry per frame with the file, the line number and the source line, and then the error type and message on the final line. In this case the message repeats the word that names the type, so the search for that word finds it once in the source and once on the final line only if the two spellings differ, and the search here reports a single hit because the printed source does not contain it. The file name and the exact source line both appear, which is what makes the text useful for locating the fault, and the number of lines follows from the single frame this file has.",
       "hint": "Count the lines by their role: one header, one frame entry, one source line, one final error line.",
@@ -673,7 +673,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -688,7 +688,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0011",
@@ -718,17 +718,17 @@
         },
         {
           "id": "C",
-          "text": "The lines read True, three NoneType names, (True, True), ZeroDivisionError and True, because the three slots are all empty until a handler is running and are cleared again once that handler finishes",
-          "misconception": ""
+          "text": "The lines read True, three NoneType names, (True, True), NoneType and True, because the saved name taken inside the handler is filled from the same source as the first slot after the handler ends",
+          "misconception": "believes the saved name is refilled from the current handler"
         },
         {
           "id": "D",
-          "text": "The lines read True, three NoneType names, (True, True), NoneType and True, because the saved name taken inside the handler is filled from the same source as the first slot after the handler ends",
-          "misconception": "believes the saved name is refilled from the current handler"
+          "text": "The lines read True, three NoneType names, (True, True), ZeroDivisionError and True, because the three slots are all empty until a handler is running and are cleared again once that handler finishes",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The current handler information is a three-slot record holding the type, the value and the traceback of the exception being handled right now, and outside a handler all three slots are empty. Inside a handler the second slot is the very object that was caught, so the identity check is True, and the third slot of that object holds the traceback, so the second half of the pair is also True. Because the state is cleared when the handler ends, the only way to keep a reference afterwards is to bind it yourself, which is what the saved name does, and it still reports the division error even though the record itself is empty again.",
       "hint": "Ask whether the record is filled in when the error is raised or when a handler is running.",
@@ -742,7 +742,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -757,7 +757,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0012",
@@ -777,8 +777,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The eight lines read value handler no, finally 0, recovered, type handler bad type, finally 1, None, finally 3 and 3, because a handler that does not return a value makes the whole call report None for that path",
-          "misconception": "believes a handler without a return makes the call report None"
+          "text": "The eight lines read value handler no, finally 0, recovered, type handler bad type, finally 1, also recovered, finally 3 and 3, because the matching handler runs, the cleanup runs on every path, and the else block runs only when nothing was raised",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -792,12 +792,12 @@
         },
         {
           "id": "D",
-          "text": "The eight lines read value handler no, finally 0, recovered, type handler bad type, finally 1, also recovered, finally 3 and 3, because the matching handler runs, the cleanup runs on every path, and the else block runs only when nothing was raised",
-          "misconception": ""
+          "text": "The eight lines read value handler no, finally 0, recovered, type handler bad type, finally 1, None, finally 3 and 3, because a handler that does not return a value makes the whole call report None for that path",
+          "misconception": "believes a handler without a return makes the call report None"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "There are three mutually exclusive ways out of the body, and only one is taken each time. A matching handler runs and can return a value of its own, the else block runs only when the body completed without raising, and the cleanup block runs on every one of those paths, which is why three cleanup lines appear for three calls. Because the handler and the else block each return a value, the value that survives is the one that path produced, and the ordering of the lines within each call is the handler first, then the cleanup, then the caller's own print.",
       "hint": "Ask which of the three bodies is skipped when nothing was raised, and whether the cleanup block can be skipped at all.",
@@ -811,7 +811,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -826,7 +826,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0013",
@@ -846,13 +846,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The lines read enter, body value, no error, cleanup, then a separator, then enter, body value, saw ValueError, cleanup and outside boom, because the else part runs only when the body raised nothing while the cleanup part runs on both paths and the handler part sees the failure",
-          "misconception": ""
+          "text": "The lines read enter, body value, no error, cleanup, then a separator, then enter, body value, saw ValueError and cleanup, because a handler that catches the body error and does not re-raise it stops the error from reaching the caller",
+          "misconception": "believes catching the body error keeps it from the caller"
         },
         {
           "id": "B",
-          "text": "The lines read enter, body value, no error, cleanup, then a separator, then enter, body value, saw ValueError and cleanup, because a handler that catches the body error and does not re-raise it stops the error from reaching the caller",
-          "misconception": "believes catching the body error keeps it from the caller"
+          "text": "The lines read enter, body value, no error, cleanup, then a separator, then enter, body value, saw ValueError, cleanup and outside boom, because the else part runs only when the body raised nothing while the cleanup part runs on both paths and the handler part sees the failure",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -866,7 +866,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A decorated generator is run in slices by the with statement rather than all at once. The with statement starts it and receives whatever the first yield produces, the body then runs, and the generator is resumed afterwards at the point where the yield left it. On the clean path that resumption falls into the else part, and on the failing path the error is delivered at the yield instead, so the handler part runs and only the path where the handler re-raises lets the error out. The cleanup part runs on both paths, which is what the two cleanup lines above show.",
       "hint": "Ask where the generator resumes after the with body, and which parts of the generator each path reaches.",
@@ -880,7 +880,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -895,7 +895,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0014",
@@ -920,13 +920,13 @@
         },
         {
           "id": "B",
-          "text": "The first two lines read the nested start, work and end marks in start, work, end, end order with a count of 5, and the third line ends with the first callback, because everything registered on a stack is released in the reverse of the order it was registered",
-          "misconception": ""
+          "text": "The first two lines are the same and the third line begins with the start marks in the order b then a, because managers entered in a loop unwind in the same order they were entered",
+          "misconception": "believes stack cleanup follows entry order"
         },
         {
           "id": "C",
-          "text": "The first two lines are the same and the third line begins with the start marks in the order b then a, because managers entered in a loop unwind in the same order they were entered",
-          "misconception": "believes stack cleanup follows entry order"
+          "text": "The first two lines read the nested start, work and end marks in start, work, end, end order with a count of 5, and the third line ends with the first callback, because everything registered on a stack is released in the reverse of the order it was registered",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -935,7 +935,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Managers nest the way blocks do: the inner one is released before the outer one, so the end marks appear in the reverse of the start marks. A stack keeps that same discipline for everything registered on it, so the callback registered first is the last one to run and the callback registered last is the first to run after the managers are released, with the manager end marks in between in reverse entry order. A plain append to the event list is a statement that runs at that moment rather than a registration, so it appears early in the list instead of at the end.",
       "hint": "Ask which of the two orders a stack uses, and whether an append is a registration.",
@@ -949,7 +949,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -964,7 +964,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0015",
@@ -994,17 +994,17 @@
         },
         {
           "id": "C",
-          "text": "The lines read outside, the captured text with two lines, the error text with one line, and still here, because the redirect is undone when the block ends and the suppressor swallows the failure without ending the block",
-          "misconception": ""
+          "text": "The lines read outside, the captured text with two lines, then the captured text again, and still here, because both streams are restored from the same buffer once the first block has ended",
+          "misconception": "believes both streams restore from the same buffer"
         },
         {
           "id": "D",
-          "text": "The lines read outside, the captured text with two lines, then the captured text again, and still here, because both streams are restored from the same buffer once the first block has ended",
-          "misconception": "believes both streams restore from the same buffer"
+          "text": "The lines read outside, the captured text with two lines, the error text with one line, and still here, because the redirect is undone when the block ends and the suppressor swallows the failure without ending the block",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "A redirect swaps the stream object for the duration of the block and puts the original one back when the block is left, so the print after the block goes to the real output and the buffer holds exactly the two lines written inside. The same is true of the error stream, which is why the second buffer holds only the line that was sent to it. A suppressor is different: it catches the named errors and lets the block carry on to its end, so the statement after the failing lookup still runs and the failure leaves no mark other than its absence.",
       "hint": "Ask when the original stream comes back, and whether a suppressed error stops the rest of the block.",
@@ -1018,7 +1018,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1033,7 +1033,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0016",
@@ -1053,8 +1053,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The lines read 6, 8, 2, DeprecationWarning, old_api is deprecated, True and 5, because a stack level of two still points the record at the line inside the helper that reported the warning",
-          "misconception": "believes the stack level has no effect on the reported line"
+          "text": "The lines read 6, 8, 2, DeprecationWarning, old_api is deprecated, True and 11, because a stack level of two points the record at the line that called the helper rather than the line that reported it",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1068,12 +1068,12 @@
         },
         {
           "id": "D",
-          "text": "The lines read 6, 8, 2, DeprecationWarning, old_api is deprecated, True and 11, because a stack level of two points the record at the line that called the helper rather than the line that reported it",
-          "misconception": ""
+          "text": "The lines read 6, 8, 2, DeprecationWarning, old_api is deprecated, True and 5, because a stack level of two still points the record at the line inside the helper that reported the warning",
+          "misconception": "believes the stack level has no effect on the reported line"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "A report is a message plus a category plus a place, and the place is chosen by counting frames outward from the statement that reported it. A stack level of one is the reporting line inside the helper and a stack level of two is the line that called it, which here is the first of the two print statements. The two calls each produce one record, so the list has two entries, and the first of those records the category that was named rather than the general one used when no category is given.",
       "hint": "Ask how many frames the stack level of two skips, and what category the record carries.",
@@ -1087,7 +1087,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1102,7 +1102,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0017",
@@ -1122,13 +1122,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The lines read raised RuntimeWarning value is nearly gone, 0, ignored 0 and default once 1, because the error filter turns the warning into a real failure that is caught rather than recorded, and the default filter reports a given warning from a given line only once",
-          "misconception": ""
+          "text": "The lines read 0, ignored 0 and default once 1, because a warning raised under the error filter is recorded like any other warning and nothing is raised",
+          "misconception": "believes the error filter records the warning instead of raising it"
         },
         {
           "id": "B",
-          "text": "The lines read 0, ignored 0 and default once 1, because a warning raised under the error filter is recorded like any other warning and nothing is raised",
-          "misconception": "believes the error filter records the warning instead of raising it"
+          "text": "The lines read raised RuntimeWarning value is nearly gone, 0, ignored 0 and default once 1, because the error filter turns the warning into a real failure that is caught rather than recorded, and the default filter reports a given warning from a given line only once",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1142,7 +1142,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The error filter changes what a warning is: instead of being filed and ignored it is raised as the warning class itself, so the surrounding block catches it as an ordinary error and the recording list stays empty. The ignore filter does the opposite and files nothing, so that block reports a count of zero without any failure reaching the caller. The default filter sits between them: it files the first report from a given line and then stays quiet for the same report from the same line, which is why two calls from one line produce a single record.",
       "hint": "Ask what the error filter does to the object the warning call would have returned.",
@@ -1156,7 +1156,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1171,7 +1171,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0018",
@@ -1196,13 +1196,13 @@
         },
         {
           "id": "B",
-          "text": "The lines read default, DeprecationWarning, 3, the three messages, 5, True and default 1, because the first filter entry handles the deprecation category with the default action, and the default action files only the first report from a given line",
-          "misconception": ""
+          "text": "The lines read default, DeprecationWarning, 3, three category names, 5, True and default 1, because each record holds the category rather than the message that was reported",
+          "misconception": "believes a record holds the category rather than the message"
         },
         {
           "id": "C",
-          "text": "The lines read default, DeprecationWarning, 3, three category names, 5, True and default 1, because each record holds the category rather than the message that was reported",
-          "misconception": "believes a record holds the category rather than the message"
+          "text": "The lines read default, DeprecationWarning, 3, the three messages, 5, True and default 1, because the first filter entry handles the deprecation category with the default action, and the default action files only the first report from a given line",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1211,7 +1211,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A filter entry is a list whose first member is the action and whose third member is the category it covers, and the entry that ships first covers the deprecation category with the default action. Under a filter that files everything, each of the three calls produces its own record, so the two identical messages both appear in the message list. Under the default action the same message from the same line is filed only the first time, so the second block, which calls twice from one line, reports a single record. The reported line is the line inside the helper, since no stack level was given, and it is line five of the file.",
       "hint": "Ask what the second member of a recorded warning is, and what the default action does on a repeat from one line.",
@@ -1225,7 +1225,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1240,7 +1240,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0019",
@@ -1270,17 +1270,17 @@
         },
         {
           "id": "C",
-          "text": "The lines read ok, stage load failed, load, KeyError with the quoted message, the single-element tuple and True, because the base call fixes the message and the argument tuple, and naming the cause puts the same object in the cause slot as in the stored field",
-          "misconception": ""
+          "text": "The lines read ok, stage load failed, load, KeyError with the quoted message, the single-element tuple and False, because the cause slot points at the new error rather than at the error that was being handled",
+          "misconception": "believes the cause slot points at the new error"
         },
         {
           "id": "D",
-          "text": "The lines read ok, stage load failed, load, KeyError with the quoted message, the single-element tuple and False, because the cause slot points at the new error rather than at the error that was being handled",
-          "misconception": "believes the cause slot points at the new error"
+          "text": "The lines read ok, stage load failed, load, KeyError with the quoted message, the single-element tuple and True, because the base call fixes the message and the argument tuple, and naming the cause puts the same object in the cause slot as in the stored field",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "Calling the base constructor with one message fixes both the text the error prints and the argument tuple the interpreter keeps, so the tuple has exactly one entry even though the subclass stores two extra fields of its own. The fields set on the object are ordinary attributes and have nothing to do with that tuple. Raising the new error from the caught one writes the caught object into the cause slot, and since the same object was also stored as a field, the identity check between the two is True. Printing the caught error shows the way the interpreter renders a key error, which is its type name followed by the quoted key rather than the bare key.",
       "hint": "Ask what the base constructor call puts in the argument tuple, and whether the cause and the stored field are the same object.",
@@ -1294,7 +1294,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1309,7 +1309,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-11.2-0020",
@@ -1329,8 +1329,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The lines read 4, the four function names outermost first, ValueError: deepest, two names and True, because each link skips the frame between it and the next one outward",
-          "misconception": "believes each link skips a frame"
+          "text": "The lines read 4, the four function names outermost first, ValueError: deepest, the same four names as a list and True, because each link points at the next frame outward from the point of failure and the walk ends when the last link is None",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1344,12 +1344,12 @@
         },
         {
           "id": "D",
-          "text": "The lines read 4, the four function names outermost first, ValueError: deepest, the same four names as a list and True, because each link points at the next frame outward from the point of failure and the walk ends when the last link is None",
-          "misconception": ""
+          "text": "The lines read 4, the four function names outermost first, ValueError: deepest, two names and True, because each link skips the frame between it and the next one outward",
+          "misconception": "believes each link skips a frame"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "A traceback is a linked list whose first link is the frame where the failure happened and whose last link has nothing after it, so walking it visits the innermost function first and ends at the module frame. Reading each link gives the code object of that frame, whose name is the function that was running, and the four names come out outermost first because the printed form lists them in that order even though the links run the other way. The printed form has one line per frame plus a header and a final error line, and after the walk the pointer is None, which is what the last line reports.",
       "hint": "Ask which direction the links run in, and what the pointer holds once the walk is finished.",
@@ -1363,7 +1363,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1378,7 +1378,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     }
   ]
 }

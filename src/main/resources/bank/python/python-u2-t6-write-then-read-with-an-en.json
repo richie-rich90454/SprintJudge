@@ -15,13 +15,13 @@
       "options": [
         {
           "id": "A",
-          "text": "café, decoded with the same codec used to write.",
-          "misconception": "Assumes the read side falls back to latin-1"
+          "text": "cafÃ©, because each byte becomes its own character.",
+          "misconception": "Mistakes the default read codec for latin-1"
         },
         {
           "id": "B",
-          "text": "cafÃ©, because each byte becomes its own character.",
-          "misconception": "Mistakes the default read codec for latin-1"
+          "text": "café, decoded with the same codec used to write.",
+          "misconception": "Assumes the read side falls back to latin-1"
         },
         {
           "id": "C",
@@ -35,7 +35,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The write encodes 'café' to UTF-8 bytes (c, a, f plus the two-byte é), and read() decodes those same bytes back with UTF-8, restoring the original string. Mojibake such as cafÃ© requires a mismatched read codec; buffering is flushed by the with block; and UTF-8 handles the accented character without error.",
       "hint": "Matching encodings round-trip.",
@@ -52,7 +52,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -61,7 +61,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -81,8 +81,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The bytes decode without error but non-ASCII text appears as mojibake.",
-          "misconception": ""
+          "text": "Python silently converts the text to UTF-16 before displaying it.",
+          "misconception": "Assuming a codec argument triggers transcoding"
         },
         {
           "id": "B",
@@ -91,8 +91,8 @@
         },
         {
           "id": "C",
-          "text": "Python silently converts the text to UTF-16 before displaying it.",
-          "misconception": "Assuming a codec argument triggers transcoding"
+          "text": "The bytes decode without error but non-ASCII text appears as mojibake.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -101,7 +101,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "latin-1 maps every byte from 0x00 to 0xFF to a character, so decoding never fails, but a two-byte UTF-8 sequence for é becomes two separate characters such as 'Ã©' — classic mojibake. A strict error needs a codec that rejects some bytes, no transcoding happens on read, and the stored bytes are untouched.",
       "hint": "Mojibake possible.",
@@ -118,7 +118,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -127,7 +127,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -147,8 +147,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Only the write codec is fixed; the read side still depends on the platform default.",
-          "misconception": ""
+          "text": "Omitting the read codec always raises a TypeError.",
+          "misconception": "Believing an encoding argument is mandatory"
         },
         {
           "id": "B",
@@ -162,12 +162,12 @@
         },
         {
           "id": "D",
-          "text": "Omitting the read codec always raises a TypeError.",
-          "misconception": "Believing an encoding argument is mandatory"
+          "text": "Only the write codec is fixed; the read side still depends on the platform default.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Each open() call chooses its own codec independently: the write's encoding='utf-8' is not stored in the file. A read with no encoding argument falls back to locale.getpreferredencoding(), which varies by machine, so the same file can decode differently elsewhere. The argument is never ignored, and omitting it is legal.",
       "hint": "Same mapping both sides.",
@@ -184,7 +184,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -193,7 +193,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -325,13 +325,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints 'loaded' once while the module body executes.",
-          "misconception": ""
+          "text": "It prints nothing until a function from the module is called.",
+          "misconception": "Assuming import declares names but skips statements"
         },
         {
           "id": "B",
-          "text": "It prints nothing until a function from the module is called.",
-          "misconception": "Assuming import declares names but skips statements"
+          "text": "It prints 'loaded' once while the module body executes.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -345,7 +345,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Import runs the module's top-level statements once to populate its namespace, so print('loaded') executes during the import and the text appears immediately. Python caches the module in sys.modules, so a later import does not rerun it; print is a builtin and is always available.",
       "hint": "Top-level runs on import.",
@@ -362,7 +362,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -371,7 +371,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -482,8 +482,8 @@
       "options": [
         {
           "id": "A",
-          "text": "x, read back as text with the matching UTF-8 codec.",
-          "misconception": ""
+          "text": "b'x', because reads return bytes from a text file.",
+          "misconception": "Confusing text-mode reads with binary-mode reads"
         },
         {
           "id": "B",
@@ -492,8 +492,8 @@
         },
         {
           "id": "C",
-          "text": "b'x', because reads return bytes from a text file.",
-          "misconception": "Confusing text-mode reads with binary-mode reads"
+          "text": "x, read back as text with the matching UTF-8 codec.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -502,7 +502,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The with statement flushes and closes the file on exit, so the UTF-8 encoded byte for x is on disk before the second open() reads it. Text mode decodes with the same codec and returns the str x. Empty output would require unflushed data, bytes require mode 'rb', and ASCII is valid in UTF-8.",
       "hint": "Reads 'x'.",
@@ -519,7 +519,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -528,7 +528,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -548,8 +548,8 @@
       "options": [
         {
           "id": "A",
-          "text": "UnicodeDecodeError, because 0xC3 is not a valid ASCII byte.",
-          "misconception": ""
+          "text": "ValueError, because the encoding name is rejected.",
+          "misconception": "Thinking 'ascii' is not a recognized codec"
         },
         {
           "id": "B",
@@ -563,12 +563,12 @@
         },
         {
           "id": "D",
-          "text": "ValueError, because the encoding name is rejected.",
-          "misconception": "Thinking 'ascii' is not a recognized codec"
+          "text": "UnicodeDecodeError, because 0xC3 is not a valid ASCII byte.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "UTF-8 stores é as bytes 0xC3 0xA9, and ASCII only defines bytes 0x00-0x7F, so the strict default handler raises UnicodeDecodeError on the first offending byte. No silent mapping occurs, the failure happens while decoding rather than encoding, and 'ascii' is a valid codec name.",
       "hint": "Ascii cannot decode.",
@@ -585,7 +585,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -594,7 +594,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -771,13 +771,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Wrap the banner in if __name__ == '__main__':.",
-          "misconception": ""
+          "text": "Move the banner into a function and call it at import.",
+          "misconception": "Thinking a function call is skipped during import"
         },
         {
           "id": "B",
-          "text": "Move the banner into a function and call it at import.",
-          "misconception": "Thinking a function call is skipped during import"
+          "text": "Wrap the banner in if __name__ == '__main__':.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -791,7 +791,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "During import, __name__ is the module's name, so the __name__ == '__main__' test is false and the guarded banner is skipped. Running the file directly sets __name__ to '__main__' and the banner appears. Calling a function at import still runs it, __debug__ concerns assertions, and module-scope return is a syntax error.",
       "hint": "Use __name__ guard.",
@@ -808,7 +808,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -817,7 +817,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -837,8 +837,8 @@
       "options": [
         {
           "id": "A",
-          "text": "'/abs/log.txt', because an absolute component discards earlier ones.",
-          "misconception": ""
+          "text": "'tank//abs/log.txt', because both separators are kept.",
+          "misconception": "Thinking join never normalizes separators"
         },
         {
           "id": "B",
@@ -847,8 +847,8 @@
         },
         {
           "id": "C",
-          "text": "'tank//abs/log.txt', because both separators are kept.",
-          "misconception": "Thinking join never normalizes separators"
+          "text": "'/abs/log.txt', because an absolute component discards earlier ones.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -857,7 +857,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "An argument beginning with a separator is treated as absolute, so join discards everything before it and returns '/abs/log.txt'. Plain concatenation would instead produce a doubled separator, but join normalizes that; no exception is raised for rooted components.",
       "hint": "Absolute resets.",
@@ -874,7 +874,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -883,7 +883,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -994,8 +994,8 @@
       "options": [
         {
           "id": "A",
-          "text": "No: latin-1 maps every byte, so the result is mojibake.",
-          "misconception": ""
+          "text": "No: Python transcodes the file to latin-1 automatically.",
+          "misconception": "Thinking open() converts stored bytes on read"
         },
         {
           "id": "B",
@@ -1009,12 +1009,12 @@
         },
         {
           "id": "D",
-          "text": "No: Python transcodes the file to latin-1 automatically.",
-          "misconception": "Thinking open() converts stored bytes on read"
+          "text": "No: latin-1 maps every byte, so the result is mojibake.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "latin-1 assigns a character to every byte from 0x00 to 0xFF, so decoding never raises. The two UTF-8 bytes for é (0xC3 0xA9) decode instead as 'Ã©', which is mojibake. Bytes carry no codec label and no transcoding occurs — the decoder simply interprets the raw bytes.",
       "hint": "latin-1 never raises.",
@@ -1031,7 +1031,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1040,7 +1040,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1217,13 +1217,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Yes, import runs top-level statements once.",
-          "misconception": ""
+          "text": "No, import only records the names defined in the module.",
+          "misconception": "Thinking import parses but never executes"
         },
         {
           "id": "B",
-          "text": "No, import only records the names defined in the module.",
-          "misconception": "Thinking import parses but never executes"
+          "text": "Yes, import runs top-level statements once.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1237,7 +1237,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Import executes the module body once to build its namespace, so a top-level print runs during the import itself. The form of import does not change this, and print output appears immediately rather than being held until exit. sys.modules caching prevents a second run on repeat imports.",
       "hint": "Top-level runs.",
@@ -1254,7 +1254,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1263,7 +1263,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1283,8 +1283,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Two, one between each adjacent pair of parts.",
-          "misconception": ""
+          "text": "One, because only the first gap needs a separator.",
+          "misconception": "Assuming one separator separates all parts"
         },
         {
           "id": "B",
@@ -1293,8 +1293,8 @@
         },
         {
           "id": "C",
-          "text": "One, because only the first gap needs a separator.",
-          "misconception": "Assuming one separator separates all parts"
+          "text": "Two, one between each adjacent pair of parts.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1303,7 +1303,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Three arguments create two gaps, and os.path.join inserts one separator in each gap, producing 'a/b/c'. It does not add a trailing separator and does not collapse the gaps into one. Plain concatenation would omit separators entirely, which is the problem join exists to solve.",
       "hint": "n-1 separators.",
@@ -1320,7 +1320,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1329,7 +1329,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1349,8 +1349,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The backslash is a valid filename character, so one oddly named file is used.",
-          "misconception": ""
+          "text": "The file is written to the current directory instead.",
+          "misconception": "Thinking separators are ignored outside Windows"
         },
         {
           "id": "B",
@@ -1364,12 +1364,12 @@
         },
         {
           "id": "D",
-          "text": "The file is written to the current directory instead.",
-          "misconception": "Thinking separators are ignored outside Windows"
+          "text": "The backslash is a valid filename character, so one oddly named file is used.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "On POSIX systems a backslash is an ordinary filename character, not a separator, so the parts become one literal name such as 'data\\report.csv' rather than a nested path. Python accepts the string, performs no automatic conversion, and does not relocate the file. os.path.join would choose '/' on Linux.",
       "hint": "Backslash not separator.",
@@ -1386,7 +1386,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1395,7 +1395,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1572,13 +1572,13 @@
       "options": [
         {
           "id": "A",
-          "text": "bytes, because binary mode returns undecoded byte values.",
-          "misconception": ""
+          "text": "str, because read() always decodes with UTF-8.",
+          "misconception": "Assuming read returns text regardless of mode"
         },
         {
           "id": "B",
-          "text": "str, because read() always decodes with UTF-8.",
-          "misconception": "Assuming read returns text regardless of mode"
+          "text": "bytes, because binary mode returns undecoded byte values.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1592,7 +1592,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The 'b' in mode 'rb' keeps the stream binary, so read() returns an immutable bytes object with no decoding step. Text mode would decode to str using a codec, bytearray is a separate mutable type that read() does not produce, and a single integer would require indexing into the result.",
       "hint": "Binary returns bytes.",
@@ -1609,7 +1609,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1618,7 +1618,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1638,8 +1638,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Yes, the reader must decode with the codec used for the write.",
-          "misconception": ""
+          "text": "No, because append mode writes only ASCII characters.",
+          "misconception": "Assuming logs are always ASCII-only"
         },
         {
           "id": "B",
@@ -1648,8 +1648,8 @@
         },
         {
           "id": "C",
-          "text": "No, because append mode writes only ASCII characters.",
-          "misconception": "Assuming logs are always ASCII-only"
+          "text": "Yes, the reader must decode with the codec used for the write.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1658,7 +1658,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Append mode only changes where bytes are placed; it does not label them. A reader must use the codec that produced those bytes or it will mis-decode non-ASCII characters. Plain text files have no encoding header, logs commonly contain arbitrary Unicode, and the mode letter says nothing about the codec.",
       "hint": "Same encoding needed.",
@@ -1675,7 +1675,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1684,7 +1684,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1704,8 +1704,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It is set to the literal string '__main__'.",
-          "misconception": ""
+          "text": "It is the interpreter version string.",
+          "misconception": "Believing __name__ reports runtime information"
         },
         {
           "id": "B",
@@ -1719,12 +1719,12 @@
         },
         {
           "id": "D",
-          "text": "It is the interpreter version string.",
-          "misconception": "Believing __name__ reports runtime information"
+          "text": "It is set to the literal string '__main__'.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Running a file directly sets __name__ to '__main__', which is exactly what the if __name__ == '__main__' guard tests. On import the same variable holds the module name instead. It is never None for a loaded module and has nothing to do with the interpreter version.",
       "hint": "'__main__'.",
@@ -1741,7 +1741,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1750,7 +1750,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1882,13 +1882,13 @@
       "options": [
         {
           "id": "A",
-          "text": "No, an explicit newline value suppresses translation on write.",
-          "misconception": ""
+          "text": "Yes, '\\n' is converted to CRLF on Windows.",
+          "misconception": "Assuming translation happens for every setting"
         },
         {
           "id": "B",
-          "text": "Yes, '\\n' is converted to CRLF on Windows.",
-          "misconception": "Assuming translation happens for every setting"
+          "text": "No, an explicit newline value suppresses translation on write.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1902,7 +1902,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "With newline=None, Python translates a written '\\n' to the platform separator, which is CRLF on Windows. Passing newline='\\n' explicitly disables that translation, so the file receives exactly the characters requested; encoding affects bytes, not line endings, and binary mode has no translation to disable.",
       "hint": "newline controls translation.",
@@ -1919,7 +1919,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1928,7 +1928,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1993,8 +1993,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Yes, UTF-8 decoding inverts UTF-8 encoding exactly.",
-          "misconception": ""
+          "text": "No, because decode() returns bytes rather than text.",
+          "misconception": "Confusing the result type of decode with encode"
         },
         {
           "id": "B",
@@ -2003,8 +2003,8 @@
         },
         {
           "id": "C",
-          "text": "No, because decode() returns bytes rather than text.",
-          "misconception": "Confusing the result type of decode with encode"
+          "text": "Yes, UTF-8 decoding inverts UTF-8 encoding exactly.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2013,7 +2013,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "encode('utf-8') maps each character to a byte sequence and decode('utf-8') applies the inverse mapping, so q is identical to p. The accented character is fully representable, decode() produces a str, and the round trip works for any Unicode string as long as both calls use the same codec.",
       "hint": "Exact round-trip.",
@@ -2030,7 +2030,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2039,7 +2039,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2105,8 +2105,8 @@
       "options": [
         {
           "id": "A",
-          "text": "After the existing contents, at the current end of file.",
-          "misconception": ""
+          "text": "At the current cursor position, which starts at zero.",
+          "misconception": "Assuming append mode begins at offset zero"
         },
         {
           "id": "B",
@@ -2120,12 +2120,12 @@
         },
         {
           "id": "D",
-          "text": "At the current cursor position, which starts at zero.",
-          "misconception": "Assuming append mode begins at offset zero"
+          "text": "After the existing contents, at the current end of file.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Mode 'a' positions the stream at end-of-file on every open and forces subsequent writes to the end, so 'tick' follows existing data. It never truncates, never inserts at the front, and ignores any initial cursor position, which is why append is safe for log writers.",
       "hint": "End of file.",
@@ -2142,7 +2142,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2151,7 +2151,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2237,13 +2237,13 @@
       "options": [
         {
           "id": "A",
-          "text": "os.path.join, which inserts the right separator per platform.",
-          "misconception": ""
+          "text": "os.path.split, which separates a path into its parts.",
+          "misconception": "Reversing the operation and using a splitter"
         },
         {
           "id": "B",
-          "text": "os.path.split, which separates a path into its parts.",
-          "misconception": "Reversing the operation and using a splitter"
+          "text": "os.path.join, which inserts the right separator per platform.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2257,7 +2257,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "os.path.join combines components with the platform's separator and normalizes redundant separators. os.path.split does the opposite, str.join inserts whatever literal separator you supply and is not platform-aware, and os.path.abspath only converts an existing path to an absolute one.",
       "hint": "Joins with separator.",
@@ -2274,7 +2274,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2283,7 +2283,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2394,8 +2394,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A replacement character such as U+FFFD in place of the bad bytes.",
-          "misconception": ""
+          "text": "An empty string, because invalid bytes are skipped.",
+          "misconception": "Confusing replace with the ignore handler"
         },
         {
           "id": "B",
@@ -2404,8 +2404,8 @@
         },
         {
           "id": "C",
-          "text": "An empty string, because invalid bytes are skipped.",
-          "misconception": "Confusing replace with the ignore handler"
+          "text": "A replacement character such as U+FFFD in place of the bad bytes.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2414,7 +2414,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "errors='replace' substitutes a replacement marker for each undecodable byte sequence instead of raising, so the accented letter becomes U+FFFD in the returned string. The original bytes are not preserved, silent dropping belongs to 'ignore', and no exception escapes with this handler.",
       "hint": "Replacement char.",
@@ -2431,7 +2431,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2440,7 +2440,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2460,8 +2460,8 @@
       "options": [
         {
           "id": "A",
-          "text": "No, because each locale supplies a different default codec.",
-          "misconception": ""
+          "text": "No, because omitting encoding warns and then fails.",
+          "misconception": "Thinking the default is rejected at runtime"
         },
         {
           "id": "B",
@@ -2475,12 +2475,12 @@
         },
         {
           "id": "D",
-          "text": "No, because omitting encoding warns and then fails.",
-          "misconception": "Thinking the default is rejected at runtime"
+          "text": "No, because each locale supplies a different default codec.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "With no encoding argument, text I/O uses the value of locale.getpreferredencoding(), which differs between machines and configurations. ASCII-only data may happen to look fine, but non-ASCII content can encode or decode differently. Python does not impose UTF-8 universally, and omitting the argument is legal rather than an error.",
       "hint": "Default varies.",
@@ -2497,7 +2497,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2506,7 +2506,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2683,13 +2683,13 @@
       "options": [
         {
           "id": "A",
-          "text": "'C:\\\\folder\\\\file.txt', with components separated correctly.",
-          "misconception": ""
+          "text": "'C:\\\\' alone, because the drive resets the path.",
+          "misconception": "Thinking a drive prefix discards later parts"
         },
         {
           "id": "B",
-          "text": "'C:\\\\' alone, because the drive resets the path.",
-          "misconception": "Thinking a drive prefix discards later parts"
+          "text": "'C:\\\\folder\\\\file.txt', with components separated correctly.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2703,7 +2703,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "On Windows the drive-plus-root 'C:\\' is a complete anchor, and join appends each following component with a backslash, producing 'C:\\folder\\file.txt'. The drive is retained rather than resetting, and backslashes are ordinary path characters that join handles without error.",
       "hint": "Drive retained.",
@@ -2720,7 +2720,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2729,7 +2729,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2749,8 +2749,8 @@
       "options": [
         {
           "id": "A",
-          "text": "os.sep, the platform's path separator character.",
-          "misconception": ""
+          "text": "os.linesep, the platform's line-ending sequence.",
+          "misconception": "Mixing up line endings with path separators"
         },
         {
           "id": "B",
@@ -2759,8 +2759,8 @@
         },
         {
           "id": "C",
-          "text": "os.linesep, the platform's line-ending sequence.",
-          "misconception": "Mixing up line endings with path separators"
+          "text": "os.sep, the platform's path separator character.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2769,7 +2769,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "os.sep is '/' on POSIX and '\\' on Windows, exactly the character os.path.join inserts between components. os.pathsep separates entries in a search path such as PATH, os.linesep is a newline sequence, and os.curdir is the string '.'.",
       "hint": "os.sep.",
@@ -2786,7 +2786,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2795,7 +2795,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2906,8 +2906,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Yes, the argument overrides the platform default for that call.",
-          "misconception": ""
+          "text": "No, encoding is accepted but ignored in text mode.",
+          "misconception": "Thinking the parameter is decorative for text files"
         },
         {
           "id": "B",
@@ -2921,12 +2921,12 @@
         },
         {
           "id": "D",
-          "text": "No, encoding is accepted but ignored in text mode.",
-          "misconception": "Thinking the parameter is decorative for text files"
+          "text": "Yes, the argument overrides the platform default for that call.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The encoding argument sets the codec for that open() call and takes precedence over locale.getpreferredencoding(), for both new and existing files. Ignoring it would make portable text handling impossible, and it is meaningful precisely in text mode; binary mode is where no decoding occurs.",
       "hint": "Param overrides default.",
@@ -2943,7 +2943,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2952,7 +2952,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3038,13 +3038,13 @@
       "options": [
         {
           "id": "A",
-          "text": "'a', which writes at the end of existing content.",
-          "misconception": ""
+          "text": "'w', which writes at the end of existing content.",
+          "misconception": "Confusing write mode with append behavior"
         },
         {
           "id": "B",
-          "text": "'w', which writes at the end of existing content.",
-          "misconception": "Confusing write mode with append behavior"
+          "text": "'a', which writes at the end of existing content.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3058,7 +3058,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Mode 'a' opens for writing at end-of-file and creates the file if absent, leaving prior content unchanged. Mode 'w' truncates immediately, 'r+' opens for updates with the cursor at the start, and 'x' creates exclusively and fails if the path already exists.",
       "hint": "'a' appends.",
@@ -3075,7 +3075,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3084,7 +3084,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3149,8 +3149,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The / operator, overloaded to join Path components.",
-          "misconception": ""
+          "text": "The & operator, which intersects two path objects.",
+          "misconception": "Inventing a set-like operator for joining"
         },
         {
           "id": "B",
@@ -3159,8 +3159,8 @@
         },
         {
           "id": "C",
-          "text": "The & operator, which intersects two path objects.",
-          "misconception": "Inventing a set-like operator for joining"
+          "text": "The / operator, overloaded to join Path components.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3169,7 +3169,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "pathlib.Path overloads the division operator so Path('tank') / 'log.txt' returns a new Path for 'tank/log.txt', inserting the appropriate separator. Addition is not defined for Paths, intersection is meaningless here, and no explicit os.path.join call is involved.",
       "hint": "'/' joins Paths.",
@@ -3186,7 +3186,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3195,7 +3195,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3261,8 +3261,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Yes, buffered bytes may not have reached disk yet.",
-          "misconception": ""
+          "text": "No, because Python closes handles at the next statement.",
+          "misconception": "Assuming immediate collection closes the writer"
         },
         {
           "id": "B",
@@ -3276,12 +3276,12 @@
         },
         {
           "id": "D",
-          "text": "No, because Python closes handles at the next statement.",
-          "misconception": "Assuming immediate collection closes the writer"
+          "text": "Yes, buffered bytes may not have reached disk yet.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Text streams buffer output, so a write may sit in memory until flush(), close(), or a with-block exit pushes it out. A second open() can therefore read stale or empty content. The file itself remains readable while another handle is open, and Python closes objects when they are collected, not at the next statement.",
       "hint": "Buffering matters.",
@@ -3298,7 +3298,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3307,7 +3307,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3393,13 +3393,13 @@
       "options": [
         {
           "id": "A",
-          "text": "No, __name__ is the module name, not '__main__', on import.",
-          "misconception": ""
+          "text": "Yes, because the guard is ignored during import.",
+          "misconception": "Believing conditional guards do not apply on import"
         },
         {
           "id": "B",
-          "text": "Yes, because the guard is ignored during import.",
-          "misconception": "Believing conditional guards do not apply on import"
+          "text": "No, __name__ is the module name, not '__main__', on import.",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3413,7 +3413,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "On import, __name__ is bound to the imported module's name, so the equality test with '__main__' is false and print('hi') is skipped. The guard is an ordinary conditional and is fully enforced; direct execution is the case that sets __name__ to '__main__'. Imports still run the rest of the module body.",
       "hint": "Guard prevents print.",
@@ -3430,7 +3430,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3439,7 +3439,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3459,8 +3459,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Yes, decoding bytes into text still requires the codec.",
-          "misconception": ""
+          "text": "Only when the path contains non-ASCII characters.",
+          "misconception": "Confusing filename characters with file contents"
         },
         {
           "id": "B",
@@ -3469,8 +3469,8 @@
         },
         {
           "id": "C",
-          "text": "Only when the path contains non-ASCII characters.",
-          "misconception": "Confusing filename characters with file contents"
+          "text": "Yes, decoding bytes into text still requires the codec.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3479,7 +3479,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "os.path.join only assembles a string path and has no bearing on how bytes are interpreted. Reading text always decodes the stored bytes with some codec, so an explicit encoding is still required. The characters in the filename and the fact that storage is byte-oriented do not change that.",
       "hint": "Encoding still needed.",
@@ -3496,7 +3496,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3505,7 +3505,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 2,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []

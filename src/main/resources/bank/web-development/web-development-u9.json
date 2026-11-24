@@ -18,8 +18,8 @@
       "options": [
         {
           "id": "A",
-          "text": "true true true true true true true false false",
-          "misconception": ""
+          "text": "false false false false true true true true false",
+          "misconception": "believes == refuses to convert either side and only compares types"
         },
         {
           "id": "B",
@@ -28,8 +28,8 @@
         },
         {
           "id": "C",
-          "text": "false false false false true true true true false",
-          "misconception": "believes == refuses to convert either side and only compares types"
+          "text": "true true true true true true true false false",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -38,7 +38,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "When one side of == is a number and the other is a string, the string is run through the same conversion the Number function performs: trim the ends, then read the whole remainder as a numeric literal. So '' and ' ' both trim to nothing, which the engine reads as zero, and '0.0' and '00' are complete literals for zero, which is why all four are true. '0x10' is a complete hexadecimal literal and '1e2' is a complete exponential one, so they convert to 16 and 100. ' 12 ' trims to '12', which is complete, so it is 12. '12abc' and 'abc' are not complete literals, so both convert to NaN, and nothing is ever equal to NaN. The trap is that the conversion is a parse, not a scan, and the strict operator refuses to do it at all: `'' === 0`, `'0.0' === 0` and `' 12 ' === 12` are all false because a string is never strictly equal to a number.",
       "hint": "Trim each string, then ask whether what is left is a complete numeric literal; only an incomplete one becomes NaN.",
@@ -52,7 +52,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -65,7 +65,7 @@
         "equality",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -156,8 +156,8 @@
       "options": [
         {
           "id": "A",
-          "text": "3 3 3 3 10 null 2 0 25",
-          "misconception": "believes a numeric string still takes part in addition as a number"
+          "text": "3 12 12 3 10 5null 2 0 1015",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -166,8 +166,8 @@
         },
         {
           "id": "C",
-          "text": "3 12 12 3 10 5null 2 0 1015",
-          "misconception": ""
+          "text": "3 3 3 3 10 null 2 0 25",
+          "misconception": "believes a numeric string still takes part in addition as a number"
         },
         {
           "id": "D",
@@ -176,7 +176,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Plus is the only one of the three that has two jobs. If neither operand is a string it adds, so 1 + 2 is 3. If either operand is a string it concatenates instead, turning the other operand into text first, so '1' + 2 and 1 + '2' are both the two-character string 12, and '5' + null is '5null' because null is written as its own name. Minus and times have no such branch: they always convert their operands to numbers, so '5' - 2 is 3 and '5' * '2' is 10. A boolean operand is not a string, so true + 1 adds and gives 2, while '1' - 1 still subtracts after conversion and gives 0. The last expression shows left-to-right evaluation doing the deciding: '10' + 20 concatenates to '1020', and only then does the minus strip it back to a number, so the answer is 1015 and not the 25 that a right-to-left reading would produce.",
       "hint": "Check operand types one operator at a time; plus changes behaviour when a string is present and the other two never do.",
@@ -190,7 +190,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -203,7 +203,7 @@
         "operators",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -294,8 +294,8 @@
       "options": [
         {
           "id": "A",
-          "text": "object undefined number object object function object undefined",
-          "misconception": ""
+          "text": "object undefined number object object function object referenceError",
+          "misconception": "believes a name that was never declared throws when typeof is applied to it"
         },
         {
           "id": "B",
@@ -304,8 +304,8 @@
         },
         {
           "id": "C",
-          "text": "object undefined number object object function object referenceError",
-          "misconception": "believes a name that was never declared throws when typeof is applied to it"
+          "text": "object undefined number object object function object undefined",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "typeof reports one of a fixed set of words, and two of them are counter-intuitive. null is a primitive, yet typeof null is object: the test that would separate objects from functions cannot tell an ordinary object from the value named null itself, and the specification froze the answer as object rather than change a result the web depends on. NaN is a number in every way that matters, so typeof NaN is number and only a comparison reveals it is not a usable one. Arrays and regular expressions are objects, so they report object and not array or regexp, and typeof a function is function. The last one is the useful exception: typeof on a name that was never declared returns undefined instead of throwing, which is exactly what makes typeof safe for feature detection. Reading that name in any other position, without typeof in front of it, throws a ReferenceError.",
       "hint": "Typeof can only return the words in its fixed list; check which values fall into a bucket that surprises the writer.",
@@ -328,7 +328,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -341,7 +341,7 @@
         "values",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -432,8 +432,8 @@
       "options": [
         {
           "id": "A",
-          "text": "9007199254740992 9007199254740993 false 9007199254740992 123456789012345679",
-          "misconception": "believes an integer literal keeps every digit it was written with"
+          "text": "9007199254740991 9007199254740992 true 9007199254740992 123456789012345680",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -442,8 +442,8 @@
         },
         {
           "id": "C",
-          "text": "9007199254740991 9007199254740992 true 9007199254740992 123456789012345680",
-          "misconception": ""
+          "text": "9007199254740992 9007199254740993 false 9007199254740992 123456789012345679",
+          "misconception": "believes an integer literal keeps every digit it was written with"
         },
         {
           "id": "D",
@@ -452,7 +452,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Every number a script works with is a double-precision binary value, and it stores a sign, an exponent and a fixed number of fraction bits, so the whole and fractional parts share one budget. That budget buys fifty-three bits of binary significand, which is nine quadrillion seven hundred fifteen trillion and change: two to the fifty-third is nine quadrillion seven hundred fifteen trillion nine hundred and ninety-two, and the largest integer that can be told apart from its neighbour is one less than that, which is what the constant reports. Past that point adjacent integers collapse onto the same value, which is why the literal written as two to the fifty-third plus one prints as two to the fifty-three, and why adding one to it does not change it and the comparison against the unchanged value is true. The final result is the same fact seen from the other side: an eighteen-digit number is already too large, so the trailing digits of the sum are rounded rather than carried.",
       "hint": "Work out the value of two to the fifty-third and compare it with the printed constant before reading the rest.",
@@ -466,7 +466,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -479,7 +479,7 @@
         "precision",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -570,8 +570,8 @@
       "options": [
         {
           "id": "A",
-          "text": "12 NaN NaN 42 NaN 0 1 1000 5 101",
-          "misconception": ""
+          "text": "NaN NaN NaN 42 0 0 1 1000 101 101",
+          "misconception": "believes a trailing non-numeric suffix makes the whole conversion fail in both functions"
         },
         {
           "id": "B",
@@ -580,8 +580,8 @@
         },
         {
           "id": "C",
-          "text": "NaN NaN NaN 42 0 0 1 1000 101 101",
-          "misconception": "believes a trailing non-numeric suffix makes the whole conversion fail in both functions"
+          "text": "12 NaN NaN 42 NaN 0 1 1000 5 101",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -590,7 +590,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The two functions have different contracts, which is why mixing them is a bug factory. An integer parser reads digits from the front and stops at the first character it cannot use, so '12px' gives 12 and 'px12' gives nothing at all because there is no leading digit. A number conversion has no stopping rule: the whole trimmed string has to be a valid numeric literal, so '12px' is rejected and reported as not-a-number. Whitespace is trimmed by both, so '  42  ' is 42 either way, but the empty string separates them: the integer parser has nothing to read and fails, while the number conversion treats no text at all as zero. Exponential notation is the clearest difference, since a parser reads the leading one and stops at the letter, giving 1 where the conversion gives 1000. A radix argument is only meaningful for the parser, so Number('101', 2) ignores the two and reads the digits as decimal, giving 101, while the parser reads them in base two and gives 5.",
       "hint": "Decide for each function whether it stops at the first unusable character or demands that the whole string be a number.",
@@ -604,7 +604,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -617,7 +617,7 @@
         "parsing",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -708,8 +708,8 @@
       "options": [
         {
           "id": "A",
-          "text": "0 NaN NaN NaN NaN 3 NaN NaN 1 NaN 7 NaN NaN",
-          "misconception": "believes a string of only white space is not a valid number while an empty one is"
+          "text": "0 0 NaN NaN NaN 3 0 NaN 1 0 7 NaN NaN",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -718,8 +718,8 @@
         },
         {
           "id": "C",
-          "text": "0 0 NaN NaN NaN 3 0 NaN 1 0 7 NaN NaN",
-          "misconception": ""
+          "text": "0 NaN NaN NaN NaN 3 NaN NaN 1 NaN 7 NaN NaN",
+          "misconception": "believes a string of only white space is not a valid number while an empty one is"
         },
         {
           "id": "D",
@@ -728,7 +728,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Converting a string trims it and then requires the whole remainder to be a valid numeric literal, and the empty remainder counts as zero. That is why both the empty string and a string of nothing but a space give zero, while any non-numeric text gives the failure value, and an underscore is not a digit separator in the string grammar even though it is a digit separator in numeric literals, so '1_2' fails. Words that name numbers do not help either, so 'true' is rejected while the boolean itself converts to one. The non-string values take a different route: the empty values are handled first, so the empty value converts to zero and the other one to failure, and a boolean converts by being one. Arrays and objects go through their own string form. The empty array stringifies to nothing and so becomes zero, a single-element array stringifies to that element and becomes seven, a two-element array stringifies to '1,2' which is not a number, and an object stringifies to bracketed text which is not a number either.",
       "hint": "Strings go through the numeric literal grammar after trimming; everything else goes through its own string form first.",
@@ -742,7 +742,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -755,7 +755,7 @@
         "parsing",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -846,8 +846,8 @@
       "options": [
         {
           "id": "A",
-          "text": "-2147483648 0 4294967295 -1 2147483647 1 7 6 2 -2147483648",
-          "misconception": ""
+          "text": "-2147483648 0 -1 -1 2147483647 1 7 6 2 -2147483648",
+          "misconception": "believes the unsigned shift leaves a negative number negative"
         },
         {
           "id": "B",
@@ -856,8 +856,8 @@
         },
         {
           "id": "C",
-          "text": "-2147483648 0 -1 -1 2147483647 1 7 6 2 -2147483648",
-          "misconception": "believes the unsigned shift leaves a negative number negative"
+          "text": "-2147483648 0 4294967295 -1 2147483647 1 7 6 2 -2147483648",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -866,7 +866,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Every bitwise operator first converts its operands to thirty-two-bit integers, and any higher bits are discarded, which is why the largest power of two that fits in a signed thirty-two-bit integer comes back as the negative value at the other end of the range. Discarding high bits is not the same as discarding value: a power of two beyond the range is made of nothing but the bits that were discarded, so it arrives as zero. The shift family has two separate operators and the difference between them is the sign. The right shift that keeps the sign fills from the left with copies of the sign bit, so minus one stays minus one however far it shifts. The unsigned right shift treats the bits as unsigned, so minus one becomes the largest unsigned thirty-two-bit value, and one to the left of zero becomes a value with every bit but the lowest set. The last result is the sign bit being set: one shifted left into bit position thirty-one produces a negative number, not a large positive one.",
       "hint": "Reduce each operand to thirty-two bits first, then decide which kind of shift fills from the left.",
@@ -880,7 +880,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -893,7 +893,7 @@
         "numbers",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -984,8 +984,8 @@
       "options": [
         {
           "id": "A",
-          "text": "owner core true true true true [ 'role', 'team' ]",
-          "misconception": "believes a property the object can read is therefore a property the object owns"
+          "text": "owner core true true false false [ 'role' ]",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -994,8 +994,8 @@
         },
         {
           "id": "C",
-          "text": "owner core true true false false [ 'role' ]",
-          "misconception": ""
+          "text": "owner core true true true true [ 'role', 'team' ]",
+          "misconception": "believes a property the object can read is therefore a property the object owns"
         },
         {
           "id": "D",
@@ -1004,7 +1004,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A read walks the chain: the object first, then its prototype, then whatever that prototype inherits. The first read finds the value the script wrote on the object, so it reports the owner's role; the second finds nothing on the object and continues up, so it reports the inherited team. The two questions after that ask different things and that is the whole distinction. The in operator asks whether the chain has the key at all, so it is true. The own-property test asks only whether the first link has it, so it is true for the role the script wrote and false for the team it inherited, even though reading team worked perfectly. The method call agrees, because that method asks the same question, and the key list is the direct enumeration of the object's own enumerable keys, which contains only the one name the script wrote. The last expression in the program shows the practical consequence: deleting the own role leaves the object readable at that name again, because the inherited value takes over.",
       "hint": "Separate the three questions: does the chain have the key, does this object own it, and what does a read return.",
@@ -1018,7 +1018,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1031,7 +1031,7 @@
         "properties",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1122,8 +1122,8 @@
       "options": [
         {
           "id": "A",
-          "text": "undefined 1 {\"x\":1} [ 'x' ] true, and both bare.toString() and bare + 1 threw TypeError",
-          "misconception": ""
+          "text": "undefined 1 {} [] false, and bare.toString() threw TypeError",
+          "misconception": "believes an object with no prototype is not enumerable and not serialisable"
         },
         {
           "id": "B",
@@ -1132,8 +1132,8 @@
         },
         {
           "id": "C",
-          "text": "undefined 1 {} [] false, and bare.toString() threw TypeError",
-          "misconception": "believes an object with no prototype is not enumerable and not serialisable"
+          "text": "undefined 1 {\"x\":1} [ 'x' ] true, and both bare.toString() and bare + 1 threw TypeError",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1142,7 +1142,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "An ordinary object literal inherits from a shared root that carries the methods every object gets for free, and making an object with an empty prototype removes that root from its chain entirely. What survives is everything the object itself holds: the value it was given, its key list, its serialised form and the own-property test, which is the static form that asks the object rather than the chain and therefore needs no prototype method at all. What disappears is everything that used to arrive by inheritance. Asking for a method name now yields the undefined type, calling it fails, and the string conversion fails too, because conversion looks for two methods by name on the object and finds neither, and there is nowhere further up the chain to look. This is exactly why that construction is the right one for a lookup table built from data that is not trusted: a payload with a key named toString cannot shadow a method, because there is no method to shadow.",
       "hint": "Ask whether each operation reads the object itself or depends on a name it would have to inherit.",
@@ -1156,7 +1156,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1169,7 +1169,7 @@
         "values",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1260,8 +1260,8 @@
       "options": [
         {
           "id": "A",
-          "text": "true true true true [ 'name', 'toString', 'id' ] [ 'name', 'toString', 'id' ] {\"name\":\"x\"}",
-          "misconception": "believes the own test and the in operator answer the same question about a name"
+          "text": "true false true false [ 'name' ] [ 'name', 'toString', 'id' ] {\"name\":\"x\"}",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1270,8 +1270,8 @@
         },
         {
           "id": "C",
-          "text": "true false true false [ 'name' ] [ 'name', 'toString', 'id' ] {\"name\":\"x\"}",
-          "misconception": ""
+          "text": "true true true true [ 'name', 'toString', 'id' ] [ 'name', 'toString', 'id' ] {\"name\":\"x\"}",
+          "misconception": "believes the own test and the in operator answer the same question about a name"
         },
         {
           "id": "D",
@@ -1280,7 +1280,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The in operator asks whether the name can be resolved by walking the chain, and the own-property test asks whether the first link of that walk has it, so for both names in this program the first answer is true and the second is false: the base object supplies both. The direct name list answers the narrow question and shows only the one name the script wrote. The for-in loop, as in the companion case, walks the whole chain and reports three names with the object's own first. Serialisation is the narrowest of all: it looks at own enumerable properties only, so the output holds just the name and its value, and the base object's id and toString do not appear even though reading child.id returns seven and reading child.toString returns one. That gap between what a read returns and what a serialisation prints is the practical reason the two questions have to be kept apart.",
       "hint": "Decide for each test whether it consults the whole chain or only the first link.",
@@ -1294,7 +1294,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1307,7 +1307,7 @@
         "properties",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1398,8 +1398,8 @@
       "options": [
         {
           "id": "A",
-          "text": "False in the module and true in the classic script, because a bare call substitutes a global receiver only when the surrounding code is not strict",
-          "misconception": ""
+          "text": "False in both, because strictness only affects assignment to the receiver and not what the receiver is",
+          "misconception": "believes strict code always has no receiver even in non-strict files"
         },
         {
           "id": "B",
@@ -1408,8 +1408,8 @@
         },
         {
           "id": "C",
-          "text": "False in both, because strictness only affects assignment to the receiver and not what the receiver is",
-          "misconception": "believes strict code always has no receiver even in non-strict files"
+          "text": "False in the module and true in the classic script, because a bare call substitutes a global receiver only when the surrounding code is not strict",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1418,7 +1418,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A call has to decide what the receiver is before the body runs, and when the call site names no object the answer depends on the surrounding code. In strict code there is nothing to substitute, so the receiver stays undefined and the comparison is false. In non-strict code the two empty values are replaced by the global object, so the comparison is true. The same two files therefore disagree about one line of code, which is why a function that reads the receiver is hard to reuse: its behaviour is decided partly by where it was written. The rule that makes this predictable is to stop reading the receiver in a function that does not use it, and to use an arrow function where the enclosing receiver is wanted, because an arrow function has no receiver of its own to lose.",
       "hint": "Ask whether the surrounding file is strict; the strictness of the call site is what picks between the two answers.",
@@ -1432,7 +1432,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1445,7 +1445,7 @@
         "scope",
         "functions"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1536,8 +1536,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Both bodies see the object, because a nested function inherits the receiver of the function that contains it",
-          "misconception": "believes any nested function inherits the enclosing receiver"
+          "text": "The function body sees no receiver at all in strict code, and the arrow body sees the object the method was called on",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1546,8 +1546,8 @@
         },
         {
           "id": "C",
-          "text": "The function body sees no receiver at all in strict code, and the arrow body sees the object the method was called on",
-          "misconception": ""
+          "text": "Both bodies see the object, because a nested function inherits the receiver of the function that contains it",
+          "misconception": "believes any nested function inherits the enclosing receiver"
         },
         {
           "id": "D",
@@ -1556,7 +1556,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "An arrow function has no receiver of its own, so the word this inside it is not a parameter the caller can supply; it is resolved to whatever this means in the scope that created the arrow. That is why the arrow body reports the object: the method body was entered as a method call, so this was the object, and the arrow closed over that meaning. A function expression does have its own receiver, and the collection being mapped is not it, so in strict code the receiver is undefined. The list is passed as an argument, not as a receiver, which is the mistake the third option makes. The practical consequence runs both ways: an arrow is the right tool inside a method that needs the object, and the wrong tool for a method definition, because a method that needs its own receiver cannot be written as an arrow at all.",
       "hint": "Ask whether the body has a receiver parameter of its own or borrows the enclosing one.",
@@ -1570,7 +1570,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1583,7 +1583,7 @@
         "arrows",
         "functions"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1674,8 +1674,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The method on the prototype of the class that wrote the call, so the chain runs third, subclass, base, object",
-          "misconception": ""
+          "text": "The method on the instance itself, so the chain is only third and the base method is never reached",
+          "misconception": "believes super looks at the instance before the prototypes"
         },
         {
           "id": "B",
@@ -1684,8 +1684,8 @@
         },
         {
           "id": "C",
-          "text": "The method on the instance itself, so the chain is only third and the base method is never reached",
-          "misconception": "believes super looks at the instance before the prototypes"
+          "text": "The method on the prototype of the class that wrote the call, so the chain runs third, subclass, base, object",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1694,7 +1694,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Super is not a name lookup from the top of the chain; it starts one step above the prototype that owns the function currently running. So the override in the third class reaches the subclass method, which in turn reaches the base method, and the labels accumulate one word per level. The chain that the instance walks is its own class first, then each ancestor in turn, ending at the shared root, and that ordering is the same ordering super follows, which is why the two agree. The receiver, meanwhile, is still the instance, so a base method that reads the receiver sees the fully constructed third-class object. The first part of the super story is separate and just as strict: a derived constructor may not touch the receiver before it has called super, and doing so throws immediately rather than producing a half-built object.",
       "hint": "Super starts one link above the prototype that owns the running function, not at the top of the chain.",
@@ -1708,7 +1708,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1721,7 +1721,7 @@
         "inheritance",
         "this"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1812,8 +1812,8 @@
       "options": [
         {
           "id": "A",
-          "text": "All three throw, because a name cannot be read anywhere before the line that declares it",
-          "misconception": "believes hoisting applies to every kind of declaration equally"
+          "text": "The first throws a reference error, the second returns a value, and the third returns the word undefined without throwing",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1822,8 +1822,8 @@
         },
         {
           "id": "C",
-          "text": "The first throws a reference error, the second returns a value, and the third returns the word undefined without throwing",
-          "misconception": ""
+          "text": "All three throw, because a name cannot be read anywhere before the line that declares it",
+          "misconception": "believes hoisting applies to every kind of declaration equally"
         },
         {
           "id": "D",
@@ -1832,7 +1832,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A block-scoped declaration is hoisted to the top of its block like any other, but it is not initialised there, so between the top of the block and the line that assigns it the name exists and is unready, and reading it is a reference error rather than undefined. A function-scoped declaration is different in kind: it is initialised when the scope is entered, so reading it before its line gives the value it will hold, which for a named function is a callable and for a variable is undefined. The type operator is the third case and the useful one: it is defined to return the word undefined for a name that was never declared, which is why a guarded feature test is written with it and why the same test without the operator fails. The distinction the item is really about is unready versus absent, and the type operator only answers the absent case.",
       "hint": "Separate the three states a name can be in: initialised, entered but not yet initialised, and never declared.",
@@ -1846,7 +1846,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1859,7 +1859,7 @@
         "hoisting",
         "binding-order"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1950,8 +1950,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The default text in both runs, because a default covers both an absent key and a key holding no value",
-          "misconception": ""
+          "text": "Undefined in both runs, because a default inside a destructuring read is ignored",
+          "misconception": "believes a destructuring default is only honoured in the rest form"
         },
         {
           "id": "B",
@@ -1960,8 +1960,8 @@
         },
         {
           "id": "C",
-          "text": "Undefined in both runs, because a default inside a destructuring read is ignored",
-          "misconception": "believes a destructuring default is only honoured in the rest form"
+          "text": "The default text in both runs, because a default covers both an absent key and a key holding no value",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1970,7 +1970,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A default in a destructuring read covers two cases, and the second is the one that catches people: the key being absent, and the key being present but holding the value that means unready. The second case is the more surprising, because the key is demonstrably there and reading it without a default would hand back the unready value, so the default substitutes instead. That is a real difference from a merge, where an existing key is kept as it is. The rest form collects the names the read did not mention, and it collects them from the same own-property set the read used, so it holds the one name left over. None of this throws: a missing key is a normal outcome of a read, and the whole point of the default is to give it a value.",
       "hint": "Ask whether the key is absent or present-with-no-value; the default covers both.",
@@ -1984,7 +1984,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1997,7 +1997,7 @@
         "defaults",
         "values"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2088,8 +2088,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A new list, the same list, a shorter new list, and a number; the callback helper changes the source in place",
-          "misconception": "believes a callback helper writes each transformed value back into the source"
+          "text": "A new list, undefined, a shorter new list, and a number; the source list is unchanged by all four",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2098,8 +2098,8 @@
         },
         {
           "id": "C",
-          "text": "A new list, undefined, a shorter new list, and a number; the source list is unchanged by all four",
-          "misconception": ""
+          "text": "A new list, the same list, a shorter new list, and a number; the callback helper changes the source in place",
+          "misconception": "believes a callback helper writes each transformed value back into the source"
         },
         {
           "id": "D",
@@ -2108,7 +2108,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The four helpers answer four different questions and return four different things, and the contract is what each name promises. The transforming helper builds a new list of the same length from the callback results, so it is the one to reach for when the result is a new collection. The callback helper exists only to run a side effect once per element and is specified to return nothing, which is why writing a return inside it does nothing useful; using it and then reading its result gives undefined. The selecting helper returns a new list holding only the elements the callback accepted, so its length can be shorter but it is never the same object. The folding helper returns whatever the accumulator held at the end, which is a number here because the initial total was a number. None of the four writes to the source, and the final print is the check that the source is still the three numbers it started as.",
       "hint": "Read each helper name as its contract, and remember that the callback helper is specified to return nothing.",
@@ -2122,7 +2122,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2135,7 +2135,7 @@
         "helpers",
         "values"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2226,8 +2226,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Text order, so the numbers order as one, ten, one hundred, two, nine, the capital letter sorts before its lower-case twin, and the unready values finish the list",
-          "misconception": ""
+          "text": "Insertion order, so nothing moves and the unready values are dropped from the result",
+          "misconception": "believes the default comparison leaves the list untouched"
         },
         {
           "id": "B",
@@ -2236,8 +2236,8 @@
         },
         {
           "id": "C",
-          "text": "Insertion order, so nothing moves and the unready values are dropped from the result",
-          "misconception": "believes the default comparison leaves the list untouched"
+          "text": "Text order, so the numbers order as one, ten, one hundred, two, nine, the capital letter sorts before its lower-case twin, and the unready values finish the list",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2246,7 +2246,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "With no comparison function the helper compares the elements as text, whatever the elements actually are, and that single rule explains all three results. Read as text, ten comes before two because the character one sorts before the character two, and one hundred comes between them for the same reason, so the numeric-looking list orders one, ten, one hundred, two, nine. The word list shows the other half of the rule: text comparison follows code point order, where an upper-case letter has a smaller value than its lower-case twin, so the capitalised word sorts first. The unready values are specified to sort after everything, so they finish the list rather than disappearing, which is the opposite of what a custom comparison often does when it returns nothing. Every numeric list therefore needs an explicit comparison function that returns a difference rather than a boolean.",
       "hint": "The default comparison reads the elements as text, so ask how each element orders as text.",
@@ -2260,7 +2260,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2273,7 +2273,7 @@
         "sorting",
         "comparators"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2364,8 +2364,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The object key works, the string key is accepted and coerced, the size is zero because the collection is empty, and iteration works",
-          "misconception": "believes the weak collection hides its contents but still enumerates them"
+          "text": "The object key works and is readable, the own-key test works, the string key is refused, the size is unavailable, iteration is refused, and the strong collection reports both a size and iteration",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2374,8 +2374,8 @@
         },
         {
           "id": "C",
-          "text": "The object key works and is readable, the own-key test works, the string key is refused, the size is unavailable, iteration is refused, and the strong collection reports both a size and iteration",
-          "misconception": ""
+          "text": "The object key works, the string key is accepted and coerced, the size is zero because the collection is empty, and iteration works",
+          "misconception": "believes the weak collection hides its contents but still enumerates them"
         },
         {
           "id": "D",
@@ -2384,7 +2384,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A weak keyed collection exists so that an entry cannot keep its own key alive, and that single purpose removes the abilities that would conflict with it. Objects are the only keys it accepts, because only an object can be held weakly; a primitive is refused outright with a type error rather than silently wrapped, since wrapping it would reintroduce a strong reference. The own-key test still works, because asking whether a key is present does not enumerate anything. The size and the iteration methods are gone, and they are gone precisely because exposing the keys would keep them alive, which is the thing the design is preventing. A strong collection holding the same entry reports both, which is the trade: a weak collection cannot be inspected, and a strong one holds its keys until it is itself discarded.",
       "hint": "Ask whether each operation would keep the key reachable; the ones that would are the ones that were removed.",
@@ -2398,7 +2398,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2411,7 +2411,7 @@
         "map",
         "garbage-collection"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2502,8 +2502,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The first returns the try value, the second and the third return the finally value, and the fourth returns the try value",
-          "misconception": ""
+          "text": "The first and the fourth return the try value, the second returns the finally value, and the third rethrows the original error",
+          "misconception": "believes a return in a finally block does not suppress a caught error"
         },
         {
           "id": "B",
@@ -2512,8 +2512,8 @@
         },
         {
           "id": "C",
-          "text": "The first and the fourth return the try value, the second returns the finally value, and the third rethrows the original error",
-          "misconception": "believes a return in a finally block does not suppress a caught error"
+          "text": "The first returns the try value, the second and the third return the finally value, and the fourth returns the try value",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2522,7 +2522,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A finally block always runs on the way out, whatever is on its way out, and that is exactly why it can replace the result: a return inside it discards whatever the try block was about to return and hands back its own value instead. So the first function, whose finally does nothing, returns the try value; the second replaces it; the third catches the error, forms a return value, and then has it replaced by the finally, so the error never reaches the caller; and the fourth, whose finally only assigns to a local, returns the try value, because an assignment in the finally does not touch the pending result. The third case is the one that turns a handled error into a silent wrong answer, so a finally block that returns is almost always a mistake.",
       "hint": "A return inside the finally block wins; anything else in the finally block does not change the pending result.",
@@ -2536,7 +2536,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2549,7 +2549,7 @@
         "finally",
         "control-flow"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2640,8 +2640,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Both operators replace zero and empty text, mixing them without brackets is a syntax error, and the compound form replaces zero",
-          "misconception": "believes the absence-only operator also fires for a falsy value"
+          "text": "The first operator replaces zero, empty text, false and the bad value, the second keeps all four and replaces only the two absent ones, mixing them without brackets is a syntax error, and the compound form leaves zero alone while setting the unready one",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2650,8 +2650,8 @@
         },
         {
           "id": "C",
-          "text": "The first operator replaces zero, empty text, false and the bad value, the second keeps all four and replaces only the two absent ones, mixing them without brackets is a syntax error, and the compound form leaves zero alone while setting the unready one",
-          "misconception": ""
+          "text": "Both operators replace zero and empty text, mixing them without brackets is a syntax error, and the compound form replaces zero",
+          "misconception": "believes the absence-only operator also fires for a falsy value"
         },
         {
           "id": "D",
@@ -2660,7 +2660,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The two operators are separated by one question each. The first asks whether the value is falsy, and zero, empty text, false and the bad-value number are all falsy, so all four are replaced, which is the bug when the value is a genuine count of zero. The second asks only whether the value is one of the two absent ones, so it keeps all four of those and replaces only the two that are absent, which is what a defaulted configuration value wants. Mixing the two in one expression without brackets is a syntax error, deliberately, because the meaning would otherwise depend on an order the reader has to remember. The compound forms follow the same split: the assignment form that tests for a value will overwrite a zero, while the one that tests for absence will not, so a configuration field initialised to zero survives being merged.",
       "hint": "Ask whether each operator tests for falsiness or only for one of the two absent values.",
@@ -2674,7 +2674,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2687,7 +2687,7 @@
         "falsy",
         "defaults"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2778,8 +2778,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The throw became a rejection on a promise nobody examined, so the request path carried on and reported success; attach a rejection handler where the promise is created",
-          "misconception": ""
+          "text": "The throw ran before the function returned a promise, so it escaped synchronously and had nowhere to go",
+          "misconception": "believes a throw inside an async function is a synchronous exception"
         },
         {
           "id": "B",
@@ -2788,8 +2788,8 @@
         },
         {
           "id": "C",
-          "text": "The throw ran before the function returned a promise, so it escaped synchronously and had nowhere to go",
-          "misconception": "believes a throw inside an async function is a synchronous exception"
+          "text": "The throw became a rejection on a promise nobody examined, so the request path carried on and reported success; attach a rejection handler where the promise is created",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2798,7 +2798,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A throw inside an async function does not escape as a synchronous exception; it settles the promise that the call returns, and the call itself succeeds. So the caller received a perfectly good promise and carried on, the request completed, and the failure was sitting in a promise no code had looked at. The host's report at the end of the turn is the only signal, and it names the value rather than the code path, which is why these failures are hard to trace. The last observation is the reassuring one and also the lesson: a handler attached in a later turn still receives the rejection, so the value was never lost, only unattended. The fix belongs where the promise is created rather than at some outer layer, because that is the point where the code still knows what the failure means and what the response should be.",
       "hint": "Ask what the throw settled, and then ask whether anything in the request path ever looked at the result.",
@@ -2812,7 +2812,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2825,7 +2825,7 @@
         "errors",
         "error-analysis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2916,8 +2916,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It returns true or false, which the helper reads correctly, so the list is unchanged because the list was already in that order",
-          "misconception": "believes a boolean comparison can express a three-way order"
+          "text": "It returns true or false, which the helper only reads as a sign and so reads as zero every time it compares two unequal values; return a difference",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2926,8 +2926,8 @@
         },
         {
           "id": "C",
-          "text": "It returns true or false, which the helper only reads as a sign and so reads as zero every time it compares two unequal values; return a difference",
-          "misconception": ""
+          "text": "It returns true or false, which the helper reads correctly, so the list is unchanged because the list was already in that order",
+          "misconception": "believes a boolean comparison can express a three-way order"
         },
         {
           "id": "D",
@@ -2936,7 +2936,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The comparison is asked which of two elements should come first, and the useful answer is a direction: negative, zero or positive. A boolean is not a direction, and true coerces to one while false coerces to zero, so every pair of unequal elements looks like the first element should come first and the helper concludes nothing needs to move. That is why the list comes back in its original order rather than throwing or reversing: the comparison is perfectly well formed, it just never reports that the second element is smaller. Returning a difference fixes it because the sign of the difference is exactly the direction the helper needs, and the second run in the item confirms the mechanism, since subtracting the two values is what turns the comparison into an ordering. The general rule is that any comparison returning a yes-or-no answer, including one that returns no answer at all for equal elements, silently degrades the helper into a no-op.",
       "hint": "The helper reads the comparison result as a sign; work out what a boolean looks like when read as a sign.",
@@ -2950,7 +2950,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2963,7 +2963,7 @@
         "sorting",
         "comparators"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3054,8 +3054,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The guard tested the thrown value for truthiness and zero is falsy, so a real failure took the no-failure path; test whether the catch block was entered instead",
-          "misconception": ""
+          "text": "The catch block never ran, because a throw of a primitive is not caught by a try block around a call",
+          "misconception": "believes only thrown objects reach a catch block"
         },
         {
           "id": "B",
@@ -3064,8 +3064,8 @@
         },
         {
           "id": "C",
-          "text": "The catch block never ran, because a throw of a primitive is not caught by a try block around a call",
-          "misconception": "believes only thrown objects reach a catch block"
+          "text": "The guard tested the thrown value for truthiness and zero is falsy, so a real failure took the no-failure path; test whether the catch block was entered instead",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3074,7 +3074,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The handler asked the wrong question. Being inside the catch block already means something was thrown, so the value in hand is the reason, and the only judgement left is what to do with it. Testing that value for truthiness asks a different question, namely whether the reason is truthy, and a thrown zero is not. The value that means absent, the empty string, false and the bad-value number are all in the same position, so any of them would be silently treated as a success. The same trap exists on the throw side, where a routine that throws a falsy value on the success path makes the two paths indistinguishable. The safe shapes are to throw something that is always truthy, an object with a name and a message, or to keep the throwing and the checking separate so the catch block's entry is the only signal that something went wrong.",
       "hint": "Ask what the guard is testing and whether the thrown value is guaranteed to be truthy.",
@@ -3088,7 +3088,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3101,7 +3101,7 @@
         "falsy",
         "error-analysis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3192,8 +3192,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The check is correct and the second record genuinely has no identifier, so the throw is coming from somewhere else entirely",
-          "misconception": "believes the throw is unrelated to the key the record carries"
+          "text": "The check calls a method the data can replace, so a record carrying that key turns the call into a non-callable value; use the static form of the own-property test",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3202,8 +3202,8 @@
         },
         {
           "id": "C",
-          "text": "The check calls a method the data can replace, so a record carrying that key turns the call into a non-callable value; use the static form of the own-property test",
-          "misconception": ""
+          "text": "The check is correct and the second record genuinely has no identifier, so the throw is coming from somewhere else entirely",
+          "misconception": "believes the throw is unrelated to the key the record carries"
         },
         {
           "id": "D",
@@ -3212,7 +3212,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The check asked a record to do something, and the record decides what that name means. A parsed record is a plain object, so the method it uses is inherited, and an inherited method is shadowed the moment a record carries a key of the same name. Reading that name then returns whatever the record put there, and calling a non-callable value throws, which is why exactly one record failed and not the whole batch. The static form of the test is immune because it asks the question without going through a property lookup on the record at all, and the item's second observation confirms it: it answers for every record and finds the identifier on the one that has it. This is a general rule about code that touches data it did not build: prefer the form of every operation that the data cannot intercept, and treat any call on a record as a call the record is entitled to break.",
       "hint": "Ask what the record's own keys can do to a lookup of a method name on that record.",
@@ -3226,7 +3226,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3239,7 +3239,7 @@
         "parsing",
         "error-analysis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3330,8 +3330,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Nine quadrillion seven hundred fifteen trillion nine hundred and ninety-one, and nine quadrillion seven hundred fifteen trillion nine hundred and ninety-two; adding one to the first gives the second, so a loop at that scale stops changing and runs forever",
-          "misconception": ""
+          "text": "Nine quadrillion seven hundred fifteen trillion nine hundred and ninety-two, and the same number; adding one to the first gives back the first, so an identifier stored as a number at that scale is safe",
+          "misconception": "believes a two-to-the-fifty-third value can be told apart from itself plus one"
         },
         {
           "id": "B",
@@ -3340,8 +3340,8 @@
         },
         {
           "id": "C",
-          "text": "Nine quadrillion seven hundred fifteen trillion nine hundred and ninety-two, and the same number; adding one to the first gives back the first, so an identifier stored as a number at that scale is safe",
-          "misconception": "believes a two-to-the-fifty-third value can be told apart from itself plus one"
+          "text": "Nine quadrillion seven hundred fifteen trillion nine hundred and ninety-one, and nine quadrillion seven hundred fifteen trillion nine hundred and ninety-two; adding one to the first gives the second, so a loop at that scale stops changing and runs forever",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3350,7 +3350,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The exact range is a power of two and its largest usable member. Two to the fifty-third is nine quadrillion seven hundred fifteen trillion nine hundred and ninety-two, and the largest integer that can be told apart from its neighbour is one less than that, which is the constant the runtimes publish. Adding one to that largest integer lands on two to the fifty-third exactly, and the comparison confirms it: the result equals two to the fifty-three, because at that magnitude consecutive integers share a representation. Past this point a number is only accurate to within a span rather than exactly, which is why identifiers, sequence numbers and money are held as text or in an exact integer type rather than as a number. The loop is the practical consequence: a condition of the form value less than some bound is satisfiable again after this point, because the value no longer moves, so the loop runs without end.",
       "hint": "Work out two to the fifty-third first, then subtract one, then add one back and compare.",
@@ -3364,7 +3364,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3377,7 +3377,7 @@
         "precision",
         "two-stage"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3468,8 +3468,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Two values are logged and the result reports a length of two, so the gap is closed up and indexing by position is safe",
-          "misconception": "believes a traversal compacts the source list before walking it"
+          "text": "Two values are logged, the first and the third, and the result reports a length of three, so positions after the gap do not line up with the values and indexing by position can read an empty slot",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3478,8 +3478,8 @@
         },
         {
           "id": "C",
-          "text": "Two values are logged, the first and the third, and the result reports a length of three, so positions after the gap do not line up with the values and indexing by position can read an empty slot",
-          "misconception": ""
+          "text": "Two values are logged and the result reports a length of two, so the gap is closed up and indexing by position is safe",
+          "misconception": "believes a traversal compacts the source list before walking it"
         },
         {
           "id": "D",
@@ -3488,7 +3488,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A list with a removed slot still reports its original length, because the length is a stored number and removing a slot does not renumber the ones after it. A transforming traversal walks the length and calls its callback for every index that is actually present, so the callback receives two values rather than three, and the second call is the value that was at index two. The result is built to the same length, so it reports three as well, with the middle slot left empty rather than filled with anything. That mismatch is the problem with positional indexing: the value at position one of the result is not the value at position one of the source, so any code that lines the two up by number pairs a real value with an empty slot. A transforming traversal is also specified to leave the source exactly as it was, which is why the source still has its gap after the walk rather than being compacted.",
       "hint": "The length is a stored number, so ask how many indices are actually present and what the result is built to.",
@@ -3502,7 +3502,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3515,7 +3515,7 @@
         "holes",
         "two-stage"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3606,8 +3606,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The first reads two and the second reads one, twenty calls give twenty counters, and moving the counter outside the factory would make all of them share one reading",
-          "misconception": ""
+          "text": "The first reads three and the second reads one, twenty calls give twenty counters, and moving the counter outside would still give twenty counters",
+          "misconception": "believes the increment method adds two each time"
         },
         {
           "id": "B",
@@ -3616,8 +3616,8 @@
         },
         {
           "id": "C",
-          "text": "The first reads three and the second reads one, twenty calls give twenty counters, and moving the counter outside would still give twenty counters",
-          "misconception": "believes the increment method adds two each time"
+          "text": "The first reads two and the second reads one, twenty calls give twenty counters, and moving the counter outside the factory would make all of them share one reading",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3626,7 +3626,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The counter is declared inside the factory, so it belongs to the factory call rather than to the program: two calls are two bindings, which is why the readings are two and one rather than three and one, and why twenty calls yield twenty counters. Moving the declaration out of the factory, to module scope, changes only where the binding lives and not what the methods do, so now there is one binding that every object shares, and the second reading would show the first object's increments as well. That is the whole mechanism behind a class of bugs where two components are meant to be independent and one of them is quietly counting the other's work, and it is also why the factory pattern exists: to give each component a binding of its own at construction time rather than relying on where a variable happens to be written.",
       "hint": "Decide how many bindings exist, then recount the increments each object can see.",
@@ -3640,7 +3640,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3653,7 +3653,7 @@
         "state",
         "two-stage"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },

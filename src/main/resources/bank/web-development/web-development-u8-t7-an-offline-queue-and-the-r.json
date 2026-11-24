@@ -15,8 +15,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It never empties because failures retry indefinitely",
-          "misconception": ""
+          "text": "It requires a network connection to start",
+          "misconception": "queue already works offline"
         },
         {
           "id": "B",
@@ -25,8 +25,8 @@
         },
         {
           "id": "C",
-          "text": "It requires a network connection to start",
-          "misconception": "queue already works offline"
+          "text": "It never empties because failures retry indefinitely",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -35,7 +35,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Retrying forever on failure never empties the queue when the endpoint stays down. A bounded retry with backoff and a dead-letter path is needed. A identifies the flaw.",
       "hint": "Bound retries and add backoff.",
@@ -52,7 +52,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -61,7 +61,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 3,
+      "version": 4,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -86,8 +86,8 @@
         },
         {
           "id": "B",
-          "text": "Idempotency, so repeated application has no extra effect",
-          "misconception": ""
+          "text": "Message compression",
+          "misconception": "unrelated to duplicate application"
         },
         {
           "id": "C",
@@ -96,12 +96,12 @@
         },
         {
           "id": "D",
-          "text": "Message compression",
-          "misconception": "unrelated to duplicate application"
+          "text": "Idempotency, so repeated application has no extra effect",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "At-least-once delivery means duplicates happen; idempotency makes repeated application safe. Exactly-once end to end is rare and not required. A is correct.",
       "hint": "Make the consumer idempotent.",
@@ -118,7 +118,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -127,7 +127,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -147,8 +147,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Apply them immediately to keep latency low",
-          "misconception": "breaks ordering and state correctness"
+          "text": "Buffer them until message 2 arrives or times out",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -157,8 +157,8 @@
         },
         {
           "id": "C",
-          "text": "Buffer them until message 2 arrives or times out",
-          "misconception": ""
+          "text": "Apply them immediately to keep latency low",
+          "misconception": "breaks ordering and state correctness"
         },
         {
           "id": "D",
@@ -167,7 +167,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Out-of-order messages must be buffered until the missing one arrives or a timeout fires, preserving sequence semantics. Applying or dropping them loses correctness. B is correct.",
       "hint": "Buffer until the gap fills.",
@@ -184,7 +184,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -193,7 +193,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -218,8 +218,8 @@
         },
         {
           "id": "B",
-          "text": "Queue the edit for manual review forever",
-          "misconception": "defers instead of resolving"
+          "text": "Reject the edit because the row no longer exists",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -228,14 +228,14 @@
         },
         {
           "id": "D",
-          "text": "Reject the edit because the row no longer exists",
-          "misconception": ""
+          "text": "Queue the edit for manual review forever",
+          "misconception": "defers instead of resolving"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
-      "explanation": "A delete is authoritative; a stale edit targeting a deleted row must be rejected, not resurrect the row. B is correct.",
+      "explanation": "A delete is authoritative; a stale edit targeting a deleted row must be rejected, not resurrect the row. D is correct.",
       "hint": "Delete wins over stale edit.",
       "difficulty": 0.55,
       "discrimination": 0.35,
@@ -250,7 +250,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -259,7 +259,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -456,8 +456,8 @@
       "options": [
         {
           "id": "A",
-          "text": "SSE messages are too small to carry replies",
-          "misconception": "size is not the constraint"
+          "text": "SSE is server-to-client only; use a separate request to reply",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -466,8 +466,8 @@
         },
         {
           "id": "C",
-          "text": "SSE is server-to-client only; use a separate request to reply",
-          "misconception": ""
+          "text": "SSE messages are too small to carry replies",
+          "misconception": "size is not the constraint"
         },
         {
           "id": "D",
@@ -476,9 +476,9 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
-      "explanation": "SSE is a one-way server-to-client channel. Client-to-server communication needs a separate HTTP request. A is correct.",
+      "explanation": "SSE is a one-way server-to-client channel. Client-to-server communication needs a separate HTTP request. C is correct.",
       "hint": "SSE is one-way server to client.",
       "difficulty": 0.25,
       "discrimination": 0.2,
@@ -493,7 +493,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -502,7 +502,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -527,8 +527,8 @@
         },
         {
           "id": "B",
-          "text": "Retry once after 1 hour",
-          "misconception": "too coarse and slow"
+          "text": "Exponential backoff with a max cap and jitter",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -537,14 +537,14 @@
         },
         {
           "id": "D",
-          "text": "Exponential backoff with a max cap and jitter",
-          "misconception": ""
+          "text": "Retry once after 1 hour",
+          "misconception": "too coarse and slow"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
-      "explanation": "Exponential backoff with a cap and jitter avoids thundering herd and gives the endpoint time to recover. Fixed forever hammers; none loses data; one retry is too coarse. B is correct.",
+      "explanation": "Exponential backoff with a cap and jitter avoids thundering herd and gives the endpoint time to recover. Fixed forever hammers; none loses data; one retry is too coarse. D is correct.",
       "hint": "Exponential backoff with jitter.",
       "difficulty": 0.35,
       "discrimination": 0.25,
@@ -559,7 +559,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -568,7 +568,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -765,8 +765,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Migrations happen automatically in the background",
-          "misconception": "no automatic migration is implied"
+          "text": "Documents are schemaless per record, so fields vary freely",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -775,8 +775,8 @@
         },
         {
           "id": "C",
-          "text": "Documents are schemaless per record, so fields vary freely",
-          "misconception": ""
+          "text": "Migrations happen automatically in the background",
+          "misconception": "no automatic migration is implied"
         },
         {
           "id": "D",
@@ -785,9 +785,9 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
-      "explanation": "Document stores are schemaless per record, so fields can vary without a migration. B misstates behavior; C and D are not how document stores work. A is correct.",
+      "explanation": "Document stores are schemaless per record, so fields can vary without a migration. B misstates behavior; A and D are not how document stores work. C is correct.",
       "hint": "Schemaless per record.",
       "difficulty": 0.75,
       "discrimination": 0.45,
@@ -802,7 +802,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -811,7 +811,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -836,8 +836,8 @@
         },
         {
           "id": "B",
-          "text": "No, because indexes cannot be added to write-heavy tables",
-          "misconception": "overstates, they can but cost more"
+          "text": "No, the write cost outweighs read benefit",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -846,14 +846,14 @@
         },
         {
           "id": "D",
-          "text": "No, the write cost outweighs read benefit",
-          "misconception": ""
+          "text": "No, because indexes cannot be added to write-heavy tables",
+          "misconception": "overstates, they can but cost more"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
-      "explanation": "On a write-heavy table, five indexes impose heavy maintenance cost for little read benefit. B is correct; A ignores write cost; C is redundant; D overstates.",
+      "explanation": "On a write-heavy table, five indexes impose heavy maintenance cost for little read benefit. D is correct; A ignores write cost; C is redundant; D overstates.",
       "hint": "Write cost dominates here.",
       "difficulty": 0.85,
       "discrimination": 0.5,
@@ -868,7 +868,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -877,7 +877,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1029,13 +1029,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Retry faster to empty it before restart",
-          "misconception": "does not survive restart"
+          "text": "Persist the queue to disk or IndexedDB",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "Persist the queue to disk or IndexedDB",
-          "misconception": ""
+          "text": "Retry faster to empty it before restart",
+          "misconception": "does not survive restart"
         },
         {
           "id": "C",
@@ -1049,9 +1049,9 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
-      "explanation": "An in-memory queue is lost on restart. Persisting to disk or IndexedDB survives restarts. B, C, D do not. A is correct.",
+      "explanation": "An in-memory queue is lost on restart. Persisting to disk or IndexedDB survives restarts. A, C, D do not. B is correct.",
       "hint": "Persist the queue.",
       "difficulty": 0.45,
       "discrimination": 0.3,
@@ -1066,7 +1066,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1075,7 +1075,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1100,13 +1100,13 @@
         },
         {
           "id": "B",
-          "text": "Exactly-once, because it applied twice",
-          "misconception": "exactly-once would not duplicate"
+          "text": "At-least-once, because duplicates are possible",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "At-least-once, because duplicates are possible",
-          "misconception": ""
+          "text": "Exactly-once, because it applied twice",
+          "misconception": "exactly-once would not duplicate"
         },
         {
           "id": "D",
@@ -1115,9 +1115,9 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
-      "explanation": "At-least-once delivery can deliver duplicates; at-most-once can drop; exactly-once would not duplicate. B is correct.",
+      "explanation": "At-least-once delivery can deliver duplicates; at-most-once can drop; exactly-once would not duplicate. C is correct.",
       "hint": "Duplicates imply at-least-once.",
       "difficulty": 0.55,
       "discrimination": 0.35,
@@ -1132,7 +1132,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1141,7 +1141,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1216,17 +1216,17 @@
         },
         {
           "id": "C",
-          "text": "The timestamp of the last save",
-          "misconception": "wall clocks are unreliable across devices"
+          "text": "The causal history of edits per device",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "The causal history of edits per device",
-          "misconception": ""
+          "text": "The timestamp of the last save",
+          "misconception": "wall clocks are unreliable across devices"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "Version vectors track causal history per device, detecting concurrent edits and stale ones. Timestamps, sizes, and field counts do not. A is correct.",
       "hint": "Causal history per device.",
@@ -1243,7 +1243,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1252,7 +1252,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 4,
+      "version": 5,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1282,19 +1282,19 @@
         },
         {
           "id": "C",
-          "text": "Each document can have different fields without a shared schema",
-          "misconception": ""
+          "text": "A separate table is created per event type",
+          "misconception": "that is the relational approach"
         },
         {
           "id": "D",
-          "text": "A separate table is created per event type",
-          "misconception": "that is the relational approach"
+          "text": "Each document can have different fields without a shared schema",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
-      "explanation": "Documents allow heterogeneous fields per record without a shared schema, so mixed event types coexist. B, C, D misstate or avoid the benefit. A is correct.",
+      "explanation": "Documents allow heterogeneous fields per record without a shared schema, so mixed event types coexist. B, D, D misstate or avoid the benefit. A is correct.",
       "hint": "Heterogeneous fields per record.",
       "difficulty": 0.85,
       "discrimination": 0.5,
@@ -1309,7 +1309,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1318,7 +1318,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1338,8 +1338,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Updates skip the index entirely",
-          "misconception": "updates maintain the index"
+          "text": "Each update rewrites the index entry and may split pages",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1353,14 +1353,14 @@
         },
         {
           "id": "D",
-          "text": "Each update rewrites the index entry and may split pages",
-          "misconception": ""
+          "text": "Updates skip the index entirely",
+          "misconception": "updates maintain the index"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
-      "explanation": "Updating an indexed column rewrites index entries and can split pages, adding latency. B, C, D misstate index behavior. A is correct.",
+      "explanation": "Updating an indexed column rewrites index entries and can split pages, adding latency. B, C, D misstate index behavior. D is correct.",
       "hint": "Index entry rewrite and page splits.",
       "difficulty": 0.25,
       "discrimination": 0.2,
@@ -1375,7 +1375,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1384,7 +1384,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1647,13 +1647,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Timestamps are always unique",
-          "misconception": "they can collide"
+          "text": "Clocks can drift and reorder messages",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "Clocks can drift and reorder messages",
-          "misconception": ""
+          "text": "Timestamps are always unique",
+          "misconception": "they can collide"
         },
         {
           "id": "C",
@@ -1667,9 +1667,9 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
-      "explanation": "Wall-clock drift and skew can reorder messages, making gaps ambiguous. Monotonic sequence numbers avoid this. A is correct.",
+      "explanation": "Wall-clock drift and skew can reorder messages, making gaps ambiguous. Monotonic sequence numbers avoid this. B is correct.",
       "hint": "Clocks drift and skew.",
       "difficulty": 0.75,
       "discrimination": 0.45,
@@ -1684,7 +1684,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1693,7 +1693,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1718,13 +1718,13 @@
         },
         {
           "id": "B",
-          "text": "Last-write-wins is too slow",
-          "misconception": "speed is not the issue"
+          "text": "Last-write-wins ignores deletion causality",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Last-write-wins ignores deletion causality",
-          "misconception": ""
+          "text": "Last-write-wins is too slow",
+          "misconception": "speed is not the issue"
         },
         {
           "id": "D",
@@ -1733,7 +1733,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "Last-write-wins by timestamp ignores that a delete happened, letting a stale edit resurrect the row. Causal tracking is needed. A is correct.",
       "hint": "Timestamps ignore deletion causality.",
@@ -1750,7 +1750,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1759,7 +1759,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1789,17 +1789,17 @@
         },
         {
           "id": "C",
-          "text": "Storing the order id",
-          "misconception": "id is still stored"
+          "text": "A join between orders and line items",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "A join between orders and line items",
-          "misconception": ""
+          "text": "Storing the order id",
+          "misconception": "id is still stored"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "Embedding related data in one document avoids a join between collections. Indexing, ids, and validation remain. A is correct.",
       "hint": "Embedding avoids joins.",
@@ -1816,7 +1816,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1825,7 +1825,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1895,8 +1895,8 @@
         },
         {
           "id": "B",
-          "text": "All needed columns are in the index, no heap fetch",
-          "misconception": ""
+          "text": "The query returns no rows",
+          "misconception": "scan type does not imply empty result"
         },
         {
           "id": "C",
@@ -1905,12 +1905,12 @@
         },
         {
           "id": "D",
-          "text": "The query returns no rows",
-          "misconception": "scan type does not imply empty result"
+          "text": "All needed columns are in the index, no heap fetch",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "Index Only Scan means all needed columns are in the index, avoiding heap fetches. It does not imply missing table or empty result. A is correct.",
       "hint": "No heap fetch needed.",
@@ -1927,7 +1927,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1936,7 +1936,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1956,8 +1956,8 @@
       "options": [
         {
           "id": "A",
-          "text": "SSE automatically buffers all events forever",
-          "misconception": "buffering is server-dependent"
+          "text": "The Last-Event-ID header resumes from the last received event",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1966,8 +1966,8 @@
         },
         {
           "id": "C",
-          "text": "The Last-Event-ID header resumes from the last received event",
-          "misconception": ""
+          "text": "SSE automatically buffers all events forever",
+          "misconception": "buffering is server-dependent"
         },
         {
           "id": "D",
@@ -1976,9 +1976,9 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
-      "explanation": "SSE supports resume via Last-Event-ID, letting the server replay from the last received event. Re-requesting all or polling are not the standard. A is correct.",
+      "explanation": "SSE supports resume via Last-Event-ID, letting the server replay from the last received event. Re-requesting all or polling are not the standard. C is correct.",
       "hint": "Use Last-Event-ID to resume.",
       "difficulty": 0.55,
       "discrimination": 0.35,
@@ -1993,7 +1993,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2002,7 +2002,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2027,8 +2027,8 @@
         },
         {
           "id": "B",
-          "text": "Process in arrival order only",
-          "misconception": "ignores urgency"
+          "text": "Process urgent first using a priority queue",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2037,12 +2037,12 @@
         },
         {
           "id": "D",
-          "text": "Process urgent first using a priority queue",
-          "misconception": ""
+          "text": "Process in arrival order only",
+          "misconception": "ignores urgency"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "A priority queue processes urgent messages first while retaining normal ones. Arrival-only ignores urgency; dropping loses data. A is correct.",
       "hint": "Use a priority queue.",
@@ -2059,7 +2059,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2068,7 +2068,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2093,13 +2093,13 @@
         },
         {
           "id": "B",
-          "text": "Skip it because its id is already in the processed store",
-          "misconception": ""
+          "text": "Apply it and overwrite the previous result",
+          "misconception": "creates duplicate effects"
         },
         {
           "id": "C",
-          "text": "Apply it and overwrite the previous result",
-          "misconception": "creates duplicate effects"
+          "text": "Skip it because its id is already in the processed store",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2108,7 +2108,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A delayed duplicate should be skipped based on the processed store. Applying or failing is wrong. A is correct.",
       "hint": "Skip already-processed ids.",
@@ -2125,7 +2125,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2134,7 +2134,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 4,
+      "version": 5,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2209,17 +2209,17 @@
         },
         {
           "id": "C",
-          "text": "Reject the edit and keep the row deleted",
-          "misconception": ""
+          "text": "Ignore the delete and apply the edit",
+          "misconception": "loses the deletion"
         },
         {
           "id": "D",
-          "text": "Ignore the delete and apply the edit",
-          "misconception": "loses the deletion"
+          "text": "Reject the edit and keep the row deleted",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The delete is authoritative; the stale edit must be rejected and the row stays deleted. Merging, re-deleting, or ignoring the delete is wrong. A is correct.",
       "hint": "Delete is authoritative.",
@@ -2236,7 +2236,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2245,7 +2245,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 4,
+      "version": 5,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2265,8 +2265,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Tables are faster for sparse data",
-          "misconception": "not generally true"
+          "text": "Sparse fields are omitted rather than stored as NULL columns",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2280,14 +2280,14 @@
         },
         {
           "id": "D",
-          "text": "Sparse fields are omitted rather than stored as NULL columns",
-          "misconception": ""
+          "text": "Tables are faster for sparse data",
+          "misconception": "not generally true"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
-      "explanation": "Documents omit absent fields instead of storing NULL columns, saving space and avoiding schema changes. B, C, D misstate. A is correct.",
+      "explanation": "Documents omit absent fields instead of storing NULL columns, saving space and avoiding schema changes. B, C, D misstate. D is correct.",
       "hint": "Omit absent fields.",
       "difficulty": 0.35,
       "discrimination": 0.25,
@@ -2302,7 +2302,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2311,7 +2311,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2574,13 +2574,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Exactly-once, because it is always available",
-          "misconception": "exactly-once is costly and rare end to end"
+          "text": "At-least-once plus idempotency, simpler and robust",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "At-least-once plus idempotency, simpler and robust",
-          "misconception": ""
+          "text": "Exactly-once, because it is always available",
+          "misconception": "exactly-once is costly and rare end to end"
         },
         {
           "id": "C",
@@ -2594,9 +2594,9 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
-      "explanation": "At-least-once plus idempotency is simpler and robust; exactly-once is costly and rare end to end. A is correct.",
+      "explanation": "At-least-once plus idempotency is simpler and robust; exactly-once is costly and rare end to end. B is correct.",
       "hint": "At-least-once plus idempotency.",
       "difficulty": 0.85,
       "discrimination": 0.5,
@@ -2611,7 +2611,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2620,7 +2620,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2645,13 +2645,13 @@
         },
         {
           "id": "B",
-          "text": "A disconnect and reconnect",
-          "misconception": "disruptive and unnecessary"
+          "text": "A NACK or retransmit request for the missing number",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "A NACK or retransmit request for the missing number",
-          "misconception": ""
+          "text": "A disconnect and reconnect",
+          "misconception": "disruptive and unnecessary"
         },
         {
           "id": "D",
@@ -2660,7 +2660,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A NACK or retransmit request targets the missing sequence number specifically. Disconnecting, duplicating, or waiting forever are wrong. A is correct.",
       "hint": "Request retransmission of the gap.",
@@ -2677,7 +2677,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2686,7 +2686,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 4,
+      "version": 5,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2716,17 +2716,17 @@
         },
         {
           "id": "C",
-          "text": "Manual merge by an admin",
-          "misconception": "does not scale"
+          "text": "Operational transformation or CRDTs",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "Operational transformation or CRDTs",
-          "misconception": ""
+          "text": "Manual merge by an admin",
+          "misconception": "does not scale"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "Operational transformation and CRDTs merge concurrent edits deterministically. Last-write-wins loses edits; manual merge does not scale; rejecting loses work. A is correct.",
       "hint": "Use OT or CRDTs.",
@@ -2743,7 +2743,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2752,7 +2752,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2822,8 +2822,8 @@
         },
         {
           "id": "B",
-          "text": "A partial index with a WHERE active = true clause",
-          "misconception": ""
+          "text": "No index at all",
+          "misconception": "loses query support"
         },
         {
           "id": "C",
@@ -2832,12 +2832,12 @@
         },
         {
           "id": "D",
-          "text": "No index at all",
-          "misconception": "loses query support"
+          "text": "A partial index with a WHERE active = true clause",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A partial index covers only active rows, reducing index size and write cost for inactive rows. Full index costs more; unique id is unrelated; none loses support. A is correct.",
       "hint": "Partial index on active rows.",
@@ -2854,7 +2854,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2863,7 +2863,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 4,
+      "version": 5,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2883,8 +2883,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The smaller input is hashed",
-          "misconception": "that is Hash Join"
+          "text": "For each outer row, scan the inner input",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2893,8 +2893,8 @@
         },
         {
           "id": "C",
-          "text": "For each outer row, scan the inner input",
-          "misconception": ""
+          "text": "The smaller input is hashed",
+          "misconception": "that is Hash Join"
         },
         {
           "id": "D",
@@ -2903,9 +2903,9 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
-      "explanation": "Nested Loop iterates the inner input for each outer row. Sorting is Merge Join; hashing is Hash Join; single read is Seq Scan. A is correct.",
+      "explanation": "Nested Loop iterates the inner input for each outer row. Sorting is Merge Join; hashing is Hash Join; single read is Seq Scan. C is correct.",
       "hint": "Outer drives inner scan.",
       "difficulty": 0.65,
       "discrimination": 0.4,
@@ -2920,7 +2920,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2929,7 +2929,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2954,8 +2954,8 @@
         },
         {
           "id": "B",
-          "text": "The data field only",
-          "misconception": "data alone has no resume anchor"
+          "text": "The id field on each event",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2964,12 +2964,12 @@
         },
         {
           "id": "D",
-          "text": "The id field on each event",
-          "misconception": ""
+          "text": "The data field only",
+          "misconception": "data alone has no resume anchor"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The id field on each event gives the client a resume anchor via Last-Event-ID. data alone, event name, and retry do not serve as resume ids. A is correct.",
       "hint": "Use the id field.",
@@ -2986,7 +2986,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2995,7 +2995,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3020,13 +3020,13 @@
         },
         {
           "id": "B",
-          "text": "Jitter to spread retry times",
-          "misconception": ""
+          "text": "More clients",
+          "misconception": "worsens the storm"
         },
         {
           "id": "C",
-          "text": "More clients",
-          "misconception": "worsens the storm"
+          "text": "Jitter to spread retry times",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3035,7 +3035,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Jitter spreads retry times across clients, preventing synchronized storms. Longer fixed intervals still synchronize. A is correct.",
       "hint": "Add jitter.",
@@ -3052,7 +3052,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3061,7 +3061,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3091,19 +3091,19 @@
         },
         {
           "id": "C",
-          "text": "To expire old keys and bound storage",
-          "misconception": ""
+          "text": "To retry messages automatically",
+          "misconception": "TTL does not trigger retries"
         },
         {
           "id": "D",
-          "text": "To retry messages automatically",
-          "misconception": "TTL does not trigger retries"
+          "text": "To expire old keys and bound storage",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
-      "explanation": "A TTL expires old idempotency keys, bounding storage while keeping recent dedup effective. B, C, D misstate TTL purpose. A is correct.",
+      "explanation": "A TTL expires old idempotency keys, bounding storage while keeping recent dedup effective. B, D, D misstate TTL purpose. A is correct.",
       "hint": "Expire old keys.",
       "difficulty": 0.25,
       "discrimination": 0.2,
@@ -3118,7 +3118,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3127,7 +3127,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3192,8 +3192,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The server rejects all edits",
-          "misconception": "only stale ones are at risk"
+          "text": "The stale edit may resurrect a deleted row",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3207,14 +3207,14 @@
         },
         {
           "id": "D",
-          "text": "The stale edit may resurrect a deleted row",
-          "misconception": ""
+          "text": "The server rejects all edits",
+          "misconception": "only stale ones are at risk"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
-      "explanation": "Purged tombstones mean the server no longer knows the row was deleted, so a stale edit can resurrect it. A is the risk.",
+      "explanation": "Purged tombstones mean the server no longer knows the row was deleted, so a stale edit can resurrect it. D is the risk.",
       "hint": "Purged tombstone loses delete memory.",
       "difficulty": 0.45,
       "discrimination": 0.3,
@@ -3229,7 +3229,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3238,7 +3238,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3456,13 +3456,13 @@
       "options": [
         {
           "id": "A",
-          "text": "WebSocket, because it is bidirectional",
-          "misconception": "bidirectional is unnecessary here"
+          "text": "SSE, one-way server to client over HTTP",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "SSE, one-way server to client over HTTP",
-          "misconception": ""
+          "text": "WebSocket, because it is bidirectional",
+          "misconception": "bidirectional is unnecessary here"
         },
         {
           "id": "C",
@@ -3476,9 +3476,9 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
-      "explanation": "SSE provides one-way server push over HTTP with auto-reconnect, fitting live dashboard updates. WebSocket is unnecessary; long polling is less efficient; gRPC is overkill. A is correct.",
+      "explanation": "SSE provides one-way server push over HTTP with auto-reconnect, fitting live dashboard updates. WebSocket is unnecessary; long polling is less efficient; gRPC is overkill. B is correct.",
       "hint": "SSE fits one-way push.",
       "difficulty": 0.85,
       "discrimination": 0.5,
@@ -3493,7 +3493,7 @@
       "provenance": {
         "author": "bank-team-web-development",
         "reviewer": "bank-review-web-development",
-        "reviewedAt": "2026-11-23T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3502,7 +3502,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 4,
+      "version": 5,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []

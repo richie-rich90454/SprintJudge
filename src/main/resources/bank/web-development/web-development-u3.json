@@ -294,13 +294,13 @@
       "options": [
         {
           "id": "A",
-          "text": "11, because the second write reads the value the first one produced",
-          "misconception": "believes a plain value argument re-reads the state when it is applied"
+          "text": "10, because both new values were built from the 0 that render captured",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "10, because both new values were built from the 0 that render captured",
-          "misconception": ""
+          "text": "11, because the second write reads the value the first one produced",
+          "misconception": "believes a plain value argument re-reads the state when it is applied"
         },
         {
           "id": "C",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "Both arguments are ordinary values, and both were computed before either write was applied, so both are 0 plus something: 1 and 10. Applying the queue in order leaves the last one standing, which is 10, and the single render that follows sees 10. Nothing here re-reads the state between the two calls, because the two expressions were already finished before the first setter ran. The belief that the second write sees the first is exactly what a function argument would do, which is why the fix is to pass a function and let the framework supply the previous value.",
       "hint": "Ask when the two expressions on the right of the setters were evaluated.",
@@ -328,7 +328,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -341,7 +341,7 @@
         "state-updates",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -368,13 +368,13 @@
         },
         {
           "id": "B",
-          "text": "10, because both functions are given the count from before the handler",
-          "misconception": "believes a function argument also receives the count from the render"
+          "text": "11, because the second function is given the value the first one produced",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "11, because the second function is given the value the first one produced",
-          "misconception": ""
+          "text": "10, because both functions are given the count from before the handler",
+          "misconception": "believes a function argument also receives the count from the render"
         },
         {
           "id": "D",
@@ -383,7 +383,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A function passed to the setter is not called at the moment it is written; it is called when the queue is applied, and it is handed the value the key holds at that point. The first call therefore turns 0 into 1, and the second is handed 1 and produces 11, all before the single render. That is the whole reason this form exists: it makes each update a function of the current value rather than of a value read earlier, so a burst of related writes in one handler cannot lose an increment. Passing plain values works only when the new value does not depend on the old one.",
       "hint": "Ask when the function is called and what it is handed.",
@@ -397,7 +397,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -410,7 +410,7 @@
         "state-updates",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -442,17 +442,17 @@
         },
         {
           "id": "C",
-          "text": "2, because the handler reads the newest value each time it is called",
-          "misconception": "believes a closure over state always sees the current value"
+          "text": "0, because the handler still closes over the binding from its first render",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "0, because the handler still closes over the binding from its first render",
-          "misconception": ""
+          "text": "2, because the handler reads the newest value each time it is called",
+          "misconception": "believes a closure over state always sees the current value"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "A handler is an ordinary function value, and the variables it reads are the ones belonging to the render that created it. Since the handler was made during the render where the count was 0, that is the binding it reads, and every call reports 0 no matter how far the state has moved on. Keeping the handler stable is useful, but stability and freshness are different properties: an empty dependency list gives the first one and takes away the second. The same reasoning applies to a value, an array, or anything else captured, and it is why a handler that must read current state has to be given a way to fetch it rather than holding a copy.",
       "hint": "Ask which render's variables the function was created alongside.",
@@ -466,7 +466,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -479,7 +479,7 @@
         "dependencies",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -506,8 +506,8 @@
         },
         {
           "id": "B",
-          "text": "3 times, because only the two newly built arrays fail the comparison",
-          "misconception": ""
+          "text": "2 times, because the first render is skipped and the shared array is reused",
+          "misconception": "believes the first render of a memoised child is not counted"
         },
         {
           "id": "C",
@@ -516,12 +516,12 @@
         },
         {
           "id": "D",
-          "text": "2 times, because the first render is skipped and the shared array is reused",
-          "misconception": "believes the first render of a memoised child is not counted"
+          "text": "3 times, because only the two newly built arrays fail the comparison",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "Reuse is decided by comparing each prop with the previous render's value for the same prop, using identity rather than contents, so the three renders that hand over the same array produce one child render in total. Each of the two newly built arrays is a different object, so each of those renders runs the child again, for three runs overall. The trap is that the arrays are equal in every element and still not equal as props, which is why a parent that builds an array or an object inline defeats the memoisation on every render no matter how stable the data is.",
       "hint": "Ask how the comparison treats two arrays with the same two items in them.",
@@ -535,7 +535,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -548,7 +548,7 @@
         "props",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -570,8 +570,8 @@
       "options": [
         {
           "id": "A",
-          "text": "17, because the new line is added to the total that was stored before",
-          "misconception": "believes a stored total is adjusted automatically when items change"
+          "text": "22, because a stored total is state and only a state update can change it",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -580,8 +580,8 @@
         },
         {
           "id": "C",
-          "text": "22, because a stored total is state and only a state update can change it",
-          "misconception": ""
+          "text": "17, because the new line is added to the total that was stored before",
+          "misconception": "believes a stored total is adjusted automatically when items change"
         },
         {
           "id": "D",
@@ -590,7 +590,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Once a total lives in state it is an ordinary fact like any other, and nothing links it to the items any more. The render that supplied the new line read the stored 22 and printed it, and the correct answer for those items, 5, exists only if something computes it. This is the cost of storing a derived value: there are now two places the answer can live, and every future path that changes the items has to remember to change the copy. Keeping the items and computing the total while rendering removes the second place, and the extra arithmetic is usually cheaper than the bug.",
       "hint": "Ask whether anything in the render consults the items to produce the total.",
@@ -604,7 +604,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -617,7 +617,7 @@
         "state",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -644,8 +644,8 @@
         },
         {
           "id": "B",
-          "text": "The value from /orders/2, because the request that started last is the freshest",
-          "misconception": "believes the most recently started request is the one that should win"
+          "text": "The value from /orders/1, because the last response to arrive wins the state",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -654,12 +654,12 @@
         },
         {
           "id": "D",
-          "text": "The value from /orders/1, because the last response to arrive wins the state",
-          "misconception": ""
+          "text": "The value from /orders/2, because the request that started last is the freshest",
+          "misconception": "believes the most recently started request is the one that should win"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "Whichever response arrives last performs its assignment last, and there is nothing in this code to say otherwise, so the slower first request overwrites the faster second one and the screen shows the older value. The order of the calls in the source says nothing about the order of the answers, because the network is what decides when each one completes. Nothing in the framework is tracking which request is current, so the fix has to be in the code: either cancel the earlier request when a newer one starts, or record which request is wanted and drop any answer that is no longer wanted.",
       "hint": "Ask which assignment happens last in time rather than in the source.",
@@ -673,7 +673,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -686,7 +686,7 @@
         "requests",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -713,13 +713,13 @@
         },
         {
           "id": "B",
-          "text": "Hold only the items, and work the matching count out while rendering",
-          "misconception": ""
+          "text": "Hold both, and recompute the count in an effect that watches the filter value",
+          "misconception": "believes an effect watching the filter also reacts to the items changing"
         },
         {
           "id": "C",
-          "text": "Hold both, and recompute the count in an effect that watches the filter value",
-          "misconception": "believes an effect watching the filter also reacts to the items changing"
+          "text": "Hold only the items, and work the matching count out while rendering",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -728,7 +728,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The count is a function of the items and the filter text, so it is a consequence and not an independent fact. If only the inputs are stored, the consequence is produced fresh on every render and is wrong only if the logic is wrong. Storing it means every path that changes the items, whether an add, a delete, a reload from the server, or an undo, has to remember to update the count as well, and the path that forgets is the bug. An effect does not solve this either, because it only re-runs for the values it watches, and the items are exactly as capable of changing the count as the filter is.",
       "hint": "Ask what the count is a function of, and whether the items can change too.",
@@ -742,7 +742,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -755,7 +755,7 @@
         "state",
         "design"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -787,17 +787,17 @@
         },
         {
           "id": "C",
-          "text": "The closest common parent, passing the value down and the change back up",
-          "misconception": ""
+          "text": "The router, keeping the text in the address so both components read it",
+          "misconception": "believes every piece of shared state belongs in the address"
         },
         {
           "id": "D",
-          "text": "The router, keeping the text in the address so both components read it",
-          "misconception": "believes every piece of shared state belongs in the address"
+          "text": "The closest common parent, passing the value down and the change back up",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The rule is the lowest component that can reach every reader without going up past a component that does not care. For two siblings that is their parent: it holds the value, hands it to the box as a prop, receives the change through a callback, and hands it to the list as another prop. Going lower means one of the two cannot see it without a shared store or a lifted value that has escaped the tree, and going higher works but pushes the value through components that never read it. The address is a reasonable place for a value that should survive a reload and be shareable, which is a separate question from where it is most convenient to hold.",
       "hint": "Ask for the lowest component that both readers can be reached from.",
@@ -811,7 +811,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -824,7 +824,7 @@
         "props",
         "design"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -846,8 +846,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The text appears only after a reload, because rendering is postponed until then",
-          "misconception": "believes the field is not re-rendered until the page is reloaded"
+          "text": "The box empties after each key, because the render keeps putting back an empty value",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -861,12 +861,12 @@
         },
         {
           "id": "D",
-          "text": "The box empties after each key, because the render keeps putting back an empty value",
-          "misconception": ""
+          "text": "The text appears only after a reload, because rendering is postponed until then",
+          "misconception": "believes the field is not re-rendered until the page is reloaded"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "A controlled field has no memory of its own: whatever the render supplies as the value is what the field ends up showing, and the framework writes that back after every change event. Since the state behind this value never changes, the value supplied is still empty, so each keystroke is undone and the field never grows past nothing. This is the usual first symptom of a change handler that logs instead of setting state, and it looks like a key-handling fault rather than a data-flow one. An uncontrolled field is the other arrangement: it keeps whatever the user typed and the application reads that value when it needs it.",
       "hint": "Ask which value the render supplies after the keystroke has happened.",
@@ -880,7 +880,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -893,7 +893,7 @@
         "forms",
         "state"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1122,13 +1122,13 @@
       "options": [
         {
           "id": "A",
-          "text": "10",
-          "misconception": "believes the functional write to qty does not run because the first one replaced it"
+          "text": "11",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "11",
-          "misconception": ""
+          "text": "10",
+          "misconception": "believes the functional write to qty does not run because the first one replaced it"
         },
         {
           "id": "C",
@@ -1142,7 +1142,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "All three writes are requested inside one event, so they are applied together and the component is called once: a single render pass. Applying them in order gives qty 2, then price 8, then qty 3, because the third write is a function and is handed the 2 the first write produced. The final values are therefore 3, 8 and 0, and their sum is 11. The common wrong answers come from stopping the queue at the first write to a key, which gives qty 2 and a sum of 10, or from reading a functional write as a doubling.",
       "hint": "The three writes are batched, so count the render passes first, then apply them in order.",
@@ -1156,7 +1156,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1169,7 +1169,7 @@
         "two-stage",
         "functional-update"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1196,13 +1196,13 @@
         },
         {
           "id": "B",
-          "text": "4 runs, then 3 cleanups",
-          "misconception": "believes an effect runs on every render it appears in"
+          "text": "2 runs, then 1 cleanup",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "2 runs, then 1 cleanup",
-          "misconception": ""
+          "text": "4 runs, then 3 cleanups",
+          "misconception": "believes an effect runs on every render it appears in"
         },
         {
           "id": "D",
@@ -1211,7 +1211,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The body runs after the first render and then after any render where a watched value differs from the previous render, so the runs are at count 1 and at count 2: two of them. The second render, which repeats count 1, changes nothing the list watches and the body is skipped. A cleanup runs before the next body, and there is only one gap between the two runs, so one cleanup happens. Four runs and three cleanups is what an effect with no dependency list produces, and one run forever is what an effect with a list of values that never change produces; neither matches the list given here.",
       "hint": "The body runs after the first render and after any render where a watched value changed.",
@@ -1225,7 +1225,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1238,7 +1238,7 @@
         "dependencies",
         "two-stage"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1398,17 +1398,17 @@
         },
         {
           "id": "C",
-          "text": "Zero in every case, because the variable is cleared when the loop ends",
-          "misconception": "believes leaving a scope resets the variables declared inside it"
+          "text": "The value the counter ended on, because every pass shared one variable",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "The value the counter ended on, because every pass shared one variable",
-          "misconception": ""
+          "text": "Zero in every case, because the variable is cleared when the loop ends",
+          "misconception": "believes leaving a scope resets the variables declared inside it"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "A var declaration creates one binding for the whole enclosing function, so every pass of the loop reads and writes the same cell and every callback built inside the loop closes over that one cell. Once the loop ends the cell holds the value the last pass left, which is why all the callbacks agree on it. Declaring the counter with let in the loop head instead gives each pass its own binding, so the callbacks capture different values and the same code reports one value per pass. The trap is that the two declarations look interchangeable at the point of use and differ only in how long each binding lives, which is exactly the sort of difference a reader has to be told about.",
       "hint": "Ask how many bindings the declaration makes, and how long each one lives.",
@@ -1422,7 +1422,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1435,7 +1435,7 @@
         "loops",
         "bindings"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1457,8 +1457,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Call other hooks only at its top level, never in a branch or a callback",
-          "misconception": ""
+          "text": "Run on every render, so the state it creates is refreshed every time",
+          "misconception": "believes a hook must re-run on every render to stay fresh"
         },
         {
           "id": "B",
@@ -1472,12 +1472,12 @@
         },
         {
           "id": "D",
-          "text": "Run on every render, so the state it creates is refreshed every time",
-          "misconception": "believes a hook must re-run on every render to stay fresh"
+          "text": "Call other hooks only at its top level, never in a branch or a callback",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Hooks are called in the same order every time a component runs, and the framework keeps their state in a list matched by position, so a hook called conditionally would shift everything after it and hand the wrong state to the wrong hook on the next render. Requiring top-level calls keeps that order fixed whether the component's data has changed or not. The other three are not requirements at all: a hook may return nothing and still be useful for its side effects, its file makes no difference, and running on every render is a choice a hook may make or avoid, not a rule imposed on it.",
       "hint": "Ask what the framework uses to pair each hook with the state it owns.",
@@ -1491,7 +1491,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1504,7 +1504,7 @@
         "rules",
         "state"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1526,13 +1526,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Every level forwards a value it never uses, and nesting the levels closer ends that",
-          "misconception": "believes rearranging the tree removes the need to forward a value"
+          "text": "Every level forwards a value it never uses, and context or a store ends that",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "Every level forwards a value it never uses, and context or a store ends that",
-          "misconception": ""
+          "text": "Every level forwards a value it never uses, and nesting the levels closer ends that",
+          "misconception": "believes rearranging the tree removes the need to forward a value"
         },
         {
           "id": "C",
@@ -1546,7 +1546,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "Every component between the owner and the reader has to accept the value, list it, and pass it on, and each of those components re-renders whenever it changes even though its own markup does not depend on it. That is the cost: a signature every level must keep in step with, for a value only one component uses. Context or a shared store lets the reader get the value without the levels in between agreeing to carry it, and the levels then stop re-rendering when it changes. Moving the reader next to the owner also works and is often the smaller change, but it only works while the two stay neighbours, which is why it is not a general answer.",
       "hint": "Ask which components re-render when the value changes, and whether they read it.",
@@ -1560,7 +1560,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1573,7 +1573,7 @@
         "context",
         "design"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1600,13 +1600,13 @@
         },
         {
           "id": "B",
-          "text": "Three separate pieces of local state, each with its own setter and its own updates",
-          "misconception": "believes splitting related values apart keeps them from contradicting"
+          "text": "A reducer holding the three together and deriving each change from a named action",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "A reducer holding the three together and deriving each change from a named action",
-          "misconception": ""
+          "text": "Three separate pieces of local state, each with its own setter and its own updates",
+          "misconception": "believes splitting related values apart keeps them from contradicting"
         },
         {
           "id": "D",
@@ -1615,7 +1615,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The signal that a reducer is the better shape is that changes are events rather than assignments: moving to the next step means setting the step, storing the fields, and deciding whether submission is now allowed, and which of those depends on values the handler has to know. A reducer puts those rules in one function that takes the previous state and a named event and returns the next, so the rules can be read in one place and tested without rendering anything. Three unrelated setters leave each rule split across handlers, and an object written field by field still has every rule spread out; both make the combinations that are easy to forget also easy to miss on review.",
       "hint": "Ask whether a change is a fact or an event, and how many values it touches at once.",
@@ -1629,7 +1629,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1642,7 +1642,7 @@
         "state",
         "design"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1674,17 +1674,17 @@
         },
         {
           "id": "C",
-          "text": "No parameters, because the text after a colon is a label and not a name",
-          "misconception": "believes a colon in a route names nothing at all"
+          "text": "One parameter, id holding the text 42 taken from the segment it names",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "One parameter, id holding the text 42 taken from the segment it names",
-          "misconception": ""
+          "text": "No parameters, because the text after a colon is a label and not a name",
+          "misconception": "believes a colon in a route names nothing at all"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "A segment of the route table that begins with a colon is a name rather than fixed text, and the matching segment of the address is copied into a parameter under that name, so `:id` meeting `42` produces id holding the text 42. `users` and `edit` are fixed text in the table, so they must match and they produce nothing. The text arrives as a string even when it is all digits, which is why a screen that multiplies by an id has to convert it rather than assume a number. The two-parameter answer comes from treating a fixed segment as a name, which is the mirror image of the mistake and just as common.",
       "hint": "Ask which segments of the table are names and which are fixed text.",
@@ -1698,7 +1698,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1711,7 +1711,7 @@
         "parameters",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1738,8 +1738,8 @@
         },
         {
           "id": "B",
-          "text": "Three levels, each parent's own markup wrapping the next one's outlet",
-          "misconception": ""
+          "text": "Three levels as siblings, because a child replaces its parent's markup",
+          "misconception": "believes a nested child takes over the place of its parent"
         },
         {
           "id": "C",
@@ -1748,12 +1748,12 @@
         },
         {
           "id": "D",
-          "text": "Three levels as siblings, because a child replaces its parent's markup",
-          "misconception": "believes a nested child takes over the place of its parent"
+          "text": "Three levels, each parent's own markup wrapping the next one's outlet",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "Each level of a matched route contributes: the settings layout renders its own frame, the profile screen renders inside the outlet the settings layout provided, and the email screen renders inside the outlet the profile screen provided, so all three are on the page and the two wrappers survive the change from one child to another. That is the reason nesting exists, since the shared frame and its navigation stay put while only the inner screen changes. Replacing the parent would throw the frame away on every inner navigation, which is what the leaf-only answer describes.",
       "hint": "Ask whether a parent's markup survives when a child inside it changes.",
@@ -1767,7 +1767,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1780,7 +1780,7 @@
         "nesting",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1802,8 +1802,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Neither, because a boundary reports an error without stopping the render",
-          "misconception": "believes a boundary only reports and never substitutes a fallback"
+          "text": "Only the first, because a boundary guards rendering and not later callbacks",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1812,8 +1812,8 @@
         },
         {
           "id": "C",
-          "text": "Only the first, because a boundary guards rendering and not later callbacks",
-          "misconception": ""
+          "text": "Neither, because a boundary reports an error without stopping the render",
+          "misconception": "believes a boundary only reports and never substitutes a fallback"
         },
         {
           "id": "D",
@@ -1822,7 +1822,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A boundary is a component, and the only code it can surround is code called while a component renders, so a failure while computing the child's own output is inside its try and produces the fallback. A click handler runs long after the render returned, on a different path with no boundary in the call stack, so the failure escapes to the page instead. That is why the same class needs two defences: a boundary for anything that can go wrong while producing output, and ordinary error handling inside handlers for the work they do afterwards.",
       "hint": "Ask which of the two failures happens while a component is producing output.",
@@ -1836,7 +1836,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1849,7 +1849,7 @@
         "errors",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1876,8 +1876,8 @@
         },
         {
           "id": "B",
-          "text": "The consumer 3 times and the sibling 3, because the provider re-rendered each time",
-          "misconception": "believes anything under a provider re-renders whenever it does"
+          "text": "The consumer 2 times and the sibling 1, because only the new object is a change",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1886,12 +1886,12 @@
         },
         {
           "id": "D",
-          "text": "The consumer 2 times and the sibling 1, because only the new object is a change",
-          "misconception": ""
+          "text": "The consumer 3 times and the sibling 3, because the provider re-rendered each time",
+          "misconception": "believes anything under a provider re-renders whenever it does"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The consumer runs on its first render and again when the provider hands over an object that is not the same object as before, which is the third render here, so two runs; the middle render passes the same object and nothing it reads has changed. The memoised sibling never re-renders after mounting because none of its own props changed and it does not read the context, which is the whole reason for memoising it. A provider that built a fresh object on every render would defeat all of that, so holding the value stable is what makes context cheap, and the equal-contents belief is the trap because the fields really are identical.",
       "hint": "Ask what the consumer compares, and whether the sibling reads the value at all.",
@@ -1905,7 +1905,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1918,7 +1918,7 @@
         "memo",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1945,13 +1945,13 @@
         },
         {
           "id": "B",
-          "text": "Unchanged, because the handler must drop an answer to an aborted request",
-          "misconception": ""
+          "text": "Unchanged, because the state is cleared the moment the request is aborted",
+          "misconception": "believes aborting a request also clears the state it was going to fill"
         },
         {
           "id": "C",
-          "text": "Unchanged, because the state is cleared the moment the request is aborted",
-          "misconception": "believes aborting a request also clears the state it was going to fill"
+          "text": "Unchanged, because the handler must drop an answer to an aborted request",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1960,7 +1960,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Aborting tells the browser to stop waiting and stop trying to deliver the answer, and an answer that turns up afterwards for an abandoned request is not one anybody wants: the component that asked may be gone, or the user may have moved on to a different query. So the handler has to notice that its own request was abandoned and return without touching state, and the flag on the signal is how it notices. Aborting does not clear the state, so a request that has already delivered its data leaves that data alone, and the clears-on-abort belief would make every screen blank out the moment a user types again.",
       "hint": "Ask what the handler must do with an answer nobody is still waiting for.",
@@ -1974,7 +1974,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1987,7 +1987,7 @@
         "requests",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2019,17 +2019,17 @@
         },
         {
           "id": "C",
-          "text": "0 every time, because the one function it returns closed over the first render",
-          "misconception": ""
+          "text": "0, 1, 2 but only while it is called during a render rather than after",
+          "misconception": "believes the freshness of a handler depends on when it is called"
         },
         {
           "id": "D",
-          "text": "0, 1, 2 but only while it is called during a render rather than after",
-          "misconception": "believes the freshness of a handler depends on when it is called"
+          "text": "0 every time, because the one function it returns closed over the first render",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The empty list means the wrapper hands back the function it built on the first render and ignores every later one, and that first function closed over the count as it stood at the time, which was 0. So it reports 0 no matter when it runs, and the component below it never sees the count move. Naming the count in the list rebuilds the function whenever the count changes, which restores freshness and gives up the stability, so this is a choice between the two rather than a free improvement, and the call-time belief is wrong because a function's captured values are fixed when it is made, not when it runs.",
       "hint": "Ask which of the functions the wrapper ever built is the one it returns.",
@@ -2043,7 +2043,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2056,7 +2056,7 @@
         "stale-closure",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2078,8 +2078,8 @@
       "options": [
         {
           "id": "A",
-          "text": "11, because the amounts are added together before the reducer is asked",
-          "misconception": "believes the framework sums the payloads before reducing"
+          "text": "12, because each action is applied to the value the previous one produced",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2093,12 +2093,12 @@
         },
         {
           "id": "D",
-          "text": "12, because each action is applied to the value the previous one produced",
-          "misconception": ""
+          "text": "11, because the amounts are added together before the reducer is asked",
+          "misconception": "believes the framework sums the payloads before reducing"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "Each action is applied to whatever the previous one left behind: 1 plus 2 is 3, 3 plus 3 is 6, and 6 times 2 is 12. The reducer is a pure function of the state it is handed and the action, and the framework hands it the result of the last one, so the three form a sequence and the order matters. That is what makes a reducer straightforward to reason about and to test in isolation, and it is why every action has to be understood as a step rather than as a complete description of the new state.",
       "hint": "Ask what state the second action is handed as its starting point.",
@@ -2112,7 +2112,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2125,7 +2125,7 @@
         "actions",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2354,13 +2354,13 @@
       "options": [
         {
           "id": "A",
-          "text": "3",
-          "misconception": "believes a consumer re-runs on every render of the provider"
+          "text": "2",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "2",
-          "misconception": ""
+          "text": "3",
+          "misconception": "believes a consumer re-runs on every render of the provider"
         },
         {
           "id": "C",
@@ -2374,7 +2374,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The memoised sibling mounts once and then never runs again, because none of its own props change and it does not read the context, so the number asked for from it is 1. The consumer runs when it first mounts and again when the provider hands over an object that is not the same object as before, which happens on the third render, so it runs 2 times and the second number asked for is 2. Building the value fresh on every render would make the consumer run every time, which is the cost of not keeping the value stable.",
       "hint": "The sibling only runs when its own props change, so start with that count.",
@@ -2388,7 +2388,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2401,7 +2401,7 @@
         "memo",
         "two-stage"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2428,13 +2428,13 @@
         },
         {
           "id": "B",
-          "text": "21",
-          "misconception": "believes the final action is applied to the state before the last one"
+          "text": "17",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "17",
-          "misconception": ""
+          "text": "21",
+          "misconception": "believes the final action is applied to the state before the last one"
         },
         {
           "id": "D",
@@ -2443,7 +2443,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "Three actions are applied, and each starts from the state the one before it left: 5 plus 2 is 7, 7 times 3 is 21, and 21 minus 4 is 17. The number wanted here is the state after the third, which is 17, and the state after the second is 21, which is the answer for stopping one step short. Adding the numbers in the actions instead of applying them gives 8, which is the arithmetic that works when an action sets a value rather than changing one, and it is worth recognising because both styles of action end up in the same reducer.",
       "hint": "Apply the three in order, each starting from the previous result.",
@@ -2457,7 +2457,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2470,7 +2470,7 @@
         "two-stage",
         "actions"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2630,17 +2630,17 @@
         },
         {
           "id": "C",
-          "text": "Reaching the server, because the router serves the next screen from its store",
-          "misconception": "believes a client-side route never makes a request of any kind"
+          "text": "Unloading the document and fetching it again, so the state survives",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "Unloading the document and fetching it again, so the state survives",
-          "misconception": ""
+          "text": "Reaching the server, because the router serves the next screen from its store",
+          "misconception": "believes a client-side route never makes a request of any kind"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "Following a link the ordinary way replaces the whole document, which means the scripts are parsed and run again, the application is built from scratch, and everything held in memory is lost. The handler stops that and swaps the screen inside the same application, so the state, the loaded modules and the open data all stay put. Keeping the real address in the href is what makes the link shareable, bookmarkable and openable in a new tab, and it is the reason the handler checks for an ordinary click before intervening, so that a modified click still behaves the way a reader expects.",
       "hint": "Ask what is lost when the document itself is replaced.",
@@ -2654,7 +2654,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2667,7 +2667,7 @@
         "navigation",
         "links"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2694,8 +2694,8 @@
         },
         {
           "id": "B",
-          "text": "Hold state that changes as the reader types, because it never runs in a browser",
-          "misconception": ""
+          "text": "Run once per request, because the server renders the page only at start-up",
+          "misconception": "believes a page is rendered once when the process starts"
         },
         {
           "id": "C",
@@ -2704,12 +2704,12 @@
         },
         {
           "id": "D",
-          "text": "Run once per request, because the server renders the page only at start-up",
-          "misconception": "believes a page is rendered once when the process starts"
+          "text": "Hold state that changes as the reader types, because it never runs in a browser",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A server-only component's code runs on the server, produces markup, and is never sent to the browser, so there is nothing in the reader's page that could respond to a keystroke or re-render: state that depends on interaction needs code that is present in the browser and runs there. It can absolutely read values passed into it, since that is how it is configured, and producing markup is precisely its job. The cost of the arrangement is on the other side of the ledger, because whatever it produces has to be serialised into the page and hydrated by client code, and a component that has to hold and read state belongs on the other side of that line.",
       "hint": "Ask where the code of such a component actually runs.",
@@ -2723,7 +2723,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2736,7 +2736,7 @@
         "components",
         "hydration"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2758,8 +2758,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The server waits for the browser before sending anything at all",
-          "misconception": "believes the server and browser agree on output by exchanging first"
+          "text": "Its code is sent along and run in the browser to attach to the page",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2768,8 +2768,8 @@
         },
         {
           "id": "C",
-          "text": "Its code is sent along and run in the browser to attach to the page",
-          "misconception": ""
+          "text": "The server waits for the browser before sending anything at all",
+          "misconception": "believes the server and browser agree on output by exchanging first"
         },
         {
           "id": "D",
@@ -2778,7 +2778,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Markup is not code: the browser can display what the server produced without ever running the component that produced it. Asking for the component to run in the browser means shipping its code, parsing it, and then running it to walk the delivered page and attach behaviour to the parts that need it, and all of that is work the server-only version avoided. The cost is paid on every visit, which is why a component is marked as running in the browser only when it genuinely has to respond to something the reader does, and why the first thing a client component does is attach to output that is already on screen rather than draw it again.",
       "hint": "Ask whether the markup alone can respond to a click.",
@@ -2792,7 +2792,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2805,7 +2805,7 @@
         "hydration",
         "rendering"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2832,8 +2832,8 @@
         },
         {
           "id": "B",
-          "text": "Whether the pages share a header, since a shared header forces one document",
-          "misconception": "believes a shared header is what makes the routing happen in one place"
+          "text": "Whether the server or the browser matches the address and picks the screen",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2842,12 +2842,12 @@
         },
         {
           "id": "D",
-          "text": "Whether the server or the browser matches the address and picks the screen",
-          "misconception": ""
+          "text": "Whether the pages share a header, since a shared header forces one document",
+          "misconception": "believes a shared header is what makes the routing happen in one place"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "Routing is the act of taking an address and deciding what to show, and it can be done at either end. Done on the server, every address is a separate delivery, so a change of address costs a document and everything in it goes, and what the reader sees comes from whatever the server built for that address. Done in the browser, the document is built once and the address is matched inside it, so a change of address costs a screen rather than a page and everything held in memory stays. A shared header and a rewritten address bar both tend to appear with the second design, which is why they get mistaken for the cause of it.",
       "hint": "Ask who receives the address and returns something for it.",
@@ -2861,7 +2861,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2874,7 +2874,7 @@
         "server-rendering",
         "design"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2901,13 +2901,13 @@
         },
         {
           "id": "B",
-          "text": "Whether the screen is still waiting, not whether its data is current",
-          "misconception": ""
+          "text": "Whether the network is busy, since any request in flight sets it true",
+          "misconception": "believes the flag describes the network rather than this screen"
         },
         {
           "id": "C",
-          "text": "Whether the network is busy, since any request in flight sets it true",
-          "misconception": "believes the flag describes the network rather than this screen"
+          "text": "Whether the screen is still waiting, not whether its data is current",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2916,7 +2916,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A single flag set before a request and cleared after it says one thing and one thing only: the screen is between asking and being told. It does not say the answer arrived, that the answer is the one the screen wanted, or that the data already on screen is the latest, and a failure clears the flag exactly as a success does, which is why a screen driven only by that flag goes blank on an error. Two extra values rather than one boolean, one for the failure and one for which request is wanted, is usually what it takes for the flag to describe the state a reader is actually in.",
       "hint": "Ask what the code does in both the success case and the failure case.",
@@ -2930,7 +2930,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2943,7 +2943,7 @@
         "state",
         "requests"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2975,17 +2975,17 @@
         },
         {
           "id": "C",
-          "text": "Never in that arrangement, since a prop changing every time fails the check",
-          "misconception": ""
+          "text": "Only when the child holds state, since state is what the wrapper preserves",
+          "misconception": "believes a wrapper only helps a component that has state"
         },
         {
           "id": "D",
-          "text": "Only when the child holds state, since state is what the wrapper preserves",
-          "misconception": "believes a wrapper only helps a component that has state"
+          "text": "Never in that arrangement, since a prop changing every time fails the check",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The wrapper skips the child only when every prop is identical to the last render's, and a prop that changes on every keystroke is identical to nothing, so the comparison fails every time and the child runs exactly as often. Holding no state makes no difference: what the wrapper preserves is the previous result, and it never gets the chance to reuse one. The arrangement that does pay off moves the changing value below the point where the child sits, so the child is only re-rendered when something it actually draws has changed, and the cost of the wrapper itself is worth paying only when that is true.",
       "hint": "Ask what has to be the same for the wrapper to reuse the previous result.",
@@ -2999,7 +2999,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3012,7 +3012,7 @@
         "performance",
         "props"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3034,8 +3034,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Both are drawn, so the reader sees 0 and 3 in the same place at once",
-          "misconception": "believes a mismatch leaves both renderings on the page"
+          "text": "They differ, so the client takes that part of the page over and renders it",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3049,12 +3049,12 @@
         },
         {
           "id": "D",
-          "text": "They differ, so the client takes that part of the page over and renders it",
-          "misconception": ""
+          "text": "Both are drawn, so the reader sees 0 and 3 in the same place at once",
+          "misconception": "believes a mismatch leaves both renderings on the page"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The two first renders have to produce the same output for attaching to be free, and 0 and 3 are not the same, so the client cannot reuse the delivered markup for that part and renders it itself instead, discarding what was there. A mismatch is worth fixing rather than tolerating because it means the server and the browser began from different state, and every element that differs is one the reader saw move. Starting both from the same value, or reading the stored value on the server too, removes the difference at the source rather than hiding the report.",
       "hint": "Ask whether the two outputs are the same string.",
@@ -3068,7 +3068,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3081,7 +3081,7 @@
         "mismatch",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3310,13 +3310,13 @@
       "options": [
         {
           "id": "A",
-          "text": "abc, because the field keeps what was typed until the state catches up",
-          "misconception": "believes the field keeps the typed text while the state lags"
+          "text": "Nothing, because every render writes back the empty value it still holds",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "Nothing, because every render writes back the empty value it still holds",
-          "misconception": ""
+          "text": "abc, because the field keeps what was typed until the state catches up",
+          "misconception": "believes the field keeps the typed text while the state lags"
         },
         {
           "id": "C",
@@ -3330,7 +3330,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "A controlled field takes its value from the render, and the render assigns whatever the state holds, which here is still empty because nothing ever set it, so each keystroke is written into the field and then written over by the next render. The reader sees a field that accepts nothing, and the handler's recording is invisible because recording is not the same as storing. The same code with the state set in the handler shows the text, which is what makes the difference between a controlled and an uncontrolled field a question about who owns the value rather than about the field at all.",
       "hint": "Ask what value the render assigns after each keystroke.",
@@ -3344,7 +3344,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3357,7 +3357,7 @@
         "forms",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3384,13 +3384,13 @@
         },
         {
           "id": "B",
-          "text": "Loads /orders as a new document, because the address is in the href",
-          "misconception": "believes an address in the href makes the navigation happen anyway"
+          "text": "Stays on the page, because the default navigation was stopped and nothing reloads",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Stays on the page, because the default navigation was stopped and nothing reloads",
-          "misconception": ""
+          "text": "Loads /orders as a new document, because the address is in the href",
+          "misconception": "believes an address in the href makes the navigation happen anyway"
         },
         {
           "id": "D",
@@ -3399,7 +3399,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The address in the href is what the browser would do on its own, and stopping the default says not to, so the browser loads nothing and the handler's own work is all that happens. The page is still there, the state is still held, and the address bar is changed by the router rather than by a navigation, which is exactly the saving the arrangement exists to make. Keeping the real address in the href is what allows the link to be copied, bookmarked and opened in a new tab, and a handler that only intervenes on an ordinary click is what preserves those behaviours.",
       "hint": "Ask what the browser does on its own when it is allowed to act.",
@@ -3413,7 +3413,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3426,7 +3426,7 @@
         "links",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3458,17 +3458,17 @@
         },
         {
           "id": "C",
-          "text": "It renders twice on the server, so it reads a later value than the first",
-          "misconception": "believes the server renders each component more than once"
+          "text": "Its code never reaches the browser, so nothing there can read or store",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "Its code never reaches the browser, so nothing there can read or store",
-          "misconception": ""
+          "text": "It renders twice on the server, so it reads a later value than the first",
+          "misconception": "believes the server renders each component more than once"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "A component marked to run only on the server has its code executed there and is never sent to the browser, so its output is delivered as markup and nothing of it is there to react to a keystroke, read a field, or hold a value. That work needs a component whose code is in the browser, and the split is decided by exactly this question rather than by preference. Marking the component for the server is usually a deliberate saving, since the browser never downloads it, so the diagnosis is to move the interactive part across the line and leave the rest where it is.",
       "hint": "Ask whether the code is present in the browser at all.",
@@ -3482,7 +3482,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3495,7 +3495,7 @@
         "diagnosis",
         "rendering"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3522,8 +3522,8 @@
         },
         {
           "id": "B",
-          "text": "Neither data nor a message, so the failure leaves no trace on the page",
-          "misconception": ""
+          "text": "The page reloads, because a failed request is retried from the beginning",
+          "misconception": "believes a failed request causes the page to start again"
         },
         {
           "id": "C",
@@ -3532,12 +3532,12 @@
         },
         {
           "id": "D",
-          "text": "The page reloads, because a failed request is retried from the beginning",
-          "misconception": "believes a failed request causes the page to start again"
+          "text": "Neither data nor a message, so the failure leaves no trace on the page",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "Clearing the flag is what the code does at the end of the request whatever the outcome, so a failure moves the screen from showing a spinner to showing nothing at all, and the reader is left with a blank area and no explanation. The flag was never able to express a failure because there is only one way for it to be set and only one for it to be cleared. The state a request is actually in has more than two values, and a screen needs somewhere to put the failure, because an operation that quietly does nothing is indistinguishable from one that succeeded.",
       "hint": "Ask what the screen shows once the spinner is gone and no data has arrived.",
@@ -3551,7 +3551,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3564,7 +3564,7 @@
         "errors",
         "diagnosis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3586,8 +3586,8 @@
       "options": [
         {
           "id": "A",
-          "text": "1",
-          "misconception": "believes a removal can only misplace the row it happened at"
+          "text": "0",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3596,8 +3596,8 @@
         },
         {
           "id": "C",
-          "text": "0",
-          "misconception": ""
+          "text": "1",
+          "misconception": "believes a removal can only misplace the row it happened at"
         },
         {
           "id": "D",
@@ -3606,7 +3606,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "With position keys every one of the four remaining rows is renumbered, so each is paired with the row that used to be one place above it and all 4 end up holding the wrong state, which is the first number asked for. With a key taken from each row's own id the renderer pairs every row with itself and nothing moves, so the second number asked for is 0. Nothing is rebuilt in either case, which is why the state follows the key rather than the data changing, and why a row's own identifier is the only key that stays true when the list is reordered.",
       "hint": "Start with what a position key says row zero is, then compare with a key from the row itself.",
@@ -3620,7 +3620,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3633,7 +3633,7 @@
         "lists",
         "two-stage"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3660,8 +3660,8 @@
         },
         {
           "id": "B",
-          "text": "2",
-          "misconception": "gives the parameter count instead of the level count"
+          "text": "4",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3670,12 +3670,12 @@
         },
         {
           "id": "D",
-          "text": "4",
-          "misconception": ""
+          "text": "2",
+          "misconception": "gives the parameter count instead of the level count"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "Two of the four declared segments begin with a colon, so matching `/orders/7/items/9` produces two parameters, id holding 7 and itemId holding 9, and the number asked for first is 2. The matcher descends through all four, from the root through the named row, the fixed items segment and the named item, and every one of them renders its own component with the next inside its outlet, so the level count asked for second is 4. Counting the fixed segments as well as the named ones is what makes the answer 4 rather than 2, and it is the number that tells a reader how many components are about to run.",
       "hint": "A parameter comes from a colon segment; a level comes from every segment descended, named or not.",
@@ -3689,7 +3689,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3702,7 +3702,7 @@
         "two-stage",
         "parameters"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3985,13 +3985,13 @@
         },
         {
           "id": "B",
-          "text": "Choosing what an address shows, including what a change of it replaces",
-          "misconception": ""
+          "text": "Remembering the reader's place, so a reload returns to that screen",
+          "misconception": "believes preserving the address on reload is a route's own job"
         },
         {
           "id": "C",
-          "text": "Remembering the reader's place, so a reload returns to that screen",
-          "misconception": "believes preserving the address on reload is a route's own job"
+          "text": "Choosing what an address shows, including what a change of it replaces",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -4000,7 +4000,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The route's whole responsibility is the mapping: this address means this screen with these parameters, and when the address changes that is what says which screen replaces the current one and which parameters it gets. Everything else is a separate question that happens to be nearby. The data belongs to whatever fetches it, so two screens with different parameters can share one fetching arrangement; remembering the place across a reload is what putting state in the address is for; and whether a reader may see a screen is a decision made on the server, since a route that runs in the browser is not a place where a rule can be enforced.",
       "hint": "Ask what the route is given and what it must decide, ignoring everything downstream of that.",
@@ -4014,7 +4014,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -4027,7 +4027,7 @@
         "design",
         "separation"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -4059,17 +4059,17 @@
         },
         {
           "id": "C",
-          "text": "A hook for the request, the range in state, and a part that only formats",
-          "misconception": ""
+          "text": "No split, since the four concerns share state and belong together",
+          "misconception": "believes sharing state is a reason to keep work in one part"
         },
         {
           "id": "D",
-          "text": "No split, since the four concerns share state and belong together",
-          "misconception": "believes sharing state is a reason to keep work in one part"
+          "text": "A hook for the request, the range in state, and a part that only formats",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "A part is worth splitting when the reasons to change are different, and here they plainly are: the request changes when the endpoint does, the range changes every time a reader picks a date, the formatting changes when the report gains a column, and the buttons change when a new action is offered. Splitting along those lines means a change to one leaves the others alone, and the request can move into a hook and be reused by a second screen without being copied. Splitting by what is drawn only renames the code, and sharing state is an argument about where the values live rather than a reason to keep every job in one function.",
       "hint": "Ask what would have to change for each job to change, and whether those are the same thing.",
@@ -4083,7 +4083,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -4096,7 +4096,7 @@
         "custom-hooks",
         "design"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     }

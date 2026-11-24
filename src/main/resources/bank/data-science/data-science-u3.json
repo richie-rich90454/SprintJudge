@@ -18,8 +18,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The column already holds 500 distinct non-null values, so every row can be addressed on its own",
-          "misconception": ""
+          "text": "The column holds 500 values and none of them repeats, but blanks are still allowed because blanks are not a value",
+          "misconception": "believes a key can tolerate missing values in the rows it governs"
         },
         {
           "id": "B",
@@ -28,8 +28,8 @@
         },
         {
           "id": "C",
-          "text": "The column holds 500 values and none of them repeats, but blanks are still allowed because blanks are not a value",
-          "misconception": "believes a key can tolerate missing values in the rows it governs"
+          "text": "The column already holds 500 distinct non-null values, so every row can be addressed on its own",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -38,7 +38,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A primary key is two promises at once: no two rows may carry the same value, and no row may leave it empty. The database checks both before it will accept the constraint, so a statement that succeeds is evidence that all 500 existing rows satisfied both. What it does not promise is anything about the meaning of the values, that they were entered correctly, or that they will keep their format, since a key of the wrong type can be perfectly unique and perfectly wrong. The other three options each keep one half of the promise and quietly drop the other, which is exactly the shape of the bug that appears later when a join cannot find the row it was promised.",
       "hint": "Count the promises a key makes about a column, then ask which of them the accepted statement would have had to check.",
@@ -55,7 +55,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -69,7 +69,7 @@
         "datasci-3.1-0015"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0002",
@@ -94,8 +94,8 @@
         },
         {
           "id": "B",
-          "text": "The row is rejected, and any order for a customer who was never loaded cannot enter the table at all",
-          "misconception": ""
+          "text": "The row is accepted only if the customer is created in the same statement, so ordering inside one load is what matters",
+          "misconception": "thinks the check only applies to changes made inside a single statement"
         },
         {
           "id": "C",
@@ -104,12 +104,12 @@
         },
         {
           "id": "D",
-          "text": "The row is accepted only if the customer is created in the same statement, so ordering inside one load is what matters",
-          "misconception": "thinks the check only applies to changes made inside a single statement"
+          "text": "The row is rejected, and any order for a customer who was never loaded cannot enter the table at all",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A foreign key turns a relationship between two tables into something the database itself will not let you get wrong, which means an insert naming a parent row that does not exist fails outright rather than leaving a reference that resolves to nothing. That is the whole value of declaring it: the orphan row never enters, so no later report has to wonder whether a missing parent is a real gap or a load that ran early. The cost of the guarantee is that load order starts to matter, since a customer arriving after its orders cannot be written first, and teams often respond by disabling the constraint, which is the moment the guarantee quietly stops existing.",
       "hint": "Ask what the database can do at insert time that it could not do if the relationship were only a naming convention.",
@@ -126,7 +126,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -143,7 +143,7 @@
       "prerequisiteQuestionIds": [
         "datasci-3.1-0001"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0003",
@@ -163,8 +163,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Three rows, being only the orders whose customer_id was found in the customer table",
-          "misconception": "believes an inner join keeps the left table and fills the gaps instead of dropping them"
+          "text": "Six rows, with the three unmatched orders carrying blanks in the customer columns",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -178,12 +178,12 @@
         },
         {
           "id": "D",
-          "text": "Six rows, with the three unmatched orders carrying blanks in the customer columns",
-          "misconception": ""
+          "text": "Three rows, being only the orders whose customer_id was found in the customer table",
+          "misconception": "believes an inner join keeps the left table and fills the gaps instead of dropping them"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "An inner join keeps a row only when both sides of the condition can be satisfied, so the three orders naming customers that do not exist have nothing to pair with and disappear without a trace. The result is three rows, and the danger is not the loss itself but that the loss is invisible in the output: the report simply says three orders exist, and the count of six never appears anywhere to be contradicted. This is why an inner join is a filter as much as a lookup, and why anyone reporting a figure from one should say which side was allowed to vanish. The trap is assuming the left table is protected, which is true of a left join and false here.",
       "hint": "Ask what an unmatched row on either side has to pair with in order to survive an inner join.",
@@ -200,7 +200,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -217,7 +217,7 @@
       "prerequisiteQuestionIds": [
         "datasci-3.1-0002"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0004",
@@ -237,13 +237,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It appears with a blank in every column taken from the customer table, and every later calculation must decide what that means",
-          "misconception": ""
+          "text": "It appears with a zero in every customer column, which is why sums over those columns stay correct",
+          "misconception": "expects a missing parent to be filled with a number that behaves like a real value"
         },
         {
           "id": "B",
-          "text": "It appears with a zero in every customer column, which is why sums over those columns stay correct",
-          "misconception": "expects a missing parent to be filled with a number that behaves like a real value"
+          "text": "It appears with a blank in every column taken from the customer table, and every later calculation must decide what that means",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -257,7 +257,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The point of a left join is that the left row survives whether or not anything matches, and the cost of that guarantee is that the columns coming from the other side can hold no value at all. A blank is not a zero and not an empty string: it is the absence of an answer, and arithmetic that meets one either refuses to run or quietly treats the row as excluded, which changes totals in ways nobody notices until a report is wrong. The habit worth building is to ask, immediately after writing a left join, which columns can now be blank and which downstream figures assumed they never would be, because the join changed the meaning of the data rather than only its shape.",
       "hint": "Separate the guarantee the join makes about row counts from the guarantee it makes about values.",
@@ -274,7 +274,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -291,7 +291,7 @@
       "prerequisiteQuestionIds": [
         "datasci-3.1-0003"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0005",
@@ -459,8 +459,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Nowhere, because a row either passes the threshold or does not regardless of when the test is applied",
-          "misconception": "believes the position of a filter relative to an aggregate changes nothing"
+          "text": "On rows that never passed the threshold but inflate a group total, which the filtered version can no longer recover",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -469,8 +469,8 @@
         },
         {
           "id": "C",
-          "text": "On rows that never passed the threshold but inflate a group total, which the filtered version can no longer recover",
-          "misconception": ""
+          "text": "Nowhere, because a row either passes the threshold or does not regardless of when the test is applied",
+          "misconception": "believes the position of a filter relative to an aggregate changes nothing"
         },
         {
           "id": "D",
@@ -479,7 +479,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Filtering rows first and filtering groups afterwards are different questions, and the second one cannot see the small rows at all, so anything they contributed is gone for good rather than merely excluded. If a group of six orders totalling 835 is cut to three orders totalling 620, a filter applied afterwards sees only 620 and has no way to know that 215 of the total was made of rows it would have discarded, which is exactly why a group can fail a threshold in one version and pass it in the other. The practical rule is to decide whether the condition is about rows or about groups, and to write it in the clause that matches, because the two positions are not interchangeable.",
       "hint": "Ask which version still has the discarded rows available to it when the threshold is applied.",
@@ -496,7 +496,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -512,7 +512,7 @@
       "prerequisiteQuestionIds": [
         "datasci-3.1-0006"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0008",
@@ -537,8 +537,8 @@
         },
         {
           "id": "B",
-          "text": "The join cannot express the comparison at all, since a join matches values rather than testing them against a bound",
-          "misconception": "thinks a comparison against a constant cannot be written as a join condition"
+          "text": "The subquery keeps the result at one row per order, while a join to a single figure can multiply rows if the figure is not reduced first",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -547,12 +547,12 @@
         },
         {
           "id": "D",
-          "text": "The subquery keeps the result at one row per order, while a join to a single figure can multiply rows if the figure is not reduced first",
-          "misconception": ""
+          "text": "The join cannot express the comparison at all, since a join matches values rather than testing them against a bound",
+          "misconception": "thinks a comparison against a constant cannot be written as a join condition"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "Both forms express the same test, and the difference shows up in what the result set is allowed to contain. A subquery in the filter never adds a row, so the output is one row per order whatever the subquery computed, which makes the shape of the answer predictable. A join against a derived figure is safe only while that derived side is guaranteed to be one row per match, and the moment it is not, the same duplication that inflates a sum starts inflating a list, and a report that promised one line per order delivers two or three. Knowing which form keeps the row count honest is worth more than knowing which one the planner prefers, because the planner can be asked and the row count cannot be assumed.",
       "hint": "Ask which of the two forms can add rows to the result, and under what condition.",
@@ -569,7 +569,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -586,7 +586,7 @@
       "prerequisiteQuestionIds": [
         "datasci-3.1-0007"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0009",
@@ -606,8 +606,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Five times, once for each outer row, because the value it depends on is not known until that row is read",
-          "misconception": ""
+          "text": "Ten times, once for each outer row and once more to confirm that no further matches exist",
+          "misconception": "invents a confirmation pass that no part of the query describes"
         },
         {
           "id": "B",
@@ -616,8 +616,8 @@
         },
         {
           "id": "C",
-          "text": "Ten times, once for each outer row and once more to confirm that no further matches exist",
-          "misconception": "invents a confirmation pass that no part of the query describes"
+          "text": "Five times, once for each outer row, because the value it depends on is not known until that row is read",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -626,7 +626,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A correlated subquery refers to the row currently being processed on the outside, so its text cannot be turned into a single plan step decided in advance; it runs again for every outer row, which here means five executions. Some engines will rewrite a particular correlated form into a join or a grouped lookup and pay for it once, and when that happens the behaviour is an optimisation rather than a promise, so the number that should appear in a written explanation is the logical one. The practical consequence is a cost that scales with the outer table, which is why a correlated filter over a large table is one of the most reliable ways to write a query that used to be fine and is not any more.",
       "hint": "Ask when the value the inner query depends on becomes known.",
@@ -643,7 +643,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -660,7 +660,7 @@
       "prerequisiteQuestionIds": [
         "datasci-3.1-0008"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0010",
@@ -690,17 +690,17 @@
         },
         {
           "id": "C",
-          "text": "A window function partitioned by region, which computes the regional average while leaving every order in the output",
-          "misconception": ""
+          "text": "A left join to a table of regional averages, which returns the average beside each order without any grouping",
+          "misconception": "misses that a joined average is still a value that must be produced by grouping somewhere"
         },
         {
           "id": "D",
-          "text": "A left join to a table of regional averages, which returns the average beside each order without any grouping",
-          "misconception": "misses that a joined average is still a value that must be produced by grouping somewhere"
+          "text": "A window function partitioned by region, which computes the regional average while leaving every order in the output",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The requirement is contradictory to a group-by and ordinary to a window function: a group-by collapses several rows into one, so the moment you ask for the regional average alongside every individual order you have asked for a figure that is attached to a group while the rows remain separate. A window function does precisely that, computing something across a set of rows while leaving those rows themselves in the result, and the partition is what says which set. The convenience is that the same query can carry several such figures at once, so a rank, a running total and a group average can all be reported without three passes and without a join that might duplicate rows.",
       "hint": "Ask which construct can compute a group-level value without removing the rows that formed the group.",
@@ -717,7 +717,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -732,7 +732,7 @@
         "datasci-3.1-0023"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0011",
@@ -752,8 +752,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The first and second rows only, because the upper bound of a frame stops one row short of the current row",
-          "misconception": "reads the stated upper bound as exclusive and drops the current row from its own total"
+          "text": "The first, second and third rows, because the current row is the upper bound of its own frame",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -767,12 +767,12 @@
         },
         {
           "id": "D",
-          "text": "The first, second and third rows, because the current row is the upper bound of its own frame",
-          "misconception": ""
+          "text": "The first and second rows only, because the upper bound of a frame stops one row short of the current row",
+          "misconception": "reads the stated upper bound as exclusive and drops the current row from its own total"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "A frame says which rows a windowed function may look at, and the bounds written in it are the bounds that apply, not a hint. Between the start of the partition and the current row, stated in that order, the current row is included: the boundary is the current row, so on the third day the total covers days one, two and three, and only the final row of the partition is a whole-partition total. Reading an upper bound as exclusive is the common slip, and it produces a series that is one row short at every step, which is easy to mistake for a data problem because the shape of the line still looks like a running total. The habit that prevents it is to write the bounds out loud in words before trusting the numbers.",
       "hint": "Write the frame in words first, then ask whether the current row falls inside it.",
@@ -789,7 +789,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -806,7 +806,7 @@
       "prerequisiteQuestionIds": [
         "datasci-3.1-0010"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0012",
@@ -826,13 +826,13 @@
       "options": [
         {
           "id": "A",
-          "text": "DENSE_RANK, because it numbers distinct score values without leaving gaps after a tie",
-          "misconception": ""
+          "text": "RANK, because it counts the rows ahead of a tied score rather than the distinct values ahead of it",
+          "misconception": "believes rank numbers distinct values instead of counting rows above the tie"
         },
         {
           "id": "B",
-          "text": "RANK, because it counts the rows ahead of a tied score rather than the distinct values ahead of it",
-          "misconception": "believes rank numbers distinct values instead of counting rows above the tie"
+          "text": "DENSE_RANK, because it numbers distinct score values without leaving gaps after a tie",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -846,7 +846,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The three functions differ only in what they do about equality, and picking between them is mostly a question of whether gaps in the numbering matter to the reader. RANK counts rows above, so a tie at 85 following 90 yields 2 for both tied rows and then 4 for the next, because the two rows ahead of 70 occupy two places. DENSE_RANK counts distinct values, giving 2, 2 and then 3, which is what a leaderboard wants. ROW_NUMBER ignores the tie entirely and hands out consecutive positions, 1, 2, 3, 4, which is what a report wanting exactly one row per group needs. Choosing RANK where DENSE_RANK was meant produces a list whose numbers appear to skip for no visible reason.",
       "hint": "Ask whether the function counts rows above the value or distinct values above it.",
@@ -863,7 +863,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -880,7 +880,7 @@
       "prerequisiteQuestionIds": [
         "datasci-3.1-0010"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0013",
@@ -2072,8 +2072,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The index lookups were useless, because a sequential scan had already read everything the lookups could find",
-          "misconception": "concludes the index work was wasted when it followed a full scan"
+          "text": "The query read every row of orders to produce 12, so the filter is doing its work after the rows are read",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2082,8 +2082,8 @@
         },
         {
           "id": "C",
-          "text": "The query read every row of orders to produce 12, so the filter is doing its work after the rows are read",
-          "misconception": ""
+          "text": "The index lookups were useless, because a sequential scan had already read everything the lookups could find",
+          "misconception": "concludes the index work was wasted when it followed a full scan"
         },
         {
           "id": "D",
@@ -2092,7 +2092,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The plan states rows examined, which is the number that matters for cost, separately from rows returned, which is the number a reader of the report sees. A sequential scan has to read the whole table before the filter can reject anything, so 480,000 rows were read to leave 12, and the four index lookups add 4 more, giving 480,004 rows examined in total. Nothing about the output reveals this: the report is correct, the twelve rows are right, and the only evidence of the expense is the plan, which is why reading the plan before optimising and again before declaring a query fast is the cheapest habit in this work.",
       "hint": "Separate the number of rows the plan says were read from the number the report shows.",
@@ -2109,7 +2109,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2124,7 +2124,7 @@
         "datasci-3.1-0033"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0036",
@@ -2149,8 +2149,8 @@
         },
         {
           "id": "B",
-          "text": "The index was used and then discarded, because the planner prefers to read rows directly in every case",
-          "misconception": "believes a planner uses an index and then throws the work away"
+          "text": "The filter wrapped the indexed column in a function, so there is no indexed value left to seek on",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2159,12 +2159,12 @@
         },
         {
           "id": "D",
-          "text": "The filter wrapped the indexed column in a function, so there is no indexed value left to seek on",
-          "misconception": ""
+          "text": "The index was used and then discarded, because the planner prefers to read rows directly in every case",
+          "misconception": "believes a planner uses an index and then throws the work away"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "An index is an ordered structure over the stored values, so a lookup can only find a row by seeking on one of those values, and a function wrapped around the column changes the value the planner would have to seek on into one the index never stored. The plan therefore falls back to reading the table, and the fix is on the query's side rather than the index's: filter on the raw column, or store the function's result in its own indexed column, both of which restore the seek. The diagnosis is worth making precisely because the index is visibly present, so a reader concludes the query is indexed and stops looking.",
       "hint": "Ask whether the value the planner would seek on is one the index actually holds.",
@@ -2181,7 +2181,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2196,7 +2196,7 @@
         "datasci-3.1-0035"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0037",
@@ -2360,8 +2360,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The pages are correct and the source is duplicating rows in the table it exports from",
-          "misconception": "assumes an overlap between pages must come from duplicate data"
+          "text": "The rows are being inserted between page reads, so each offset skips a different number of rows than the last",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2370,8 +2370,8 @@
         },
         {
           "id": "C",
-          "text": "The rows are being inserted between page reads, so each offset skips a different number of rows than the last",
-          "misconception": ""
+          "text": "The pages are correct and the source is duplicating rows in the table it exports from",
+          "misconception": "assumes an overlap between pages must come from duplicate data"
         },
         {
           "id": "D",
@@ -2380,7 +2380,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Each page begins 2 rows earlier than the last, which is exactly the signature of rows arriving above the reader between requests: an offset names a position, and the rows occupying that position change while the reader is between pages. The overlap is 8 rows each time here, and the total of distinct rows seen across the three pages is 15 rather than 30, so an export built this way is short as well as repetitive. A cursor fixes it by naming the last value it saw rather than a count, so a row that arrives later is simply never included and no earlier row is shown twice.",
       "hint": "Compare where each page starts and ask what would have to arrive between reads to move it.",
@@ -2397,7 +2397,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2411,7 +2411,7 @@
         "datasci-3.1-0030"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0040",
@@ -2436,8 +2436,8 @@
         },
         {
           "id": "B",
-          "text": "The frame was ordered descending, so the days were accumulated in the opposite order to the one listed",
-          "misconception": "believes the order of accumulation changes the final value"
+          "text": "The frame covered the whole partition from the first row, so the last value should have been 80",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2446,12 +2446,12 @@
         },
         {
           "id": "D",
-          "text": "The frame covered the whole partition from the first row, so the last value should have been 80",
-          "misconception": ""
+          "text": "The frame was ordered descending, so the days were accumulated in the opposite order to the one listed",
+          "misconception": "believes the order of accumulation changes the final value"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The last reported value of 75 is the sum of the first three amounts, and since the last row of a partition is where a running frame reaches furthest, the final value should be the total of all four, which is 80. The series is therefore right in shape and wrong in value by one row at every step, which is what a frame whose upper bound excludes the current row produces. Because the direction of the error is uniform and the line still rises, the series passes a glance and gets believed; the check is to compare the last value against the plain total of the column, which is a comparison worth automating for every windowed series a report depends on.",
       "hint": "Compare the final value of the series with the total of the underlying amounts.",
@@ -2468,7 +2468,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2483,7 +2483,7 @@
         "datasci-3.1-0023"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0041",
@@ -2646,8 +2646,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The claim is correct and the plan is misreporting, since a plan never reads more rows than a query returns",
-          "misconception": "trusts the stated cost over the plan without a reason"
+          "text": "The claim understates the rows read by a factor of 3,000, so it describes the result rather than the work",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2656,8 +2656,8 @@
         },
         {
           "id": "C",
-          "text": "The claim understates the rows read by a factor of 3,000, so it describes the result rather than the work",
-          "misconception": ""
+          "text": "The claim is correct and the plan is misreporting, since a plan never reads more rows than a query returns",
+          "misconception": "trusts the stated cost over the plan without a reason"
         },
         {
           "id": "D",
@@ -2666,7 +2666,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "900,000 divided by 300 is 3,000, and the two figures cannot both be describing the same act: a plan that reports a scan of a 900,000-row table has examined all of them, whereas a figure of 300 is the size of a result or of a sample, not of the work. The disagreement is worth taking seriously in both directions, because a stated cost is often copied from a ticket written before the query changed, and a plan is often read by someone who has forgotten what the query now does. Writing the claim as rows examined, with the plan attached, removes the ambiguity at the cost of a sentence.",
       "hint": "Ask whether rows examined and rows returned have been confused for one another.",
@@ -2683,7 +2683,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2698,7 +2698,7 @@
         "datasci-3.1-0035"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0044",
@@ -2723,8 +2723,8 @@
         },
         {
           "id": "B",
-          "text": "The source did supply those regions but the join overwrote them with blanks it read from the team table",
-          "misconception": "believes a join can replace a present value with an empty one"
+          "text": "The join could not find a team for those 480 rows, so the blanks are the absence of a match rather than missing data",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2733,12 +2733,12 @@
         },
         {
           "id": "D",
-          "text": "The join could not find a team for those 480 rows, so the blanks are the absence of a match rather than missing data",
-          "misconception": ""
+          "text": "The source did supply those regions but the join overwrote them with blanks it read from the team table",
+          "misconception": "believes a join can replace a present value with an empty one"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "A blank in a column that arrived from the other side of a join means the other side had nothing to give, so these 480 blanks are 480 support rows whose team could not be found, and the source is blameless because the source never claimed to hold that column. The 8 percent figure is therefore a measure of the join's coverage, not of data quality in the source, and reporting it as a null rate without saying which table the column came from invites exactly the wrong repair. The distinction matters because the two problems call for opposite responses: missing source values are a load bug, while unmatched keys are a question about which teams are absent from the team table.",
       "hint": "Ask which table the column came from, and what a blank in that column can mean.",
@@ -2755,7 +2755,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2770,7 +2770,7 @@
         "datasci-3.1-0017"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0045",
@@ -2935,8 +2935,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Take the largest single rep's total for the region, so only one copy of each order is counted",
-          "misconception": "assumes one rep's rows are a representative half of the region's orders"
+          "text": "Aggregate the reps table to one row per region before joining, so each order is matched exactly once",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2945,8 +2945,8 @@
         },
         {
           "id": "C",
-          "text": "Aggregate the reps table to one row per region before joining, so each order is matched exactly once",
-          "misconception": ""
+          "text": "Take the largest single rep's total for the region, so only one copy of each order is counted",
+          "misconception": "assumes one rep's rows are a representative half of the region's orders"
         },
         {
           "id": "D",
@@ -2955,7 +2955,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The clean repair makes the join one-to-one before any arithmetic touches it, and aggregating the right side to one row per join key does exactly that, so the five orders are matched five times and the West total is 660 as the ledger has it. Dividing by the number of reps only works when the duplication is uniform, which it is here and will not be tomorrow, and the moment it is not, the correction introduces an error where there was only duplication. Taking one rep's rows and dropping the other rep's rows both discard real orders, and the loss is invisible precisely because the remaining rows still look like a complete region.",
       "hint": "Fix the shape of the join rather than the number the sum produces.",
@@ -2972,7 +2972,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2987,7 +2987,7 @@
         "datasci-3.1-0034"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0048",
@@ -3012,8 +3012,8 @@
         },
         {
           "id": "B",
-          "text": "Three separate grouped queries, since each group figure needs its own grouping to be computed at all",
-          "misconception": "believes a group figure cannot be produced without removing the rows"
+          "text": "A window function partitioned by region, since it computes group figures without collapsing the rows they came from",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3022,12 +3022,12 @@
         },
         {
           "id": "D",
-          "text": "A window function partitioned by region, since it computes group figures without collapsing the rows they came from",
-          "misconception": ""
+          "text": "Three separate grouped queries, since each group figure needs its own grouping to be computed at all",
+          "misconception": "believes a group figure cannot be produced without removing the rows"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "All three figures are properties of a group that the report wants to see alongside the individual rows, which is the exact situation a window function exists for: it computes across a partition while leaving the partition's rows in the output, so one pass carries the average, the rank and the running total together. Three grouped queries would each return a different number of rows and have to be stitched back together, and stitching is where duplication returns. The correlated version answers the same question correctly but pays for it once per row per figure, which is fine on a hundred rows and is why a report that was fine on a sample becomes the slowest thing in the building.",
       "hint": "Ask which construct can hold a group-level figure and the individual rows at the same time.",
@@ -3044,7 +3044,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3059,7 +3059,7 @@
         "datasci-3.1-0023"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0049",
@@ -3534,17 +3534,17 @@
         {
           "id": "B",
           "text": "Reduce the reps table to one row per region, or find a key that identifies a single rep instead",
-          "misconception": ""
+          "misconception": "puts reps table to one row per ahead of what one row of the report"
         },
         {
           "id": "C",
           "text": "Join the two tables and confirm the result has one row per order, failing the run if it does not",
-          "misconception": ""
+          "misconception": "puts two tables ahead of reps table to one row per"
         },
         {
           "id": "D",
           "text": "Aggregate to a total per region and compare the grand total against the sum of the sales table",
-          "misconception": ""
+          "misconception": "puts aggregate to a total per region ahead of two tables"
         }
       ],
       "answer": {
@@ -3570,7 +3570,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T20:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3585,7 +3585,7 @@
         "datasci-3.1-0047"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0058",
@@ -3611,17 +3611,17 @@
         {
           "id": "B",
           "text": "Count the rows entering and leaving each stage, to find the first stage where the count changed",
-          "misconception": ""
+          "misconception": "puts rows entering ahead of reproduce the wrong number"
         },
         {
           "id": "C",
           "text": "Check the join keys for unmatched and duplicated values, which explains a change in either direction",
-          "misconception": ""
+          "misconception": "puts join keys for unmatched ahead of rows entering"
         },
         {
           "id": "D",
           "text": "Inspect the one stage identified, and ask whether its rows are the rows the figure was meant to describe",
-          "misconception": ""
+          "misconception": "puts one stage identified ahead of join keys for unmatched"
         }
       ],
       "answer": {
@@ -3647,7 +3647,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T20:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3662,7 +3662,7 @@
         "datasci-3.1-0041"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0059",
@@ -3688,17 +3688,17 @@
         {
           "id": "B",
           "text": "Read rows examined rather than time, and locate the stage where the row count is out of proportion",
-          "misconception": ""
+          "misconception": "puts rows examined rather than time ahead of capture the plan for the query"
         },
         {
           "id": "C",
           "text": "Ask whether an existing index can serve that stage, and whether the filter's shape prevents it from doing so",
-          "misconception": ""
+          "misconception": "puts an existing index can serve ahead of rows examined rather than time"
         },
         {
           "id": "D",
           "text": "Make one change, capture the plan again, and keep it only if rows examined fell and the results match",
-          "misconception": ""
+          "misconception": "puts one change ahead of an existing index can serve"
         }
       ],
       "answer": {
@@ -3724,7 +3724,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T20:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3739,7 +3739,7 @@
         "datasci-3.1-0055"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-3.1-0060",
@@ -3765,17 +3765,17 @@
         {
           "id": "B",
           "text": "Choose the partition and the ordering, since both the rank and the running total depend on them",
-          "misconception": ""
+          "misconception": "puts partition ahead of what one row of the report"
         },
         {
           "id": "C",
           "text": "Set the frame and the ranking function, deciding explicitly what a tie should do",
-          "misconception": ""
+          "misconception": "puts frame ahead of partition"
         },
         {
           "id": "D",
           "text": "Check the boundary rows, where a wrong frame or a tie shows itself before the middle does",
-          "misconception": ""
+          "misconception": "puts boundary rows ahead of frame"
         }
       ],
       "answer": {
@@ -3801,7 +3801,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T20:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3816,7 +3816,7 @@
         "datasci-3.1-0048"
       ],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     }
   ]
 }
