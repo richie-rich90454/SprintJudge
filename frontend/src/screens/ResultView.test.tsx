@@ -29,7 +29,10 @@ vi.mock("../services/AdminApiService", () => ({
 }));
 
 vi.mock("../stores/useGameStore", () => ({
-    useGameStore: (selector: (s: any) => unknown) => selector(gameMock.state),
+    useGameStore: Object.assign(
+        (selector: (s: any) => unknown) => selector(gameMock.state),
+        { setState: (patch: any) => Object.assign(gameMock.state, patch) },
+    ),
 }));
 
 vi.mock("../stores/useUIStore", () => ({
@@ -168,5 +171,146 @@ describe("ResultView", () => {
         for (let i = 0; i < 5; i++) await Promise.resolve();
         expect(attachedAtClick).toBe(true);
         await waitFor(() => expect(revoke).toHaveBeenCalled());
+    });
+
+    const fullReview = () => ({
+        sessionId: "s1",
+        quizId: "quiz-1",
+        questions: [
+            {
+                questionId: "q1",
+                title: "Question one",
+                questionType: "MCQ",
+                pointsBase: 100,
+                correctRate: 0.8,
+                totalAttempts: 5,
+                answer: "A",
+                options: ["A", "B"],
+            },
+            {
+                questionId: "q2",
+                title: "Question two",
+                questionType: "TRUE_FALSE",
+                pointsBase: 50,
+                correctRate: 0.2,
+                totalAttempts: 3,
+                answer: true,
+            },
+        ],
+        players: [
+            {
+                playerUuid: "p1",
+                playerName: "Ada",
+                totalScore: 200,
+                answers: [
+                    { questionId: "q1", correct: true, scoreEarned: 100, attemptCount: 1 },
+                    { questionId: "q2", correct: false, scoreEarned: 0, attemptCount: 2 },
+                ],
+            },
+            {
+                playerUuid: "p2",
+                playerName: "Bob",
+                totalScore: 50,
+                answers: [{ questionId: "q1", correct: false, scoreEarned: 0, attemptCount: 3 }],
+            },
+        ],
+        classStats: {
+            totalPlayers: 2,
+            totalQuestions: 2,
+            totalAttempts: 8,
+            totalCorrect: 4,
+        },
+        teams: [{ id: "t1", name: "Red", totalScore: 250, memberUuids: ["p1", "p2"] }],
+        rankings: [],
+    });
+
+    test("renders the podium, the rest of the board and navigation actions", async () => {
+        const user = userEvent.setup();
+        gameMock.state.quizId = "quiz-1";
+        gameMock.state.leaderboard = [
+            { uuid: "p1", name: "Ada", score: 200, rank: 1 },
+            { uuid: "p2", name: "Bob", score: 50, rank: 2 },
+            { uuid: "p3", name: "Cy", score: 10, rank: 3 },
+            { uuid: "p4", name: "Dee", score: 1, rank: 4 },
+        ];
+        gameMock.state.review = fullReview();
+        render(<ResultView />);
+        expect(screen.getByText("2 students, 2 questions")).toBeInTheDocument();
+        expect(await screen.findByRole("button", { name: "New game" })).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: "Leave results" }));
+        expect(navigateMock).toHaveBeenCalledWith({ to: "/" });
+        fireEvent.click(screen.getByRole("button", { name: "New game" }));
+        expect(navigateMock).toHaveBeenCalledWith({ to: "/admin" });
+
+        await user.click(screen.getByRole("tab", { name: "Students" }));
+        fireEvent.click(screen.getByRole("button", { name: "Reveal names" }));
+        fireEvent.click(screen.getByRole("button", { name: /1\. Ada/ }));
+        expect(screen.getByText(/q2/)).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: "Hide names" }));
+    });
+
+    test("expands answer keys and renders team standings", async () => {
+        const user = userEvent.setup();
+        gameMock.state.review = fullReview();
+        render(<ResultView />);
+        await user.click(screen.getByRole("tab", { name: "Answer Key" }));
+        expect(screen.getByText("1. Question one")).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: /Question one/ }));
+        expect(screen.getByText(/Player 1/)).toBeInTheDocument();
+
+        await user.click(screen.getByRole("tab", { name: "Teams" }));
+        expect(screen.getByText("Team standings")).toBeInTheDocument();
+        expect(screen.getByText("Red")).toBeInTheDocument();
+        await user.click(screen.getByRole("tab", { name: "Analysis" }));
+    });
+
+    test("restores a cached review and ignores malformed cache entries", async () => {
+        sessionStorage.setItem(
+            "sprintjudge_last_review",
+            JSON.stringify({ review: fullReview(), leaderboard: [{ uuid: "p1", name: "Ada", score: 1, rank: 1 }] }),
+        );
+        const view = render(<ResultView />);
+        await waitFor(() => expect(gameMock.state.review).toMatchObject({ sessionId: "s1" }));
+        view.rerender(<ResultView />);
+        expect(screen.getAllByText("Ada").length).toBeGreaterThan(0);
+        sessionStorage.setItem("sprintjudge_last_review", "{bad json");
+        gameMock.state.review = null;
+        const user = userEvent.setup();
+        view.rerender(<ResultView />);
+        await user.click(screen.getByRole("tab", { name: "Answer Key" }));
+        expect(screen.getByText(/Loading review/)).toBeInTheDocument();
+        sessionStorage.clear();
+    });
+
+    test("reports export and recommendation failures", async () => {
+        gameMock.state.review = fullReview();
+        vi.stubGlobal(
+            "fetch",
+            vi.fn((url: string) =>
+                Promise.resolve({
+                    ok: !url.includes("/export/") && !url.includes("teach-next"),
+                    json: async () => ({}),
+                }),
+            ),
+        );
+        render(<ResultView />);
+        const exportBtn = await screen.findByRole("button", { name: /Export CSV/i });
+        fireEvent.click(exportBtn);
+        expect(await screen.findByText(/Could not export the room/)).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /Practice next/i }));
+        expect(await screen.findByText(/Could not build a practice quiz/)).toBeInTheDocument();
+
+        vi.stubGlobal(
+            "fetch",
+            vi.fn().mockResolvedValue({
+                ok: true,
+                json: async () => ({ subject: "", unit: "", count: 0 }),
+            }),
+        );
+        gameMock.state.practicing = false;
+        fireEvent.click(screen.getByRole("button", { name: /Practice next/i }));
+        await waitFor(() => expect(screen.getAllByText(/Could not build a practice quiz/)).toHaveLength(1));
     });
 });
