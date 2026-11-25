@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useState } from "react";
 import { Button } from "../ui/Button";
 import { Dialog } from "../ui/Dialog";
@@ -31,6 +32,7 @@ function persist(collections: Collection[]) {
 
 /** Local folders for grouping quizzes in the library and result flows. */
 export function CollectionsMenu({ quizId, title }: { quizId: string; title: string }) {
+    const { t } = useI18n();
     const [open, setOpen] = useState(false);
     const [collections, setCollections] = useState<Collection[]>(read);
     const [name, setName] = useState("");
@@ -68,7 +70,7 @@ export function CollectionsMenu({ quizId, title }: { quizId: string; title: stri
             <Button variant="secondary" size="sm" onClick={() => setOpen(true)}>
                 Collections{count > 0 ? ` (${count})` : ""}
             </Button>
-            <Dialog open={open} onOpenChange={setOpen} title="Save to a collection">
+            <Dialog open={open} onOpenChange={setOpen} title={t("ui.saveToACollection")}>
                 <p className="text-sm text-[var(--oq-ink-soft)] mb-4">
                     {title} - folders are kept in this browser.
                 </p>
@@ -91,7 +93,7 @@ export function CollectionsMenu({ quizId, title }: { quizId: string; title: stri
                         </li>
                     ))}
                     {collections.length === 0 && (
-                        <li className="text-sm text-[var(--oq-ink-soft)]">No folders yet.</li>
+                        <li className="text-sm text-[var(--oq-ink-soft)]">{t("ui.noFoldersYet")}</li>
                     )}
                 </ul>
                 <div className="flex gap-2">
@@ -99,12 +101,12 @@ export function CollectionsMenu({ quizId, title }: { quizId: string; title: stri
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && create()}
-                        placeholder="New folder name"
-                        aria-label="New folder name"
+                        placeholder={t("ui.newFolderName")}
+                        aria-label={t("ui.newFolderName")}
                         className="flex-1 text-sm"
                     />
                     <Button variant="primary" size="sm" onClick={create} disabled={!name.trim()}>
-                        Create
+                        {t("ui.create")}
                     </Button>
                 </div>
             </Dialog>

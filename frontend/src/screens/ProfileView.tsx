@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Shell } from "../components/Shell";
@@ -17,6 +18,7 @@ import {
 } from "../services/ProfileApiService";
 
 export function ProfileView() {
+    const { t } = useI18n();
     const queryClient = useQueryClient();
     const [identity, setIdentity] = useState(storedIdentity);
     const gameName = useGameStore((s) => s.playerName);
@@ -63,48 +65,46 @@ export function ProfileView() {
         <Shell>
             <div className="page-shell py-10 md:py-14 flex flex-col gap-6">
                 <div className="max-w-2xl">
-                    <p className="label-caps mb-3">Player progress</p>
-                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Your profile</h1>
+                    <p className="label-caps mb-3">{t("ui.playerProgress")}</p>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">{t("ui.yourProfile")}</h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        Joining a game stays anonymous. A profile is optional: it keeps your nickname, score history,
-                        achievements, and the quizzes you have finished.
+                        {t("ui.joiningAGameStaysAnonymousAProfileIsOptionalItKeepsYourNicknameScoreHistoryAchievementsAndTheQuizzesYouHaveFinished")}
                     </p>
                 </div>
 
                 {!identity && (
                     <Card className="p-6 max-w-lg flex flex-col gap-4">
-                        <h2 className="text-xl font-extrabold">Create a profile</h2>
+                        <h2 className="text-xl font-extrabold">{t("ui.createAProfile")}</h2>
                         <p className="text-sm text-[var(--oq-ink-soft)]">
-                            Choose a nickname. If you have just played, this device can also link that game identity so
-                            your existing results appear here.
+                            {t("ui.chooseANicknameIfYouHaveJustPlayedThisDeviceCanAlsoLinkThatGameIdentitySoYourExistingResultsAppearHere")}
                         </p>
-                        <Field label="Nickname" htmlFor="profile-nickname">
+                        <Field label={t("ui.nickname")} htmlFor="profile-nickname">
                             <TextInput
                                 id="profile-nickname"
                                 value={newNickname}
                                 maxLength={20}
                                 autoComplete="nickname"
                                 onChange={(e) => setNewNickname(e.target.value)}
-                                placeholder="Your nickname"
+                                placeholder={t("ui.yourNickname")}
                             />
                         </Field>
                         {create.isError && (
                             <p className="text-sm text-[var(--oq-danger)]" role="alert">
                                 Could not create a profile:{" "}
-                                {create.error instanceof Error ? create.error.message : "unknown error"}. Check the
+                                {create.error instanceof Error ? create.error.message : t("ui.unknownError")}. Check the
                                 nickname and try again.
                             </p>
                         )}
                         <div>
                             <Button disabled={create.isPending || !newNickname.trim()} onClick={() => create.mutate()}>
-                                {create.isPending ? "Creating…" : "Create profile"}
+                                {create.isPending ? t("ui.creatingEllipsis") : t("ui.createProfile")}
                             </Button>
                         </div>
                     </Card>
                 )}
 
                 {identity && isPending && (
-                    <div className="grid gap-4 md:grid-cols-2" aria-label="Loading profile">
+                    <div className="grid gap-4 md:grid-cols-2" aria-label={t("ui.loadingProfile")}>
                         <Skeleton className="h-28" />
                         <Skeleton className="h-28" />
                         <Skeleton className="h-56" />
@@ -115,15 +115,15 @@ export function ProfileView() {
                 {identity && isError && (
                     <Card className="p-4 max-w-lg">
                         <EmptyState
-                            title="Could not load your profile"
-                            hint="The saved link may have expired. Retry, or forget it on this device."
+                            title={t("ui.couldNotLoadYourProfile")}
+                            hint={t("ui.theSavedLinkMayHaveExpiredRetryOrForgetItOnThisDevice")}
                             action={
                                 <div className="flex flex-wrap justify-center gap-2">
                                     <Button variant="secondary" onClick={() => refetch()}>
-                                        Retry
+                                        {t("ui.retry")}
                                     </Button>
                                     <Button variant="ghost" onClick={discard}>
-                                        Forget this device
+                                        {t("ui.forgetThisDevice")}
                                     </Button>
                                 </div>
                             }
@@ -135,7 +135,7 @@ export function ProfileView() {
                     <>
                         <Card className="p-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                             <div>
-                                <p className="label-caps">Nickname</p>
+                                <p className="label-caps">{t("ui.nickname")}</p>
                                 <h2 className="text-2xl font-extrabold">{data.profile.nickname}</h2>
                                 <p className="text-sm text-[var(--oq-ink-soft)] mt-1">
                                     {data.stats.sessions} quiz{data.stats.sessions === 1 ? "" : "zes"} |{" "}
@@ -146,30 +146,30 @@ export function ProfileView() {
                                 {playerUuid && rejoinToken && data.profile.playerUuid !== playerUuid && (
                                     <Button variant="secondary" size="sm" disabled={link.isPending}
                                         onClick={() => link.mutate()}>
-                                        Link this game identity
+                                        {t("ui.linkThisGameIdentity")}
                                     </Button>
                                 )}
                                 <Button variant="ghost" size="sm" onClick={discard}>
-                                    Forget this device
+                                    {t("ui.forgetThisDevice")}
                                 </Button>
                             </div>
                         </Card>
 
                         {(rename.isError || link.isError) && (
                             <p className="text-sm text-[var(--oq-danger)]" role="alert">
-                                Could not save that change. The game identity may no longer be active.
+                                {t("ui.couldNotSaveThatChangeTheGameIdentityMayNoLongerBeActive")}
                             </p>
                         )}
 
                         <section className="flex flex-col gap-3">
-                            <h2 className="text-xl font-extrabold">Achievements</h2>
+                            <h2 className="text-xl font-extrabold">{t("ui.achievements")}</h2>
                             <div className="grid gap-3 md:grid-cols-2">
                                 {data.achievements.map((achievement) => (
                                     <Card key={achievement.id} className="p-4 flex flex-col gap-2">
                                         <div className="flex items-center justify-between gap-2">
                                             <h3 className="font-extrabold">{achievement.title}</h3>
                                             <Chip tone={achievement.unlocked ? "success" : "neutral"}>
-                                                {achievement.unlocked ? "Unlocked" : "Locked"}
+                                                {achievement.unlocked ? t("ui.unlocked") : t("ui.locked")}
                                             </Chip>
                                         </div>
                                         <p className="text-sm text-[var(--oq-ink-soft)]">{achievement.description}</p>
@@ -180,12 +180,12 @@ export function ProfileView() {
 
                         <div className="grid gap-6 lg:grid-cols-2">
                             <section className="flex flex-col gap-3">
-                                <h2 className="text-xl font-extrabold">Score history</h2>
+                                <h2 className="text-xl font-extrabold">{t("ui.scoreHistory")}</h2>
                                 {data.history.length === 0 ? (
                                     <Card className="p-4">
                                         <EmptyState
-                                            title="No results linked yet"
-                                            hint="Link the game identity from your last session to bring in past scores."
+                                            title={t("ui.noResultsLinkedYet")}
+                                            hint={t("ui.linkTheGameIdentityFromYourLastSessionToBringInPastScores")}
                                         />
                                     </Card>
                                 ) : (
@@ -193,7 +193,7 @@ export function ProfileView() {
                                         {data.history.map((entry) => (
                                             <div key={entry.sessionId} className="p-4 flex justify-between gap-3">
                                                 <div>
-                                                    <p className="font-bold">{entry.quizTitle ?? "Quiz"}</p>
+                                                    <p className="font-bold">{entry.quizTitle ?? t("ui.quiz")}</p>
                                                     <p className="text-xs text-[var(--oq-ink-soft)]">
                                                         {new Date(entry.playedAt).toLocaleDateString()} |{" "}
                                                         {entry.correct}/{entry.answers} correct
@@ -207,17 +207,17 @@ export function ProfileView() {
                             </section>
 
                             <section className="flex flex-col gap-3">
-                                <h2 className="text-xl font-extrabold">Quiz portfolio</h2>
+                                <h2 className="text-xl font-extrabold">{t("ui.quizPortfolio")}</h2>
                                 {data.portfolio.length === 0 ? (
                                     <Card className="p-4">
-                                        <EmptyState title="No quizzes yet" hint="Finish a quiz to start your portfolio." />
+                                        <EmptyState title={t("ui.noQuizzesYet")} hint={t("ui.finishAQuizToStartYourPortfolio")} />
                                     </Card>
                                 ) : (
                                     <Card className="divide-y divide-[var(--oq-line)]">
                                         {data.portfolio.map((entry) => (
                                             <div key={entry.quizId} className="p-4 flex justify-between gap-3">
                                                 <div>
-                                                    <p className="font-bold">{entry.quizTitle ?? "Quiz"}</p>
+                                                    <p className="font-bold">{entry.quizTitle ?? t("ui.quiz")}</p>
                                                     <p className="text-xs text-[var(--oq-ink-soft)]">
                                                         {entry.sessions} attempt{entry.sessions === 1 ? "" : "s"} | best{" "}
                                                         {entry.bestScore} pts
@@ -234,8 +234,8 @@ export function ProfileView() {
                         </div>
 
                         <Card className="p-6 max-w-lg flex flex-col gap-3">
-                            <h2 className="font-extrabold">Change nickname</h2>
-                            <Field label="Nickname" htmlFor="profile-rename">
+                            <h2 className="font-extrabold">{t("ui.changeNickname")}</h2>
+                            <Field label={t("ui.nickname")} htmlFor="profile-rename">
                                 <TextInput
                                     id="profile-rename"
                                     value={renameText}
@@ -251,7 +251,7 @@ export function ProfileView() {
                                     disabled={rename.isPending || !renameText.trim()}
                                     onClick={() => rename.mutate(renameText)}
                                 >
-                                    Save
+                                    {t("ui.save")}
                                 </Button>
                             </div>
                         </Card>

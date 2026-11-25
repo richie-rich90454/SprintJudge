@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useState } from "react";
 import { adminApi } from "../services/AdminApiService";
 
@@ -31,6 +32,7 @@ export function readFairness(): FairnessSettings {
  * settings the room builder reads, and kept locally when the host is logged out.
  */
 export function FairnessControls() {
+    const { t } = useI18n();
     const [settings, setSettings] = useState<FairnessSettings>(readFairness);
 
     const update = (key: keyof FairnessSettings) => {
@@ -55,19 +57,19 @@ export function FairnessControls() {
     const rows: { key: keyof FairnessSettings; label: string; hint: string }[] = [
         {
             key: "shuffleOptions",
-            label: "Shuffle answer options",
-            hint: "Vary option order between players.",
+            label: t("ui.shuffleAnswerOptions"),
+            hint: t("ui.varyOptionOrderBetweenPlayers"),
         },
         {
             key: "shuffleQuestions",
-            label: "Shuffle question order",
-            hint: "Vary the order of questions each game.",
+            label: t("ui.shuffleQuestionOrder"),
+            hint: t("ui.varyTheOrderOfQuestionsEachGame"),
         },
     ];
 
     return (
         <div>
-            <p className="label-caps mb-3">Fairness</p>
+            <p className="label-caps mb-3">{t("ui.fairness")}</p>
             <div className="flex flex-col gap-2">
                 {rows.map((row) => (
                     <button
@@ -92,13 +94,13 @@ export function FairnessControls() {
                                     : "bg-[var(--oq-row-alt)] text-[var(--oq-ink-soft)]"
                             }`}
                         >
-                            {settings[row.key] ? "ON" : "OFF"}
+                            {settings[row.key] ? t("ui.on") : t("ui.off")}
                         </span>
                     </button>
                 ))}
             </div>
             <p className="text-xs text-[var(--oq-ink-soft)] mt-2">
-                Applies to games started after the switch changes.
+                {t("ui.appliesToGamesStartedAfterTheSwitchChanges")}
             </p>
         </div>
     );

@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useQuery } from "@tanstack/react-query";
 import { Shell } from "../components/Shell";
 import { Card } from "../ui/Card";
@@ -68,6 +69,7 @@ interface VolumeRow {
 }
 
 export function VolumeReport() {
+    const { t } = useI18n();
     const volume = useQuery({
         queryKey: ["bank-volume"],
         queryFn: getBankVolume,
@@ -88,18 +90,16 @@ export function VolumeReport() {
         <Shell>
             <div className="page-shell py-10 md:py-14 flex flex-col gap-6">
                 <div className="max-w-2xl">
-                    <p className="label-caps mb-3">Admin</p>
+                    <p className="label-caps mb-3">{t("ui.admin")}</p>
                     <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-                        How many questions are ready?
+                        {t("ui.howManyQuestionsAreReady")}
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        Each subject needs at least 3,000 questions before it
-                        can be used in class. This page shows where each
-                        subject stands.
+                        {t("ui.eachSubjectNeedsAtLeast3000QuestionsBeforeItCanBeUsedInClassThisPageShowsWhereEachSubjectStands")}
                     </p>
                 </div>
                 {volume.isPending && (
-                    <div className="flex flex-col gap-4" aria-label="Loading question counts">
+                    <div className="flex flex-col gap-4" aria-label={t("ui.loadingQuestionCounts")}>
                         <Skeleton className="h-10" />
                         <Skeleton className="h-64" />
                     </div>
@@ -107,11 +107,11 @@ export function VolumeReport() {
                 {volume.isError && (
                     <Card className="p-4">
                         <EmptyState
-                            title="Could not load question counts"
-                            hint="Check your connection and try again."
+                            title={t("ui.couldNotLoadQuestionCounts")}
+                            hint={t("ui.checkYourConnectionAndTryAgain")}
                             action={
                                 <Button variant="secondary" onClick={() => volume.refetch()}>
-                                    Retry
+                                    {t("ui.retry")}
                                 </Button>
                             }
                         />
@@ -120,8 +120,8 @@ export function VolumeReport() {
                 {volume.data && rows.length === 0 && (
                     <Card className="p-4">
                         <EmptyState
-                            title="No subjects to show yet"
-                            hint="New subjects will appear here once questions are added."
+                            title={t("ui.noSubjectsToShowYet")}
+                            hint={t("ui.newSubjectsWillAppearHereOnceQuestionsAreAdded")}
                         />
                     </Card>
                 )}
@@ -136,16 +136,16 @@ export function VolumeReport() {
                                 <thead>
                                     <tr>
                                         <th scope="col" className="p-4">
-                                            Subject
+                                            {t("ui.subject")}
                                         </th>
                                         <th scope="col" className="p-4">
-                                            Ready now
+                                            {t("ui.readyNow")}
                                         </th>
                                         <th scope="col" className="p-4">
-                                            Progress to 3,000
+                                            {t("ui.progressTo3000")}
                                         </th>
                                         <th scope="col" className="p-4">
-                                            Status
+                                            {t("ui.status")}
                                         </th>
                                     </tr>
                                 </thead>
@@ -161,9 +161,9 @@ export function VolumeReport() {
                                             </td>
                                             <td className="p-4">
                                                 {row.count >= GOAL ? (
-                                                    <Chip tone="success">Ready</Chip>
+                                                    <Chip tone="success">{t("ui.ready")}</Chip>
                                                 ) : (
-                                                    <Chip tone="neutral">Still adding</Chip>
+                                                    <Chip tone="neutral">{t("ui.stillAdding")}</Chip>
                                                 )}
                                             </td>
                                         </tr>

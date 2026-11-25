@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useState } from "react";
 import { Button } from "../ui/Button";
 import { adminApi, type QuestionPayload } from "../services/AdminApiService";
@@ -23,6 +24,7 @@ export function QuizActions({
     title: string;
     description?: string | null;
 }) {
+    const { t } = useI18n();
     const [busy, setBusy] = useState<Mode | null>(null);
     const [message, setMessage] = useState<string | null>(null);
 
@@ -45,9 +47,9 @@ export function QuizActions({
                 const payload: QuestionPayload = { ...q, quizId: built.id, id: undefined };
                 await adminApi.addQuestion(payload);
             }
-            setMessage(`${suffix[0].toUpperCase()}${suffix.slice(1)} created in the dashboard.`);
+            setMessage(t("ui.createdInDashboard", { kind: `${suffix[0].toUpperCase()}${suffix.slice(1)}` }));
         } catch {
-            setMessage("Could not copy this quiz. Sign in as admin and retry.");
+            setMessage(t("ui.couldNotCopyThisQuizSignInAsAdminAndRetry"));
         } finally {
             setBusy(null);
         }
@@ -59,19 +61,19 @@ export function QuizActions({
                 variant="secondary"
                 size="sm"
                 disabled={!quizId || busy !== null}
-                title={quizId ? undefined : "Open a quiz to duplicate or remix it"}
+                title={quizId ? undefined : t("ui.openAQuizToDuplicateOrRemixIt")}
                 onClick={() => void run("duplicate")}
             >
-                {busy === "duplicate" ? "Copying" : "Duplicate"}
+                {busy === "duplicate" ? t("ui.copying") : t("ui.duplicate")}
             </Button>
             <Button
                 variant="secondary"
                 size="sm"
                 disabled={!quizId || busy !== null}
-                title={quizId ? undefined : "Open a quiz to duplicate or remix it"}
+                title={quizId ? undefined : t("ui.openAQuizToDuplicateOrRemixIt")}
                 onClick={() => void run("remix")}
             >
-                {busy === "remix" ? "Remixing" : "Remix"}
+                {busy === "remix" ? t("ui.remixing") : t("ui.remix")}
             </Button>
             {message && (
                 <span role="status" className="text-xs text-[var(--oq-ink-soft)]">

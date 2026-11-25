@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useEffect, useState } from "react";
 import { MusicNote, Pause } from "@phosphor-icons/react";
 import { audio } from "../services/AudioEngine";
@@ -15,6 +16,7 @@ function readMusic(): boolean {
 
 /** Separate background-music switch. SFX stay under the master SoundToggle. */
 export function MusicToggle({ className = "" }: { className?: string }) {
+    const { t } = useI18n();
     const [on, setOn] = useState(readMusic);
     const sound = useUIStore((s) => s.sound);
 
@@ -42,8 +44,8 @@ export function MusicToggle({ className = "" }: { className?: string }) {
     return (
         <button
             type="button"
-            aria-label={on ? "Turn background music off" : "Turn background music on"}
-            title={sound === "off" ? "Music follows the master sound switch" : `Music: ${on ? "on" : "off"}`}
+            aria-label={on ? t("ui.turnBackgroundMusicOff") : t("ui.turnBackgroundMusicOn")}
+            title={sound === "off" ? t("ui.musicFollowsTheMasterSoundSwitch") : t("ui.musicState", { state: on ? "on" : "off" })}
             aria-pressed={on}
             onClick={toggle}
             className={`btn btn-ghost btn-icon text-lg ${className}`.trim()}

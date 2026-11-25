@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { Link } from "@tanstack/react-router";
 import { Card } from "../ui/Card";
 import { JoinForm } from "../components/JoinForm";
@@ -11,6 +12,7 @@ import { AboutDialog } from "../components/AboutDialog";
  * one job.
  */
 export function LandingView() {
+    const { t } = useI18n();
     return (
         <div className="pattern-exam min-h-[100dvh] flex flex-col">
             <header className="w-full max-w-3xl mx-auto px-6 pt-4 flex items-center justify-end gap-1">
@@ -27,17 +29,17 @@ export function LandingView() {
                         </span>
                     </p>
                     <Card className="card-accent p-6 md:p-8">
-                        <JoinForm heading="Join a live game" submitClassName="btn-lg" />
+                        <JoinForm heading={t("ui.joinALiveGame")} submitClassName="btn-lg" />
                     </Card>
                     <p className="text-center text-sm font-bold text-[var(--oq-ink-soft)]">
                         <Link to="/practice" className="underline underline-offset-4">
-                            Practice solo
+                            {t("ui.practiceSolo")}
                         </Link>
                         <span aria-hidden="true" className="mx-3 opacity-60">
                             |
                         </span>
                         <Link to="/explore" className="underline underline-offset-4">
-                            Browse quizzes
+                            {t("ui.browseQuizzes")}
                         </Link>
                     </p>
                 </div>

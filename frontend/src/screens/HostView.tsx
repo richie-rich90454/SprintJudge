@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearch } from "@tanstack/react-router";
 import { Card } from "../ui/Card";
@@ -30,6 +31,7 @@ interface TeamRow {
 }
 
 function TeamBoard() {
+    const { t } = useI18n();
     const teams = useGameStore((s) => s.teams);
     const requestTeams = useGameStore((s) => s.requestTeams);
 
@@ -40,34 +42,34 @@ function TeamBoard() {
     return (
         <Card className="p-0 overflow-hidden">
             <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--oq-border)]">
-                <h3 className="font-extrabold text-lg">Teams</h3>
+                <h3 className="font-extrabold text-lg">{t("ui.teams")}</h3>
                 <span className="label-caps">
-                    {teams.length} {teams.length === 1 ? "team" : "teams"}
+                    {teams.length} {teams.length === 1 ? t("ui.teamSingular") : t("ui.teamsPlural")}
                 </span>
             </div>
             {teams.length === 0 ? (
                 <p className="text-[var(--oq-ink-soft)] text-sm p-6">
-                    No teams yet. Create them in the controls panel so students can pick one.
+                    {t("ui.noTeamsYetCreateThemInTheControlsPanelSoStudentsCanPickOne")}
                 </p>
             ) : (
                 <ol className="flex flex-col">
-                    {teams.map((t, i) => (
+                    {teams.map((team, i) => (
                         <li
-                            key={t.id}
+                            key={team.id}
                             className="flex items-center gap-4 px-6 py-3 border-b border-dotted border-[var(--oq-border)] last:border-b-0"
                         >
                             <span className="mono font-bold min-w-8 text-right tabular-nums text-[var(--oq-accent)]">
                                 {i + 1}
                             </span>
-                            <span className="truncate font-semibold flex-1" title={t.name}>
-                                {t.name}
+                            <span className="truncate font-semibold flex-1" title={team.name}>
+                                {team.name}
                             </span>
                             <span className="mono text-xs text-[var(--oq-ink-soft)]">
-                                {t.memberUuids.length}{" "}
-                                {t.memberUuids.length === 1 ? "member" : "members"}
+                                {team.memberUuids.length}{" "}
+                                {team.memberUuids.length === 1 ? t("ui.memberSingular") : t("ui.membersPlural")}
                             </span>
                             <span className="mono font-bold tabular-nums">
-                                {(Number.isFinite(t.score) ? t.score : 0).toLocaleString()}
+                                {(Number.isFinite(team.score) ? team.score : 0).toLocaleString()}
                             </span>
                         </li>
                     ))}
@@ -78,6 +80,7 @@ function TeamBoard() {
 }
 
 function BracketPanel() {
+    const { t } = useI18n();
     const bracket = useGameStore((s) => s.bracket);
     const champion = useGameStore((s) => s.champion);
     const requestBracket = useGameStore((s) => s.requestBracket);
@@ -88,20 +91,20 @@ function BracketPanel() {
     }, [requestBracket]);
 
     const nameOf = (uuid: string | null | undefined) =>
-        uuid ? (room?.players.find((p) => p.uuid === uuid)?.name ?? "Player") : "";
+        uuid ? (room?.players.find((p) => p.uuid === uuid)?.name ?? t("ui.playerFallback")) : "";
 
     return (
         <Card className="p-0 overflow-hidden">
             <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--oq-border)]">
-                <h3 className="font-extrabold text-lg">Bracket</h3>
+                <h3 className="font-extrabold text-lg">{t("ui.bracket")}</h3>
                 <span className="label-caps">
                     {bracket?.rounds.length ?? 0}{" "}
-                    {(bracket?.rounds.length ?? 0) === 1 ? "round" : "rounds"}
+                    {(bracket?.rounds.length ?? 0) === 1 ? t("ui.roundSingular") : t("ui.roundsPlural")}
                 </span>
             </div>
             {!bracket || bracket.rounds.length === 0 ? (
                 <p className="text-[var(--oq-ink-soft)] text-sm p-6">
-                    Start the battle to build the first bracket.
+                    {t("ui.startTheBattleToBuildTheFirstBracket")}
                 </p>
             ) : (
                 <div className="flex flex-col gap-5 p-6">
@@ -122,7 +125,7 @@ function BracketPanel() {
                                             {nameOf(p.p1Uuid)}
                                         </span>
                                         <span className="label-caps text-[var(--oq-ink-soft)]">
-                                            {p.bye ? "bye" : "vs"}
+                                            {p.bye ? t("ui.byeLabel") : t("ui.vsLabel")}
                                         </span>
                                         <span
                                             className={
@@ -148,6 +151,7 @@ function BracketPanel() {
 }
 
 function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
+    const { t } = useI18n();
     const leaderboard = useGameStore((s) => s.leaderboard);
     const room = useGameStore((s) => s.room);
     const wsError = useGameStore((s) => s.error);
@@ -174,10 +178,10 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
         <Card className="p-0 overflow-hidden">
             <div className="flex items-center justify-between px-6 pt-6 pb-6 border-b border-[var(--oq-border)]">
                 <h3 className="header-double" style={{ marginBottom: 0 }}>
-                    Leaderboard
+                    {t("ui.leaderboard")}
                 </h3>
                 <span className="label-caps">
-                    {rows.length} {rows.length === 1 ? "student" : "students"}
+                    {rows.length} {rows.length === 1 ? t("ui.studentSingular") : t("ui.studentsPlural")}
                 </span>
             </div>
             {wsError && (
@@ -189,7 +193,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
             <div ref={listRef} className="px-0 relative">
                 <div
                     ref={ref}
-                    aria-label="Leaderboard"
+                    aria-label={t("ui.leaderboard")}
                     className="overflow-y-auto"
                     style={{ maxHeight: maxH }}
                 >
@@ -240,7 +244,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
                     )}
                     {rows.length === 0 && (
                         <p className="text-[var(--oq-ink-soft)] text-sm p-6">
-                            No players yet - share the PIN.
+                            {t("ui.noPlayersYetShareThePIN")}
                         </p>
                     )}
                 </div>
@@ -250,6 +254,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
 }
 
 function ControlsPanel() {
+    const { t } = useI18n();
     const advanceLock = useRef(false);
     const hostCommand = useGameStore((s) => s.hostCommand);
     const extendTimer = useGameStore((s) => s.extendTimer);
@@ -270,7 +275,7 @@ function ControlsPanel() {
     const players = (room?.players ?? []).filter((p) => p.name !== "Host");
     const active = status === "ACTIVE";
     const reviewing = status === "REVIEW";
-    const statusCopy = active ? "Round live" : reviewing ? "Reviewing answers" : "Awaiting start";
+    const statusCopy = active ? t("ui.roundLive") : reviewing ? t("ui.reviewingAnswers") : t("ui.awaitingStart");
 
     useEffect(() => {
         const sub = webSocketService.onMessage().subscribe((m: WsMessage) => {
@@ -289,7 +294,7 @@ function ControlsPanel() {
             }
             if (m.type === "ERROR" && teamOp.current) {
                 setTeamsLoading(false);
-                setTeamsError(String(m.message ?? "Failed to load teams."));
+                setTeamsError(String(m.message ?? t("ui.failedToLoadTeams")));
                 teamOp.current = false;
             }
         });
@@ -322,7 +327,7 @@ function ControlsPanel() {
     return (
         <Card className="p-0 overflow-hidden">
             <div className="pb-4 border-b border-[var(--oq-border)]">
-                <h3 className="font-extrabold text-lg">Controls</h3>
+                <h3 className="font-extrabold text-lg">{t("ui.controls")}</h3>
                 <p className="label-caps mt-1">{statusCopy}</p>
             </div>
 
@@ -334,14 +339,14 @@ function ControlsPanel() {
                             className="w-full"
                             onClick={() => hostCommand("FORCE_SUBMIT")}
                         >
-                            Reveal answer
+                            {t("ui.revealAnswer")}
                         </Button>
                         <Button
                             variant="secondary"
                             className="w-full"
                             onClick={() => extendTimer(30)}
                         >
-                            +30 seconds
+                            {t("ui.30Seconds")}
                         </Button>
                     </>
                 ) : (
@@ -358,7 +363,7 @@ function ControlsPanel() {
                                 hostCommand("NEXT_QUESTION", { ...readFairness() });
                             }}
                         >
-                            {status === "LOBBY" ? "Start round" : "Next question"}
+                            {status === "LOBBY" ? t("ui.startRound") : t("ui.nextQuestion")}
                         </Button>
                         {status === "LOBBY" && gameMode === "BATTLE" && (
                             <Button
@@ -366,21 +371,21 @@ function ControlsPanel() {
                                 className="w-full"
                                 onClick={() => send({ type: "START_BATTLE", ...readFairness() })}
                             >
-                                Start battle
+                                {t("ui.startBattle")}
                             </Button>
                         )}
                     </>
                 )}
                 <Button variant="danger" className="w-full" onClick={confirmEnd}>
-                    End game
+                    {t("ui.endGame")}
                 </Button>
                 <Dialog
                     open={confirmEndOpen}
                     onOpenChange={setConfirmEndOpen}
-                    title="End the game?"
+                    title={t("ui.endTheGame")}
                 >
                     <p className="text-[var(--oq-ink-soft)] text-sm">
-                        This ends the game for all players immediately.
+                        {t("ui.thisEndsTheGameForAllPlayersImmediately")}
                     </p>
                     <div className="flex gap-2 mt-4">
                         <Button
@@ -388,10 +393,10 @@ function ControlsPanel() {
                             className="flex-1"
                             onClick={() => setConfirmEndOpen(false)}
                         >
-                            Keep playing
+                            {t("ui.keepPlaying")}
                         </Button>
                         <Button variant="danger" className="flex-1" onClick={doEndGame}>
-                            End game
+                            {t("ui.endGame")}
                         </Button>
                     </div>
                 </Dialog>
@@ -400,7 +405,7 @@ function ControlsPanel() {
             {gameMode === "TEAM" && (
                 <div className="py-4 border-t border-[var(--oq-border)]">
                     <div className="flex items-center justify-between mb-3">
-                        <p className="label-caps">Teams</p>
+                        <p className="label-caps">{t("ui.teams")}</p>
                         <button
                             type="button"
                             onClick={requestTeams}
@@ -424,34 +429,34 @@ function ControlsPanel() {
                         <TextInput
                             value={teamName}
                             onChange={(e) => setTeamName(e.target.value)}
-                            placeholder="Team name"
-                            aria-label="Team name"
+                            placeholder={t("ui.teamName")}
+                            aria-label={t("ui.teamName")}
                             className="flex-1 text-sm"
                             onKeyDown={(e) => e.key === "Enter" && createTeam()}
                         />
                         <Button variant="secondary" size="sm" onClick={createTeam}>
-                            Create
+                            {t("ui.create")}
                         </Button>
                     </div>
                     <ul className="flex flex-col gap-2 max-h-48 overflow-y-auto">
-                        {teams.map((t) => (
+                        {teams.map((team) => (
                             <li
-                                key={t.id}
+                                key={team.id}
                                 className="flex items-center justify-between text-sm min-h-[44px] px-3 rounded-[2px] hover:bg-[var(--oq-row-alt)] transition-colors"
                             >
-                                <span className="font-medium">{t.name}</span>
+                                <span className="font-medium">{team.name}</span>
                                 <span className="mono text-xs text-[var(--oq-ink-soft)]">
-                                    {t.memberUuids.length} members, {t.score} pts
+                                    {team.memberUuids.length} members, {team.score} pts
                                 </span>
                             </li>
                         ))}
                         {teamsLoading && (
                             <li className="text-[var(--oq-ink-soft)] text-sm inline-flex items-center gap-2 min-h-[44px]">
-                                <span className="oq-spin" aria-hidden="true" /> Loading teams
+                                <span className="oq-spin" aria-hidden="true" /> {t("ui.loadingTeams")}
                             </li>
                         )}
                         {!teamsLoading && teams.length === 0 && !teamsError && (
-                            <li className="text-[var(--oq-ink-soft)] text-sm">No teams yet.</li>
+                            <li className="text-[var(--oq-ink-soft)] text-sm">{t("ui.noTeamsYet")}</li>
                         )}
                     </ul>
                 </div>
@@ -459,7 +464,7 @@ function ControlsPanel() {
 
             <div className="py-4 border-t border-[var(--oq-border)] flex flex-col gap-5">
                 <div>
-                    <p className="label-caps mb-3">Stage theme</p>
+                    <p className="label-caps mb-3">{t("ui.stageTheme")}</p>
                     <StageThemePicker />
                 </div>
                 <FairnessControls />
@@ -467,11 +472,11 @@ function ControlsPanel() {
 
             <div className="pt-4 border-t border-[var(--oq-border)]">
                 <p className="label-caps mb-3">
-                    {players.length} {players.length === 1 ? "student" : "students"}
+                    {players.length} {players.length === 1 ? t("ui.studentSingular") : t("ui.studentsPlural")}
                 </p>
                 {!room && (
                     <p className="text-[var(--oq-ink-soft)] text-sm inline-flex items-center gap-2 min-h-[44px]">
-                        <span className="oq-spin" aria-hidden="true" /> Loading players
+                        <span className="oq-spin" aria-hidden="true" /> {t("ui.loadingPlayers")}
                     </p>
                 )}
                 <ul className="flex flex-col gap-2 max-h-48 overflow-y-auto">
@@ -490,17 +495,17 @@ function ControlsPanel() {
                                 <button
                                     type="button"
                                     onClick={() => kickPlayer(p.uuid)}
-                                    aria-label={`Kick ${p.name}`}
+                                    aria-label={t("ui.kickPlayer", { name: p.name })}
                                     className="text-[var(--oq-danger)] text-xs font-bold min-h-[44px] px-2"
                                 >
-                                    Kick
+                                    {t("ui.kick")}
                                 </button>
                             </span>
                         </li>
                     ))}
                     {room && players.length === 0 && (
                         <li className="text-[var(--oq-ink-soft)] text-sm">
-                            Share the PIN to invite players.
+                            {t("ui.shareThePINToInvitePlayers")}
                         </li>
                     )}
                 </ul>
@@ -510,6 +515,7 @@ function ControlsPanel() {
 }
 
 export function HostView() {
+    const { t } = useI18n();
     const search = useSearch({ strict: false }) as unknown as {
         pin?: string;
         projector?: boolean | string;
@@ -531,7 +537,7 @@ export function HostView() {
         if (!pin) return;
         const proto = window.location.protocol === "https:" ? "wss" : "ws";
         connect(`${proto}://${window.location.host}/ws`);
-        join(pin, "Host", "host");
+        join(pin, t("ui.hostLabel"), "host");
         return () => webSocketService.disconnect();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pin]);
@@ -548,7 +554,7 @@ export function HostView() {
                 <p className="text-[var(--oq-ink-soft)] text-center">
                     Create a game from the{" "}
                     <Link to="/admin" className="font-bold text-[var(--oq-accent)]">
-                        Admin dashboard
+                        {t("ui.adminDashboard")}
                     </Link>{" "}
                     first.
                 </p>
@@ -560,12 +566,12 @@ export function HostView() {
     const liveStatus = gameStatus === "ENDED" ? "ENDED" : (room?.status ?? gameStatus);
     const statusLabel =
         liveStatus === "ACTIVE"
-            ? "Live"
+            ? t("ui.live")
             : liveStatus === "REVIEW"
               ? "Reviewing"
               : liveStatus === "ENDED"
-                ? "Game over"
-                : "Lobby open";
+                ? t("ui.gameOver")
+                : t("ui.lobbyOpen");
     const tone: "success" | "accent" | "neutral" =
         liveStatus === "ACTIVE" ? "success" : liveStatus === "REVIEW" ? "accent" : "neutral";
     const copyLink = () => {
@@ -610,7 +616,7 @@ export function HostView() {
                 <div className="page-shell py-4">
                     <div className="flex items-center gap-6 flex-wrap">
                         <div>
-                            <p className="label-caps mb-1">Game PIN</p>
+                            <p className="label-caps mb-1">{t("ui.gamePIN")}</p>
                             <p className="mono font-extrabold text-4xl tracking-[.2em] leading-none">
                                 {pin}
                             </p>
@@ -621,16 +627,16 @@ export function HostView() {
                                 <Chip tone={tone}>{statusLabel}</Chip>
                             </div>
                             <p className="font-bold text-lg">
-                                {playerCount} {playerCount === 1 ? "student" : "students"}
+                                {playerCount} {playerCount === 1 ? t("ui.studentSingular") : t("ui.studentsPlural")}
                             </p>
                         </div>
                         <div className="flex-1" />
                         <div className="flex items-center gap-2">
                             <Button variant="secondary" size="sm" onClick={copyLink}>
-                                {copied ? "Copied" : "Copy join link"}
+                                {copied ? t("ui.copied") : t("ui.copyJoinLink")}
                             </Button>
                             <Button variant="secondary" size="sm" onClick={toggleFullScreen}>
-                                Full screen
+                                {t("ui.fullScreen")}
                             </Button>
                             <Link
                                 to="/watch/$pin"
@@ -639,7 +645,7 @@ export function HostView() {
                                 rel="noreferrer"
                                 className="btn btn-secondary btn-sm"
                             >
-                                Projector view
+                                {t("ui.projectorView")}
                             </Link>
                         </div>
                         <SoundToggle className="header-icon" />
@@ -658,7 +664,7 @@ export function HostView() {
                     {!room ? (
                         <div
                             className="rounded-[2px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
-                            aria-label="Loading room"
+                            aria-label={t("ui.loadingRoom")}
                         >
                             <div className="skeleton h-5 w-40 mb-4" />
                             <div className="flex flex-col gap-4" aria-hidden="true">
@@ -666,7 +672,7 @@ export function HostView() {
                                     <div key={i} className="skeleton h-11" />
                                 ))}
                             </div>
-                            <p className="text-[var(--oq-ink-soft)] text-sm mt-4">Loading room</p>
+                            <p className="text-[var(--oq-ink-soft)] text-sm mt-4">{t("ui.loadingRoom")}</p>
                             {wsError && (
                                 <p role="alert" className="text-[var(--oq-danger)] text-sm mt-2">
                                     Connection error: {wsError}
@@ -689,13 +695,12 @@ export function HostView() {
                 </div>
                 {liveStatus === "ENDED" ? (
                     <Card className="p-6 flex flex-col gap-4">
-                        <h3 className="font-extrabold text-lg">Game over</h3>
+                        <h3 className="font-extrabold text-lg">{t("ui.gameOver")}</h3>
                         <p className="text-[var(--oq-ink-soft)] text-sm">
-                            Final standings are on the board. Open the full review with answer key
-                            and class analysis.
+                            {t("ui.finalStandingsAreOnTheBoardOpenTheFullReviewWithAnswerKeyAndClassAnalysis")}
                         </p>
                         <Link to="/results" className="btn btn-primary w-full">
-                            View results
+                            {t("ui.viewResults")}
                         </Link>
                     </Card>
                 ) : (

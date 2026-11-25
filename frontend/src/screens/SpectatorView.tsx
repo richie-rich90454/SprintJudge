@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useEffect } from "react";
 import { Link, useParams } from "@tanstack/react-router";
 import { HostStage } from "../components/host/HostStage";
@@ -11,6 +12,7 @@ import { webSocketService } from "../game/WebSocketService";
  * (a second host connection is rejected by design) and never scores.
  */
 export function SpectatorView() {
+    const { t } = useI18n();
     const { pin } = useParams({ strict: false }) as { pin: string };
     const connect = useGameStore((s) => s.connect);
     const join = useGameStore((s) => s.join);
@@ -22,7 +24,7 @@ export function SpectatorView() {
         if (!pin) return;
         const proto = window.location.protocol === "https:" ? "wss" : "ws";
         connect(`${proto}://${window.location.host}/ws`);
-        join(pin, "Projector", "spectator");
+        join(pin, t("ui.projector"), "spectator");
         return () => {
             webSocketService.disconnect();
         };
@@ -35,9 +37,9 @@ export function SpectatorView() {
                     <AboutDialog />
                 </div>
                 <div className="text-center">
-                    <p className="label-caps mb-2">Projector</p>
+                    <p className="label-caps mb-2">{t("ui.projector")}</p>
                     <p className="text-[var(--oq-ink-soft)]">
-                        {wsError ? "Projector unavailable" : `Connecting to room ${pin}…`}
+                        {wsError ? t("ui.projectorUnavailable") : t("ui.connectingRoom", { pin })}
                     </p>
                     {wsError && (
                         <>
@@ -45,13 +47,13 @@ export function SpectatorView() {
                                 {wsError}
                             </p>
                             <p className="mt-2 text-sm text-[var(--oq-ink-soft)]">
-                                Check the PIN on the projector link and try again.
+                                {t("ui.checkThePINOnTheProjectorLinkAndTryAgain")}
                             </p>
                         </>
                     )}
                     <p className="mt-6 text-sm">
                         <Link to="/" className="underline underline-offset-4">
-                            Back
+                            {t("ui.back")}
                         </Link>
                     </p>
                 </div>
@@ -66,7 +68,7 @@ export function SpectatorView() {
             </div>
             <HostStage pin={pin} joinUrl={joinUrl} projector />
             <p className="mt-4 text-center font-mono text-xs text-[var(--oq-ink-soft)]">
-                Projector view. Read only.
+                {t("ui.projectorViewReadOnly")}
             </p>
         </div>
     );

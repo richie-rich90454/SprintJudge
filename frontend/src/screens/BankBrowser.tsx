@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Shell } from "../components/Shell";
@@ -191,11 +192,12 @@ const SCOPES: { value: BankScope; label: string }[] = [
     { value: "core-scope", label: "Core topics" },
 ];
 
-function scopeLabel(scope: string): string {
-    return SCOPES.find((s) => s.value === scope)?.label ?? scope;
+function scopeLabel(scope: string, t: (key: string) => string): string {
+    return t(SCOPES.find((s) => s.value === scope)?.label ?? scope);
 }
 
 export function BankBrowser() {
+    const { t } = useI18n();
     const [subject, setSubject] = useState(SUBJECTS[0]);
     const [scope, setScope] = useState<BankScope>("everything");
     const [unit, setUnit] = useState("");
@@ -240,18 +242,17 @@ export function BankBrowser() {
         <Shell>
             <div className="page-shell py-10 md:py-14 flex flex-col gap-6">
                 <div className="max-w-2xl">
-                    <p className="label-caps mb-3">Teacher bank</p>
+                    <p className="label-caps mb-3">{t("ui.teacherBank")}</p>
                     <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-                        Browse the question bank
+                        {t("ui.browseTheQuestionBank")}
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        Pick a subject to see which questions are ready for
-                        class. Titles only. Answers stay hidden.
+                        {t("ui.pickASubjectToSeeWhichQuestionsAreReadyForClassTitlesOnlyAnswersStayHidden")}
                     </p>
                 </div>
                 <Card className="p-6 flex flex-col gap-5 md:flex-row md:items-end">
                     <div className="flex-1">
-                        <Field label="Subject" htmlFor="bank-subject">
+                        <Field label={t("ui.subject")} htmlFor="bank-subject">
                             <select
                                 id="bank-subject"
                                 className="input-underline"
@@ -267,7 +268,7 @@ export function BankBrowser() {
                         </Field>
                     </div>
                     <div className="flex-1">
-                        <Field label="Which topics" htmlFor="bank-scope">
+                        <Field label={t("ui.whichTopics")} htmlFor="bank-scope">
                             <select
                                 id="bank-scope"
                                 className="input-underline"
@@ -276,24 +277,24 @@ export function BankBrowser() {
                             >
                                 {SCOPES.map((s) => (
                                     <option key={s.value} value={s.value}>
-                                        {s.label}
+                                        {t(s.label)}
                                     </option>
                                 ))}
                             </select>
                         </Field>
                     </div>
                     <div className="flex-1">
-                        <Field label="Filter by unit" htmlFor="bank-unit">
+                        <Field label={t("ui.filterByUnit")} htmlFor="bank-unit">
                             <TextInput
                                 id="bank-unit"
                                 value={unit}
                                 onChange={(e) => pickUnit(e.target.value)}
-                                placeholder="e.g. Cells"
+                                placeholder={t("ui.egCells")}
                             />
                         </Field>
                     </div>
                     <Button variant="ghost" onClick={() => pickUnit("")}>
-                        Clear
+                        {t("ui.clear")}
                     </Button>
                 </Card>
                 {coverage.data && (
@@ -304,11 +305,11 @@ export function BankBrowser() {
                 )}
                 {coverage.isError && (
                     <p className="text-sm text-[var(--oq-ink-soft)]">
-                        Coverage is unavailable right now.
+                        {t("ui.coverageIsUnavailableRightNow")}
                     </p>
                 )}
                 {search.isPending && (
-                    <div className="grid gap-4 md:grid-cols-2" role="status" aria-label="Loading questions">
+                    <div className="grid gap-4 md:grid-cols-2" role="status" aria-label={t("ui.loadingQuestions")}>
                         <Skeleton className="h-36" />
                         <Skeleton className="h-36" />
                         <Skeleton className="h-36" />
@@ -317,11 +318,11 @@ export function BankBrowser() {
                 {search.isError && (
                     <Card className="p-4">
                         <EmptyState
-                            title="Could not load questions"
-                            hint="Check your connection and try again."
+                            title={t("ui.couldNotLoadQuestions")}
+                            hint={t("ui.checkYourConnectionAndTryAgain")}
                             action={
                                 <Button variant="secondary" onClick={() => search.refetch()}>
-                                    Retry
+                                    {t("ui.retry")}
                                 </Button>
                             }
                         />
@@ -330,8 +331,8 @@ export function BankBrowser() {
                 {search.data && results.length === 0 && (
                     <Card className="p-4">
                         <EmptyState
-                            title="No questions here yet"
-                            hint="Try a different subject, or clear the unit filter."
+                            title={t("ui.noQuestionsHereYet")}
+                            hint={t("ui.tryADifferentSubjectOrClearTheUnitFilter")}
                         />
                     </Card>
                 )}
@@ -361,11 +362,11 @@ export function BankBrowser() {
                                                     {q.format.replace(/_/g, " ")}
                                                 </Chip>
                                                 <Chip tone="neutral">
-                                                    {scopeLabel(q.scope)}
+                                                    {scopeLabel(q.scope, t)}
                                                 </Chip>
                                             </span>
                                             <span className="text-sm text-[var(--oq-ink-soft)]">
-                                                {selectedId === q.id ? "Hide details" : "Show details"}
+                                                {selectedId === q.id ? t("ui.hideDetails") : t("ui.showDetails")}
                                             </span>
                                         </button>
                                     </Card>
@@ -386,22 +387,22 @@ export function BankBrowser() {
                         {detail.isPending && <Skeleton className="h-20" />}
                         {detail.isError && (
                             <EmptyState
-                                title="Could not load that question"
-                                hint="Check your connection and try again."
+                                title={t("ui.couldNotLoadThatQuestion")}
+                                hint={t("ui.checkYourConnectionAndTryAgain")}
                                 action={
                                     <Button variant="secondary" onClick={() => detail.refetch()}>
-                                        Retry
+                                        {t("ui.retry")}
                                     </Button>
                                 }
                             />
                         )}
                         {detail.data && (
                             <div className="flex flex-col gap-2">
-                                <p className="label-caps">Question details</p>
+                                <p className="label-caps">{t("ui.questionDetails")}</p>
                                 <p className="font-bold leading-snug">{detail.data.stem}</p>
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
                                     {detail.data.subject}, {detail.data.unit},{" "}
-                                    {detail.data.topic}, {scopeLabel(detail.data.scope)}
+                                    {detail.data.topic}, {scopeLabel(detail.data.scope, t)}
                                 </p>
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
                                     Reference:{" "}

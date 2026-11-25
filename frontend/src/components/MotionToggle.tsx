@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { PersonSimpleRun, Pause } from "@phosphor-icons/react";
 import { useUIStore } from "../stores/useUIStore";
 
@@ -5,6 +6,7 @@ const ORDER = ["system", "full", "reduced"] as const;
 
 /** Header motion switch. Cycles system → full → reduced, persisted via useUIStore. */
 export function MotionToggle({ className = "" }: { className?: string }) {
+    const { t } = useI18n();
     const motion = useUIStore((s) => s.motion);
     const setMotion = useUIStore((s) => s.setMotion);
     const next = ORDER[(ORDER.indexOf(motion) + 1) % ORDER.length];
@@ -12,8 +14,8 @@ export function MotionToggle({ className = "" }: { className?: string }) {
     return (
         <button
             type="button"
-            aria-label={`Motion: ${motion}. Activate for ${next}.`}
-            title={`Motion: ${motion}`}
+            aria-label={t("ui.motionLabel", { motion, next })}
+            title={t("ui.motionTitle", { motion })}
             aria-pressed={motion === "reduced"}
             onClick={() => setMotion(next)}
             className={`btn btn-ghost btn-icon text-lg ${className}`.trim()}

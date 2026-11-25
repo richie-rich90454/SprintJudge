@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Shell } from "../components/Shell";
@@ -7,8 +8,8 @@ import { TextInput } from "../ui/TextInput";
 import { Chip, EmptyState, Field, Skeleton } from "../ui/Primitives";
 import { assignmentApi, type Assignment, type StudentProgress } from "../services/AssignmentApiService";
 
-function errorText(error: unknown): string {
-    return error instanceof Error ? error.message : "Something went wrong";
+function errorText(error: unknown, t: (key: string) => string): string {
+    return error instanceof Error ? error.message : t("ui.somethingWentWrong");
 }
 
 function toEpoch(local: string): number | null {
@@ -30,6 +31,7 @@ function tone(status: StudentProgress["status"]): "accent" | "neutral" | "succes
 
 /** Admin screen: list assignments, create one, import a roster, track progress. */
 export function AssignmentView() {
+    const { t } = useI18n();
     const queryClient = useQueryClient();
     const listTabRef = useRef<HTMLButtonElement>(null);
     const createTabRef = useRef<HTMLButtonElement>(null);
@@ -118,14 +120,14 @@ export function AssignmentView() {
         <Shell>
             <div className="page-shell py-10 md:py-14 flex flex-col gap-6">
                 <div className="max-w-2xl">
-                    <p className="label-caps mb-3">Async assignments</p>
-                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Assignments</h1>
+                    <p className="label-caps mb-3">{t("ui.asyncAssignments")}</p>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">{t("ui.assignments")}</h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        Schedule a quiz, import a roster, and follow each student&apos;s progress.
+                        {t("ui.scheduleAQuizImportARosterAndFollowEachStudentsProgress")}
                     </p>
                 </div>
 
-                <div role="tablist" aria-label="Assignment views" className="flex gap-2" onKeyDown={onTabKeyDown}>
+                <div role="tablist" aria-label={t("ui.assignmentViews")} className="flex gap-2" onKeyDown={onTabKeyDown}>
                     <Button
                         ref={listTabRef}
                         id="assignment-list-tab"
@@ -136,7 +138,7 @@ export function AssignmentView() {
                         variant={tab === "list" ? "primary" : "ghost"}
                         onClick={() => setTab("list")}
                     >
-                        All assignments
+                        {t("ui.allAssignments")}
                     </Button>
                     <Button
                         ref={createTabRef}
@@ -148,30 +150,30 @@ export function AssignmentView() {
                         variant={tab === "create" ? "primary" : "ghost"}
                         onClick={() => setTab("create")}
                     >
-                        New assignment
+                        {t("ui.newAssignment")}
                     </Button>
                 </div>
 
                 {tab === "create" && (
                     <Card id="assignment-create-panel" role="tabpanel" aria-labelledby="assignment-create-tab"
                         className="p-6 flex flex-col gap-4">
-                        <Field label="Quiz" htmlFor="assignment-quiz">
+                        <Field label={t("ui.quiz")} htmlFor="assignment-quiz">
                             <TextInput
                                 id="assignment-quiz"
                                 value={quizId}
                                 onChange={(e) => setQuizId(e.target.value)}
-                                placeholder="Quiz id"
+                                placeholder={t("ui.quizId")}
                             />
                         </Field>
-                        <Field label="Title" htmlFor="assignment-title">
+                        <Field label={t("ui.title")} htmlFor="assignment-title">
                             <TextInput
                                 id="assignment-title"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                placeholder="e.g. Week 3 practice"
+                                placeholder={t("ui.egWeek3Practice")}
                             />
                         </Field>
-                        <Field label="Description" htmlFor="assignment-description">
+                        <Field label={t("ui.description")} htmlFor="assignment-description">
                             <textarea
                                 id="assignment-description"
                                 className="input-underline"
@@ -181,7 +183,7 @@ export function AssignmentView() {
                             />
                         </Field>
                         <div className="grid gap-4 md:grid-cols-2">
-                            <Field label="Release at" htmlFor="assignment-release">
+                            <Field label={t("ui.releaseAt")} htmlFor="assignment-release">
                                 <TextInput
                                     id="assignment-release"
                                     type="datetime-local"
@@ -189,7 +191,7 @@ export function AssignmentView() {
                                     onChange={(e) => setRelease(e.target.value)}
                                 />
                             </Field>
-                            <Field label="Due at" htmlFor="assignment-due">
+                            <Field label={t("ui.dueAt")} htmlFor="assignment-due">
                                 <TextInput
                                     id="assignment-due"
                                     type="datetime-local"
@@ -198,13 +200,13 @@ export function AssignmentView() {
                                 />
                             </Field>
                         </div>
-                        {create.isError && <p className="text-sm text-red-600">{errorText(create.error)}</p>}
+                        {create.isError && <p className="text-sm text-red-600">{errorText(create.error, t)}</p>}
                         <div>
                             <Button
                                 onClick={() => create.mutate()}
                                 disabled={create.isPending || !quizId.trim() || !title.trim()}
                             >
-                                {create.isPending ? "Creating…" : "Create assignment"}
+                                {create.isPending ? t("ui.creatingEllipsis") : t("ui.createAssignment")}
                             </Button>
                         </div>
                     </Card>
@@ -213,7 +215,7 @@ export function AssignmentView() {
                 {tab === "list" && (
                     <div id="assignment-list-panel" role="tabpanel" aria-labelledby="assignment-list-tab">
                         {list.isPending && (
-                            <div className="grid gap-4 md:grid-cols-2" role="status" aria-label="Loading assignments">
+                            <div className="grid gap-4 md:grid-cols-2" role="status" aria-label={t("ui.loadingAssignments")}>
                                 <Skeleton className="h-28" />
                                 <Skeleton className="h-28" />
                             </div>
@@ -221,17 +223,17 @@ export function AssignmentView() {
                         {list.isError && (
                             <Card className="p-4">
                                 <EmptyState
-                                    title="Could not load assignments"
-                                    hint={errorText(list.error)}
-                                    action={<Button variant="secondary" onClick={() => list.refetch()}>Retry</Button>}
+                                    title={t("ui.couldNotLoadAssignments")}
+                                    hint={errorText(list.error, t)}
+                                    action={<Button variant="secondary" onClick={() => list.refetch()}>{t("ui.retry")}</Button>}
                                 />
                             </Card>
                         )}
                         {list.data?.length === 0 && (
                             <Card className="p-4">
                                 <EmptyState
-                                    title="No assignments yet"
-                                    hint="Create one from an existing quiz to get started."
+                                    title={t("ui.noAssignmentsYet")}
+                                    hint={t("ui.createOneFromAnExistingQuizToGetStarted")}
                                 />
                             </Card>
                         )}
@@ -266,44 +268,44 @@ export function AssignmentView() {
                 {selectedId !== null && (
                     <div className="flex flex-col gap-4" aria-live="polite">
                         <Card className="p-6 flex flex-col gap-3">
-                            <p className="label-caps">Roster import</p>
+                            <p className="label-caps">{t("ui.rosterImport")}</p>
                             <textarea
                                 className="input-underline"
-                                aria-label="Roster CSV"
+                                aria-label={t("ui.rosterCSV")}
                                 rows={4}
                                 value={csv}
                                 onChange={(e) => setCsv(e.target.value)}
-                                placeholder="student_id,name,email&#10;s001,Ada Lovelace,ada@example.org"
+                                placeholder={t("ui.rosterExample")}
                             />
-                            {importCsv.isError && <p className="text-sm text-red-600">{errorText(importCsv.error)}</p>}
+                            {importCsv.isError && <p className="text-sm text-red-600">{errorText(importCsv.error, t)}</p>}
                             <div className="flex items-center gap-3">
                                 <Button
                                     variant="secondary"
                                     disabled={importCsv.isPending || !csv.trim()}
                                     onClick={() => importCsv.mutate()}
                                 >
-                                    {importCsv.isPending ? "Importing…" : "Import CSV"}
+                                    {importCsv.isPending ? t("ui.importingEllipsis") : t("ui.importCSV")}
                                 </Button>
                                 <span className="text-sm text-[var(--oq-ink-soft)]">
                                     {roster.isError
-                                        ? "Could not load roster"
+                                        ? t("ui.couldNotLoadRoster")
                                         : `${roster.data?.length ?? 0} students in roster`}
                                 </span>
                             </div>
                         </Card>
 
                         <Card className="p-6 flex flex-col gap-3">
-                            <p className="label-caps">Student progress</p>
+                            <p className="label-caps">{t("ui.studentProgress")}</p>
                             {progress.isPending && <Skeleton className="h-20" />}
                             {progress.isError && (
                                 <EmptyState
-                                    title="Could not load student progress"
-                                    hint="Check your connection and try again."
-                                    action={<Button variant="secondary" onClick={() => progress.refetch()}>Retry</Button>}
+                                    title={t("ui.couldNotLoadStudentProgress")}
+                                    hint={t("ui.checkYourConnectionAndTryAgain")}
+                                    action={<Button variant="secondary" onClick={() => progress.refetch()}>{t("ui.retry")}</Button>}
                                 />
                             )}
                             {!progress.isPending && !progress.isError && rows.length === 0 && (
-                                <p className="text-sm text-[var(--oq-ink-soft)]">No progress yet.</p>
+                                <p className="text-sm text-[var(--oq-ink-soft)]">{t("ui.noProgressYet")}</p>
                             )}
                             {rows.map((row) => {
                                 const draft = grades[row.studentId] ?? String(row.score ?? points);
@@ -312,7 +314,7 @@ export function AssignmentView() {
                                         <span className="font-semibold min-w-32">{row.studentId}</span>
                                         <Chip tone={tone(row.status)}>{row.status.replace(/_/g, " ")}</Chip>
                                         <TextInput
-                                            aria-label={`Score for ${row.studentId}`}
+                                            aria-label={t("ui.scoreFor", { student: row.studentId })}
                                             className="w-20"
                                             type="number"
                                             min={0}
@@ -335,23 +337,23 @@ export function AssignmentView() {
                                                 })
                                             }
                                         >
-                                            Save grade
+                                            {t("ui.saveGrade")}
                                         </Button>
                                     </div>
                                 );
                             })}
-                            {grade.isError && <p className="text-sm text-red-600">{errorText(grade.error)}</p>}
+                            {grade.isError && <p className="text-sm text-red-600">{errorText(grade.error, t)}</p>}
                         </Card>
 
                         <Card className="p-6 flex flex-col gap-3">
-                            <p className="label-caps">Student start check</p>
+                            <p className="label-caps">{t("ui.studentStartCheck")}</p>
                             <div className="flex flex-wrap items-end gap-3">
-                                <Field label="Student id" htmlFor="assignment-student">
+                                <Field label={t("ui.studentId")} htmlFor="assignment-student">
                                     <TextInput
                                         id="assignment-student"
                                         value={studentId}
                                         onChange={(e) => setStudentId(e.target.value)}
-                                        placeholder="s001"
+                                        placeholder={t("ui.studentExample")}
                                     />
                                 </Field>
                                 <Button
@@ -359,10 +361,10 @@ export function AssignmentView() {
                                     disabled={start.isPending || !studentId.trim()}
                                     onClick={() => start.mutate()}
                                 >
-                                    Start assignment
+                                    {t("ui.startAssignment")}
                                 </Button>
                             </div>
-                            {start.isError && <p className="text-sm text-red-600">{errorText(start.error)}</p>}
+                            {start.isError && <p className="text-sm text-red-600">{errorText(start.error, t)}</p>}
                             {start.data && (
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
                                     {start.data.studentId}: {start.data.status}

@@ -1,10 +1,13 @@
+import { useI18n } from "../i18n";
+
 /**
  * SprintJudge mark: a stage arch inside a stage arch, with a brass cue dot.
  * Inlined so it never needs a network fetch and inherits the current ink.
  */
 export function LogoMark({ size = 34 }: { size?: number }) {
+    const { t } = useI18n();
     return (
-        <svg width={size} height={size} viewBox="0 0 64 64" role="img" aria-label="SprintJudge">
+        <svg width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={t("ui.brand")}>
             <path
                 d="M8 56V30a24 24 0 0 1 48 0v26"
                 fill="none"

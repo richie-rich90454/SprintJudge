@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -17,6 +18,7 @@ import { adminApi } from "../services/AdminApiService";
  * no admin area involved.
  */
 export function PracticeView() {
+    const { t } = useI18n();
     const [name, setName] = useState("");
     // An Explore card can preselect its bank via ?bank=<id>.
     const [bankId, setBankId] = useState<string | null>(
@@ -58,7 +60,7 @@ export function PracticeView() {
             audio.play("start");
             navigate({ to: "/play" });
         } catch {
-            setError("Could not start a practice set. Try again.");
+            setError(t("ui.couldNotStartAPracticeSetTryAgain"));
             setBusy(false);
         }
     };
@@ -67,59 +69,57 @@ export function PracticeView() {
         <Shell>
             <div className="page-shell py-10 md:py-14 flex flex-col gap-6 max-w-xl">
                 <div>
-                    <p className="label-caps mb-3">Solo practice</p>
+                    <p className="label-caps mb-3">{t("ui.soloPractice")}</p>
                     <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-                        Drill at your own pace
+                        {t("ui.drillAtYourOwnPace")}
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        Pick a question bank first. Untimed, with instant feedback after
-                        every answer and automatic advance to the next question. No host,
-                        no waiting.
+                        {t("ui.pickAQuestionBankFirstUntimedWithInstantFeedbackAfterEveryAnswerAndAutomaticAdvanceToTheNextQuestionNoHostNoWaiting")}
                     </p>
                 </div>
                 <Card className="p-6">
                     <form onSubmit={onSubmit} className="flex flex-col gap-5 text-left">
                         <fieldset>
-                            <legend className="label-caps mb-3">Question bank</legend>
+                            <legend className="label-caps mb-3">{t("ui.questionBank")}</legend>
                             <TextInput
                                 value={query}
                                 onChange={(e) => {
                                     setQuery(e.target.value);
                                     setLimit(20);
                                 }}
-                                placeholder="Search banks…"
-                                aria-label="Search question banks"
+                                placeholder={t("ui.searchBanksEllipsis")}
+                                aria-label={t("ui.searchQuestionBanks")}
                                 className="mb-3 text-sm"
                             />
                             {isPending && (
-                                <div className="flex flex-col gap-2" aria-label="Loading banks">
+                                <div className="flex flex-col gap-2" aria-label={t("ui.loadingBanks")}>
                                     <Skeleton className="h-14" />
                                     <Skeleton className="h-14" />
                                 </div>
                             )}
                             {isError && (
                                 <EmptyState
-                                    title="Could not load banks"
-                                    hint="Check your connection and try again."
+                                    title={t("ui.couldNotLoadBanks")}
+                                    hint={t("ui.checkYourConnectionAndTryAgain")}
                                     action={
                                         <Button
                                             variant="secondary"
                                             onClick={() => refetch()}
                                         >
-                                            Retry
+                                            {t("ui.retry")}
                                         </Button>
                                     }
                                 />
                             )}
                             {banks && banks.length === 0 && (
                                 <EmptyState
-                                    title="No question banks yet"
-                                    hint="Ask your teacher to publish one."
+                                    title={t("ui.noQuestionBanksYet")}
+                                    hint={t("ui.askYourTeacherToPublishOne")}
                                 />
                             )}
                             {banks && banks.length > 0 && filteredBanks.length === 0 && (
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
-                                    No banks match that search.
+                                    {t("ui.noBanksMatchThatSearch")}
                                 </p>
                             )}
                             {filteredBanks.length > 0 && (
@@ -165,12 +165,12 @@ export function PracticeView() {
                                 </div>
                             )}
                         </fieldset>
-                        <Field label="Your name" htmlFor="practice-name">
+                        <Field label={t("ui.yourName")} htmlFor="practice-name">
                             <TextInput
                                 id="practice-name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                placeholder="Alice"
+                                placeholder={t("ui.alice")}
                                 maxLength={20}
                                 autoComplete="nickname"
                             />
@@ -186,7 +186,7 @@ export function PracticeView() {
                             disabled={!canSubmit}
                             className="w-full font-bold"
                         >
-                            {busy ? "Starting…" : "Start practicing"}
+                            {busy ? t("ui.startingEllipsis") : t("ui.startPracticing")}
                         </Button>
                     </form>
                 </Card>

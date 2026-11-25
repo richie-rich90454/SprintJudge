@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "../ui/Button";
@@ -18,6 +19,7 @@ function sanitizePin(value: string): string {
 }
 
 export function JoinForm({ initialPin = "", heading, submitClassName = "" }: JoinFormProps) {
+    const { t } = useI18n();
     const [name, setName] = useState("");
     const [pin, setPinState] = useState(() => sanitizePin(initialPin));
     const [joining, setJoining] = useState(false);
@@ -54,24 +56,24 @@ export function JoinForm({ initialPin = "", heading, submitClassName = "" }: Joi
     return (
         <form onSubmit={onSubmit} className="flex flex-col gap-5 text-left">
             {heading && <p className="label-caps">{heading}</p>}
-            <Field label="Your name" htmlFor="join-name">
+            <Field label={t("ui.yourName")} htmlFor="join-name">
                 <TextInput
                     id="join-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Alice"
+                    placeholder={t("ui.alice")}
                     maxLength={20}
                     autoComplete="nickname"
                 />
             </Field>
-            <Field label="Game PIN" htmlFor="join-pin">
+            <Field label={t("ui.gamePIN")} htmlFor="join-pin">
                 <TextInput
                     id="join-pin"
                     value={pin}
                     onChange={(e) => setPinState(sanitizePin(e.target.value))}
                     inputMode="numeric"
                     autoComplete="off"
-                    placeholder="123456"
+                    placeholder={t("ui.pinExample")}
                     maxLength={6}
                     className="text-center mono font-bold tracking-[0.25em] text-2xl"
                 />
@@ -84,9 +86,9 @@ export function JoinForm({ initialPin = "", heading, submitClassName = "" }: Joi
             {!canSubmit && (pin.length > 0 || name.length > 0) && (
                 <p className="text-[var(--oq-ink-soft)] text-sm" role="status">
                     {!name.trim()
-                        ? "Enter your name to join."
+                        ? t("ui.enterYourNameToJoin")
                         : pin.length < 6
-                          ? `Enter all 6 digits of the PIN (${pin.length}/6).`
+                          ? t("ui.pinDigits", { count: pin.length })
                           : ""}
                 </p>
             )}
@@ -96,7 +98,7 @@ export function JoinForm({ initialPin = "", heading, submitClassName = "" }: Joi
                 disabled={!canSubmit}
                 className={`w-full font-bold ${submitClassName}`.trim()}
             >
-                Join game
+                {t("ui.joinGame")}
             </Button>
         </form>
     );

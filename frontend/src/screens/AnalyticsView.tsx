@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Shell } from "../components/Shell";
@@ -33,6 +34,7 @@ function pct(value: number): string {
 }
 
 export function AnalyticsView() {
+    const { t } = useI18n();
     const [sessionId, setSessionId] = useState("");
     const [appliedSessionId, setAppliedSessionId] = useState("");
     const [subject, setSubject] = useState("");
@@ -80,44 +82,42 @@ export function AnalyticsView() {
         <Shell>
             <div className="page-shell py-10 md:py-14 flex flex-col gap-6">
                 <div className="max-w-2xl">
-                    <p className="label-caps mb-3">Admin</p>
+                    <p className="label-caps mb-3">{t("ui.admin")}</p>
                     <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-                        How is the class doing?
+                        {t("ui.howIsTheClassDoing")}
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        Accuracy comes from submitted answers. Difficulty,
-                        discrimination, and timing baselines come from the
-                        question bank.
+                        {t("ui.accuracyComesFromSubmittedAnswersDifficultyDiscriminationAndTimingBaselinesComeFromTheQuestionBank")}
                     </p>
                 </div>
 
                 <Card className="p-5">
                     <div className="flex flex-col gap-4 md:flex-row md:items-end">
                         <div className="flex-1">
-                            <Field label="Session id (optional)" htmlFor="analytics-session">
+                            <Field label={t("ui.sessionIdOptional")} htmlFor="analytics-session">
                                 <TextInput
                                     id="analytics-session"
                                     value={sessionId}
-                                    placeholder="Leave blank for all sessions"
+                                    placeholder={t("ui.leaveBlankForAllSessions")}
                                     onChange={(e) => setSessionId(e.target.value)}
                                 />
                             </Field>
                         </div>
                         <Button variant="secondary" onClick={() => setAppliedSessionId(sessionId)}>
-                            Apply filter
+                            {t("ui.applyFilter")}
                         </Button>
                     </div>
                 </Card>
 
-                <section className="flex flex-col gap-3" aria-label="Class summary">
-                    <h2 className="text-xl font-extrabold">Class summary</h2>
+                <section className="flex flex-col gap-3" aria-label={t("ui.classSummary")}>
+                    <h2 className="text-xl font-extrabold">{t("ui.classSummary")}</h2>
                     {classes.isPending && <Skeleton className="h-32" />}
                     {classes.isError && (
                         <Card className="p-4">
                             <EmptyState
-                                title="Could not load the class summary"
-                                hint="Check your connection and try again."
-                                action={<Button variant="secondary" onClick={() => classes.refetch()}>Retry</Button>}
+                                title={t("ui.couldNotLoadTheClassSummary")}
+                                hint={t("ui.checkYourConnectionAndTryAgain")}
+                                action={<Button variant="secondary" onClick={() => classes.refetch()}>{t("ui.retry")}</Button>}
                             />
                         </Card>
                     )}
@@ -132,11 +132,11 @@ export function AnalyticsView() {
                             </div>
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div>
-                                    <p className="label-caps mb-2">Overall accuracy</p>
+                                    <p className="label-caps mb-2">{t("ui.overallAccuracy")}</p>
                                     <Bar value={classes.data.accuracy} />
                                 </div>
                                 <div>
-                                    <p className="label-caps mb-2">Average score</p>
+                                    <p className="label-caps mb-2">{t("ui.averageScore")}</p>
                                     <p className="font-bold">{Math.round(classes.data.avgScore)}</p>
                                 </div>
                             </div>
@@ -145,9 +145,9 @@ export function AnalyticsView() {
                                     <table className="table-dotted w-full text-sm">
                                         <thead>
                                             <tr>
-                                                <th scope="col" className="p-3 text-left">Session</th>
-                                                <th scope="col" className="p-3 text-left">Players</th>
-                                                <th scope="col" className="p-3 text-left">Accuracy</th>
+                                                <th scope="col" className="p-3 text-left">{t("ui.session")}</th>
+                                                <th scope="col" className="p-3 text-left">{t("ui.players")}</th>
+                                                <th scope="col" className="p-3 text-left">{t("ui.accuracy")}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -171,21 +171,21 @@ export function AnalyticsView() {
                     )}
                 </section>
 
-                <section className="flex flex-col gap-3" aria-label="Student report">
-                    <h2 className="text-xl font-extrabold">Students</h2>
+                <section className="flex flex-col gap-3" aria-label={t("ui.studentReport")}>
+                    <h2 className="text-xl font-extrabold">{t("ui.students")}</h2>
                     {students.isPending && <Skeleton className="h-32" />}
                     {students.isError && (
                         <Card className="p-4">
                             <EmptyState
-                                title="Could not load the student report"
-                                hint="Check your connection and try again."
-                                action={<Button variant="secondary" onClick={() => students.refetch()}>Retry</Button>}
+                                title={t("ui.couldNotLoadTheStudentReport")}
+                                hint={t("ui.checkYourConnectionAndTryAgain")}
+                                action={<Button variant="secondary" onClick={() => students.refetch()}>{t("ui.retry")}</Button>}
                             />
                         </Card>
                     )}
                     {students.data && students.data.length === 0 && (
                         <Card className="p-4">
-                            <EmptyState title="No submissions yet" hint="Reports appear after students answer." />
+                            <EmptyState title={t("ui.noSubmissionsYet")} hint={t("ui.reportsAppearAfterStudentsAnswer")} />
                         </Card>
                     )}
                     {students.data && students.data.length > 0 && (
@@ -193,11 +193,11 @@ export function AnalyticsView() {
                             <table className="table-dotted w-full text-sm">
                                 <thead>
                                     <tr>
-                                        <th scope="col" className="p-4 text-left">Student</th>
-                                        <th scope="col" className="p-4 text-left">Attempts</th>
-                                        <th scope="col" className="p-4 text-left">Accuracy</th>
-                                        <th scope="col" className="p-4 text-left">Avg score</th>
-                                        <th scope="col" className="p-4 text-left">Tries per item</th>
+                                        <th scope="col" className="p-4 text-left">{t("ui.student")}</th>
+                                        <th scope="col" className="p-4 text-left">{t("ui.attempts")}</th>
+                                        <th scope="col" className="p-4 text-left">{t("ui.accuracy")}</th>
+                                        <th scope="col" className="p-4 text-left">{t("ui.avgScore")}</th>
+                                        <th scope="col" className="p-4 text-left">{t("ui.triesPerItem")}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -221,11 +221,11 @@ export function AnalyticsView() {
                     )}
                 </section>
 
-                <section className="flex flex-col gap-3" aria-label="Item report">
+                <section className="flex flex-col gap-3" aria-label={t("ui.itemReport")}>
                     <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                        <h2 className="text-xl font-extrabold">Items</h2>
+                        <h2 className="text-xl font-extrabold">{t("ui.items")}</h2>
                         <div className="w-full md:w-64">
-                            <Field label="Subject" htmlFor="analytics-subject">
+                            <Field label={t("ui.subject")} htmlFor="analytics-subject">
                                 <select
                                     id="analytics-subject"
                                     className="input-underline"
@@ -243,15 +243,15 @@ export function AnalyticsView() {
                     {items.isError && (
                         <Card className="p-4">
                             <EmptyState
-                                title="Could not load item data"
-                                hint="Check your connection and try again."
-                                action={<Button variant="secondary" onClick={() => items.refetch()}>Retry</Button>}
+                                title={t("ui.couldNotLoadItemData")}
+                                hint={t("ui.checkYourConnectionAndTryAgain")}
+                                action={<Button variant="secondary" onClick={() => items.refetch()}>{t("ui.retry")}</Button>}
                             />
                         </Card>
                     )}
                     {items.data && items.data.length === 0 && (
                         <Card className="p-4">
-                            <EmptyState title="No item data yet" hint="Attempted bank items appear here." />
+                            <EmptyState title={t("ui.noItemDataYet")} hint={t("ui.attemptedBankItemsAppearHere")} />
                         </Card>
                     )}
                     {items.data && items.data.length > 0 && (
@@ -259,11 +259,11 @@ export function AnalyticsView() {
                             <table className="table-dotted w-full text-sm">
                                 <thead>
                                     <tr>
-                                        <th scope="col" className="p-4 text-left">Item</th>
-                                        <th scope="col" className="p-4 text-left">Attempts</th>
-                                        <th scope="col" className="p-4 text-left">Observed / authored difficulty</th>
-                                        <th scope="col" className="p-4 text-left">Discrimination</th>
-                                        <th scope="col" className="p-4 text-left">Baseline (s)</th>
+                                        <th scope="col" className="p-4 text-left">{t("ui.item")}</th>
+                                        <th scope="col" className="p-4 text-left">{t("ui.attempts")}</th>
+                                        <th scope="col" className="p-4 text-left">{t("ui.observedAuthoredDifficulty")}</th>
+                                        <th scope="col" className="p-4 text-left">{t("ui.discrimination")}</th>
+                                        <th scope="col" className="p-4 text-left">{t("ui.baselineS")}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -298,22 +298,22 @@ export function AnalyticsView() {
                     )}
                 </section>
 
-                <section className="flex flex-col gap-3" aria-label="Set builder">
-                    <h2 className="text-xl font-extrabold">Build a practice set</h2>
+                <section className="flex flex-col gap-3" aria-label={t("ui.setBuilder")}>
+                    <h2 className="text-xl font-extrabold">{t("ui.buildAPracticeSet")}</h2>
                     <Card className="p-5 flex flex-col gap-4">
                         <div className="grid gap-4 md:grid-cols-4">
-                            <Field label="Mode" htmlFor="analytics-mode">
+                            <Field label={t("ui.mode")} htmlFor="analytics-mode">
                                 <select
                                     id="analytics-mode"
                                     className="input-underline"
                                     value={mode}
                                     onChange={(e) => setMode(e.target.value as AdaptiveMode)}
                                 >
-                                    <option value="balanced">Balanced</option>
-                                    <option value="adaptive">Adaptive</option>
+                                    <option value="balanced">{t("ui.balanced")}</option>
+                                    <option value="adaptive">{t("ui.adaptive")}</option>
                                 </select>
                             </Field>
-                            <Field label="Questions" htmlFor="analytics-size">
+                            <Field label={t("ui.questions")} htmlFor="analytics-size">
                                 <TextInput
                                     id="analytics-size"
                                     type="number"
@@ -323,7 +323,7 @@ export function AnalyticsView() {
                                     onChange={(e) => setSize(Number(e.target.value))}
                                 />
                             </Field>
-                            <Field label="Target difficulty" htmlFor="analytics-target">
+                            <Field label={t("ui.targetDifficulty")} htmlFor="analytics-target">
                                 <TextInput
                                     id="analytics-target"
                                     type="number"
@@ -335,30 +335,30 @@ export function AnalyticsView() {
                                     onChange={(e) => setTarget(Number(e.target.value))}
                                 />
                             </Field>
-                            <Field label="Title (optional)" htmlFor="analytics-title">
+                            <Field label={t("ui.titleOptional")} htmlFor="analytics-title">
                                 <TextInput
                                     id="analytics-title"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="Practice set"
+                                    placeholder={t("ui.practiceSet")}
                                 />
                             </Field>
                         </div>
                         <div>
                             <Button onClick={createSet} disabled={!activeSubject || build.isPending}>
-                                {build.isPending ? "Building..." : "Build playable quiz"}
+                                {build.isPending ? t("ui.buildingDots") : t("ui.buildPlayableQuiz")}
                             </Button>
                         </div>
                         {build.isError && (
                             <p className="text-[var(--oq-danger)] text-sm" role="alert">
-                                {build.error instanceof Error ? build.error.message : "Build failed"}
+                                {build.error instanceof Error ? build.error.message : t("ui.buildFailed")}
                             </p>
                         )}
                         {result && (
                             <div className="flex flex-col gap-2" aria-live="polite">
                                 <Chip tone="success">{result.questionCount} questions ready</Chip>
                                 <p className="text-sm">
-                                    Quiz id: <span className="font-mono">{result.quizId}</span>
+                                    {t("ui.quizIdLabel")} <span className="font-mono">{result.quizId}</span>
                                 </p>
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
                                     Average difficulty {pct(result.avgDifficulty)}, discrimination{" "}
