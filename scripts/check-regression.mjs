@@ -1,9 +1,10 @@
-// One-command no-regression gate. Runs the fast static checks by default;
-// pass --full to add builds, backend tests, E2E and the production health probe.
-// Usage: node scripts/check-regression.mjs [--full]
+// One-command no-regression gate. Runs every gate by default, including
+// builds, backend verify, E2E and the production health probe. Pass --fast to
+// run only the static checks.
+// Usage: node scripts/check-regression.mjs [--fast]
 import { spawnSync } from "node:child_process";
 
-const full = process.argv.includes("--full");
+const fast = process.argv.includes("--fast");
 const steps = [
   ["bank schema + content", "node scripts/check-bank.mjs"],
   ["volume floors", "node scripts/check-volume.mjs"],
@@ -13,11 +14,12 @@ const steps = [
   ["UI rules", "make check-ui"],
   ["frontend typecheck + tests", "make test-frontend"],
 ];
-if (full) {
+if (!fast) {
   steps.push(["frontend build", "make build-frontend"]);
   steps.push(["backend verify", "make verify"]);
   // seed-banks POSTs to a running backend on :8080; it is not standalone.
   // Run it manually with `make dev-backend` up when validating new subjects.
+  steps.push(["E2E", "make test-e2e"]);
   steps.push(["production probe", "make package && make verify-prod"]);
 }
 

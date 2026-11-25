@@ -23,6 +23,9 @@ export default defineConfig({
         outDir: "dist",
         sourcemap: false,
         cssTarget: "chrome60",
+        // The Monaco editor is a lazy-loaded, self-contained ~2.7 MB chunk;
+        // splitting it further would break its worker/editor integration.
+        chunkSizeWarningLimit: 2800,
     },
     test: {
         environment: "jsdom",

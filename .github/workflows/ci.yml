@@ -50,9 +50,12 @@ jobs:
       - name: Install
         working-directory: frontend
         run: npm ci
-      - name: Typecheck
+      - name: Lint (typecheck + oxlint)
         working-directory: frontend
-        run: npx tsc --noEmit
+        run: npm run lint
+      - name: Format check
+        working-directory: frontend
+        run: npm run format:check
       - name: Unit tests and coverage
         working-directory: frontend
         run: npm run test:unit
@@ -86,30 +89,28 @@ jobs:
           npm ci
           npm run build
           npx playwright install --with-deps chromium
-      - name: Package and start the backend
+      - name: Boot backend + Vite and run Playwright
         run: |
+          set -euo pipefail
           ./mvnw -B -DskipTests package > package.log 2>&1
           java -jar target/sprintjudge.jar --spring.profiles.active=prod --server.port=8080 \
             --sprintjudge.executor.public-run=true --server.servlet.session.cookie.secure=false > backend.log 2>&1 &
+          backend_pid=$!
+          npm run dev --prefix frontend -- --host 127.0.0.1 > frontend/vite.log 2>&1 &
+          vite_pid=$!
+          trap 'kill "$backend_pid" "$vite_pid" 2>/dev/null || true' EXIT
           for i in $(seq 1 120); do
-            if curl -fsS http://localhost:8080/actuator/health > /dev/null; then exit 0; fi
+            if curl -fsS http://localhost:8080/actuator/health > /dev/null; then break; fi
+            if [ "$i" = "120" ]; then echo "backend did not become healthy"; tail -100 backend.log; exit 1; fi
             sleep 2
           done
-          echo "backend did not become healthy"; tail -100 backend.log; exit 1
-      - name: Start the frontend
-        working-directory: frontend
-        run: |
-          npm run dev -- --host 127.0.0.1 > vite.log 2>&1 &
           for i in $(seq 1 60); do
-            if curl -fsS http://localhost:5173 > /dev/null; then exit 0; fi
+            if curl -fsS http://localhost:5173 > /dev/null; then break; fi
+            if [ "$i" = "60" ]; then echo "vite did not start"; cat frontend/vite.log; exit 1; fi
             sleep 1
           done
-          echo "vite did not start"; cat vite.log; exit 1
-      - name: Run the live practice flow
-        working-directory: frontend
-        env:
-          CI: "true"
-        run: npx playwright test --project=chromium
+          cd frontend
+          CI=true npx playwright test --project=chromium
       - name: Logs on failure
         if: failure()
         run: |

@@ -53,10 +53,10 @@ not bespoke hand-authoring. The full gate matrix is summarized below.
 
 ## Gate matrix
 
-`node scripts/check-regression.mjs --full` runs ten gates: bank schema and
-content, volume floors, unit floors, seed sets, legal, UI, frontend typecheck
-and tests, frontend build, backend verify, and the production probe.
-`make test-e2e` is tracked separately. Recorded outcomes live in
+`node scripts/check-regression.mjs` runs eleven gates by default: bank schema
+and content, volume floors, unit floors, seed sets, legal, UI, frontend
+typecheck and tests, frontend build, backend verify, E2E, and the production
+probe. `--fast` runs only the seven static gates. Recorded outcomes live in
 `verification/final-verification/integration.md`: regression clean, legal and
 UI clean, backend verify green; the local E2E run failed on an environment
 setup mismatch (test password and public-run flag), which CI configures

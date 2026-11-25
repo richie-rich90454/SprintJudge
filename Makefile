@@ -237,7 +237,7 @@ check-seed-sets: ## Validate the archived legacy quiz-export files.
 	@node scripts/check-seed-sets.mjs
 
 .PHONY: check-regression
-check-regression: ## One-command no-regression gate (--full adds builds and E2E).
+check-regression: ## One-command no-regression gate (full by default; ARGS=--fast skips builds/E2E).
 	@node scripts/check-regression.mjs $(ARGS)
 
 .PHONY: repair-bank-playability
