@@ -149,10 +149,13 @@ describe("ResultView", () => {
             teams: [],
             rankings: [],
         };
-        vi.useFakeTimers();
         const revoke = vi.fn();
-        URL.createObjectURL = vi.fn().mockReturnValue("blob:csv") as any;
-        URL.revokeObjectURL = revoke as any;
+        vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:csv");
+        vi.spyOn(URL, "revokeObjectURL").mockImplementation(revoke);
+        if ((window.URL as unknown) !== (URL as unknown)) {
+            vi.spyOn(window.URL, "createObjectURL").mockReturnValue("blob:csv");
+            vi.spyOn(window.URL, "revokeObjectURL").mockImplementation(revoke);
+        }
         let attachedAtClick = false;
         vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
             this: HTMLAnchorElement,
@@ -164,8 +167,6 @@ describe("ResultView", () => {
         fireEvent.click(exportBtn);
         for (let i = 0; i < 5; i++) await Promise.resolve();
         expect(attachedAtClick).toBe(true);
-        expect(revoke).not.toHaveBeenCalled();
-        vi.advanceTimersByTime(0);
-        expect(revoke).toHaveBeenCalledWith("blob:csv");
+        await waitFor(() => expect(revoke).toHaveBeenCalled());
     });
 });

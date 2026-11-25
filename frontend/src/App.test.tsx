@@ -10,6 +10,10 @@ const mq = vi.hoisted(() => ({
 
 vi.stubGlobal("matchMedia", () => mq);
 
+vi.mock("@tanstack/react-router", () => ({
+    RouterProvider: () => null,
+}));
+
 vi.mock("./router", () => ({
     router: { subscribe: vi.fn(() => vi.fn()) },
     RouterProvider: () => null,

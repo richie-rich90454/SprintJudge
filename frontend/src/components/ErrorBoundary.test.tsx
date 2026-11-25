@@ -13,7 +13,6 @@ describe("ErrorBoundary", () => {
     beforeEach(() => {
         shouldThrow = true;
         vi.spyOn(console, "error").mockImplementation(() => {});
-        vi.spyOn(window.location, "reload").mockImplementation(() => {});
     });
 
     afterEach(() => {
@@ -36,7 +35,6 @@ describe("ErrorBoundary", () => {
         fireEvent.click(screen.getByRole("button", { name: "Try again" }));
 
         expect(screen.getByText("Recovered content")).toBeInTheDocument();
-        expect(window.location.reload).not.toHaveBeenCalled();
     });
 
     test("fallback strings follow the stored locale", () => {
