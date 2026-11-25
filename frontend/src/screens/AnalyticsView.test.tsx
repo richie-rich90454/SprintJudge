@@ -5,18 +5,21 @@ import { AnalyticsView } from "./AnalyticsView";
 
 const rq = vi.hoisted(() => ({
     queries: {} as Record<string, any>,
+    keys: [] as string[][],
     mutation: { mutate: vi.fn(), isPending: false, isError: false, error: null, data: undefined as any },
 }));
 
 vi.mock("@tanstack/react-query", () => ({
-    useQuery: ({ queryKey }: { queryKey: string[] }) =>
-        rq.queries[queryKey[0]] ?? {
+    useQuery: ({ queryKey }: { queryKey: string[] }) => {
+        rq.keys.push(queryKey);
+        return rq.queries[queryKey[0]] ?? {
             isPending: false,
             isError: false,
             data: undefined,
             error: null,
             refetch: vi.fn(),
-        },
+        };
+    },
     useMutation: () => rq.mutation,
 }));
 
@@ -44,6 +47,7 @@ const failed = () => ({
 
 describe("AnalyticsView", () => {
     beforeEach(() => {
+        rq.keys = [];
         rq.queries = {
             "bank-volume": ok({ MATH: 5 }),
             "analytics-students": ok([]),
@@ -95,5 +99,18 @@ describe("AnalyticsView", () => {
         expect(screen.getAllByText("-").length).toBeGreaterThanOrEqual(3);
         expect(screen.getByText(/Average difficulty/)).toBeInTheDocument();
         expect(screen.getByText("2 questions ready")).toBeInTheDocument();
+    });
+
+    test("queries the session filter only after Apply is clicked", () => {
+        render(<AnalyticsView />);
+        const studentKeys = () => rq.keys.filter((key) => key[0] === "analytics-students");
+
+        fireEvent.change(screen.getByLabelText(/Session id/), { target: { value: "session-42" } });
+        expect(rq.keys).not.toContainEqual(["analytics-students", "session-42"]);
+        expect(studentKeys().every((key) => key[1] === "")).toBe(true);
+
+        fireEvent.click(screen.getByRole("button", { name: "Apply filter" }));
+        expect(studentKeys()).toContainEqual(["analytics-students", "session-42"]);
+        expect(rq.keys).toContainEqual(["analytics-classes", "session-42"]);
     });
 });

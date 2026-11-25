@@ -79,6 +79,25 @@ describe("AssignmentView", () => {
         expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "assignment-create-tab");
     });
 
+    test("supports arrow-key navigation between tabs", () => {
+        render(<AssignmentView />);
+        const listTab = screen.getByRole("tab", { name: "All assignments" });
+        const createTab = screen.getByRole("tab", { name: "New assignment" });
+
+        expect(listTab).toHaveAttribute("aria-controls", "assignment-list-panel");
+        expect(createTab).toHaveAttribute("aria-controls", "assignment-create-panel");
+        expect(listTab).toHaveAttribute("tabindex", "0");
+        expect(createTab).toHaveAttribute("tabindex", "-1");
+
+        fireEvent.keyDown(listTab, { key: "ArrowRight" });
+        expect(createTab).toHaveAttribute("aria-selected", "true");
+        expect(createTab).toHaveFocus();
+
+        fireEvent.keyDown(createTab, { key: "Home" });
+        expect(listTab).toHaveAttribute("aria-selected", "true");
+        expect(listTab).toHaveFocus();
+    });
+
     test("reports failed progress and roster fetches instead of empty data", () => {
         rq.queries["assignment-progress"] = {
             isPending: false,

@@ -34,6 +34,7 @@ function pct(value: number): string {
 
 export function AnalyticsView() {
     const [sessionId, setSessionId] = useState("");
+    const [appliedSessionId, setAppliedSessionId] = useState("");
     const [subject, setSubject] = useState("");
     const [size, setSize] = useState(12);
     const [mode, setMode] = useState<AdaptiveMode>("balanced");
@@ -45,12 +46,12 @@ export function AnalyticsView() {
     const activeSubject = subject || subjects[0] || "";
 
     const students = useQuery({
-        queryKey: ["analytics-students", sessionId],
-        queryFn: () => getStudentReports(sessionId),
+        queryKey: ["analytics-students", appliedSessionId],
+        queryFn: () => getStudentReports(appliedSessionId),
     });
     const classes = useQuery({
-        queryKey: ["analytics-classes", sessionId],
-        queryFn: () => getClassReport(sessionId),
+        queryKey: ["analytics-classes", appliedSessionId],
+        queryFn: () => getClassReport(appliedSessionId),
     });
     const items = useQuery({
         queryKey: ["analytics-items", activeSubject],
@@ -102,10 +103,7 @@ export function AnalyticsView() {
                                 />
                             </Field>
                         </div>
-                        <Button variant="secondary" onClick={() => {
-                            void students.refetch();
-                            void classes.refetch();
-                        }}>
+                        <Button variant="secondary" onClick={() => setAppliedSessionId(sessionId)}>
                             Apply filter
                         </Button>
                     </div>

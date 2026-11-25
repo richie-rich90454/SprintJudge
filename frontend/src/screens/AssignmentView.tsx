@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Shell } from "../components/Shell";
 import { Card } from "../ui/Card";
@@ -31,6 +31,8 @@ function tone(status: StudentProgress["status"]): "accent" | "neutral" | "succes
 /** Admin screen: list assignments, create one, import a roster, track progress. */
 export function AssignmentView() {
     const queryClient = useQueryClient();
+    const listTabRef = useRef<HTMLButtonElement>(null);
+    const createTabRef = useRef<HTMLButtonElement>(null);
     const [tab, setTab] = useState<"list" | "create">("list");
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [quizId, setQuizId] = useState("");
@@ -103,6 +105,15 @@ export function AssignmentView() {
     const rows = progress.data ?? [];
     const points = rows.find((row) => row.maxScore != null)?.maxScore ?? 100;
 
+    function onTabKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+        const { key } = event;
+        if (!["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Home", "End"].includes(key)) return;
+        event.preventDefault();
+        const next = key === "Home" ? "list" : key === "End" ? "create" : tab === "list" ? "create" : "list";
+        setTab(next);
+        (next === "list" ? listTabRef : createTabRef).current?.focus();
+    }
+
     return (
         <Shell>
             <div className="page-shell py-10 md:py-14 flex flex-col gap-6">
@@ -114,20 +125,26 @@ export function AssignmentView() {
                     </p>
                 </div>
 
-                <div role="tablist" aria-label="Assignment views" className="flex gap-2">
+                <div role="tablist" aria-label="Assignment views" className="flex gap-2" onKeyDown={onTabKeyDown}>
                     <Button
+                        ref={listTabRef}
                         id="assignment-list-tab"
                         role="tab"
                         aria-selected={tab === "list"}
+                        aria-controls="assignment-list-panel"
+                        tabIndex={tab === "list" ? 0 : -1}
                         variant={tab === "list" ? "primary" : "ghost"}
                         onClick={() => setTab("list")}
                     >
                         All assignments
                     </Button>
                     <Button
+                        ref={createTabRef}
                         id="assignment-create-tab"
                         role="tab"
                         aria-selected={tab === "create"}
+                        aria-controls="assignment-create-panel"
+                        tabIndex={tab === "create" ? 0 : -1}
                         variant={tab === "create" ? "primary" : "ghost"}
                         onClick={() => setTab("create")}
                     >

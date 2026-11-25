@@ -35,7 +35,7 @@ describe("App motion class", () => {
     test("updates the class when the OS reduced-motion preference flips", () => {
         render(<App />);
         const listener = mq.addEventListener.mock.calls.find(
-            ([type]: [string]) => type === "change",
+            (call) => call[0] === "change",
         )?.[1] as (() => void) | undefined;
         expect(listener).toBeTypeOf("function");
 

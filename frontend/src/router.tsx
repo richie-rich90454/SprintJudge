@@ -5,6 +5,7 @@ import {
     createRouter,
     lazyRouteComponent,
     useRouterState,
+    type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { LandingView } from "./screens/LandingView";
 import { JoinView } from "./screens/JoinView";
@@ -18,6 +19,21 @@ function Root() {
     return (
         <div key={pathname} className="route-enter">
             <Outlet />
+        </div>
+    );
+}
+
+/** Renders guard failures (e.g. a backend outage) instead of an unhandled beforeLoad error. */
+export function AdminRouteError({ error, reset }: ErrorComponentProps) {
+    return (
+        <div className="page-shell py-10" role="alert">
+            <h1 className="text-2xl font-extrabold">Admin service unavailable</h1>
+            <p className="mt-3 text-[var(--oq-ink-soft)]">
+                {error instanceof Error ? error.message : "The admin service is unavailable. Reload to try again."}
+            </p>
+            <button type="button" className="btn btn-primary btn-sm mt-4" onClick={reset}>
+                Retry
+            </button>
         </div>
     );
 }
@@ -97,6 +113,7 @@ const adminRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin",
     beforeLoad: requireAdmin,
+    errorComponent: AdminRouteError,
     component: lazyRouteComponent(() => import("./screens/AdminDashboard"), "AdminDashboard"),
 });
 
@@ -105,6 +122,7 @@ const adminDashboardAliasRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin/dashboard",
     beforeLoad: requireAdmin,
+    errorComponent: AdminRouteError,
     component: lazyRouteComponent(() => import("./screens/AdminDashboard"), "AdminDashboard"),
 });
 
@@ -118,6 +136,7 @@ const bankRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin/bank",
     beforeLoad: requireAdmin,
+    errorComponent: AdminRouteError,
     component: lazyRouteComponent(() => import("./screens/BankBrowser"), "BankBrowser"),
 });
 
@@ -125,6 +144,7 @@ const volumeRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin/volume",
     beforeLoad: requireAdmin,
+    errorComponent: AdminRouteError,
     component: lazyRouteComponent(() => import("./screens/VolumeReport"), "VolumeReport"),
 });
 
@@ -132,6 +152,7 @@ const assignmentsRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin/assignments",
     beforeLoad: requireAdmin,
+    errorComponent: AdminRouteError,
     component: lazyRouteComponent(() => import("./screens/AssignmentView"), "AssignmentView"),
 });
 
@@ -139,6 +160,7 @@ const analyticsRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/admin/analytics",
     beforeLoad: requireAdmin,
+    errorComponent: AdminRouteError,
     component: lazyRouteComponent(() => import("./screens/AnalyticsView"), "AnalyticsView"),
 });
 
