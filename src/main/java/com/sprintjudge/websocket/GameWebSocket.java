@@ -205,8 +205,8 @@ public class GameWebSocket {
 			send(session, new ErrorMessage("ERROR", "Invalid PIN"));
 			return;
 		}
-		boolean authenticated = Boolean.TRUE.equals(session.getUserProperties().get(AUTHED_KEY));
-		boolean admin = Boolean.TRUE.equals(session.getUserProperties().get(ADMIN_KEY));
+		boolean authenticated = isAuthenticated(session);
+		boolean admin = isAdmin(session);
 		if ("host".equalsIgnoreCase(role) && !(authenticated && admin)) {
 			send(session, new ErrorMessage("ERROR", "Host role requires admin authentication"));
 			return;
@@ -278,18 +278,48 @@ public class GameWebSocket {
 	}
 
 	/**
-	 * Host-only guard: the connection must have joined as host AND be
-	 * authenticated.
+	 * Host-only guard: the connection must have joined as host AND still be an
+	 * authenticated admin. Handshake flags are a snapshot, so the live principal
+	 * is re-read on every control message.
 	 */
 	private void asHost(Session session, Runnable action) {
 		String role = (String) session.getUserProperties().get(ROLE_KEY);
-		boolean authenticated = Boolean.TRUE.equals(session.getUserProperties().get(AUTHED_KEY));
-		boolean admin = Boolean.TRUE.equals(session.getUserProperties().get(ADMIN_KEY));
+		boolean authenticated = isAuthenticated(session);
+		boolean admin = isAdmin(session);
 		if (!"host".equals(role) || !authenticated || !admin) {
 			send(session, new ErrorMessage("ERROR", "Forbidden: host authentication required"));
 			return;
 		}
 		action.run();
+	}
+
+	private org.springframework.security.core.Authentication liveAuth(Session session) {
+		try {
+			java.security.Principal principal = session.getUserPrincipal();
+			return principal instanceof org.springframework.security.core.Authentication
+					? (org.springframework.security.core.Authentication) principal
+					: null;
+		} catch (RuntimeException e) {
+			return null;
+		}
+	}
+
+	private boolean isAuthenticated(Session session) {
+		org.springframework.security.core.Authentication auth = liveAuth(session);
+		if (auth != null)
+			return auth.isAuthenticated()
+					&& !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken);
+		// shortcut: containers without a Spring principal keep the handshake
+		// flags; upgrade to a live SecurityContext lookup if one is deployed.
+		return Boolean.TRUE.equals(session.getUserProperties().get(AUTHED_KEY));
+	}
+
+	private boolean isAdmin(Session session) {
+		org.springframework.security.core.Authentication auth = liveAuth(session);
+		if (auth != null)
+			return auth.isAuthenticated() && auth.getAuthorities().stream()
+					.anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+		return Boolean.TRUE.equals(session.getUserProperties().get(ADMIN_KEY));
 	}
 
 	private int clampSeconds(int seconds) {

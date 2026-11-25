@@ -6,6 +6,7 @@ import com.sprintjudge.domain.assignment.RosterStudent;
 import com.sprintjudge.domain.assignment.StudentProgress;
 import com.sprintjudge.service.AssignmentService;
 import jakarta.validation.Valid;
+import org.eclipse.jdt.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -83,8 +84,50 @@ public class AssignmentController {
 	}
 
 	@GetMapping("/api/public/assignments/{id}")
-	public Assignment publicGet(@PathVariable String id) {
-		return assignments.require(id);
+	public PublicAssignment publicGet(@PathVariable String id) {
+		Assignment assignment = assignments.require(id);
+		return new PublicAssignment(assignment.getId(), assignment.getTitle(), assignment.getDescription());
+	}
+
+	/** Launch metadata only: quiz id, creator, LTI deployment and windows stay admin-only. */
+	public static final class PublicAssignment {
+		private String id;
+		private String title;
+		private @Nullable String description;
+
+		@SuppressWarnings("all")
+		public PublicAssignment() {
+		}
+
+		public PublicAssignment(String id, String title, @Nullable String description) {
+			this.id = id;
+			this.title = title;
+			this.description = description;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
+
+		public @Nullable String getDescription() {
+			return description;
+		}
+
+		public void setDescription(@Nullable String description) {
+			this.description = description;
+		}
 	}
 
 	@PostMapping("/api/public/assignments/{id}/start")

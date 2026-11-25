@@ -275,6 +275,22 @@ class GameWebSocketSecurityTest {
 	}
 
 	@Test
+	void hostCommandRevalidatesAdminFromLivePrincipal() {
+		props.put("oq.authenticated", Boolean.TRUE);
+		props.put("oq.admin", Boolean.TRUE);
+		props.put("role", "host");
+		props.put("pin", "123456");
+		// The handshake snapshot says admin, but the live session no longer does.
+		org.springframework.security.core.Authentication user = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+				"admin", "n/a", java.util.List.of(
+						new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER")));
+		when(session.getUserPrincipal()).thenReturn(user);
+		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).nextQuestion(anyString());
+	}
+
+	@Test
 	void hostJoinRequiresAdminEvenWhenAuthenticated() {
 		props.put("oq.authenticated", Boolean.TRUE);
 		props.put("oq.admin", Boolean.FALSE);

@@ -781,6 +781,42 @@ class NativeExecutorTest {
 	}
 
 	@Test
+	void runToCompletionReportsTooBig(@TempDir Path tmp) throws Exception {
+		NativeExecutor ex = executor(tmp, tmp, 5);
+		Method m = NativeExecutor.class.getDeclaredMethod("runToCompletion", List.class, Path.class, int.class);
+		m.setAccessible(true);
+		try (org.mockito.MockedStatic<com.sprintjudge.util.ExecIo> mocked = org.mockito.Mockito
+				.mockStatic(ExecIo.class)) {
+			mocked.when(new org.mockito.MockedStatic.Verification() {
+				@Override
+				public void apply() throws java.lang.Throwable {
+					ExecIo.awaitBounded(any(), any(), anyLong());
+				}
+			}).thenReturn(ExecIo.WaitOutcome.TOO_BIG);
+			mocked.when(new org.mockito.MockedStatic.Verification() {
+				@Override
+				public void apply() throws java.lang.Throwable {
+					ExecIo.killAndReap(any(Process.class));
+				}
+			}).thenCallRealMethod();
+			assertEquals("stdout_exceeded_1MB",
+					m.invoke(ex, List.of(NativeExecutor.PYTHON_BINARY, "-c", "print(1)"), tmp, 2));
+		}
+	}
+
+	@Test
+	void compileOutputBeyondPipeBufferDoesNotBlock(@TempDir Path tmp) throws Exception {
+		assumeTrue(toolAvailable("python", "--version"));
+		NativeExecutor ex = executor(tmp, tmp, 2);
+		Method m = NativeExecutor.class.getDeclaredMethod("runToCompletion", List.class, Path.class, int.class);
+		m.setAccessible(true);
+		String err = (String) m.invoke(ex, List.of(NativeExecutor.PYTHON_BINARY, "-c", "print('x' * 200000)"), tmp, 2);
+		assertNotNull(err);
+		assertFalse(err.contains("compile_timeout"));
+		assertTrue(err.length() >= 200_000, "expected full diagnostics, got " + err.length());
+	}
+
+	@Test
 	void judgeCacheHitCopiesBinaryWithoutCompiling(@TempDir Path tmp) throws IOException {
 		Path fakeBin = tmp.resolve("fake-bin");
 		// Use a real, immediately-exiting executable so Windows does not pop a
@@ -872,19 +908,13 @@ class NativeExecutorTest {
 			mocked.when(new org.mockito.MockedStatic.Verification() {
 				@Override
 				public void apply() throws java.lang.Throwable {
-					ExecIo.readCapped(any(Process.class));
+					ExecIo.readCappedFile(any(Path.class));
 				}
 			}).thenReturn(null);
 			mocked.when(new org.mockito.MockedStatic.Verification() {
 				@Override
 				public void apply() throws java.lang.Throwable {
 					ExecIo.awaitBounded(any(), any(), anyLong());
-				}
-			}).thenCallRealMethod();
-			mocked.when(new org.mockito.MockedStatic.Verification() {
-				@Override
-				public void apply() throws java.lang.Throwable {
-					ExecIo.readCappedFile(any(Path.class));
 				}
 			}).thenCallRealMethod();
 			com.sprintjudge.service.executor.RunResult r = ex.run(new RunRequest("java", "broken {{{", "", 20));

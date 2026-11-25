@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,8 +39,17 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
-		if (windows.size() > MAX_TRACKED_IPS)
-			windows.clear();
+		// Evict only expired buckets: clearing all would let an attacker with a
+		// spray of spoofed source addresses reset the admin throttle.
+		if (windows.size() > MAX_TRACKED_IPS) {
+			long nowEvict = System.currentTimeMillis();
+			Iterator<Map.Entry<String, long[]>> it = windows.entrySet().iterator();
+			while (it.hasNext() && windows.size() >= MAX_TRACKED_IPS) {
+				Map.Entry<String, long[]> entry = it.next();
+				if (nowEvict - entry.getValue()[0] > WINDOW_MS)
+					it.remove();
+			}
+		}
 		String ip = com.sprintjudge.util.ClientIpResolver.resolve(request.getRemoteAddr(),
 				request.getHeader("X-Forwarded-For"), request.getHeader("X-Real-IP"));
 		long now = System.currentTimeMillis();

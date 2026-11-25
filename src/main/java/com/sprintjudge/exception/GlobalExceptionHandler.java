@@ -18,7 +18,8 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<ErrorMessage> handleBadRequest(IllegalArgumentException e) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage("ERROR", e.getMessage()));
+		log.warn("Rejected bad request", e);
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage("ERROR", "Bad request"));
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -50,7 +51,8 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(IllegalStateException.class)
 	public ResponseEntity<ErrorMessage> handleConflict(IllegalStateException e) {
-		return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorMessage("ERROR", e.getMessage()));
+		log.warn("Conflict", e);
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorMessage("ERROR", "Conflict"));
 	}
 
 	@ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)

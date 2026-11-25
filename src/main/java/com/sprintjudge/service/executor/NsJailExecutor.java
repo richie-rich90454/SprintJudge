@@ -2,7 +2,6 @@ package com.sprintjudge.service.executor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -14,7 +13,6 @@ import java.util.List;
  * isolation and chroot. The scripts do the actual compile + run.
  */
 @Component
-@Profile("!dev")
 @ConditionalOnProperty(name = "sprintjudge.executor.mode", havingValue = "nsjail")
 public class NsJailExecutor extends AbstractScriptExecutor {
 

@@ -75,9 +75,13 @@ public class SecurityConfig {
 					public void customize(
 							org.springframework.security.config.annotation.web.configurers.CsrfConfigurer<HttpSecurity> csrf) {
 						csrf
-								// Public endpoints and the WebSocket handshake carry no session
-								// state; every admin API is CSRF-protected (the Axios client
-								// echoes XSRF-TOKEN in X-XSRF-TOKEN).
+								// Public POSTs are anonymous and rate-limited (runner, practice)
+								// or act only on the caller's own student progress; the WS
+								// handshake carries no session state. No admin authority is
+								// reachable there. E2E/public callers POST with raw
+								// fetch/request and no XSRF token, so narrowing the ignore
+								// would break them. Every admin API stays CSRF-protected
+								// (Axios echoes XSRF-TOKEN).
 								.ignoringRequestMatchers("/api/public/**", "/ws", "/admin/login",
 										"/api/auth/basis/backchannel", "/api/auth/backchannel")
 								.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())

@@ -87,4 +87,31 @@ class LoginRateLimitFilterTest {
 		assertTrue(f.windows.size() < 10_001);
 		verify(chain).doFilter(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
 	}
+
+	@Test
+	void overflowKeepsAllFreshBuckets() throws Exception {
+		LoginRateLimitFilter f = new LoginRateLimitFilter();
+		long now = System.currentTimeMillis();
+		for (int i = 0; i < 10_001; i++)
+			f.windows.put("11.0.0." + i, new long[]{now, 1});
+		FilterChain chain = mock(FilterChain.class);
+		f.doFilterInternal(login("11.9.9.9"), new MockHttpServletResponse(), chain);
+		assertEquals(10_002, f.windows.size());
+		verify(chain).doFilter(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+	}
+
+	@Test
+	void overflowEvictsOnlyStaleBuckets() throws Exception {
+		LoginRateLimitFilter f = new LoginRateLimitFilter();
+		for (int i = 0; i < 10_001; i++)
+			f.windows.put("10.0.0." + i, new long[]{0, 1});
+		f.windows.put("5.5.5.5", new long[]{System.currentTimeMillis(), LoginRateLimitFilter.MAX_ATTEMPTS_PER_MIN});
+		FilterChain chain = mock(FilterChain.class);
+		MockHttpServletResponse throttled = new MockHttpServletResponse();
+		f.doFilterInternal(login("5.5.5.5"), throttled, chain);
+		assertEquals(429, throttled.getStatus());
+		assertEquals(LoginRateLimitFilter.MAX_ATTEMPTS_PER_MIN,
+				org.mockito.Mockito.mockingDetails(chain).getInvocations().size());
+		assertTrue(f.windows.size() < 10_002);
+	}
 }

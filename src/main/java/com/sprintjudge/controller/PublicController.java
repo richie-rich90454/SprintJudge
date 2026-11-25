@@ -103,9 +103,12 @@ public class PublicController {
 		long[] slot = window.compute(ip, new java.util.function.BiFunction<String, long[], long[]>() {
 			@Override
 			public long[] apply(String k, long[] v) {
+				// Age from the LAST request, not the first: idling must not hand
+				// the caller a fresh budget.
 				if (v == null || now - v[0] > WINDOW_MS) {
 					return new long[]{now, 1};
 				}
+				v[0] = now;
 				v[1]++;
 				return v;
 			}
@@ -311,6 +314,10 @@ public class PublicController {
 	/**
 	 * Live code execution for the interactive console. Compiles + runs with the
 	 * supplied stdin and returns combined output. Rate-limited per IP.
+	 *
+	 * This endpoint is deliberately UNAUTHENTICATED, and only when the explicit
+	 * opt-in {@code sprintjudge.executor.public-run=true} is set (required for
+	 * native mode, which E2E enables). With the flag off, every caller gets 403.
 	 */
 	@PostMapping("/run")
 	public RunResult run(@Valid @RequestBody RunRequest request, HttpServletRequest http) {

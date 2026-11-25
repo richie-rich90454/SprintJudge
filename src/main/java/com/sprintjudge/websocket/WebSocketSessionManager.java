@@ -26,17 +26,22 @@ public class WebSocketSessionManager {
 	 * Bound anonymous handshake floods: unregistered sockets cannot be attacked.
 	 */
 	private static final int MAX_SESSIONS = 10_000;
+	/** putIfAbsent alone cannot enforce a size cap; the check and insert must be one step. */
+	private final Object registrationLock = new Object();
 
 	public void register(String sessionId, Session session) {
-		if (!sessions.containsKey(sessionId) && sessions.size() >= MAX_SESSIONS) {
-			try {
-				session.close();
-			} catch (Exception ignored) {
-				// A broken overflow socket is already unusable; drop it silently.
+		synchronized (registrationLock) {
+			if (!sessions.containsKey(sessionId) && sessions.size() >= MAX_SESSIONS) {
+				try {
+					session.close();
+				} catch (Exception ignored) {
+					// A broken overflow socket is already unusable; drop it silently.
+				}
+				return;
 			}
-			return;
+			// put (not putIfAbsent): a reconnect with the same id replaces the old socket.
+			sessions.put(sessionId, session);
 		}
-		sessions.put(sessionId, session);
 	}
 
 	public void unregister(String sessionId) {

@@ -8,6 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.HexFormat;
 
 import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -30,10 +34,11 @@ public class BasisBackchannelController {
 	private final String resource;
 	private final String resourceSecret;
 
-	/** Per-IP budget for the unauthenticated issuer verification ping. */
+	/** Per-IP budget for the issuer verification ping. */
 	private static final java.util.concurrent.ConcurrentHashMap<String, long[]> TEST_WINDOW = new java.util.concurrent.ConcurrentHashMap<>();
 	private static final int TEST_LIMIT = 10;
 	private static final long WINDOW_MS = 60_000L;
+	private static final int MAX_TEST_IPS = 1_000;
 
 	public BasisBackchannelController(BasisTokenVerifier verifier, BasisSessionService sessions,
 			BasisRevocationStore revocations, BasisInternalClient internal, Environment environment) {
@@ -49,6 +54,8 @@ public class BasisBackchannelController {
 	public ResponseEntity<Void> receive(@RequestParam Map<String, String> form) {
 		String action = form.get("action");
 		if ("test".equals(action)) {
+			if (!testAuthorized(form))
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			if (testRateLimited())
 				return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
 			verifyWebhook(form.get("nonce"), form.get("challenge"));
@@ -64,14 +71,41 @@ public class BasisBackchannelController {
 	}
 
 	/**
-	 * The issuer's verification ping is permitAll, so an attacker could otherwise
-	 * use it to make the server POST the shared secret to the issuer repeatedly.
-	 * Bound it per client IP. Direct in-process calls (tests) are not throttled.
+	 * The test action makes the server send the shared secret to the issuer, so an
+	 * HTTP caller must be an authenticated admin or present an issuer-signed token
+	 * bound to this nonce/challenge. Direct in-process calls have no request
+	 * context and are trusted.
+	 */
+	private boolean testAuthorized(Map<String, String> form) {
+		RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+		if (!(attrs instanceof ServletRequestAttributes))
+			return true;
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
+			for (GrantedAuthority authority : auth.getAuthorities()) {
+				if ("ROLE_ADMIN".equals(authority.getAuthority()))
+					return true;
+			}
+		}
+		JWTClaimsSet claims = verifier.verify(form.get("token"), "at+jwt");
+		if (claims == null)
+			return false;
+		return java.util.Objects.equals(form.get("nonce"), claims.getClaim("nonce"))
+				&& java.util.Objects.equals(form.get("challenge"), claims.getClaim("challenge"));
+	}
+
+	/**
+	 * Bounds the issuer verification ping by IP. Over the cap, only expired buckets
+	 * are evicted - clearing all would let a source-IP spray reset every budget.
 	 */
 	private boolean testRateLimited() {
 		RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
 		if (!(attrs instanceof ServletRequestAttributes))
 			return false;
+		if (TEST_WINDOW.size() > MAX_TEST_IPS) {
+			long evictAt = System.currentTimeMillis();
+			TEST_WINDOW.entrySet().removeIf(entry -> evictAt - entry.getValue()[0] > WINDOW_MS);
+		}
 		jakarta.servlet.http.HttpServletRequest request = ((ServletRequestAttributes) attrs).getRequest();
 		String ip = com.sprintjudge.util.ClientIpResolver.resolve(request.getRemoteAddr(),
 				request.getHeader("X-Forwarded-For"), request.getHeader("X-Real-IP"));

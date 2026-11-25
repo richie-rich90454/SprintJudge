@@ -125,6 +125,20 @@ class PublicControllerRunTest {
 	}
 
 	@Test
+	void idlingDoesNotResetBudgetBecauseWindowAgesFromLastRequest() throws Exception {
+		when(http.getRemoteAddr()).thenReturn("10.0.0.3");
+		when(executor.run(any())).thenReturn(new RunResult(true, "ok", "", "ok"));
+		controller.run(req("python", "x"), http);
+		long[] slot = runWindowMap().get("10.0.0.3");
+		long first = slot[0];
+		// Simulate 30s of idling after the first request.
+		slot[0] = first - 30_000;
+		controller.run(req("python", "x"), http);
+		assertEquals(2, slot[1]);
+		assertTrue(System.currentTimeMillis() - slot[0] < 5_000);
+	}
+
+	@Test
 	void evictStaleRateLimitsRemovesStaleKeepsFresh() throws Exception {
 		Map<String, long[]> windows = runWindowMap();
 		windows.clear();

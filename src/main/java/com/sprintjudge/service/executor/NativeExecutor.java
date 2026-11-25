@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Direct toolchain executor: invokes gcc/g++/javac/node/python via
@@ -251,14 +250,21 @@ public class NativeExecutor implements CodeExecutor {
 	 */
 	private String runToCompletion(List<String> cmd, Path dir, int timeoutSec)
 			throws IOException, InterruptedException {
-		Process proc = new ProcessBuilder(cmd).directory(dir.toFile()).redirectErrorStream(true).start();
-		if (!proc.waitFor(timeoutSec, TimeUnit.SECONDS)) {
+		// Redirect to a capped file instead of a pipe: the child is never blocked
+		// writing >64KB of diagnostics while the parent waits for exit.
+		Path log = dir.resolve("compile.log");
+		Process proc = new ProcessBuilder(cmd).directory(dir.toFile()).redirectErrorStream(true)
+				.redirectOutput(log.toFile()).start();
+		String outcome = ExecIo.awaitBounded(proc, log, timeoutSec);
+		if (!ExecIo.WaitOutcome.FINISHED.equals(outcome)) {
 			ExecIo.killAndReap(proc);
+			if (ExecIo.WaitOutcome.TOO_BIG.equals(outcome))
+				return "stdout_exceeded_1MB";
 			return "compile_timeout";
 		}
 		if (proc.exitValue() == 0)
 			return null;
-		String out = ExecIo.readCapped(proc);
+		String out = ExecIo.readCappedFile(log);
 		return out == null ? "stdout_exceeded_1MB" : out;
 	}
 

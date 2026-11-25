@@ -18,8 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -53,11 +55,36 @@ class AssignmentControllerTest {
 		assertEquals(1, controller.roster("a1").size());
 		assertEquals(1, controller.progress("a1").size());
 		assertEquals(1, controller.importRoster("a1", Map.of("csv", "s1,u\n")).get("imported"));
-		assertEquals(assignment, controller.publicGet("a1"));
+		assertEquals(assignment.getId(), controller.publicGet("a1").getId());
 		assertNotNull(controller.start("a1", Map.of("studentId", "s1")));
 		assertNotNull(controller.studentProgress("a1", "s1"));
 		when(service.validateLtiLaunch(any())).thenReturn(Map.of("valid", true));
 		assertEquals(true, controller.ltiLaunch(Map.of("iss", "x")).get("valid"));
+	}
+
+	@Test
+	void publicGetExposesOnlyLaunchFields() throws Exception {
+		Assignment a = new Assignment("a1", "secret-quiz", "Title", "Desc", 100L, 200L, "owner@x.y", 1L, "lti-1");
+		when(service.require("a1")).thenReturn(a);
+		AssignmentController.PublicAssignment dto = controller.publicGet("a1");
+		String json = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(dto);
+		assertEquals("a1", dto.getId());
+		assertEquals("Title", dto.getTitle());
+		assertTrue(json.contains("\"title\":\"Title\""), json);
+		for (String leaked : List.of("quizId", "createdBy", "ltiDeploymentId", "releaseAt", "dueAt", "secret-quiz",
+				"owner@x.y", "lti-1", "100", "200"))
+			assertFalse(json.contains(leaked), json);
+	}
+
+	@Test
+	void publicAssignmentValueMethods() {
+		AssignmentController.PublicAssignment dto = new AssignmentController.PublicAssignment();
+		dto.setId("x");
+		dto.setTitle("t");
+		dto.setDescription("d");
+		assertEquals("x", dto.getId());
+		assertEquals("t", dto.getTitle());
+		assertEquals("d", dto.getDescription());
 	}
 
 	@Test

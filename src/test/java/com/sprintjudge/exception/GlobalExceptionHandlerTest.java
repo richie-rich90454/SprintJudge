@@ -13,6 +13,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.lang.reflect.Method;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("all")
@@ -31,7 +32,7 @@ class GlobalExceptionHandlerTest {
 				.handleBadRequest(new IllegalArgumentException("bad input"));
 		assertEquals(400, resp.getStatusCode().value());
 		assertEquals("ERROR", resp.getBody().getType());
-		assertEquals("bad input", resp.getBody().getMessage());
+		assertEquals("Bad request", resp.getBody().getMessage());
 	}
 
 	@Test
@@ -65,7 +66,7 @@ class GlobalExceptionHandlerTest {
 		org.springframework.http.ResponseEntity<com.sprintjudge.domain.dto.ErrorMessage> resp = handler
 				.handleConflict(new IllegalStateException("busy"));
 		assertEquals(409, resp.getStatusCode().value());
-		assertEquals("busy", resp.getBody().getMessage());
+		assertEquals("Conflict", resp.getBody().getMessage());
 	}
 
 	@Test
@@ -82,5 +83,16 @@ class GlobalExceptionHandlerTest {
 				.handleGeneric(new RuntimeException("kaboom"));
 		assertEquals(500, resp.getStatusCode().value());
 		assertEquals("Internal error", resp.getBody().getMessage());
+	}
+
+	@Test
+	void internalDetailsAreNotEchoedToClients() {
+		String secret = "jdbc:sqlserver://10.1.2.3;password=hunter2";
+		org.springframework.http.ResponseEntity<com.sprintjudge.domain.dto.ErrorMessage> bad = handler
+				.handleBadRequest(new IllegalArgumentException(secret));
+		org.springframework.http.ResponseEntity<com.sprintjudge.domain.dto.ErrorMessage> conflict = handler
+				.handleConflict(new IllegalStateException(secret));
+		assertFalse(bad.getBody().getMessage().contains(secret));
+		assertFalse(conflict.getBody().getMessage().contains(secret));
 	}
 }
