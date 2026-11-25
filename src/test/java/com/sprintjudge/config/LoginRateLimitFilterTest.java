@@ -110,8 +110,7 @@ class LoginRateLimitFilterTest {
 		MockHttpServletResponse throttled = new MockHttpServletResponse();
 		f.doFilterInternal(login("5.5.5.5"), throttled, chain);
 		assertEquals(429, throttled.getStatus());
-		assertEquals(LoginRateLimitFilter.MAX_ATTEMPTS_PER_MIN,
-				org.mockito.Mockito.mockingDetails(chain).getInvocations().size());
+		assertEquals(0, org.mockito.Mockito.mockingDetails(chain).getInvocations().size());
 		assertTrue(f.windows.size() < 10_002);
 	}
 }

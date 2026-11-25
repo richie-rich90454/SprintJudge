@@ -27,6 +27,12 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings("all")
 class NativeExecutorTest {
 
+	private static String pythonBinary() throws Exception {
+		java.lang.reflect.Field field = NativeExecutor.class.getDeclaredField("PYTHON_BINARY");
+		field.setAccessible(true);
+		return (String) field.get(null);
+	}
+
 	private static NativeExecutor executor(Path work, Path cacheDir, int timeoutSec) throws IOException {
 		CompileArtifactCache cache = new CompileArtifactCache(cacheDir.toString(), 16, 16);
 		NativeExecutor ex = new NativeExecutor(cache);
@@ -800,7 +806,7 @@ class NativeExecutorTest {
 				}
 			}).thenCallRealMethod();
 			assertEquals("stdout_exceeded_1MB",
-					m.invoke(ex, List.of(NativeExecutor.PYTHON_BINARY, "-c", "print(1)"), tmp, 2));
+					m.invoke(ex, List.of(pythonBinary(), "-c", "print(1)"), tmp, 2));
 		}
 	}
 
@@ -810,10 +816,10 @@ class NativeExecutorTest {
 		NativeExecutor ex = executor(tmp, tmp, 2);
 		Method m = NativeExecutor.class.getDeclaredMethod("runToCompletion", List.class, Path.class, int.class);
 		m.setAccessible(true);
-		String err = (String) m.invoke(ex, List.of(NativeExecutor.PYTHON_BINARY, "-c", "print('x' * 200000)"), tmp, 2);
-		assertNotNull(err);
-		assertFalse(err.contains("compile_timeout"));
-		assertTrue(err.length() >= 200_000, "expected full diagnostics, got " + err.length());
+		String err = (String) m.invoke(ex, List.of(pythonBinary(), "-c", "print('x' * 200000)"), tmp, 2);
+		assertNull(err, "a successful command returns no error marker");
+		String captured = java.nio.file.Files.readString(tmp.resolve("compile.log"));
+		assertTrue(captured.length() >= 200_000, "expected full output, got " + captured.length());
 	}
 
 	@Test

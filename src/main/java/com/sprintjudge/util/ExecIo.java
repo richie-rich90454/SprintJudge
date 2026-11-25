@@ -57,7 +57,9 @@ public final class ExecIo {
 		try {
 			if (Files.size(file) > STDOUT_CAP_BYTES)
 				return null;
-			return Files.readString(file, StandardCharsets.UTF_8).trim();
+			// Toolchain diagnostics may use the host locale (e.g. GBK); decoding
+			// with replacement keeps them visible instead of losing every message.
+			return new String(Files.readAllBytes(file), StandardCharsets.UTF_8).trim();
 		} catch (IOException e) {
 			return "";
 		}
