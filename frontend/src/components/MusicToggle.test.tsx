@@ -44,6 +44,21 @@ describe("MusicToggle", () => {
         expect(audio.startMusic).toHaveBeenCalledTimes(1);
     });
 
+    test("storage errors are silent and the toggle still works", () => {
+        const getItem = vi.spyOn(Storage.prototype, "getItem").mockImplementation((key) => {
+            if (key === "oq-music") throw new Error("denied");
+            return null;
+        });
+        const setItem = vi.spyOn(Storage.prototype, "setItem").mockImplementationOnce(() => {
+            throw new Error("denied");
+        });
+        render(<MusicToggle className="header-icon" />);
+        fireEvent.click(screen.getByRole("button", { name: "Turn background music on" }));
+        expect(screen.getByRole("button", { name: "Turn background music off" })).toHaveClass("header-icon");
+        getItem.mockRestore();
+        setItem.mockRestore();
+    });
+
     test("turning music off stops it; turning it on starts it", () => {
         render(<MusicToggle />);
         fireEvent.click(screen.getByRole("button", { name: "Turn background music on" }));

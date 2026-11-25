@@ -2,6 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { ErrorBoundary } from "./ErrorBoundary";
 
+const realLocation = globalThis.location;
+
 let shouldThrow = true;
 
 function Fragile() {
@@ -17,6 +19,7 @@ describe("ErrorBoundary", () => {
 
     afterEach(() => {
         vi.restoreAllMocks();
+        vi.stubGlobal("location", realLocation);
         localStorage.removeItem("oq-locale");
     });
 
@@ -48,6 +51,19 @@ describe("ErrorBoundary", () => {
         expect(screen.getByText("حدث خطأ ما")).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "حاول مرة أخرى" })).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "إعادة التحميل" })).toBeInTheDocument();
+    });
+
+    test("the reload button reloads the document", () => {
+        localStorage.setItem("oq-locale", "en");
+        const reload = vi.fn();
+        vi.stubGlobal("location", { reload });
+        render(
+            <ErrorBoundary>
+                <Fragile />
+            </ErrorBoundary>,
+        );
+        fireEvent.click(screen.getByRole("button", { name: "Reload" }));
+        expect(reload).toHaveBeenCalledOnce();
     });
 
     test("caller-supplied fallback still wins", () => {
