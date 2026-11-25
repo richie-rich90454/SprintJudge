@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MusicNote, Pause } from "@phosphor-icons/react";
 import { audio } from "../services/AudioEngine";
 import { useUIStore } from "../stores/useUIStore";
@@ -17,6 +17,18 @@ function readMusic(): boolean {
 export function MusicToggle({ className = "" }: { className?: string }) {
     const [on, setOn] = useState(readMusic);
     const sound = useUIStore((s) => s.sound);
+
+    useEffect(() => {
+        if (!on || sound !== "on") return;
+        try {
+            void audio.resume();
+            audio.startMusic();
+        } catch {
+            /* engine unavailable until the next user gesture */
+        }
+        return () => audio.stopMusic();
+    }, [on, sound]);
+
     const toggle = () => {
         const next = !on;
         setOn(next);
@@ -24,15 +36,6 @@ export function MusicToggle({ className = "" }: { className?: string }) {
             localStorage.setItem(KEY, next ? "on" : "off");
         } catch {
             /* storage unavailable: preference lasts for this tab */
-        }
-        try {
-            if (!next) audio.stopMusic();
-            else if (sound === "on") {
-                void audio.resume();
-                audio.startMusic();
-            }
-        } catch {
-            /* engine unavailable until the next user gesture */
         }
     };
 

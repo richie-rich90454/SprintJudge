@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from "react";
 import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./router";
 import { motionReduced, useUIStore } from "./stores/useUIStore";
@@ -7,12 +7,17 @@ import { I18nProvider, LOCALES, useI18n, type Locale } from "./i18n";
 const UPDATE_EVENT = "oq-update-available";
 const RELOAD_EVENT = "oq-update-accept";
 
-function focusMain(): HTMLElement | null {
+function ensureMainTarget(): HTMLElement | null {
     const main = document.querySelector<HTMLElement>("main");
     if (!main) return null;
     if (!main.id) main.id = "main-content";
     if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
-    main.focus({ preventScroll: true });
+    return main;
+}
+
+function focusMain(): HTMLElement | null {
+    const main = ensureMainTarget();
+    main?.focus({ preventScroll: true });
     return main;
 }
 
@@ -22,6 +27,11 @@ function AppChrome() {
     const [announcement, setAnnouncement] = useState("");
     const [updateAvailable, setUpdateAvailable] = useState(false);
     const firstRoute = useRef(true);
+
+    useLayoutEffect(() => {
+        // The skip link is live before the first route event; give it a target now.
+        ensureMainTarget();
+    }, []);
 
     useEffect(() => {
         const unsubscribe = router.subscribe("onResolved", (event) => {
@@ -44,15 +54,20 @@ function AppChrome() {
     useEffect(() => {
         if (!import.meta.env.PROD || !("serviceWorker" in navigator)) return;
         let refreshing = false;
+        let updateAccepted = false;
         const onControllerChange = () => {
-            if (refreshing) return;
+            // clients.claim() on first install fires this too: only a user-
+            // accepted update may interrupt in-progress input.
+            if (!updateAccepted || refreshing) return;
             refreshing = true;
             location.reload();
         };
         navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
 
         const accept = () => {
-            if (reg?.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+            if (!reg?.waiting) return;
+            updateAccepted = true;
+            reg.waiting.postMessage({ type: "SKIP_WAITING" });
         };
         let reg: ServiceWorkerRegistration | undefined;
         window.addEventListener(RELOAD_EVENT, accept);
@@ -141,7 +156,12 @@ export function App() {
     // preference agree with the GSAP hooks (which read motionReduced()).
     const motion = useUIStore((s) => s.motion);
     useEffect(() => {
-        document.documentElement.classList.toggle("motion-reduced", motionReduced());
+        const sync = () =>
+            document.documentElement.classList.toggle("motion-reduced", motionReduced());
+        sync();
+        const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+        query.addEventListener?.("change", sync);
+        return () => query.removeEventListener?.("change", sync);
     }, [motion]);
     return (
         <I18nProvider>
