@@ -147,7 +147,9 @@ test-e2e: ## Playwright specs; boots a CI-equivalent backend on :8080 and Vite o
 	for i in $$(seq 1 20); do if ! curl -fsS -m 2 http://127.0.0.1:8080/actuator/health >/dev/null 2>&1; then break; fi; sleep 1; done; \
 	cp $(JAR) target/e2e-backend.jar; \
 	echo "Booting CI-equivalent backend on :8080 (public-run=true, admin=ci-admin-password)..."; \
-	TMP="$$(cygpath -w "$$PWD/$$logdir")" TEMP="$$(cygpath -w "$$PWD/$$logdir")" SPRINTJUDGE_ADMIN_PASSWORD=ci-admin-password \
+	tmppath="$$PWD/$$logdir"; \
+	if [ "$(OS)" = "Windows_NT" ]; then tmppath="$$(cygpath -w "$$tmppath")"; fi; \
+	TMP="$$tmppath" TEMP="$$tmppath" SPRINTJUDGE_ADMIN_PASSWORD=ci-admin-password \
 	  java -jar target/e2e-backend.jar --spring.profiles.active=prod --server.port=8080 \
 	    --sprintjudge.executor.public-run=true --server.servlet.session.cookie.secure=false \
 	    >"$$logdir/backend.log" 2>&1 & \

@@ -90,7 +90,7 @@ jobs:
         run: |
           ./mvnw -B -DskipTests package > package.log 2>&1
           java -jar target/sprintjudge.jar --spring.profiles.active=prod --server.port=8080 \
-            --sprintjudge.executor.public-run=true > backend.log 2>&1 &
+            --sprintjudge.executor.public-run=true --server.servlet.session.cookie.secure=false > backend.log 2>&1 &
           for i in $(seq 1 120); do
             if curl -fsS http://localhost:8080/actuator/health > /dev/null; then exit 0; fi
             sleep 2
@@ -206,6 +206,8 @@ jobs:
           node scripts/check-bank.mjs
           node scripts/check-volume.mjs
           node scripts/check-unit-volume.mjs
+      - name: Legal gates (trademarks, AI firewall, blueprints, bank)
+        run: make check-legal
 
   deploy-config:
     name: Deploy configuration
