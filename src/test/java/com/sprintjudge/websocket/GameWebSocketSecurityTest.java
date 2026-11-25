@@ -589,4 +589,59 @@ class GameWebSocketSecurityTest {
 		ws().onMessage(session, "{\"type\":\"SUBMIT\",\"questionId\":\"q1\"}");
 		assertTrue(lastMessage().contains("requires 'questionId'"));
 	}
+
+	// ---------- live-principal revalidation edge cases ----------
+
+	private void asHostSession() {
+		props.put("role", "host");
+		props.put("pin", "123456");
+		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
+	}
+
+	@Test
+	void hostCommandRefusedWhenPrincipalLookupThrows() {
+		props.put("role", "host");
+		props.put("pin", "123456");
+		when(session.getUserPrincipal()).thenThrow(new IllegalStateException("no principal"));
+		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).nextQuestion(anyString());
+	}
+
+	@Test
+	void hostCommandRefusedForUnauthenticatedLivePrincipal() {
+		asHostSession();
+		when(session.getUserPrincipal()).thenReturn(
+				new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("user", "pw"));
+		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).nextQuestion(anyString());
+	}
+
+	@Test
+	void hostCommandRefusedForAnonymousLivePrincipal() {
+		asHostSession();
+		when(session.getUserPrincipal()).thenReturn(
+				new org.springframework.security.authentication.AnonymousAuthenticationToken("key", "anonymousUser",
+						java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority(
+								"ROLE_ANONYMOUS"))));
+		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).nextQuestion(anyString());
+	}
+
+	@Test
+	void hostCommandAllowedForLiveAdminPrincipal() {
+		props.put("role", "host");
+		props.put("pin", "123456");
+		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.FALSE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.FALSE);
+		when(session.getUserPrincipal())
+				.thenReturn(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("admin",
+						"n/a", java.util.List.of(
+								new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN"))));
+		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+		verify(roomManager).nextQuestion("123456");
+	}
 }
