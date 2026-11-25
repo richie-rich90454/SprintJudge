@@ -123,19 +123,20 @@ class BasisAuthFlowTest {
 
 			String token = BasisTestJwt.sign(key, "at+jwt", ISSUER, AUDIENCE, null,
 					Map.of("nonce", "n", "challenge", "c"));
-			assertEquals(202, controller
-					.receive(Map.of("action", "test", "nonce", "n", "challenge", "c", "token", token))
-					.getStatusCode().value());
+			assertEquals(202,
+					controller.receive(Map.of("action", "test", "nonce", "n", "challenge", "c", "token", token))
+							.getStatusCode().value());
 			String wrongNonce = BasisTestJwt.sign(key, "at+jwt", ISSUER, AUDIENCE, null,
 					Map.of("nonce", "other", "challenge", "c"));
-			assertEquals(401, controller
-					.receive(Map.of("action", "test", "nonce", "n", "challenge", "c", "token", wrongNonce))
-					.getStatusCode().value());
+			assertEquals(401,
+					controller.receive(Map.of("action", "test", "nonce", "n", "challenge", "c", "token", wrongNonce))
+							.getStatusCode().value());
 			String wrongChallenge = BasisTestJwt.sign(key, "at+jwt", ISSUER, AUDIENCE, null,
 					Map.of("nonce", "n", "challenge", "other"));
-			assertEquals(401, controller
-					.receive(Map.of("action", "test", "nonce", "n", "challenge", "c", "token", wrongChallenge))
-					.getStatusCode().value());
+			assertEquals(401,
+					controller
+							.receive(Map.of("action", "test", "nonce", "n", "challenge", "c", "token", wrongChallenge))
+							.getStatusCode().value());
 		} finally {
 			org.springframework.web.context.request.RequestContextHolder.resetRequestAttributes();
 			SecurityContextHolder.clearContext();

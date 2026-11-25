@@ -26,7 +26,10 @@ public class WebSocketSessionManager {
 	 * Bound anonymous handshake floods: unregistered sockets cannot be attacked.
 	 */
 	private static final int MAX_SESSIONS = 10_000;
-	/** putIfAbsent alone cannot enforce a size cap; the check and insert must be one step. */
+	/**
+	 * putIfAbsent alone cannot enforce a size cap; the check and insert must be one
+	 * step.
+	 */
 	private final Object registrationLock = new Object();
 
 	public void register(String sessionId, Session session) {

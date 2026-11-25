@@ -805,8 +805,7 @@ class NativeExecutorTest {
 					ExecIo.killAndReap(any(Process.class));
 				}
 			}).thenCallRealMethod();
-			assertEquals("stdout_exceeded_1MB",
-					m.invoke(ex, List.of(pythonBinary(), "-c", "print(1)"), tmp, 2));
+			assertEquals("stdout_exceeded_1MB", m.invoke(ex, List.of(pythonBinary(), "-c", "print(1)"), tmp, 2));
 		}
 	}
 

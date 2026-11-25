@@ -89,7 +89,10 @@ public class AssignmentController {
 		return new PublicAssignment(assignment.getId(), assignment.getTitle(), assignment.getDescription());
 	}
 
-	/** Launch metadata only: quiz id, creator, LTI deployment and windows stay admin-only. */
+	/**
+	 * Launch metadata only: quiz id, creator, LTI deployment and windows stay
+	 * admin-only.
+	 */
 	public static final class PublicAssignment {
 		private String id;
 		private String title;

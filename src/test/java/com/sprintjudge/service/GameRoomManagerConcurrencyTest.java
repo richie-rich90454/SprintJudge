@@ -106,9 +106,8 @@ class GameRoomManagerConcurrencyTest {
 	}
 
 	private void seedRoom(GameRoomManager mgr) {
-		when(sessionRepository.findByPin("123456")).thenReturn(
-				Optional.of(new GameSession("s1", "qz", "123456", "host", "LOBBY", "STANDARD", 0, null, null, null,
-						Instant.now())));
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(new GameSession("s1", "qz", "123456", "host",
+				"LOBBY", "STANDARD", 0, null, null, null, Instant.now())));
 		mgr.join("123456", "Seed", "seed-sess", "player", null);
 	}
 
@@ -239,11 +238,9 @@ class GameRoomManagerConcurrencyTest {
 		assertNull(registryOf(mgr).get(123456));
 		assertEquals(0, mgr.activeRooms());
 		// The DB row is ENDED by then, so a late socket cannot recreate the room.
-		when(sessionRepository.findByPin("123456")).thenReturn(
-				Optional.of(new GameSession("s1", "qz", "123456", "host", "ENDED", "STANDARD", 0, null, null, null,
-						Instant.now())));
-		assertThrows(IllegalStateException.class,
-				() -> mgr.join("123456", "Late", "late-sess", "player", null));
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(new GameSession("s1", "qz", "123456", "host",
+				"ENDED", "STANDARD", 0, null, null, null, Instant.now())));
+		assertThrows(IllegalStateException.class, () -> mgr.join("123456", "Late", "late-sess", "player", null));
 		mgr.stopSweep();
 	}
 }

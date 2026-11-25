@@ -1000,7 +1000,9 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		});
 	}
 
-	/** A +time applied after the timer thread's fast check must not reveal early. */
+	/**
+	 * A +time applied after the timer thread's fast check must not reveal early.
+	 */
 	private void expireRound(String pin, String expectedQuestionId) {
 		GameRoom room = registry.get(Integer.parseInt(pin));
 		if (room == null)

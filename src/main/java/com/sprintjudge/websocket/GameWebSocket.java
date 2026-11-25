@@ -279,8 +279,8 @@ public class GameWebSocket {
 
 	/**
 	 * Host-only guard: the connection must have joined as host AND still be an
-	 * authenticated admin. Handshake flags are a snapshot, so the live principal
-	 * is re-read on every control message.
+	 * authenticated admin. Handshake flags are a snapshot, so the live principal is
+	 * re-read on every control message.
 	 */
 	private void asHost(Session session, Runnable action) {
 		String role = (String) session.getUserProperties().get(ROLE_KEY);
@@ -317,8 +317,8 @@ public class GameWebSocket {
 	private boolean isAdmin(Session session) {
 		org.springframework.security.core.Authentication auth = liveAuth(session);
 		if (auth != null)
-			return auth.isAuthenticated() && auth.getAuthorities().stream()
-					.anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+			return auth.isAuthenticated()
+					&& auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
 		return Boolean.TRUE.equals(session.getUserProperties().get(ADMIN_KEY));
 	}
 
