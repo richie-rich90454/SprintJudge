@@ -1,6 +1,7 @@
 import { FormattedText } from "./FormattedText";
 import type { QuestionDto, RoundResult } from "../../types";
 import { formatAnswer } from "../../game/reviewFormat";
+import { useI18n } from "../../i18n";
 
 type Config = Record<string, unknown>;
 
@@ -58,6 +59,7 @@ export function QuestionPreview({
     round: RoundResult | null;
     className?: string;
 }) {
+    const { t } = useI18n();
     const config = (question.config ?? {}) as Config;
     const options = stringList(config.options);
     const lines = stringList(config.lines);
@@ -110,9 +112,9 @@ export function QuestionPreview({
             )}
             {question.type === "OJ_FULL" || question.type === "OJ_PATCH" ? (
                 <div className="mt-6 rounded-[2px] border border-[var(--stage-border)] bg-[var(--stage-surface)] p-4">
-                    <p className="label-caps mb-2">Starter</p>
+                    <p className="label-caps mb-2">{t("ui.starterLabel")}</p>
                     <pre className="overflow-x-auto font-mono text-sm leading-6 text-[var(--stage-ink-soft)]">
-                        {String(config.starter ?? "Write your solution in the editor.")}
+                        {String(config.starter ?? t("ui.writeSolution"))}
                     </pre>
                 </div>
             ) : null}
@@ -158,7 +160,7 @@ export function QuestionPreview({
                                 <span className="font-mono text-sm text-[var(--stage-ink-soft)]">
                                     {i === 0 ? "A" : "B"}
                                 </span>
-                                <span className="text-lg">{value ? "True" : "False"}</span>
+                                <span className="text-lg">{t(value ? "ui.true" : "ui.false")}</span>
                             </div>
                         );
                     })}
@@ -166,19 +168,19 @@ export function QuestionPreview({
             )}
             {question.type === "NUMERIC" && (
                 <div className="mt-6 flex items-center gap-4 rounded-[2px] border border-[var(--stage-border)] bg-[var(--stage-surface)] px-4 py-4">
-                    <span className="font-mono text-sm text-[var(--stage-ink-soft)]">Answer</span>
+                    <span className="font-mono text-sm text-[var(--stage-ink-soft)]">{t("ui.answer")}</span>
                     <span className="font-mono text-2xl">
                         {reveal
                             ? String(answer.answer ?? config.answer ?? "?")
-                            : "Enter a number"}
+                            : t("ui.enterANumber")}
                     </span>
                 </div>
             )}
             {question.type === "FILL_BLANK" && (
                 <div className="mt-6 flex items-center gap-4 rounded-[2px] border border-[var(--stage-border)] bg-[var(--stage-surface)] px-4 py-4">
-                    <span className="font-mono text-sm text-[var(--stage-ink-soft)]">Blank</span>
+                    <span className="font-mono text-sm text-[var(--stage-ink-soft)]">{t("ui.blank")}</span>
                     <span className="font-mono text-xl">
-                        {reveal ? String(answer.answer ?? config.answer ?? "?") : "One answer"}
+                        {reveal ? String(answer.answer ?? config.answer ?? "?") : t("ui.oneAnswer")}
                     </span>
                 </div>
             )}
@@ -188,7 +190,7 @@ export function QuestionPreview({
                 question.type !== "NUMERIC" &&
                 question.type !== "FILL_BLANK" && (
                     <div className="mt-6 rounded-[2px] border border-[var(--stage-border)] bg-[var(--stage-surface)] px-4 py-4">
-                        <p className="label-caps mb-2">Correct answer</p>
+                        <p className="label-caps mb-2">{t("ui.correctAnswer")}</p>
                         <p className="text-lg leading-snug">
                             {answer.exemplar != null
                                 ? String(answer.exemplar)

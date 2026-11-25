@@ -1,6 +1,7 @@
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { X } from "@phosphor-icons/react";
 import { ReactNode } from "react";
+import { useI18n } from "../i18n";
 
 interface DialogProps {
     open: boolean;
@@ -12,6 +13,7 @@ interface DialogProps {
 
 /** Accessible modal (Radix) with the flat topbar treatment. */
 export function Dialog({ open, onOpenChange, title, children, size = "md" }: DialogProps) {
+    const { t } = useI18n();
     return (
         <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
             <RadixDialog.Portal>
@@ -25,7 +27,7 @@ export function Dialog({ open, onOpenChange, title, children, size = "md" }: Dia
                             {title}
                         </RadixDialog.Title>
                         <RadixDialog.Close
-                            aria-label="Close dialog"
+                            aria-label={t("ui.closeDialog")}
                             className="btn btn-ghost btn-icon"
                         >
                             <X size={18} weight="bold" />

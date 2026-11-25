@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from "react";
+import { useI18n } from "../../i18n";
 
 const KEY = "oq-stage-theme";
 
@@ -6,16 +7,16 @@ export type StageThemeId = "classic" | "light" | "neon" | "arena";
 
 export interface StageTheme {
     id: StageThemeId;
-    label: string;
+    labelKey: string;
     tokens: Record<string, string>;
 }
 
 /** Each theme only overrides stage tokens, so the rest of the app is untouched. */
 export const STAGE_THEMES: StageTheme[] = [
-    { id: "classic", label: "Classic", tokens: {} },
+    { id: "classic", labelKey: "ui.themeClassic", tokens: {} },
     {
         id: "light",
-        label: "Light",
+        labelKey: "ui.themeLight",
         tokens: {
             "--stage-surface": "rgb(244,239,228)",
             "--stage-ink": "rgb(26,23,20)",
@@ -27,7 +28,7 @@ export const STAGE_THEMES: StageTheme[] = [
     },
     {
         id: "neon",
-        label: "Neon",
+        labelKey: "ui.themeNeon",
         tokens: {
             "--stage-surface": "rgb(11,16,32)",
             "--stage-ink": "rgb(233,241,255)",
@@ -39,7 +40,7 @@ export const STAGE_THEMES: StageTheme[] = [
     },
     {
         id: "arena",
-        label: "Arena",
+        labelKey: "ui.themeArena",
         tokens: {
             "--stage-surface": "rgb(27,15,13)",
             "--stage-ink": "rgb(255,243,230)",
@@ -90,17 +91,18 @@ export function stageThemeStyle(id: StageThemeId): CSSProperties {
 
 export function StageThemePicker({ className = "" }: { className?: string }) {
     const [theme, choose] = useStageTheme();
+    const { t } = useI18n();
     return (
         <div className={`flex flex-wrap gap-2 ${className}`.trim()}>
-            {STAGE_THEMES.map((t) => (
+            {STAGE_THEMES.map((option) => (
                 <button
-                    key={t.id}
+                    key={option.id}
                     type="button"
-                    aria-pressed={theme === t.id}
-                    title={`Stage theme: ${t.label}`}
-                    onClick={() => choose(t.id)}
+                    aria-pressed={theme === option.id}
+                    title={`${t("ui.stageTheme")}: ${t(option.labelKey)}`}
+                    onClick={() => choose(option.id)}
                     className={`flex items-center gap-2 rounded-[2px] border px-3 py-2 text-sm font-bold min-h-[44px] transition-colors ${
-                        theme === t.id
+                        theme === option.id
                             ? "border-[var(--oq-accent)] bg-[var(--oq-row-alt)] text-[var(--oq-accent)]"
                             : "border-[var(--oq-border)] hover:bg-[var(--oq-row-alt)]"
                     }`}
@@ -108,9 +110,9 @@ export function StageThemePicker({ className = "" }: { className?: string }) {
                     <span
                         aria-hidden="true"
                         className="inline-block h-4 w-4 rounded-full border border-[var(--oq-border)]"
-                        style={{ background: t.tokens["--stage-accent"] ?? "rgb(21,22,25)" }}
+                        style={{ background: option.tokens["--stage-accent"] ?? "rgb(21,22,25)" }}
                     />
-                    {t.label}
+                    {t(option.labelKey)}
                 </button>
             ))}
         </div>
