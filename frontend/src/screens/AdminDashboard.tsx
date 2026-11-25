@@ -279,8 +279,10 @@ export function AdminDashboard() {
             const a = document.createElement("a");
             a.href = url;
             a.download = "sprintjudge-bank.json";
+            document.body.appendChild(a);
             a.click();
-            URL.revokeObjectURL(url);
+            a.remove();
+            window.setTimeout(() => URL.revokeObjectURL(url), 0);
         } catch {
             setBannerError("Export failed - are you logged in?");
         }

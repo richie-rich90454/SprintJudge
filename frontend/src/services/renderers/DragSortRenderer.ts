@@ -17,6 +17,12 @@ export class DragSortRenderer extends BaseQuestionRenderer {
         this.order = lines.map((l) => l.id);
 
         const list = el("div", { class: "flex flex-col gap-2" });
+        const move = (from: number, to: number) => {
+            const [moved] = this.order.splice(from, 1);
+            this.order.splice(to, 0, moved);
+            render();
+            this.emit({ order: [...this.order] });
+        };
         const render = () => {
             list.innerHTML = "";
             this.order.forEach((id, idx) => {
@@ -25,9 +31,27 @@ export class DragSortRenderer extends BaseQuestionRenderer {
                     class: "min-h-tap flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-surface cursor-move",
                     draggable: true,
                 });
+                const up = el("button", {
+                    type: "button",
+                    class: "min-h-[44px] px-2 border border-border rounded-lg",
+                });
+                up.textContent = "Up";
+                up.setAttribute("aria-label", `Move ${line.text} up`);
+                up.disabled = idx === 0;
+                up.addEventListener("click", () => move(idx, idx - 1));
+                const down = el("button", {
+                    type: "button",
+                    class: "min-h-[44px] px-2 border border-border rounded-lg",
+                });
+                down.textContent = "Down";
+                down.setAttribute("aria-label", `Move ${line.text} down`);
+                down.disabled = idx === this.order.length - 1;
+                down.addEventListener("click", () => move(idx, idx + 1));
                 row.append(
                     el("span", { class: "font-mono text-muted" }, [String(idx + 1) + "."]),
                     el("span", {}, [line.text]),
+                    up,
+                    down,
                 );
                 row.addEventListener("dragstart", (e) => {
                     row.dataset.drag = String(idx);
@@ -39,10 +63,7 @@ export class DragSortRenderer extends BaseQuestionRenderer {
                     const from = Number(e.dataTransfer?.getData("text/plain"));
                     const to = idx;
                     if (Number.isNaN(from) || from === to) return;
-                    const [moved] = this.order.splice(from, 1);
-                    this.order.splice(to, 0, moved);
-                    render();
-                    this.emit({ order: [...this.order] });
+                    move(from, to);
                 });
                 list.append(row);
             });

@@ -53,6 +53,7 @@ export function QuestionView() {
     const stageRef = useStageEnter<HTMLDivElement>([q?.id, status]);
 
     const boardLocked = boardDelayedForMode(gameMode) && status === "ACTIVE";
+    const revealSignal = status === "REVIEW" ? 1 : 0;
 
     useEffect(() => {
         if (resumeTried.current || hasPin) return;
@@ -84,6 +85,13 @@ export function QuestionView() {
         if (!q) return;
         const sub = lastResult?.submission;
         if (!sub || sub.questionId !== q.id) return;
+        // Only a server ack makes the draft disposable; queued/failed sends
+        // must survive a refresh so the player can retry.
+        try {
+            localStorage.removeItem(`sprintjudge_code_${q.id}`);
+        } catch {
+            /* ignore */
+        }
         const ok = sub.allPassed === true;
         const aiNote = sub.aiFeedback ? ` - ${sub.aiFeedback}` : "";
         setFeedback({
@@ -441,11 +449,6 @@ export function QuestionView() {
         submit(q.id, response, lang);
         setSubmitted(true);
         audio.play("click");
-        try {
-            localStorage.removeItem(`sprintjudge_code_${q.id}`);
-        } catch {
-            /* ignore */
-        }
     };
 
     return (
@@ -549,7 +552,7 @@ export function QuestionView() {
                         <QuestionRendererHost
                             question={q}
                             onResponse={setResponse}
-                            revealSignal={0}
+                            revealSignal={revealSignal}
                         />
                     </ErrorBoundary>
 

@@ -21,6 +21,8 @@ export class NumericRenderer extends BaseQuestionRenderer {
                 el("p", { class: "text-sm text-muted mt-1" }, [`Unit: ${this.config["unit"]}`]),
             );
         }
+        // An untouched field must still carry an answer on timer expiry.
+        this.emit({ value: this.value });
     }
 
     getResponse(): unknown {

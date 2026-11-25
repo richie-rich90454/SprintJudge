@@ -18,6 +18,8 @@ const uiMock = vi.hoisted(() => ({
 
 const navigateMock = vi.hoisted(() => vi.fn());
 const buildBankQuizMock = vi.hoisted(() => vi.fn());
+const originalCreateObjectURL = URL.createObjectURL;
+const originalRevokeObjectURL = URL.revokeObjectURL;
 
 vi.mock("../services/AdminApiService", () => ({
     adminApi: {
@@ -64,6 +66,10 @@ describe("ResultView", () => {
 
     afterEach(() => {
         vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+        vi.useRealTimers();
+        URL.createObjectURL = originalCreateObjectURL;
+        URL.revokeObjectURL = originalRevokeObjectURL;
     });
 
     test("renders empty results and disabled action buttons", async () => {
@@ -132,5 +138,34 @@ describe("ResultView", () => {
         const exportBtn = await screen.findByRole("button", { name: /Export CSV/i });
         fireEvent.click(exportBtn);
         await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    });
+
+    test("export keeps the anchor attached through click and revokes afterwards", async () => {
+        gameMock.state.review = {
+            sessionId: "s1",
+            questions: [],
+            players: [],
+            classStats: null,
+            teams: [],
+            rankings: [],
+        };
+        vi.useFakeTimers();
+        const revoke = vi.fn();
+        URL.createObjectURL = vi.fn().mockReturnValue("blob:csv") as any;
+        URL.revokeObjectURL = revoke as any;
+        let attachedAtClick = false;
+        vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+            this: HTMLAnchorElement,
+        ) {
+            attachedAtClick = document.body.contains(this);
+        });
+        render(<ResultView />);
+        const exportBtn = await screen.findByRole("button", { name: /Export CSV/i });
+        fireEvent.click(exportBtn);
+        for (let i = 0; i < 5; i++) await Promise.resolve();
+        expect(attachedAtClick).toBe(true);
+        expect(revoke).not.toHaveBeenCalled();
+        vi.advanceTimersByTime(0);
+        expect(revoke).toHaveBeenCalledWith("blob:csv");
     });
 });

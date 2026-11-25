@@ -321,7 +321,7 @@ describe("NumericRenderer", () => {
         const input = div.querySelector("input") as HTMLInputElement;
         input.value = "42";
         input.dispatchEvent(new Event("input", { bubbles: true }));
-        expect(seen).toEqual([{ value: 42 }]);
+        expect(seen).toEqual([{ value: null }, { value: 42 }]);
         expect(r.getResponse()).toEqual({ value: 42 });
     });
 
@@ -332,7 +332,7 @@ describe("NumericRenderer", () => {
         const input = div.querySelector("input") as HTMLInputElement;
         input.value = "";
         input.dispatchEvent(new Event("input", { bubbles: true }));
-        expect(seen).toEqual([{ value: null }]);
+        expect(seen).toEqual([{ value: null }, { value: null }]);
     });
 
     test("decimal input is parsed as a float", () => {
@@ -355,6 +355,14 @@ describe("NumericRenderer", () => {
         const div = host();
         new NumericRenderer(div, {}, () => {}).mount();
         expect(div.textContent).not.toContain("Unit:");
+    });
+
+    test("mount emits an empty answer so timer expiry never sends null", () => {
+        const seen: unknown[] = [];
+        const r = new NumericRenderer(host(), {}, (v) => seen.push(v));
+        r.mount();
+        expect(seen).toEqual([{ value: null }]);
+        expect(r.getResponse()).toEqual({ value: null });
     });
 });
 
@@ -412,7 +420,7 @@ describe("FillBlankRenderer", () => {
         const input = div.querySelector("input") as HTMLInputElement;
         input.value = "5";
         input.dispatchEvent(new Event("input", { bubbles: true }));
-        expect(seen).toEqual([{ text: "5" }]);
+        expect(seen).toEqual([{ text: "" }, { text: "5" }]);
         expect(r.getResponse()).toEqual({ text: "5" });
     });
 
@@ -420,6 +428,14 @@ describe("FillBlankRenderer", () => {
         const div = host();
         new FillBlankRenderer(div, {}, () => {}).mount();
         expect(div.querySelector("pre")?.textContent).toBe("");
+    });
+
+    test("mount emits an empty answer so timer expiry never sends null", () => {
+        const seen: unknown[] = [];
+        const r = new FillBlankRenderer(host(), {}, (v) => seen.push(v));
+        r.mount();
+        expect(seen).toEqual([{ text: "" }]);
+        expect(r.getResponse()).toEqual({ text: "" });
     });
 });
 
@@ -515,6 +531,30 @@ describe("DragSortRenderer", () => {
         r.mount();
         expect(seen).toEqual([{ order: [] }]);
         expect(r.getResponse()).toEqual({ order: [] });
+    });
+
+    test("aria-labeled up and down buttons reorder through the same emit path", () => {
+        const div = host();
+        const seen: unknown[] = [];
+        const r = new DragSortRenderer(div, { lines }, (v) => seen.push(v));
+        r.mount();
+        const up = div.querySelector("button[aria-label='Move second up']") as HTMLButtonElement;
+        expect(up).not.toBeNull();
+        up.click();
+        expect(r.getResponse()).toEqual({ order: ["l2", "l1", "l3"] });
+        expect(seen[seen.length - 1]).toEqual({ order: ["l2", "l1", "l3"] });
+        const down = div.querySelector("button[aria-label='Move first down']") as HTMLButtonElement;
+        down.click();
+        expect(r.getResponse()).toEqual({ order: ["l2", "l3", "l1"] });
+    });
+
+    test("boundary buttons are disabled", () => {
+        const div = host();
+        new DragSortRenderer(div, { lines }, () => {}).mount();
+        const first = div.querySelector("button[aria-label='Move first up']") as HTMLButtonElement;
+        const last = div.querySelector("button[aria-label='Move third down']") as HTMLButtonElement;
+        expect(first.disabled).toBe(true);
+        expect(last.disabled).toBe(true);
     });
 });
 

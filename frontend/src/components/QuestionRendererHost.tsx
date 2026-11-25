@@ -17,6 +17,10 @@ interface Props {
 export function QuestionRendererHost({ question, onResponse, revealSignal }: Props) {
     const hostRef = useRef<HTMLDivElement>(null);
     const rendererRef = useRef<BaseQuestionRenderer | null>(null);
+    // Inline callbacks change identity every render; remounting would wipe
+    // typed code, so the renderer reads the latest callback from a ref.
+    const onResponseRef = useRef(onResponse);
+    onResponseRef.current = onResponse;
 
     useEffect(() => {
         if (!hostRef.current) return;
@@ -24,7 +28,7 @@ export function QuestionRendererHost({ question, onResponse, revealSignal }: Pro
             question.type,
             hostRef.current,
             question.config,
-            (response) => onResponse(response),
+            (response) => onResponseRef.current(response),
             question.id,
             question.languagesAllowed,
         );
@@ -33,7 +37,7 @@ export function QuestionRendererHost({ question, onResponse, revealSignal }: Pro
         return () => renderer.destroy();
         // Key on id too: consecutive questions of the same type must not reuse
         // the previous question's mounted DOM.
-    }, [question.type, question.id, onResponse]);
+    }, [question.type, question.id]);
 
     useEffect(() => {
         if (revealSignal && revealSignal > 0) rendererRef.current?.reveal();

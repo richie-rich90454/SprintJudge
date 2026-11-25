@@ -96,8 +96,10 @@ export function ResultView() {
             const anchor = document.createElement("a");
             anchor.href = url;
             anchor.download = `sprintjudge-${review.sessionId}.csv`;
+            document.body.appendChild(anchor);
             anchor.click();
-            URL.revokeObjectURL(url);
+            anchor.remove();
+            window.setTimeout(() => URL.revokeObjectURL(url), 0);
         } catch {
             setExportError("Could not export the room. Sign in again and retry.");
         } finally {
