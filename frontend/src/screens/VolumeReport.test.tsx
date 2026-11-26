@@ -47,9 +47,9 @@ describe("VolumeReport", () => {
         expect(container.querySelector('[aria-live="polite"]')).toHaveTextContent(
             "6,000 questions in total, 1 of 3 subjects at 3,000",
         );
-        const names = screen.getAllByRole("row").slice(1).map((row) => row.cells[0].textContent);
+        const names = screen.getAllByRole("row").slice(1).map((row) => (row as HTMLTableRowElement).cells[0].textContent);
         expect(names).toEqual(["Algebra I", "Chemistry", "CUSTOM_CODE"]);
-        expect(screen.getAllByRole("row")[2].cells[1]).toHaveTextContent("3,000");
+        expect((screen.getAllByRole("row")[2] as HTMLTableRowElement).cells[1]).toHaveTextContent("3,000");
         expect(screen.getByText("2,999")).toBeInTheDocument();
         expect(screen.getByText("Ready")).toBeInTheDocument();
         expect(screen.getAllByText("Still adding")).toHaveLength(2);

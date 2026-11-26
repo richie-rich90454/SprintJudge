@@ -156,7 +156,7 @@ describe("stage motion hooks", () => {
     test("Flip enter and leave callbacks animate their elements", () => {
         const node = document.createElement("div");
         const fromTo = vi.spyOn(gsap, "fromTo");
-        const from = vi.spyOn(Flip, "from").mockImplementation((_state: unknown, vars: Record<string, unknown>) => {
+        const from = vi.spyOn(Flip, "from").mockImplementation((_state: unknown, vars: any) => {
             (vars.onEnter as (els: Element[]) => void)([node]);
             (vars.onLeave as (els: Element[]) => void)([node]);
             return {} as never;

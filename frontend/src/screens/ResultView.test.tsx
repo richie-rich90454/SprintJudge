@@ -9,6 +9,8 @@ const gameMock = vi.hoisted(() => ({
         leaderboard: [] as any[],
         review: null as any,
         error: null as string | null,
+        quizId: null as string | null,
+        practicing: false,
     },
 }));
 

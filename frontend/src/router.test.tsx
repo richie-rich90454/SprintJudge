@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { describe, expect, test, vi } from "vitest";
 
 vi.mock("./screens/LandingView", () => ({ LandingView: () => null }));
@@ -60,7 +61,7 @@ describe("router configuration", () => {
     });
 
     test("validates host search params", () => {
-        const host = router.routeTree.children?.find((child) => child.options.path === "/host");
+        const host = router.routeTree.children?.find((child) => (child as any).options.path === "/host");
         const validate = host?.options.validateSearch as (s: Record<string, unknown>) => Record<string, unknown>;
         expect(validate({ pin: "1234", projector: "1" })).toEqual({ pin: "1234", projector: true });
         expect(validate({ pin: 1234, projector: 1 })).toEqual({ pin: "1234", projector: true });
@@ -68,7 +69,7 @@ describe("router configuration", () => {
     });
 
     test("root renders a path-keyed route container", () => {
-        const Root = router.routeTree.options.component as () => JSX.Element;
+        const Root = router.routeTree.options.component as () => ReactElement;
         routeState.pathname = "/solo";
         const { container } = render(<Root />);
         expect(container.firstChild).toHaveClass("route-enter");
