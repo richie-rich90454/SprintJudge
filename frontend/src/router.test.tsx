@@ -7,6 +7,20 @@ vi.mock("./screens/JoinView", () => ({ JoinView: () => null }));
 vi.mock("./screens/SoloView", () => ({ SoloView: () => null }));
 vi.mock("./screens/ExploreView", () => ({ ExploreView: () => null }));
 vi.mock("./screens/AdminLoginView", () => ({ AdminLoginView: () => null }));
+// Intercept every lazy screen so preload() resolves locally instead of pulling
+// real modules (and their editor/worker dependencies) into jsdom.
+vi.mock("./screens/AdminDashboard", () => ({ AdminDashboard: () => null }));
+vi.mock("./screens/AnalyticsView", () => ({ AnalyticsView: () => null }));
+vi.mock("./screens/AssignmentView", () => ({ AssignmentView: () => null }));
+vi.mock("./screens/BankBrowser", () => ({ BankBrowser: () => null }));
+vi.mock("./screens/HostView", () => ({ HostView: () => null }));
+vi.mock("./screens/PracticeView", () => ({ PracticeView: () => null }));
+vi.mock("./screens/ProfileView", () => ({ ProfileView: () => null }));
+vi.mock("./screens/QuestionView", () => ({ QuestionView: () => null }));
+vi.mock("./screens/QuestionWizard", () => ({ QuestionWizard: () => null }));
+vi.mock("./screens/ResultView", () => ({ ResultView: () => null }));
+vi.mock("./screens/SpectatorView", () => ({ SpectatorView: () => null }));
+vi.mock("./screens/VolumeReport", () => ({ VolumeReport: () => null }));
 
 const routeState = vi.hoisted(() => ({ pathname: "/" }));
 vi.mock("@tanstack/react-router", async (importOriginal) => {
