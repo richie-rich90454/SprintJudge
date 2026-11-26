@@ -45,7 +45,7 @@ function topMisconception(
     const worst = Object.entries(round.answerCounts)
         .filter(([key]) => meta.has(key))
         .sort(([, a], [, b]) => b - a)[0];
-    return worst ? meta.get(worst[0]) ?? null : null;
+    return worst ? meta.get(worst[0])! : null;
 }
 
 export function HostStage({

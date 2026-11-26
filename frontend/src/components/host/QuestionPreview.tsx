@@ -22,7 +22,6 @@ function CodeLines({
     highlight: number | null;
     reveal: boolean;
 }) {
-    if (!lines.length) return null;
     return (
         <pre className="overflow-x-auto rounded-[2px] border border-[var(--stage-border)] bg-[var(--stage-bg)] p-4 font-mono text-[0.95rem] leading-7">
             <code className="block">

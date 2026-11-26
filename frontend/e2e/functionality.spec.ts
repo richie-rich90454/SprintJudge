@@ -28,33 +28,40 @@ test.describe("functionality", () => {
             readFileSync(new URL("../../contracts/question-schema.json", import.meta.url), "utf8"),
         );
         const subjects = schema.properties.subject.enum as string[];
-        const result = await page.evaluate(async ({ base, subjects }) => {
-            const token = document.cookie
-                .split("; ")
-                .find((cookie) => cookie.startsWith("XSRF-TOKEN="))
-                ?.split("=")[1] ?? "";
-            const counts: Record<string, number> = {};
-            for (const subject of subjects) {
-                const response = await fetch(
-                    `${base}/api/admin/bank/search?subject=${subject}`,
-                    { credentials: "include", headers: { "X-XSRF-TOKEN": token } },
-                );
-                counts[subject] = response.ok ? (await response.json()).length : -1;
-            }
-            return counts;
-        }, { base: B, subjects });
+        const result = await page.evaluate(
+            async ({ base, subjects }) => {
+                const token =
+                    document.cookie
+                        .split("; ")
+                        .find((cookie) => cookie.startsWith("XSRF-TOKEN="))
+                        ?.split("=")[1] ?? "";
+                const counts: Record<string, number> = {};
+                for (const subject of subjects) {
+                    const response = await fetch(
+                        `${base}/api/admin/bank/search?subject=${subject}`,
+                        { credentials: "include", headers: { "X-XSRF-TOKEN": token } },
+                    );
+                    counts[subject] = response.ok ? (await response.json()).length : -1;
+                }
+                return counts;
+            },
+            { base: B, subjects },
+        );
         for (const subject of subjects) {
             expect(result[subject], `${subject} returned ${result[subject]}`).toBeGreaterThan(0);
         }
     });
 
-    test("admin quiz, question, settings, export/import, build and game flows", async ({ page }) => {
+    test("admin quiz, question, settings, export/import, build and game flows", async ({
+        page,
+    }) => {
         await login(page);
         const results = await page.evaluate(async (base) => {
-            const token = document.cookie
-                .split("; ")
-                .find((cookie) => cookie.startsWith("XSRF-TOKEN="))
-                ?.split("=")[1] ?? "";
+            const token =
+                document.cookie
+                    .split("; ")
+                    .find((cookie) => cookie.startsWith("XSRF-TOKEN="))
+                    ?.split("=")[1] ?? "";
             const call = async (path: string, method: string, body?: unknown) => {
                 const response = await fetch(base + path, {
                     method,
@@ -74,18 +81,25 @@ test.describe("functionality", () => {
             const importedId = "e2e-import-" + stamp;
 
             // A seed template supplies a valid, schema-checked question config.
-            const existing = JSON.parse((await call("/api/admin/quizzes", "GET")).body) as { id: string }[];
+            const existing = JSON.parse((await call("/api/admin/quizzes", "GET")).body) as {
+                id: string;
+            }[];
             const template = JSON.parse(
                 (await call(`/api/admin/quizzes/${existing[0].id}/questions`, "GET")).body,
             )[0] as Record<string, unknown> | undefined;
             check.hasTemplate = Boolean(template);
 
-            check.createQuiz = (await call("/api/admin/quizzes", "POST", {
-                id: quizId,
-                title: "E2E matrix quiz",
-                description: "temporary",
-            })).status === 200;
-            const listed = JSON.parse((await call("/api/admin/quizzes", "GET")).body) as { id: string }[];
+            check.createQuiz =
+                (
+                    await call("/api/admin/quizzes", "POST", {
+                        id: quizId,
+                        title: "E2E matrix quiz",
+                        description: "temporary",
+                    })
+                ).status === 200;
+            const listed = JSON.parse((await call("/api/admin/quizzes", "GET")).body) as {
+                id: string;
+            }[];
             check.createdQuizListed = listed.some((q) => q.id === quizId);
 
             if (template) {
@@ -101,23 +115,37 @@ test.describe("functionality", () => {
                     config: template.config,
                     orderIndex: 0,
                 };
-                check.addQuestion = (await call(`/api/admin/quizzes/${quizId}/questions`, "POST", payload)).status === 200;
-                const readBack = JSON.parse((await call(`/api/admin/quizzes/${quizId}/questions`, "GET")).body) as { id: string }[];
+                check.addQuestion =
+                    (await call(`/api/admin/quizzes/${quizId}/questions`, "POST", payload))
+                        .status === 200;
+                const readBack = JSON.parse(
+                    (await call(`/api/admin/quizzes/${quizId}/questions`, "GET")).body,
+                ) as { id: string }[];
                 check.questionListed = readBack.some((q) => q.id === questionId);
-                check.updateQuestion = (await call(`/api/admin/questions/${questionId}`, "PUT", {
-                    ...payload,
-                    title: "E2E question edited",
-                })).status === 200;
-                const edited = JSON.parse((await call(`/api/admin/quizzes/${quizId}/questions`, "GET")).body) as { title: string }[];
+                check.updateQuestion =
+                    (
+                        await call(`/api/admin/questions/${questionId}`, "PUT", {
+                            ...payload,
+                            title: "E2E question edited",
+                        })
+                    ).status === 200;
+                const edited = JSON.parse(
+                    (await call(`/api/admin/quizzes/${quizId}/questions`, "GET")).body,
+                ) as { title: string }[];
                 check.questionEdited = edited.some((q) => q.title === "E2E question edited");
-                check.deleteQuestion = (await call(`/api/admin/questions/${questionId}`, "DELETE")).status === 204;
-                const afterDelete = JSON.parse((await call(`/api/admin/quizzes/${quizId}/questions`, "GET")).body) as { id: string }[];
+                check.deleteQuestion =
+                    (await call(`/api/admin/questions/${questionId}`, "DELETE")).status === 204;
+                const afterDelete = JSON.parse(
+                    (await call(`/api/admin/quizzes/${quizId}/questions`, "GET")).body,
+                ) as { id: string }[];
                 check.questionDeleted = !afterDelete.some((q) => q.id === questionId);
             }
 
             const settings = await call("/api/admin/settings", "GET");
             check.getSettings = settings.status === 200;
-            check.saveSettings = (await call("/api/admin/settings", "PUT", { e2eProbe: String(stamp) })).status === 200;
+            check.saveSettings =
+                (await call("/api/admin/settings", "PUT", { e2eProbe: String(stamp) })).status ===
+                200;
             const afterSettings = await call("/api/admin/settings", "GET");
             check.settingsPersisted = JSON.parse(afterSettings.body).e2eProbe === String(stamp);
 
@@ -126,23 +154,43 @@ test.describe("functionality", () => {
             const bundle = {
                 version: "1.0",
                 exportedAt: 1,
-                quizzes: [{ id: importedId, title: "E2E import", description: "temporary", template: false, questions: [] }],
+                quizzes: [
+                    {
+                        id: importedId,
+                        title: "E2E import",
+                        description: "temporary",
+                        template: false,
+                        questions: [],
+                    },
+                ],
                 settings: {},
             };
-            check.import = (await call("/api/admin/import", "POST", { json: JSON.stringify(bundle), replace: false })).status === 200;
-            check.importedQuizListed = (JSON.parse((await call("/api/admin/quizzes", "GET")).body) as { id: string }[])
-                .some((q) => q.id === importedId);
-            check.deleteImportedQuiz = (await call(`/api/admin/quizzes/${importedId}`, "DELETE")).status === 204;
+            check.import =
+                (
+                    await call("/api/admin/import", "POST", {
+                        json: JSON.stringify(bundle),
+                        replace: false,
+                    })
+                ).status === 200;
+            check.importedQuizListed = (
+                JSON.parse((await call("/api/admin/quizzes", "GET")).body) as { id: string }[]
+            ).some((q) => q.id === importedId);
+            check.deleteImportedQuiz =
+                (await call(`/api/admin/quizzes/${importedId}`, "DELETE")).status === 204;
 
             const built = await call("/api/admin/bank/build", "POST", {
-                subject: "JAVA_PROGRAMMING", count: 3, title: "E2E matrix built",
+                subject: "JAVA_PROGRAMMING",
+                count: 3,
+                title: "E2E matrix built",
             });
             check.build = built.status === 200 && JSON.parse(built.body).questions === 3;
             const builtQuiz = JSON.parse(built.body).quizId as string;
             const game = await call("/api/admin/games", "POST", { quizId, gameMode: "STANDARD" });
             check.createGame = game.status === 200 && Boolean(JSON.parse(game.body).pinCode);
-            check.deleteBuiltQuiz = (await call(`/api/admin/quizzes/${builtQuiz}`, "DELETE")).status === 204;
-            check.deleteQuiz = (await call(`/api/admin/quizzes/${quizId}`, "DELETE")).status === 204;
+            check.deleteBuiltQuiz =
+                (await call(`/api/admin/quizzes/${builtQuiz}`, "DELETE")).status === 204;
+            check.deleteQuiz =
+                (await call(`/api/admin/quizzes/${quizId}`, "DELETE")).status === 204;
             return check;
         }, B);
         for (const [action, ok] of Object.entries(results)) {
@@ -190,10 +238,11 @@ test.describe("functionality", () => {
         for (const mode of modes) {
             const pin = await page.evaluate(
                 async ({ base, quizId, mode }) => {
-                    const token = document.cookie
-                        .split("; ")
-                        .find((cookie) => cookie.startsWith("XSRF-TOKEN="))
-                        ?.split("=")[1] ?? "";
+                    const token =
+                        document.cookie
+                            .split("; ")
+                            .find((cookie) => cookie.startsWith("XSRF-TOKEN="))
+                            ?.split("=")[1] ?? "";
                     const response = await fetch(base + "/api/admin/games", {
                         method: "POST",
                         credentials: "include",
@@ -211,7 +260,9 @@ test.describe("functionality", () => {
             expect(pin, `${mode} failed to create a game`).toBeTruthy();
             await page.goto(`${B}/host?pin=${pin}`);
             await expect(page.locator("body")).toContainText(pin as string, { timeout: 10000 });
-            await expect(page.getByText(/share the pin|no players yet/i).first()).toBeVisible({ timeout: 10000 });
+            await expect(page.getByText(/share the pin|no players yet/i).first()).toBeVisible({
+                timeout: 10000,
+            });
         }
     });
 });

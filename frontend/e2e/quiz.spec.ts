@@ -37,5 +37,4 @@ test.describe("SprintJudge live loop", () => {
         });
         await expect(page.getByText("No game", { exact: true })).toHaveCount(0);
     });
-
 });

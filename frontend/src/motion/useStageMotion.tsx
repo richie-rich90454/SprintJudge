@@ -132,7 +132,7 @@ export function useCountUp<T extends HTMLElement>(active = true, deps: unknown[]
         if (!nodes.length) return;
         const ctx = gsap.context(() => {
             nodes.forEach((node) => {
-                const target = Number(node.dataset.count ?? "0");
+                const target = Number(node.dataset.count);
                 if (!Number.isFinite(target)) return;
                 const obj = { value: 0 };
                 gsap.to(obj, {
