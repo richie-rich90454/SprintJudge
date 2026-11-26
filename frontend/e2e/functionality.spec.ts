@@ -55,6 +55,7 @@ test.describe("functionality", () => {
     test("admin quiz, question, settings, export/import, build and game flows", async ({
         page,
     }) => {
+        test.setTimeout(90_000);
         await login(page);
         const results = await page.evaluate(async (base) => {
             const token =

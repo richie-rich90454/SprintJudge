@@ -169,7 +169,7 @@ test-e2e: ## Playwright specs; boots a CI-equivalent backend on :8080 and Vite o
 	    sleep 1; \
 	  done; \
 	fi; \
-	SPRINTJUDGE_ADMIN_PASSWORD=ci-admin-password $(NPM) run test:e2e --prefix $(FRONTEND)
+	SPRINTJUDGE_E2E_HARNESS=1 SPRINTJUDGE_ADMIN_PASSWORD=ci-admin-password $(NPM) run test:e2e --prefix $(FRONTEND)
 
 .PHONY: verify-prod
 verify-prod: ## Boot prod jar on :8091 and probe health (PORT=, SKIP_BUILD=1).
