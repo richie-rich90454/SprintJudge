@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { SpectatorView } from "./SpectatorView";
 
@@ -13,19 +13,32 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@tanstack/react-router", () => ({
-    Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
+    Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+        <a href={to}>{children}</a>
+    ),
     useParams: () => ({ pin: mocks.pin }),
 }));
 vi.mock("../stores/useGameStore", () => ({
     useGameStore: (selector: (s: Record<string, unknown>) => unknown) =>
-        selector({ connect: mocks.connect, join: mocks.join, room: mocks.room, error: mocks.error }),
+        selector({
+            connect: mocks.connect,
+            join: mocks.join,
+            room: mocks.room,
+            error: mocks.error,
+        }),
 }));
 vi.mock("../hooks/useJoinUrl", () => ({ useJoinUrl: () => mocks.joinUrl }));
 vi.mock("../game/WebSocketService", () => ({ webSocketService: { disconnect: mocks.disconnect } }));
 vi.mock("../components/host/HostStage", () => ({
-    HostStage: ({ pin, joinUrl, projector }: { pin: string; joinUrl: string; projector?: boolean }) => (
-        <div data-testid="stage">{`${pin}|${joinUrl}|${projector ? "projector" : "host"}`}</div>
-    ),
+    HostStage: ({
+        pin,
+        joinUrl,
+        projector,
+    }: {
+        pin: string;
+        joinUrl: string;
+        projector?: boolean;
+    }) => <div data-testid="stage">{`${pin}|${joinUrl}|${projector ? "projector" : "host"}`}</div>,
 }));
 vi.mock("../components/AboutDialog", () => ({ AboutDialog: () => <div>About</div> }));
 
@@ -36,6 +49,8 @@ describe("SpectatorView", () => {
         mocks.room = null;
         mocks.error = null;
     });
+
+    afterEach(() => vi.unstubAllGlobals());
 
     test("does not connect without a PIN", () => {
         mocks.pin = undefined;
@@ -52,6 +67,12 @@ describe("SpectatorView", () => {
         expect(screen.getByRole("link", { name: "Back" })).toHaveAttribute("href", "/");
     });
 
+    test("connects over wss on an https origin", () => {
+        vi.stubGlobal("location", { protocol: "https:", host: "example.com" });
+        render(<SpectatorView />);
+        expect(mocks.connect).toHaveBeenCalledWith("wss://example.com/ws");
+    });
+
     test("shows the connection error and hint when the join fails", () => {
         mocks.error = "Room not found";
         render(<SpectatorView />);
@@ -63,7 +84,9 @@ describe("SpectatorView", () => {
     test("renders a read-only host stage once the room arrives and disconnects on unmount", () => {
         mocks.room = { pin: "1234" };
         const { unmount } = render(<SpectatorView />);
-        expect(screen.getByTestId("stage")).toHaveTextContent("1234|http://localhost/j/1234|projector");
+        expect(screen.getByTestId("stage")).toHaveTextContent(
+            "1234|http://localhost/j/1234|projector",
+        );
         expect(screen.getByText("Projector view. Read only.")).toBeInTheDocument();
         unmount();
         expect(mocks.disconnect).toHaveBeenCalledOnce();

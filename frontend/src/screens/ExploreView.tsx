@@ -88,7 +88,7 @@ export function ExploreView() {
                 {visible.length > 0 && (
                     <div>
                         <p className="label-caps mb-3" aria-live="polite">
-                            {visible.length} of {data?.length ?? 0} quizzes
+                            {visible.length} of {data!.length} quizzes
                         </p>
                         <div className="grid gap-4 md:grid-cols-2">
                             {visible.slice(0, limit).map((quiz) => (

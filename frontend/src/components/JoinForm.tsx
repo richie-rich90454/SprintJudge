@@ -87,9 +87,7 @@ export function JoinForm({ initialPin = "", heading, submitClassName = "" }: Joi
                 <p className="text-[var(--oq-ink-soft)] text-sm" role="status">
                     {!name.trim()
                         ? t("ui.enterYourNameToJoin")
-                        : pin.length < 6
-                          ? t("ui.pinDigits", { count: pin.length })
-                          : ""}
+                        : t("ui.pinDigits", { count: pin.length })}
                 </p>
             )}
             <Button

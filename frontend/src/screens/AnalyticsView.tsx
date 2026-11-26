@@ -87,7 +87,9 @@ export function AnalyticsView() {
                         {t("ui.howIsTheClassDoing")}
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        {t("ui.accuracyComesFromSubmittedAnswersDifficultyDiscriminationAndTimingBaselinesComeFromTheQuestionBank")}
+                        {t(
+                            "ui.accuracyComesFromSubmittedAnswersDifficultyDiscriminationAndTimingBaselinesComeFromTheQuestionBank",
+                        )}
                     </p>
                 </div>
 
@@ -117,7 +119,11 @@ export function AnalyticsView() {
                             <EmptyState
                                 title={t("ui.couldNotLoadTheClassSummary")}
                                 hint={t("ui.checkYourConnectionAndTryAgain")}
-                                action={<Button variant="secondary" onClick={() => classes.refetch()}>{t("ui.retry")}</Button>}
+                                action={
+                                    <Button variant="secondary" onClick={() => classes.refetch()}>
+                                        {t("ui.retry")}
+                                    </Button>
+                                }
                             />
                         </Card>
                     )}
@@ -145,20 +151,30 @@ export function AnalyticsView() {
                                     <table className="table-dotted w-full text-sm">
                                         <thead>
                                             <tr>
-                                                <th scope="col" className="p-3 text-left">{t("ui.session")}</th>
-                                                <th scope="col" className="p-3 text-left">{t("ui.players")}</th>
-                                                <th scope="col" className="p-3 text-left">{t("ui.accuracy")}</th>
+                                                <th scope="col" className="p-3 text-left">
+                                                    {t("ui.session")}
+                                                </th>
+                                                <th scope="col" className="p-3 text-left">
+                                                    {t("ui.players")}
+                                                </th>
+                                                <th scope="col" className="p-3 text-left">
+                                                    {t("ui.accuracy")}
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {(classes.data.sessionStats ?? []).map((row) => (
+                                            {classes.data.sessionStats!.map((row) => (
                                                 <tr key={row.sessionId}>
-                                                    <td className="p-3 font-mono text-xs">{row.sessionId}</td>
+                                                    <td className="p-3 font-mono text-xs">
+                                                        {row.sessionId}
+                                                    </td>
                                                     <td className="p-3">{row.players}</td>
                                                     <td className="p-3">
                                                         <div className="flex items-center gap-2">
                                                             <Bar value={row.accuracy} />
-                                                            <span className="w-10 text-right">{pct(row.accuracy)}</span>
+                                                            <span className="w-10 text-right">
+                                                                {pct(row.accuracy)}
+                                                            </span>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -179,13 +195,20 @@ export function AnalyticsView() {
                             <EmptyState
                                 title={t("ui.couldNotLoadTheStudentReport")}
                                 hint={t("ui.checkYourConnectionAndTryAgain")}
-                                action={<Button variant="secondary" onClick={() => students.refetch()}>{t("ui.retry")}</Button>}
+                                action={
+                                    <Button variant="secondary" onClick={() => students.refetch()}>
+                                        {t("ui.retry")}
+                                    </Button>
+                                }
                             />
                         </Card>
                     )}
                     {students.data && students.data.length === 0 && (
                         <Card className="p-4">
-                            <EmptyState title={t("ui.noSubmissionsYet")} hint={t("ui.reportsAppearAfterStudentsAnswer")} />
+                            <EmptyState
+                                title={t("ui.noSubmissionsYet")}
+                                hint={t("ui.reportsAppearAfterStudentsAnswer")}
+                            />
                         </Card>
                     )}
                     {students.data && students.data.length > 0 && (
@@ -193,26 +216,42 @@ export function AnalyticsView() {
                             <table className="table-dotted w-full text-sm">
                                 <thead>
                                     <tr>
-                                        <th scope="col" className="p-4 text-left">{t("ui.student")}</th>
-                                        <th scope="col" className="p-4 text-left">{t("ui.attempts")}</th>
-                                        <th scope="col" className="p-4 text-left">{t("ui.accuracy")}</th>
-                                        <th scope="col" className="p-4 text-left">{t("ui.avgScore")}</th>
-                                        <th scope="col" className="p-4 text-left">{t("ui.triesPerItem")}</th>
+                                        <th scope="col" className="p-4 text-left">
+                                            {t("ui.student")}
+                                        </th>
+                                        <th scope="col" className="p-4 text-left">
+                                            {t("ui.attempts")}
+                                        </th>
+                                        <th scope="col" className="p-4 text-left">
+                                            {t("ui.accuracy")}
+                                        </th>
+                                        <th scope="col" className="p-4 text-left">
+                                            {t("ui.avgScore")}
+                                        </th>
+                                        <th scope="col" className="p-4 text-left">
+                                            {t("ui.triesPerItem")}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {students.data.map((row) => (
                                         <tr key={row.playerUuid}>
-                                            <td className="p-4 font-bold">{row.playerName || row.playerUuid}</td>
+                                            <td className="p-4 font-bold">
+                                                {row.playerName || row.playerUuid}
+                                            </td>
                                             <td className="p-4">{row.attempts}</td>
                                             <td className="p-4">
                                                 <div className="flex items-center gap-2">
                                                     <Bar value={row.accuracy} />
-                                                    <span className="w-10 text-right">{pct(row.accuracy)}</span>
+                                                    <span className="w-10 text-right">
+                                                        {pct(row.accuracy)}
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td className="p-4">{Math.round(row.avgScore)}</td>
-                                            <td className="p-4">{row.avgAttemptsPerItem?.toFixed(1) ?? "-"}</td>
+                                            <td className="p-4">
+                                                {row.avgAttemptsPerItem?.toFixed(1) ?? "-"}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -233,7 +272,9 @@ export function AnalyticsView() {
                                     onChange={(e) => setSubject(e.target.value)}
                                 >
                                     {subjects.map((code) => (
-                                        <option key={code} value={code}>{code}</option>
+                                        <option key={code} value={code}>
+                                            {code}
+                                        </option>
                                     ))}
                                 </select>
                             </Field>
@@ -245,13 +286,20 @@ export function AnalyticsView() {
                             <EmptyState
                                 title={t("ui.couldNotLoadItemData")}
                                 hint={t("ui.checkYourConnectionAndTryAgain")}
-                                action={<Button variant="secondary" onClick={() => items.refetch()}>{t("ui.retry")}</Button>}
+                                action={
+                                    <Button variant="secondary" onClick={() => items.refetch()}>
+                                        {t("ui.retry")}
+                                    </Button>
+                                }
                             />
                         </Card>
                     )}
                     {items.data && items.data.length === 0 && (
                         <Card className="p-4">
-                            <EmptyState title={t("ui.noItemDataYet")} hint={t("ui.attemptedBankItemsAppearHere")} />
+                            <EmptyState
+                                title={t("ui.noItemDataYet")}
+                                hint={t("ui.attemptedBankItemsAppearHere")}
+                            />
                         </Card>
                     )}
                     {items.data && items.data.length > 0 && (
@@ -259,11 +307,21 @@ export function AnalyticsView() {
                             <table className="table-dotted w-full text-sm">
                                 <thead>
                                     <tr>
-                                        <th scope="col" className="p-4 text-left">{t("ui.item")}</th>
-                                        <th scope="col" className="p-4 text-left">{t("ui.attempts")}</th>
-                                        <th scope="col" className="p-4 text-left">{t("ui.observedAuthoredDifficulty")}</th>
-                                        <th scope="col" className="p-4 text-left">{t("ui.discrimination")}</th>
-                                        <th scope="col" className="p-4 text-left">{t("ui.baselineS")}</th>
+                                        <th scope="col" className="p-4 text-left">
+                                            {t("ui.item")}
+                                        </th>
+                                        <th scope="col" className="p-4 text-left">
+                                            {t("ui.attempts")}
+                                        </th>
+                                        <th scope="col" className="p-4 text-left">
+                                            {t("ui.observedAuthoredDifficulty")}
+                                        </th>
+                                        <th scope="col" className="p-4 text-left">
+                                            {t("ui.discrimination")}
+                                        </th>
+                                        <th scope="col" className="p-4 text-left">
+                                            {t("ui.baselineS")}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -280,15 +338,20 @@ export function AnalyticsView() {
                                                 <div className="flex items-center gap-2">
                                                     <Bar value={row.pValue} tone="neutral" />
                                                     <span className="w-16 text-right">
-                                                        {pct(row.pValue)} / {row.bankDifficulty === null
+                                                        {pct(row.pValue)} /{" "}
+                                                        {row.bankDifficulty === null
                                                             ? "-"
                                                             : pct(row.bankDifficulty)}
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="p-4">{row.discrimination?.toFixed(2) ?? "-"}</td>
                                             <td className="p-4">
-                                                {row.medianSec == null ? "-" : Math.round(row.medianSec)}
+                                                {row.discrimination?.toFixed(2) ?? "-"}
+                                            </td>
+                                            <td className="p-4">
+                                                {row.medianSec == null
+                                                    ? "-"
+                                                    : Math.round(row.medianSec)}
                                             </td>
                                         </tr>
                                     ))}
@@ -345,29 +408,40 @@ export function AnalyticsView() {
                             </Field>
                         </div>
                         <div>
-                            <Button onClick={createSet} disabled={!activeSubject || build.isPending}>
+                            <Button
+                                onClick={createSet}
+                                disabled={!activeSubject || build.isPending}
+                            >
                                 {build.isPending ? t("ui.buildingDots") : t("ui.buildPlayableQuiz")}
                             </Button>
                         </div>
                         {build.isError && (
                             <p className="text-[var(--oq-danger)] text-sm" role="alert">
-                                {build.error instanceof Error ? build.error.message : t("ui.buildFailed")}
+                                {build.error instanceof Error
+                                    ? build.error.message
+                                    : t("ui.buildFailed")}
                             </p>
                         )}
                         {result && (
                             <div className="flex flex-col gap-2" aria-live="polite">
                                 <Chip tone="success">{result.questionCount} questions ready</Chip>
                                 <p className="text-sm">
-                                    {t("ui.quizIdLabel")} <span className="font-mono">{result.quizId}</span>
+                                    {t("ui.quizIdLabel")}{" "}
+                                    <span className="font-mono">{result.quizId}</span>
                                 </p>
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
                                     Average difficulty {pct(result.avgDifficulty)}, discrimination{" "}
-                                    {result.avgDiscrimination?.toFixed(2) ?? "-"}, {result.skipped} skipped.
+                                    {result.avgDiscrimination?.toFixed(2) ?? "-"}, {result.skipped}{" "}
+                                    skipped.
                                 </p>
                                 <div className="flex flex-wrap gap-2">
-                                    {Object.entries(result.difficultyBands ?? {}).map(([band, count]) => (
-                                        <Chip key={band}>{band}: {count}</Chip>
-                                    ))}
+                                    {Object.entries(result.difficultyBands ?? {}).map(
+                                        ([band, count]) => (
+                                            <Chip key={band}>
+                                                {band}: {count}
+                                            </Chip>
+                                        ),
+                                    )}
                                 </div>
                             </div>
                         )}

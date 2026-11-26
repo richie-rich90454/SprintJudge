@@ -17,7 +17,9 @@ describe("CollectionsMenu", () => {
         expect(screen.getByRole("button", { name: "Collections" })).toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", { name: "Collections" }));
         expect(screen.getByText("No folders yet.")).toBeInTheDocument();
-        expect(screen.getByText("Quiz One - folders are kept in this browser.")).toBeInTheDocument();
+        expect(
+            screen.getByText("Quiz One - folders are kept in this browser."),
+        ).toBeInTheDocument();
 
         fireEvent.click(screen.getByRole("button", { name: "Create" }));
         expect(JSON.parse(localStorage.getItem("oq_collections") ?? "[]")).toEqual([]);
@@ -62,6 +64,21 @@ describe("CollectionsMenu", () => {
         localStorage.setItem("oq_collections", "{bad json");
         render(<CollectionsMenu quizId="q1" title="Quiz One" />);
         fireEvent.click(screen.getByRole("button", { name: "Collections" }));
+        expect(screen.getByText("No folders yet.")).toBeInTheDocument();
+    });
+
+    test("ignores storage that is not an array and an empty create", () => {
+        localStorage.setItem("oq_collections", JSON.stringify({ id: "a", name: "Not a list" }));
+        render(<CollectionsMenu quizId="q1" title="Quiz One" />);
+        fireEvent.click(screen.getByRole("button", { name: "Collections" }));
+        expect(screen.getByText("No folders yet.")).toBeInTheDocument();
+
+        const input = screen.getByRole("textbox", { name: "New folder name" });
+        fireEvent.change(input, { target: { value: "   " } });
+        fireEvent.keyDown(input, { key: "Enter" });
+        expect(localStorage.getItem("oq_collections")).toBe(
+            JSON.stringify({ id: "a", name: "Not a list" }),
+        );
         expect(screen.getByText("No folders yet.")).toBeInTheDocument();
     });
 

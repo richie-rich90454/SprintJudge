@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { AdminLoginView } from "./AdminLoginView";
 
 vi.mock("../components/Shell", () => ({
@@ -17,10 +17,7 @@ describe("AdminLoginView", () => {
 
     beforeEach(() => {
         window.history.replaceState({}, "", "/admin/login");
-        vi.stubGlobal(
-            "fetch",
-            vi.fn().mockResolvedValue({ ok: true, json: async () => [] }),
-        );
+        vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => [] }));
     });
     afterEach(() => {
         window.history.replaceState({}, "", originalSearch || "/admin/login");
@@ -32,7 +29,10 @@ describe("AdminLoginView", () => {
         expect(screen.getByLabelText("Username")).toHaveAttribute("name", "username");
         expect(screen.getByLabelText("Password")).toHaveAttribute("type", "password");
         expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
-        expect(screen.getByRole("link", { name: "Back to player view" })).toHaveAttribute("href", "/");
+        expect(screen.getByRole("link", { name: "Back to player view" })).toHaveAttribute(
+            "href",
+            "/",
+        );
         expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
 
@@ -46,7 +46,9 @@ describe("AdminLoginView", () => {
     test("lists OAuth providers returned by the public endpoint", async () => {
         (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
             ok: true,
-            json: async () => [{ id: "g", name: "Google", authorizationUrl: "https://example.com/oauth" }],
+            json: async () => [
+                { id: "g", name: "Google", authorizationUrl: "https://example.com/oauth" },
+            ],
         });
         render(<AdminLoginView />);
         expect(await screen.findByRole("link", { name: "Google" })).toHaveAttribute(
@@ -56,8 +58,43 @@ describe("AdminLoginView", () => {
         expect(screen.getByText("Or sign in with")).toBeInTheDocument();
     });
 
+    test("ignores provider results that arrive after unmount", async () => {
+        const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+        let resolve!: (value: unknown) => void;
+        (fetch as ReturnType<typeof vi.fn>).mockReturnValue(
+            new Promise((done) => {
+                resolve = done;
+            }),
+        );
+        const first = render(<AdminLoginView />);
+        first.unmount();
+        await act(async () => {
+            resolve({
+                ok: true,
+                json: async () => [
+                    { id: "g", name: "Google", authorizationUrl: "https://example.com/oauth" },
+                ],
+            });
+            await Promise.resolve();
+        });
+        expect(first.container).toBeEmptyDOMElement();
+
+        (fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("offline"));
+        const second = render(<AdminLoginView />);
+        second.unmount();
+        await act(async () => {
+            await Promise.resolve();
+            await Promise.resolve();
+        });
+        expect(errors).not.toHaveBeenCalled();
+        errors.mockRestore();
+    });
+
     test("handles a non-OK response and a rejected fetch", async () => {
-        (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ok: false, json: async () => [] });
+        (fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+            ok: false,
+            json: async () => [],
+        });
         const first = render(<AdminLoginView />);
         await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/public/auth/providers"));
         expect(first.container.querySelector('a[href="https://example.com/oauth"]')).toBeNull();

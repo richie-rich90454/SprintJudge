@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QuestionWizard } from "./QuestionWizard";
@@ -10,6 +11,18 @@ vi.mock("../components/QuestionRendererHost", () => ({
         return <div data-testid="renderer" />;
     },
 }));
+
+vi.mock("../ui/Dialog", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("../ui/Dialog")>();
+    return {
+        Dialog: ({ children, onOpenChange, ...rest }: ComponentProps<typeof actual.Dialog>) => (
+            <actual.Dialog {...rest} onOpenChange={onOpenChange}>
+                <button aria-label="Reopen dialog" onClick={() => onOpenChange(true)} />
+                {children}
+            </actual.Dialog>
+        ),
+    };
+});
 
 describe("QuestionWizard step focus", () => {
     beforeEach(() => {
@@ -111,7 +124,9 @@ describe("QuestionWizard config editors", () => {
     test("offers a code snippet for OUTPUT_PRED only", () => {
         setWizard("OUTPUT_PRED", { options: ["A"], code: "int x;" });
         render(<QuestionWizard />);
-        fireEvent.change(screen.getByPlaceholderText("Code snippet"), { target: { value: "int y;" } });
+        fireEvent.change(screen.getByPlaceholderText("Code snippet"), {
+            target: { value: "int y;" },
+        });
         expect(draftConfig().code).toBe("int y;");
     });
 
@@ -145,7 +160,9 @@ describe("QuestionWizard config editors", () => {
         fireEvent.change(screen.getByPlaceholderText("Snippet (use ___ for the blank)"), {
             target: { value: "The capital is ___" },
         });
-        fireEvent.change(screen.getByPlaceholderText("Correct answer"), { target: { value: "Paris" } });
+        fireEvent.change(screen.getByPlaceholderText("Correct answer"), {
+            target: { value: "Paris" },
+        });
         expect(draftConfig().snippet).toBe("The capital is ___");
         expect(draftConfig().answer).toBe("Paris");
     });
@@ -165,7 +182,9 @@ describe("QuestionWizard config editors", () => {
     test("edits CLICK_BUG code lines from an empty draft", () => {
         setWizard("CLICK_BUG", {});
         render(<QuestionWizard />);
-        expect(screen.getByText("No code lines yet - add one buggy line per row below.")).toBeInTheDocument();
+        expect(
+            screen.getByText("No code lines yet - add one buggy line per row below."),
+        ).toBeInTheDocument();
         fireEvent.change(screen.getByPlaceholderText("One buggy line per row"), {
             target: { value: "line1\nline2" },
         });
@@ -202,7 +221,9 @@ describe("QuestionWizard config editors", () => {
         setWizard("OJ_PATCH", {});
         render(<QuestionWizard />);
         expect(screen.getByPlaceholderText("Buggy function")).toBeInTheDocument();
-        fireEvent.change(screen.getByPlaceholderText("Buggy function"), { target: { value: "bug" } });
+        fireEvent.change(screen.getByPlaceholderText("Buggy function"), {
+            target: { value: "bug" },
+        });
         expect(draftConfig().buggyFunction).toBe("bug");
     });
 
@@ -258,7 +279,9 @@ describe("QuestionWizard extra type editors", () => {
             correctRegionIds: ["a"],
         });
         render(<QuestionWizard />);
-        fireEvent.change(screen.getByLabelText("Image URL"), { target: { value: "https://example.com/b.png" } });
+        fireEvent.change(screen.getByLabelText("Image URL"), {
+            target: { value: "https://example.com/b.png" },
+        });
         expect(draftConfig().imageUrl).toBe("https://example.com/b.png");
         fireEvent.change(screen.getByLabelText("Label"), { target: { value: "B" } });
         expect(draftConfig().regions[0].label).toBe("B");
@@ -293,7 +316,9 @@ describe("QuestionWizard extra type editors", () => {
             parts: [{ id: "p1", prompt: "P", kind: "TEXT", options: [], answer: "A", points: 1 }],
         });
         render(<QuestionWizard />);
-        fireEvent.change(screen.getByPlaceholderText("Part 1 prompt"), { target: { value: "New" } });
+        fireEvent.change(screen.getByPlaceholderText("Part 1 prompt"), {
+            target: { value: "New" },
+        });
         expect(draftConfig().parts[0].prompt).toBe("New");
         fireEvent.change(screen.getByLabelText("Kind"), { target: { value: "MCQ" } });
         expect(draftConfig().parts[0].kind).toBe("MCQ");
@@ -323,7 +348,9 @@ describe("QuestionWizard statement, preview and save", () => {
         });
         fireEvent.change(screen.getByLabelText("Time limit (s)"), { target: { value: "60" } });
         fireEvent.change(screen.getByLabelText("Base points"), { target: { value: "250" } });
-        fireEvent.change(screen.getByLabelText("Image URL"), { target: { value: "javascript:alert(1)" } });
+        fireEvent.change(screen.getByLabelText("Image URL"), {
+            target: { value: "javascript:alert(1)" },
+        });
         expect(useAdminStore.getState().draft.title).toBe("Edited");
         expect(useAdminStore.getState().draft.description).toBe("New description");
         expect(useAdminStore.getState().draft.timeLimitSec).toBe(60);
@@ -339,18 +366,26 @@ describe("QuestionWizard statement, preview and save", () => {
         });
         render(<QuestionWizard />);
         expect(screen.getByTestId("renderer")).toBeInTheDocument();
-        expect(wizard.rendered[0].question).toMatchObject({ id: "preview", title: "Edited", type: "MCQ" });
+        expect(wizard.rendered[0].question).toMatchObject({
+            id: "preview",
+            title: "Edited",
+            type: "MCQ",
+        });
         fireEvent.click(screen.getByRole("button", { name: "Back" }));
         expect(useAdminStore.getState().wizardStep).toBe("config");
     });
 
     test("renders the extra-type preview and rich-media author preview", () => {
-        setWizard("MATCHING", {
-            left: ["L"],
-            right: ["R"],
-            pairs: [{ left: 0, right: 0 }],
-            rich: { latex: "x^2" },
-        }, "preview");
+        setWizard(
+            "MATCHING",
+            {
+                left: ["L"],
+                right: ["R"],
+                pairs: [{ left: 0, right: 0 }],
+                rich: { latex: "x^2" },
+            },
+            "preview",
+        );
         render(<QuestionWizard />);
         expect(wizard.rendered).toHaveLength(0);
         expect(screen.getByText("L → R")).toBeInTheDocument();
@@ -391,7 +426,9 @@ describe("QuestionWizard statement, preview and save", () => {
         fireEvent.click(screen.getByRole("button", { name: "Save question" }));
         expect(screen.getByRole("button", { name: "Saving…" })).toBeDisabled();
         resolve();
-        await waitFor(() => expect(screen.getByRole("button", { name: "Save question" })).toBeEnabled());
+        await waitFor(() =>
+            expect(screen.getByRole("button", { name: "Save question" })).toBeEnabled(),
+        );
     });
 
     test("step buttons and Preview navigate between steps", () => {
@@ -429,5 +466,37 @@ describe("QuestionWizard statement, preview and save", () => {
         render(<QuestionWizard />);
         fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
         expect(close).toHaveBeenCalledOnce();
+    });
+
+    test("an open notification leaves the wizard open", () => {
+        const close = vi.fn();
+        useAdminStore.setState({ closeWizard: close } as any);
+        render(<QuestionWizard />);
+        fireEvent.click(screen.getByRole("button", { name: "Reopen dialog" }));
+        expect(close).not.toHaveBeenCalled();
+    });
+
+    test("renders the rich stem author preview for a core type", () => {
+        setWizard(
+            "MCQ",
+            { options: ["A", "B"], correctIndex: 0, rich: { latex: "x^2" } },
+            "preview",
+        );
+        render(<QuestionWizard />);
+        expect(screen.getByText("Rich stem media (author preview)")).toBeInTheDocument();
+    });
+
+    test("shows the clean state when the quality rules find nothing", () => {
+        setWizard(
+            "TRUE_FALSE",
+            {
+                explanation: "This is a long enough explanation that ends with a full stop.",
+                hint: "Think about it.",
+            },
+            "config",
+            { description: "" },
+        );
+        render(<QuestionWizard />);
+        expect(screen.getByText("No findings from the bank advisory rules.")).toBeInTheDocument();
     });
 });

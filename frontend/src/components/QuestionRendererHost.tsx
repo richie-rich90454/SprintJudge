@@ -23,10 +23,9 @@ export function QuestionRendererHost({ question, onResponse, revealSignal }: Pro
     onResponseRef.current = onResponse;
 
     useEffect(() => {
-        if (!hostRef.current) return;
         const renderer = QuestionRendererFactory.create(
             question.type,
-            hostRef.current,
+            hostRef.current!,
             question.config,
             (response) => onResponseRef.current(response),
             question.id,

@@ -205,7 +205,7 @@ export function BankBrowser() {
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     const needle = unit.trim();
-    const code = SUBJECT_CODES[subject] ?? subject;
+    const code = SUBJECT_CODES[subject];
     const search = useQuery({
         queryKey: ["bank-search", code, needle, scope],
         queryFn: () => searchBank({ subject: code, unit: needle || undefined, scope }),
@@ -247,7 +247,9 @@ export function BankBrowser() {
                         {t("ui.browseTheQuestionBank")}
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        {t("ui.pickASubjectToSeeWhichQuestionsAreReadyForClassTitlesOnlyAnswersStayHidden")}
+                        {t(
+                            "ui.pickASubjectToSeeWhichQuestionsAreReadyForClassTitlesOnlyAnswersStayHidden",
+                        )}
                     </p>
                 </div>
                 <Card className="p-6 flex flex-col gap-5 md:flex-row md:items-end">
@@ -299,8 +301,8 @@ export function BankBrowser() {
                 </Card>
                 {coverage.data && (
                     <p className="label-caps" aria-live="polite">
-                        {coverage.data.subject}: {coverage.data.total} questions
-                        across {coverage.data.units.length} units
+                        {coverage.data.subject}: {coverage.data.total} questions across{" "}
+                        {coverage.data.units.length} units
                     </p>
                 )}
                 {coverage.isError && (
@@ -309,7 +311,11 @@ export function BankBrowser() {
                     </p>
                 )}
                 {search.isPending && (
-                    <div className="grid gap-4 md:grid-cols-2" role="status" aria-label={t("ui.loadingQuestions")}>
+                    <div
+                        className="grid gap-4 md:grid-cols-2"
+                        role="status"
+                        aria-label={t("ui.loadingQuestions")}
+                    >
                         <Skeleton className="h-36" />
                         <Skeleton className="h-36" />
                         <Skeleton className="h-36" />
@@ -353,20 +359,18 @@ export function BankBrowser() {
                                             }
                                             aria-expanded={selectedId === q.id}
                                         >
-                                            <span className="font-bold leading-snug">
-                                                {q.stem}
-                                            </span>
+                                            <span className="font-bold leading-snug">{q.stem}</span>
                                             <span className="flex flex-wrap gap-2">
                                                 <Chip tone="neutral">{q.unit}</Chip>
                                                 <Chip tone="accent">
                                                     {q.format.replace(/_/g, " ")}
                                                 </Chip>
-                                                <Chip tone="neutral">
-                                                    {scopeLabel(q.scope, t)}
-                                                </Chip>
+                                                <Chip tone="neutral">{scopeLabel(q.scope, t)}</Chip>
                                             </span>
                                             <span className="text-sm text-[var(--oq-ink-soft)]">
-                                                {selectedId === q.id ? t("ui.hideDetails") : t("ui.showDetails")}
+                                                {selectedId === q.id
+                                                    ? t("ui.hideDetails")
+                                                    : t("ui.showDetails")}
                                             </span>
                                         </button>
                                     </Card>
@@ -401,12 +405,11 @@ export function BankBrowser() {
                                 <p className="label-caps">{t("ui.questionDetails")}</p>
                                 <p className="font-bold leading-snug">{detail.data.stem}</p>
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
-                                    {detail.data.subject}, {detail.data.unit},{" "}
-                                    {detail.data.topic}, {scopeLabel(detail.data.scope, t)}
+                                    {detail.data.subject}, {detail.data.unit}, {detail.data.topic},{" "}
+                                    {scopeLabel(detail.data.scope, t)}
                                 </p>
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
-                                    Reference:{" "}
-                                    <span className="mono">{detail.data.id}</span>
+                                    Reference: <span className="mono">{detail.data.id}</span>
                                 </p>
                             </div>
                         )}

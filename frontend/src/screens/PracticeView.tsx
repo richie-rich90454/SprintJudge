@@ -21,8 +21,8 @@ export function PracticeView() {
     const { t } = useI18n();
     const [name, setName] = useState("");
     // An Explore card can preselect its bank via ?bank=<id>.
-    const [bankId, setBankId] = useState<string | null>(
-        () => new URLSearchParams(window.location.search).get("bank"),
+    const [bankId, setBankId] = useState<string | null>(() =>
+        new URLSearchParams(window.location.search).get("bank"),
     );
     const [query, setQuery] = useState("");
     const [limit, setLimit] = useState(20);
@@ -32,7 +32,12 @@ export function PracticeView() {
     const join = useGameStore((s) => s.join);
     const setPin = useUIStore((s) => s.setPin);
     const navigate = useNavigate();
-    const { data: banks, isPending, isError, refetch } = useQuery({
+    const {
+        data: banks,
+        isPending,
+        isError,
+        refetch,
+    } = useQuery({
         queryKey: ["banks"],
         queryFn: () => adminApi.listBanks(),
     });
@@ -48,7 +53,7 @@ export function PracticeView() {
 
     const onSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        if (!canSubmit || bankId === null) return;
+        if (!canSubmit) return;
         setBusy(true);
         setError(null);
         try {
@@ -74,7 +79,9 @@ export function PracticeView() {
                         {t("ui.drillAtYourOwnPace")}
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        {t("ui.pickAQuestionBankFirstUntimedWithInstantFeedbackAfterEveryAnswerAndAutomaticAdvanceToTheNextQuestionNoHostNoWaiting")}
+                        {t(
+                            "ui.pickAQuestionBankFirstUntimedWithInstantFeedbackAfterEveryAnswerAndAutomaticAdvanceToTheNextQuestionNoHostNoWaiting",
+                        )}
                     </p>
                 </div>
                 <Card className="p-6">
@@ -92,7 +99,10 @@ export function PracticeView() {
                                 className="mb-3 text-sm"
                             />
                             {isPending && (
-                                <div className="flex flex-col gap-2" aria-label={t("ui.loadingBanks")}>
+                                <div
+                                    className="flex flex-col gap-2"
+                                    aria-label={t("ui.loadingBanks")}
+                                >
                                     <Skeleton className="h-14" />
                                     <Skeleton className="h-14" />
                                 </div>
@@ -102,10 +112,7 @@ export function PracticeView() {
                                     title={t("ui.couldNotLoadBanks")}
                                     hint={t("ui.checkYourConnectionAndTryAgain")}
                                     action={
-                                        <Button
-                                            variant="secondary"
-                                            onClick={() => refetch()}
-                                        >
+                                        <Button variant="secondary" onClick={() => refetch()}>
                                             {t("ui.retry")}
                                         </Button>
                                     }
@@ -142,7 +149,9 @@ export function PracticeView() {
                                                 className="mt-1"
                                             />
                                             <span>
-                                                <span className="block font-bold">{bank.title}</span>
+                                                <span className="block font-bold">
+                                                    {bank.title}
+                                                </span>
                                                 {bank.description && (
                                                     <span className="block text-sm text-[var(--oq-ink-soft)]">
                                                         {bank.description}

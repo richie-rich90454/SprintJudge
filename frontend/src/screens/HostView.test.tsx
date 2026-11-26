@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { HostView } from "./HostView";
 
@@ -33,7 +33,9 @@ const m = vi.hoisted(() => {
 });
 
 vi.mock("@tanstack/react-router", () => ({
-    Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
+    Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+        <a href={to}>{children}</a>
+    ),
     useSearch: () => m.search,
 }));
 vi.mock("../stores/useGameStore", () => ({
@@ -105,10 +107,27 @@ describe("HostView", () => {
         document.exitFullscreen = vi.fn().mockResolvedValue(undefined);
     });
 
+    afterEach(() => vi.unstubAllGlobals());
+
     test("prompts for a game created in the admin dashboard when no PIN is available", () => {
         render(<HostView />);
-        expect(screen.getByRole("link", { name: "Admin dashboard" })).toHaveAttribute("href", "/admin");
+        expect(screen.getByRole("link", { name: "Admin dashboard" })).toHaveAttribute(
+            "href",
+            "/admin",
+        );
         expect(m.state.connect).not.toHaveBeenCalled();
+    });
+
+    test("uses wss on https and shows the game-over panel when the store status is ENDED", () => {
+        m.search = { pin: "1234" };
+        m.state.status = "ENDED";
+        vi.stubGlobal("location", { protocol: "https:", host: "example.com" });
+        render(<HostView />);
+        expect(m.state.connect).toHaveBeenCalledWith("wss://example.com/ws");
+        expect(screen.getByRole("link", { name: "View results" })).toHaveAttribute(
+            "href",
+            "/results",
+        );
     });
 
     test("connects with a PIN from search, shows loading and reports errors", () => {
@@ -144,7 +163,9 @@ describe("HostView", () => {
 
     test("handles a rejected clipboard write and toggles full screen both ways", async () => {
         m.search = { pin: "1234" };
-        (navigator.clipboard.writeText as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("denied"));
+        (navigator.clipboard.writeText as ReturnType<typeof vi.fn>).mockRejectedValue(
+            new Error("denied"),
+        );
         const { rerender } = render(<HostView />);
         fireEvent.click(screen.getByRole("button", { name: "Copy join link" }));
         await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledOnce());
@@ -281,7 +302,10 @@ describe("HostView", () => {
 
         m.state.room = { status: "ENDED", gameMode: "CLASSIC", players: [] };
         rerender(<HostView />);
-        expect(screen.getByRole("link", { name: "View results" })).toHaveAttribute("href", "/results");
+        expect(screen.getByRole("link", { name: "View results" })).toHaveAttribute(
+            "href",
+            "/results",
+        );
         expect(screen.queryByRole("button", { name: "End game" })).not.toBeInTheDocument();
     });
 
@@ -430,7 +454,9 @@ describe("HostView", () => {
         };
         render(<HostView />);
         expect(screen.getByText("Player")).toBeInTheDocument();
-        const bold = Array.from(document.querySelectorAll(".font-bold")).map((el) => el.textContent);
+        const bold = Array.from(document.querySelectorAll(".font-bold")).map(
+            (el) => el.textContent,
+        );
         expect(bold).toContain("Grace");
         expect(screen.getAllByText(/socket lost/).length).toBeGreaterThanOrEqual(1);
     });
@@ -468,7 +494,9 @@ describe("HostView", () => {
         m.search = { pin: "1234" };
         m.state.room = { status: "LOBBY", gameMode: "BATTLE", players: [player("h", "Host", 0)] };
         render(<HostView />);
-        expect(screen.getByText("Start the battle to build the first bracket.")).toBeInTheDocument();
+        expect(
+            screen.getByText("Start the battle to build the first bracket."),
+        ).toBeInTheDocument();
         expect(screen.getByText("0 rounds")).toBeInTheDocument();
         expect(screen.getByText("No players yet - share the PIN.")).toBeInTheDocument();
         expect(screen.getAllByText(/0 students/).length).toBeGreaterThan(0);

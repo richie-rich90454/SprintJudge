@@ -3,7 +3,9 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { PracticeView } from "./PracticeView";
 
-const rq = vi.hoisted(() => ({ state: { isPending: false, isError: false, data: undefined as any, refetch: vi.fn() } }));
+const rq = vi.hoisted(() => ({
+    state: { isPending: false, isError: false, data: undefined as any, refetch: vi.fn() },
+}));
 const mocks = vi.hoisted(() => ({
     startPractice: vi.fn(),
     connect: vi.fn(),
@@ -34,7 +36,8 @@ vi.mock("../stores/useGameStore", () => ({
         selector({ connect: mocks.connect, join: mocks.join }),
 }));
 vi.mock("../stores/useUIStore", () => ({
-    useUIStore: (selector: (s: Record<string, unknown>) => unknown) => selector({ setPin: mocks.setPin }),
+    useUIStore: (selector: (s: Record<string, unknown>) => unknown) =>
+        selector({ setPin: mocks.setPin }),
 }));
 
 const banks = [
@@ -52,7 +55,10 @@ describe("PracticeView", () => {
         mocks.startPractice.mockResolvedValue({ pinCode: "123456" });
     });
 
-    afterEach(() => window.history.replaceState({}, "", originalSearch || "/practice"));
+    afterEach(() => {
+        window.history.replaceState({}, "", originalSearch || "/practice");
+        vi.unstubAllGlobals();
+    });
 
     test("fetches the bank list through the configured query", () => {
         render(<PracticeView />);
@@ -132,6 +138,22 @@ describe("PracticeView", () => {
         expect(mocks.play).toHaveBeenCalledWith("start");
     });
 
+    test("ignores a direct submit without a bank and connects over wss on https", async () => {
+        const incomplete = render(<PracticeView />);
+        fireEvent.change(screen.getByLabelText("Your name"), { target: { value: "Ada" } });
+        fireEvent.submit(screen.getByRole("button", { name: "Start practicing" }).closest("form")!);
+        expect(mocks.startPractice).not.toHaveBeenCalled();
+        incomplete.unmount();
+
+        vi.stubGlobal("location", { protocol: "https:", host: "example.com", search: "" });
+        render(<PracticeView />);
+        fireEvent.click(screen.getByRole("radio", { name: /Java Programming/ }));
+        fireEvent.change(screen.getByLabelText("Your name"), { target: { value: "Ada" } });
+        fireEvent.click(screen.getByRole("button", { name: "Start practicing" }));
+        await waitFor(() => expect(mocks.navigate).toHaveBeenCalledWith({ to: "/play" }));
+        expect(mocks.connect).toHaveBeenCalledWith("wss://example.com/ws");
+    });
+
     test("shows an error and returns to idle when starting practice fails", async () => {
         mocks.startPractice.mockRejectedValue(new Error("offline"));
         render(<PracticeView />);
@@ -139,7 +161,9 @@ describe("PracticeView", () => {
         fireEvent.change(screen.getByLabelText("Your name"), { target: { value: "Ada" } });
         fireEvent.click(screen.getByRole("button", { name: "Start practicing" }));
 
-        expect(await screen.findByRole("alert")).toHaveTextContent("Could not start a practice set");
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+            "Could not start a practice set",
+        );
         expect(screen.getByRole("button", { name: "Start practicing" })).toBeEnabled();
         expect(mocks.navigate).not.toHaveBeenCalled();
     });

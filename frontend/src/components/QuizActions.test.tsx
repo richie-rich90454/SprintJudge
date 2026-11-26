@@ -30,6 +30,16 @@ describe("QuizActions", () => {
         expect(screen.getByRole("button", { name: "Remix" })).toBeDisabled();
     });
 
+    test("ignores a direct action invocation when no quiz is open", () => {
+        render(<QuizActions title="Bank" />);
+        const button = screen.getByRole("button", { name: "Duplicate" });
+        const propsKey = Object.keys(button).find((key) => key.startsWith("__reactProps"));
+        expect(propsKey).toBeDefined();
+        (button as any)[propsKey!].onClick();
+        expect(api.getQuestions).not.toHaveBeenCalled();
+        expect(api.createQuiz).not.toHaveBeenCalled();
+    });
+
     test("copies questions in their saved order", async () => {
         render(<QuizActions quizId="quiz-1" title="Bank" description="Description" />);
         fireEvent.click(screen.getByRole("button", { name: "Duplicate" }));
@@ -38,12 +48,17 @@ describe("QuizActions", () => {
         await waitFor(() =>
             expect(screen.getByRole("status")).toHaveTextContent("Copy created in the dashboard."),
         );
-        expect(api.createQuiz).toHaveBeenCalledWith({ title: "Bank (copy)", description: "Description" });
+        expect(api.createQuiz).toHaveBeenCalledWith({
+            title: "Bank (copy)",
+            description: "Description",
+        });
         expect(api.addQuestion.mock.calls.map(([payload]) => payload.title)).toEqual([
             "First",
             "Second",
         ]);
-        expect(api.addQuestion.mock.calls.every(([payload]) => payload.quizId === "new-quiz")).toBe(true);
+        expect(api.addQuestion.mock.calls.every(([payload]) => payload.quizId === "new-quiz")).toBe(
+            true,
+        );
     });
 
     test("remixes question order and defaults the description", async () => {

@@ -21,7 +21,6 @@ import { HostStage } from "../components/host/HostStage";
 import { useJoinUrl } from "../hooks/useJoinUrl";
 
 const ROW_H = 44;
-const PROJECTOR_ROW_H = 64;
 
 interface TeamRow {
     id: string;
@@ -66,7 +65,9 @@ function TeamBoard() {
                             </span>
                             <span className="mono text-xs text-[var(--oq-ink-soft)]">
                                 {team.memberUuids.length}{" "}
-                                {team.memberUuids.length === 1 ? t("ui.memberSingular") : t("ui.membersPlural")}
+                                {team.memberUuids.length === 1
+                                    ? t("ui.memberSingular")
+                                    : t("ui.membersPlural")}
                             </span>
                             <span className="mono font-bold tabular-nums">
                                 {(Number.isFinite(team.score) ? team.score : 0).toLocaleString()}
@@ -99,7 +100,9 @@ function BracketPanel() {
                 <h3 className="font-extrabold text-lg">{t("ui.bracket")}</h3>
                 <span className="label-caps">
                     {bracket?.rounds.length ?? 0}{" "}
-                    {(bracket?.rounds.length ?? 0) === 1 ? t("ui.roundSingular") : t("ui.roundsPlural")}
+                    {(bracket?.rounds.length ?? 0) === 1
+                        ? t("ui.roundSingular")
+                        : t("ui.roundsPlural")}
                 </span>
             </div>
             {!bracket || bracket.rounds.length === 0 ? (
@@ -118,9 +121,7 @@ function BracketPanel() {
                                         className="flex items-center justify-between gap-3 border border-[var(--oq-border)] px-3 py-2"
                                     >
                                         <span
-                                            className={
-                                                p.winnerUuid === p.p1Uuid ? "font-bold" : ""
-                                            }
+                                            className={p.winnerUuid === p.p1Uuid ? "font-bold" : ""}
                                         >
                                             {nameOf(p.p1Uuid)}
                                         </span>
@@ -128,9 +129,7 @@ function BracketPanel() {
                                             {p.bye ? t("ui.byeLabel") : t("ui.vsLabel")}
                                         </span>
                                         <span
-                                            className={
-                                                p.winnerUuid === p.p2Uuid ? "font-bold" : ""
-                                            }
+                                            className={p.winnerUuid === p.p2Uuid ? "font-bold" : ""}
                                         >
                                             {p.bye ? "" : nameOf(p.p2Uuid)}
                                         </span>
@@ -150,7 +149,7 @@ function BracketPanel() {
     );
 }
 
-function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
+function LeaderboardPanel() {
     const { t } = useI18n();
     const leaderboard = useGameStore((s) => s.leaderboard);
     const room = useGameStore((s) => s.room);
@@ -168,8 +167,8 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
                   rank: i + 1,
               }));
 
-    const rh = projector ? PROJECTOR_ROW_H : ROW_H;
-    const maxH = projector ? 640 : 460;
+    const rh = ROW_H;
+    const maxH = 460;
     const listRef = useFlipList<HTMLDivElement>([rows.map((r) => r.uuid).join(",")]);
     const { ref, start, end } = useVirtualWindow(rows.length, rh, 6, maxH);
     const slice = rows.slice(start, end);
@@ -181,7 +180,8 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
                     {t("ui.leaderboard")}
                 </h3>
                 <span className="label-caps">
-                    {rows.length} {rows.length === 1 ? t("ui.studentSingular") : t("ui.studentsPlural")}
+                    {rows.length}{" "}
+                    {rows.length === 1 ? t("ui.studentSingular") : t("ui.studentsPlural")}
                 </span>
             </div>
             {wsError && (
@@ -205,7 +205,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
                                 return (
                                     <div
                                         key={r.uuid}
-                                        className={`lb-row flip-row flex items-center gap-4 px-6 border-b border-dotted border-[var(--oq-border)] ${podium ? "bg-[var(--oq-row-alt)]" : ""} ${projector ? "text-2xl" : ""}`}
+                                        className={`lb-row flip-row flex items-center gap-4 px-6 border-b border-dotted border-[var(--oq-border)] ${podium ? "bg-[var(--oq-row-alt)]" : ""}`}
                                         style={{ height: rh, minHeight: 44 }}
                                     >
                                         <span
@@ -214,7 +214,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
                                                 podium
                                                     ? {
                                                           color: "var(--oq-accent)",
-                                                          fontSize: projector ? 26 : 18,
+                                                          fontSize: 18,
                                                       }
                                                     : { color: "var(--oq-border-strong)" }
                                             }
@@ -229,7 +229,7 @@ function LeaderboardPanel({ projector = false }: { projector?: boolean }) {
                                         </span>
                                         <span
                                             className="mono font-bold tabular-nums"
-                                            style={{ fontSize: projector ? 24 : 17 }}
+                                            style={{ fontSize: 17 }}
                                         >
                                             {(r.score ?? 0).toLocaleString()}
                                         </span>
@@ -275,7 +275,11 @@ function ControlsPanel() {
     const players = (room?.players ?? []).filter((p) => p.name !== "Host");
     const active = status === "ACTIVE";
     const reviewing = status === "REVIEW";
-    const statusCopy = active ? t("ui.roundLive") : reviewing ? t("ui.reviewingAnswers") : t("ui.awaitingStart");
+    const statusCopy = active
+        ? t("ui.roundLive")
+        : reviewing
+          ? t("ui.reviewingAnswers")
+          : t("ui.awaitingStart");
 
     useEffect(() => {
         const sub = webSocketService.onMessage().subscribe((m: WsMessage) => {
@@ -359,7 +363,9 @@ function ControlsPanel() {
                                 // rounds (each NEXT reveals and advances).
                                 if (advanceLock.current) return;
                                 advanceLock.current = true;
-                                window.setTimeout(() => { advanceLock.current = false; }, 600);
+                                window.setTimeout(() => {
+                                    advanceLock.current = false;
+                                }, 600);
                                 hostCommand("NEXT_QUESTION", { ...readFairness() });
                             }}
                         >
@@ -452,11 +458,14 @@ function ControlsPanel() {
                         ))}
                         {teamsLoading && (
                             <li className="text-[var(--oq-ink-soft)] text-sm inline-flex items-center gap-2 min-h-[44px]">
-                                <span className="oq-spin" aria-hidden="true" /> {t("ui.loadingTeams")}
+                                <span className="oq-spin" aria-hidden="true" />{" "}
+                                {t("ui.loadingTeams")}
                             </li>
                         )}
                         {!teamsLoading && teams.length === 0 && !teamsError && (
-                            <li className="text-[var(--oq-ink-soft)] text-sm">{t("ui.noTeamsYet")}</li>
+                            <li className="text-[var(--oq-ink-soft)] text-sm">
+                                {t("ui.noTeamsYet")}
+                            </li>
                         )}
                     </ul>
                 </div>
@@ -472,7 +481,8 @@ function ControlsPanel() {
 
             <div className="pt-4 border-t border-[var(--oq-border)]">
                 <p className="label-caps mb-3">
-                    {players.length} {players.length === 1 ? t("ui.studentSingular") : t("ui.studentsPlural")}
+                    {players.length}{" "}
+                    {players.length === 1 ? t("ui.studentSingular") : t("ui.studentsPlural")}
                 </p>
                 {!room && (
                     <p className="text-[var(--oq-ink-soft)] text-sm inline-flex items-center gap-2 min-h-[44px]">
@@ -627,7 +637,10 @@ export function HostView() {
                                 <Chip tone={tone}>{statusLabel}</Chip>
                             </div>
                             <p className="font-bold text-lg">
-                                {playerCount} {playerCount === 1 ? t("ui.studentSingular") : t("ui.studentsPlural")}
+                                {playerCount}{" "}
+                                {playerCount === 1
+                                    ? t("ui.studentSingular")
+                                    : t("ui.studentsPlural")}
                             </p>
                         </div>
                         <div className="flex-1" />
@@ -672,7 +685,9 @@ export function HostView() {
                                     <div key={i} className="skeleton h-11" />
                                 ))}
                             </div>
-                            <p className="text-[var(--oq-ink-soft)] text-sm mt-4">{t("ui.loadingRoom")}</p>
+                            <p className="text-[var(--oq-ink-soft)] text-sm mt-4">
+                                {t("ui.loadingRoom")}
+                            </p>
                             {wsError && (
                                 <p role="alert" className="text-[var(--oq-danger)] text-sm mt-2">
                                     Connection error: {wsError}
@@ -697,7 +712,9 @@ export function HostView() {
                     <Card className="p-6 flex flex-col gap-4">
                         <h3 className="font-extrabold text-lg">{t("ui.gameOver")}</h3>
                         <p className="text-[var(--oq-ink-soft)] text-sm">
-                            {t("ui.finalStandingsAreOnTheBoardOpenTheFullReviewWithAnswerKeyAndClassAnalysis")}
+                            {t(
+                                "ui.finalStandingsAreOnTheBoardOpenTheFullReviewWithAnswerKeyAndClassAnalysis",
+                            )}
                         </p>
                         <Link to="/results" className="btn btn-primary w-full">
                             {t("ui.viewResults")}

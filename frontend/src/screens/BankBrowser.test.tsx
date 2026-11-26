@@ -13,12 +13,14 @@ vi.mock("@tanstack/react-query", () => ({
     useQuery: ({ queryKey, queryFn }: { queryKey: string[]; queryFn: () => unknown }) => {
         rq.keys.push(queryKey);
         rq.fns[queryKey[0]] = queryFn;
-        return rq.queries[queryKey[0]] ?? {
-            isPending: false,
-            isError: false,
-            data: undefined,
-            refetch: vi.fn(),
-        };
+        return (
+            rq.queries[queryKey[0]] ?? {
+                isPending: false,
+                isError: false,
+                data: undefined,
+                refetch: vi.fn(),
+            }
+        );
     },
 }));
 vi.mock("../components/Shell", () => ({
@@ -46,7 +48,11 @@ describe("BankBrowser", () => {
         rq.keys = [];
         rq.queries = {
             "bank-search": ok([question("1")]),
-            "bank-coverage": ok({ subject: "JAVA_PROGRAMMING", total: 2, units: ["Unit 1", "Unit 2"] }),
+            "bank-coverage": ok({
+                subject: "JAVA_PROGRAMMING",
+                total: 2,
+                units: ["Unit 1", "Unit 2"],
+            }),
             "bank-question": ok({
                 ...question("1"),
                 subject: "JAVA_PROGRAMMING",
@@ -99,8 +105,12 @@ describe("BankBrowser", () => {
     test("maps the selected subject and scope to query keys and clears the unit filter", () => {
         render(<BankBrowser />);
         fireEvent.change(screen.getByLabelText("Subject"), { target: { value: "Chemistry" } });
-        fireEvent.change(screen.getByLabelText("Which topics"), { target: { value: "core-scope" } });
-        fireEvent.change(screen.getByLabelText("Filter by unit"), { target: { value: "  Unit 2 " } });
+        fireEvent.change(screen.getByLabelText("Which topics"), {
+            target: { value: "core-scope" },
+        });
+        fireEvent.change(screen.getByLabelText("Filter by unit"), {
+            target: { value: "  Unit 2 " },
+        });
         expect(rq.keys).toContainEqual(["bank-search", "CHEMISTRY", "", "everything"]);
         expect(rq.keys).toContainEqual(["bank-search", "CHEMISTRY", "Unit 2", "core-scope"]);
         expect(rq.keys).toContainEqual(["bank-coverage", "CHEMISTRY"]);
@@ -129,7 +139,9 @@ describe("BankBrowser", () => {
         expect(screen.getByText("Question 25")).toBeInTheDocument();
 
         fireEvent.click(screen.getAllByRole("button", { name: /Show details/ })[0]);
-        expect(screen.getByText("JAVA_PROGRAMMING, Unit 1, Objects, Core topics")).toBeInTheDocument();
+        expect(
+            screen.getByText("JAVA_PROGRAMMING, Unit 1, Objects, Core topics"),
+        ).toBeInTheDocument();
         expect(screen.getByText("q-1")).toBeInTheDocument();
     });
 
@@ -160,18 +172,28 @@ describe("BankBrowser", () => {
         });
         rerender(<BankBrowser />);
         expect(screen.getByText("Question details")).toBeInTheDocument();
-        expect(screen.getByText("JAVA_PROGRAMMING, Unit 1, Objects, unknown-scope")).toBeInTheDocument();
+        expect(
+            screen.getByText("JAVA_PROGRAMMING, Unit 1, Objects, unknown-scope"),
+        ).toBeInTheDocument();
     });
 
     test("uses the singular label for a single result and hides details on toggle", () => {
         rq.queries["bank-coverage"] = ok({ subject: "JAVA_PROGRAMMING", total: 1, units: [] });
         render(<BankBrowser />);
         expect(screen.getByText("1 question")).toBeInTheDocument();
+        rq.fns["bank-question"]();
+        expect(bankApi.getBankQuestion).toHaveBeenCalledWith("");
+
         const button = screen.getByRole("button", { name: /Show details/ });
         fireEvent.click(button);
         expect(screen.getByRole("button", { name: /Hide details/ })).toHaveAttribute(
             "aria-expanded",
             "true",
+        );
+        fireEvent.click(screen.getByRole("button", { name: /Hide details/ }));
+        expect(screen.getByRole("button", { name: /Show details/ })).toHaveAttribute(
+            "aria-expanded",
+            "false",
         );
     });
 });

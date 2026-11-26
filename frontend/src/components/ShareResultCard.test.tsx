@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ShareResultCard } from "./ShareResultCard";
 
 const TOP = [
@@ -30,7 +30,9 @@ describe("ShareResultCard", () => {
     test("copies the summary with the Clipboard API when available", async () => {
         const writeText = vi.fn().mockResolvedValue(undefined);
         setClipboard({ writeText });
-        render(<ShareResultCard title="Final" top={TOP} players={4} questions={10} accuracy={75} />);
+        render(
+            <ShareResultCard title="Final" top={TOP} players={4} questions={10} accuracy={75} />,
+        );
 
         fireEvent.click(screen.getByRole("button", { name: "Copy summary" }));
 
@@ -62,13 +64,58 @@ describe("ShareResultCard", () => {
         expect(screen.queryByRole("button", { name: "Copied" })).not.toBeInTheDocument();
     });
 
+    test("escapes XML characters and includes metadata in the downloaded card", async () => {
+        let svg = "";
+        URL.createObjectURL = vi.fn((blob: Blob) => {
+            svg = "pending";
+            void blob.text().then((value) => {
+                svg = value;
+            });
+            return "blob:card";
+        });
+        render(
+            <ShareResultCard
+                title={'A & "B" <C>'}
+                top={[{ rank: 1, name: "O'Brien & Co", score: 100 }]}
+                players={4}
+                questions={10}
+                accuracy={75}
+            />,
+        );
+        fireEvent.click(screen.getByRole("button", { name: "Download card" }));
+        await waitFor(() => expect(svg).not.toBe(""));
+        expect(svg).toContain("A &amp; &quot;B&quot; &lt;C&gt;");
+        expect(svg).toContain("O&apos;Brien &amp; Co");
+        expect(svg).toContain("4 players  |  10 questions  |  75% correct");
+    });
+
+    test("resets the copied badge after two seconds", async () => {
+        vi.useFakeTimers();
+        setClipboard({ writeText: vi.fn().mockResolvedValue(undefined) });
+        render(<ShareResultCard top={TOP} />);
+        await act(async () => {
+            fireEvent.click(screen.getByRole("button", { name: "Copy summary" }));
+            await Promise.resolve();
+        });
+        expect(screen.getByRole("button", { name: "Copied" })).toBeInTheDocument();
+        act(() => vi.advanceTimersByTime(2000));
+        expect(screen.getByRole("button", { name: "Copy summary" })).toBeInTheDocument();
+    });
+
+    test("renders nothing without podium rows", () => {
+        const { container } = render(<ShareResultCard top={[]} />);
+        expect(container).toBeEmptyDOMElement();
+    });
+
     test("keeps the download anchor in the DOM through click and revokes the URL afterwards", () => {
         vi.useFakeTimers();
         const revoke = vi.fn();
         URL.createObjectURL = vi.fn().mockReturnValue("blob:card");
         URL.revokeObjectURL = revoke;
         let attachedAtClick = false;
-        vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+        vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+            this: HTMLAnchorElement,
+        ) {
             attachedAtClick = document.body.contains(this);
         });
         render(<ShareResultCard top={TOP} />);

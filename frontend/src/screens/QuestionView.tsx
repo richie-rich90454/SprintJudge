@@ -6,7 +6,6 @@ import { useTimerStore } from "../stores/useTimerStore";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
 import { CircularTimer } from "../components/Timer/CircularTimer";
 import { isCoding } from "../game/ScoringService";
-import { boardDelayedForMode } from "../ui/kahoot";
 import { audio } from "../services/AudioEngine";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { Button } from "../ui/Button";
@@ -54,7 +53,6 @@ export function QuestionView() {
     const resumeTried = useRef(false);
     const stageRef = useStageEnter<HTMLDivElement>([q?.id, status]);
 
-    const boardLocked = boardDelayedForMode(gameMode) && status === "ACTIVE";
     const revealSignal = status === "REVIEW" ? 1 : 0;
 
     useEffect(() => {
@@ -121,7 +119,8 @@ export function QuestionView() {
         return <Navigate to="/results" />;
     }
 
-    const myTeam = teams.find((team) => (myUuid ? team.memberUuids.includes(myUuid) : false)) ?? null;
+    const myTeam =
+        teams.find((team) => (myUuid ? team.memberUuids.includes(myUuid) : false)) ?? null;
     const myBattleMatch =
         battleResult?.matches.find(
             (m) => myUuid !== null && (m.p1Uuid === myUuid || m.p2Uuid === myUuid),
@@ -148,13 +147,16 @@ export function QuestionView() {
                     <div className="page-shell flex items-center justify-between gap-4 py-3">
                         <p className="label-caps">{t("ui.teamLobby")}</p>
                         <span className="mono text-sm text-[var(--oq-ink-soft)]">
-                            {teams.length} {teams.length === 1 ? t("ui.teamSingular") : t("ui.teamsPlural")}
+                            {teams.length}{" "}
+                            {teams.length === 1 ? t("ui.teamSingular") : t("ui.teamsPlural")}
                         </span>
                     </div>
                 </header>
                 <main className="page-shell w-full max-w-3xl flex-1 py-8">
                     <Card className="p-6">
-                        <h1 className="text-2xl font-black tracking-[-0.02em]">{t("ui.pickYourTeam")}</h1>
+                        <h1 className="text-2xl font-black tracking-[-0.02em]">
+                            {t("ui.pickYourTeam")}
+                        </h1>
                         <p className="mt-2 text-sm text-[var(--oq-ink-soft)]">
                             {t("ui.scoresEarnedByEveryMemberAddToTheTeamTotal")}
                         </p>
@@ -223,7 +225,9 @@ export function QuestionView() {
                     <div className="page-shell flex items-center justify-between gap-4 py-3">
                         <p className="label-caps">{t("ui.battleLobby")}</p>
                         <span className="mono text-sm text-[var(--oq-ink-soft)]">
-                            {currentBattleRound ? t("ui.roundNumber", { n: currentBattleRound.number }) : t("ui.notStarted")}
+                            {currentBattleRound
+                                ? t("ui.roundNumber", { n: currentBattleRound.number })
+                                : t("ui.notStarted")}
                         </span>
                     </div>
                 </header>
@@ -339,7 +343,10 @@ export function QuestionView() {
                                                     {team.name}
                                                 </span>
                                                 <span className="mono font-bold tabular-nums">
-                                                    {(Number.isFinite(team.score) ? team.score : 0).toLocaleString()}
+                                                    {(Number.isFinite(team.score)
+                                                        ? team.score
+                                                        : 0
+                                                    ).toLocaleString()}
                                                 </span>
                                             </li>
                                         ))}
@@ -384,9 +391,7 @@ export function QuestionView() {
                 <div className="pattern-exam min-h-[100dvh] flex items-center justify-center p-4">
                     <div className="text-center w-full max-w-sm">
                         <p className="label-caps mb-2">{t("ui.noGame")}</p>
-                        <p className="text-[var(--oq-ink-soft)] mb-4">
-                            {t("ui.notJoined")}
-                        </p>
+                        <p className="text-[var(--oq-ink-soft)] mb-4">{t("ui.notJoined")}</p>
                         <p className="text-sm font-bold">
                             <Link to="/join" className="underline underline-offset-4">
                                 {t("ui.joinAGame")}
@@ -457,29 +462,22 @@ export function QuestionView() {
         <div className="pattern-exam min-h-[100dvh] flex flex-col">
             <header className="border-b border-[var(--oq-border)] bg-[var(--oq-surface)]">
                 <div className="page-shell flex min-w-0 flex-wrap items-center gap-4 py-3">
-                    <span className="label-caps min-w-0 truncate">
-                        {q.type.replace(/_/g, " ")}
-                    </span>
+                    <span className="label-caps min-w-0 truncate">{q.type.replace(/_/g, " ")}</span>
                     <span className="mono text-sm text-[var(--oq-ink-soft)]">
                         {q.pointsBase} points
                     </span>
                     <div className="flex-1" />
                     <AboutDialog />
-                    {boardLocked && gameMode === "EXAM" && (
-                        <Chip tone="neutral">{t("ui.boardHiddenUntilTheEnd")}</Chip>
-                    )}
                     {gameMode === "BATTLE" && myPair && (
                         <Chip tone="accent">
                             {myPair.bye
                                 ? t("ui.byeRound")
-                                : `Round ${currentBattleRound?.number ?? 1}: vs ${
+                                : `Round ${currentBattleRound!.number}: vs ${
                                       opponentName ?? "opponent"
                                   }`}
                         </Chip>
                     )}
-                    {gameMode === "TEAM" && myTeam && (
-                        <Chip tone="neutral">{myTeam.name}</Chip>
-                    )}
+                    {gameMode === "TEAM" && myTeam && <Chip tone="neutral">{myTeam.name}</Chip>}
                     {untimed ? (
                         <span className="chip chip-neutral">{t("ui.untimed")}</span>
                     ) : (
@@ -516,7 +514,9 @@ export function QuestionView() {
                     )}
                     {coding && (
                         <p className="mt-5 border-l-2 border-[var(--oq-accent)] pl-4 text-sm leading-relaxed text-[var(--oq-ink-soft)]">
-                            {t("ui.writeCodeThatPassesTheHiddenTestsRunItBelowToCheckYourOutputBeforeSubmitting")}
+                            {t(
+                                "ui.writeCodeThatPassesTheHiddenTestsRunItBelowToCheckYourOutputBeforeSubmitting",
+                            )}
                         </p>
                     )}
                     {feedback && (
@@ -538,7 +538,9 @@ export function QuestionView() {
                                 aria-live="polite"
                                 className={`feedback-banner mt-5 ${feedback.ok ? "ok" : "bad"}`}
                             >
-                                <span className={feedback.ok ? "score-pop" : ""}>{feedback.text}</span>
+                                <span className={feedback.ok ? "score-pop" : ""}>
+                                    {feedback.text}
+                                </span>
                             </div>
                         </div>
                     )}

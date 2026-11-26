@@ -17,19 +17,34 @@ export interface ShareResultCardProps {
 }
 
 const escapeXml = (s: string) =>
-    s.replace(/[<>&"']/g, (c) =>
-        ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;" })[c] ?? c,
+    s.replace(
+        /[<>&"']/g,
+        (c) =>
+            (
+                { "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;" } as Record<
+                    string,
+                    string
+                >
+            )[c]!,
     );
 
 /** Compact, dependency-free result card: copy a summary or save an SVG. */
-export function ShareResultCard({ title, top, players, questions, accuracy }: ShareResultCardProps) {
+export function ShareResultCard({
+    title,
+    top,
+    players,
+    questions,
+    accuracy,
+}: ShareResultCardProps) {
     const { t } = useI18n();
     const [copied, setCopied] = useState(false);
     const cardTitle = title ?? t("ui.results");
 
     const summary = [
         cardTitle,
-        ...top.slice(0, 3).map((p) => t("ui.rankSummary", { rank: p.rank, name: p.name, score: p.score })),
+        ...top
+            .slice(0, 3)
+            .map((p) => t("ui.rankSummary", { rank: p.rank, name: p.name, score: p.score })),
         [
             players != null ? t("ui.playersCount", { n: players }) : null,
             questions != null ? t("ui.questionsCount", { n: questions }) : null,
