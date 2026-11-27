@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 import { AboutDialog } from "./AboutDialog";
 
@@ -13,5 +13,14 @@ describe("AboutDialog", () => {
 
         fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
         expect(screen.queryByText("SprintJudge 1.0.0")).not.toBeInTheDocument();
+    });
+
+    test("returns focus to the opener when the dialog closes", async () => {
+        render(<AboutDialog />);
+        const trigger = screen.getByRole("button", { name: "About SprintJudge" });
+        trigger.focus();
+        fireEvent.click(trigger);
+        fireEvent.click(screen.getByRole("button", { name: "Close dialog" }));
+        await waitFor(() => expect(trigger).toHaveFocus());
     });
 });

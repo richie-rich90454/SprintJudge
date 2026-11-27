@@ -36,11 +36,13 @@ function AppChrome() {
     useEffect(() => {
         const unsubscribe = router.subscribe("onResolved", (event) => {
             if (!event.pathChanged) return;
-            const main = focusMain();
-            if (!firstRoute.current && main) {
-                setAnnouncement(`${t("a11y.route")}: ${event.toLocation.pathname}`);
+            if (firstRoute.current) {
+                // Focusing main on load would steal focus from the skip link.
+                firstRoute.current = false;
+                return;
             }
-            firstRoute.current = false;
+            focusMain();
+            setAnnouncement(`${t("a11y.route")}: ${event.toLocation.pathname}`);
         });
         return unsubscribe;
     }, [t]);

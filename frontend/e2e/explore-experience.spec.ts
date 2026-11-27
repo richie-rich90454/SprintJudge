@@ -89,7 +89,10 @@ test.describe("explore experience", () => {
         await page.keyboard.press("Tab");
         expect((await activeInfo(page)).id).toBe("join-name");
 
+        // Let React render before tabbing, or the first Tab is consumed by a
+        // still-blank body and the tab order appears shifted by one.
         await page.reload();
+        await expect(page.locator(".skip-link")).toBeVisible();
         await page.keyboard.press("Tab");
         expect((await activeInfo(page)).text).toContain("Skip to main content");
         await page.keyboard.press("Tab");
@@ -111,6 +114,7 @@ test.describe("explore experience", () => {
 
         // Modal from a fresh document, reached by four Tabs (no pointer input).
         await page.reload();
+        await expect(page.locator(".skip-link")).toBeVisible();
         for (let i = 0; i < 4; i += 1) {
             await page.keyboard.press("Tab");
         }
@@ -244,7 +248,7 @@ test.describe("explore experience PWA update", () => {
         // The PWA branch in App.tsx is PROD-only; flip that one injected flag
         // in the Vite-served module so the real registration/update UI runs.
         await patchProdFlag(context);
-        await context.route("**/sw.js", (route) =>
+        await context.route("**/sw.js*", (route) =>
             route.fulfill({
                 status: 200,
                 contentType: "text/javascript",
@@ -274,9 +278,10 @@ test.describe("explore experience PWA update", () => {
         ).toBe(true);
 
         simulateUpdate = true;
-        await probe(page, () =>
-            navigator.serviceWorker.getRegistration().then((reg) => reg?.update()),
-        );
+        // reg.update() reuses Chromium's cached script and never re-fetches, so
+        // the interception below never sees a new worker. A cache-busted
+        // registration forces a real update check against the patched source.
+        await probe(page, () => navigator.serviceWorker.register("/sw.js?v=2"));
         const banner = page.getByText("A new version is available.");
         await expect(banner).toBeVisible({ timeout: 20000 });
         const reload = page.getByRole("button", { name: "Reload" });
@@ -286,6 +291,14 @@ test.describe("explore experience PWA update", () => {
             await probe(page, () => (window as unknown as { __oqLoads?: number }).__oqLoads),
         ).toBe(1);
 
+        // The accepted worker keeps the cache-busted URL; keep the reloaded
+        // document on that same URL so it does not look like a second update.
+        await page.addInitScript(() => {
+            const sw = navigator.serviceWorker;
+            const register = sw.register.bind(sw);
+            sw.register = (url, options) =>
+                register(String(url) === "/sw.js" ? "/sw.js?v=2" : url, options);
+        });
         await reload.click();
         await page.waitForFunction(
             () => (window as unknown as { __oqLoads?: number }).__oqLoads === 2,

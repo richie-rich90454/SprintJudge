@@ -170,18 +170,19 @@ test.describe("explore player journey", () => {
             await student.getByRole("button", { name: "Lock in answer" }).click();
             await expect(student.getByText(/pts/)).toBeVisible({ timeout: 10000 });
 
-            // Refresh mid-game: the score survives on the host board and the
-            // current question is re-sent to the reclaimed seat.
+            // Refresh mid-game: the current question is re-sent to the reclaimed
+            // seat, and the rejoin resync shows the awarded score on the host
+            // board. STANDARD freezes that board mid-round, so the pre-refresh
+            // row is a zero placeholder, not the score to compare against.
             const scoreRow = host.locator(".lb-row").filter({ hasText: "Ada" });
             await expect(scoreRow).toBeVisible();
-            const scoreBefore = (await scoreRow.innerText()).trim();
             await student.reload();
             await expect(student.getByRole("heading", { name: MCQ_TITLE })).toBeVisible({
                 timeout: 15000,
             });
             await expect(student.getByText("No game", { exact: true })).toHaveCount(0);
-            await expect(scoreRow).toBeVisible({ timeout: 10000 });
-            expect((await scoreRow.innerText()).trim()).toBe(scoreBefore);
+            await expect(scoreRow).toHaveText(/Ada\s+[1-9]\d*/, { timeout: 10000 });
+            const scoreAfterRejoin = (await scoreRow.innerText()).trim();
 
             // Drop the socket and let the client reconnect + rejoin by token.
             const socketsBefore = await student.evaluate(
@@ -203,7 +204,7 @@ test.describe("explore player journey", () => {
                 .toBe(socketsBefore + 1);
             await expect(student.getByRole("heading", { name: MCQ_TITLE })).toBeVisible();
             await expect(scoreRow).toBeVisible({ timeout: 10000 });
-            expect((await scoreRow.innerText()).trim()).toBe(scoreBefore);
+            expect((await scoreRow.innerText()).trim()).toBe(scoreAfterRejoin);
 
             await host.getByRole("button", { name: "Reveal answer" }).click();
             await expect(student.getByText("Round complete")).toBeVisible({ timeout: 10000 });
