@@ -117,6 +117,24 @@ class BankQuizBuilderTest {
 	}
 
 	@Test
+	void unitFilteredBuildCarriesSelectedUnitIntoQuestionConfig() {
+		ImportExportService importer = mock(ImportExportService.class);
+		when(importer.importAll(anyString(), eq(false))).thenReturn(1);
+		BankQuizBuilder builder = new BankQuizBuilder(source(javaRecords()), importer);
+
+		BankQuizBuilder.BuildResult result = builder
+				.build(new BankQuizBuilder.BuildRequest("JAVA_PROGRAMMING", "Unit 2", 0, 2, null, 11, false));
+
+		assertEquals(2, result.getQuestions());
+		ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
+		verify(importer).importAll(json.capture(), eq(false));
+		ExportBundle bundle = Json.read(json.getValue(), ExportBundle.class);
+		for (ExportBundle.QuestionExport q : bundle.getQuizzes().get(0).getQuestions()) {
+			assertEquals("Unit 2", q.getConfig().get("unit"));
+		}
+	}
+
+	@Test
 	void mixedCsaPullsOnePerUnitAndTagsTheSourceUnit() {
 		ImportExportService importer = mock(ImportExportService.class);
 		when(importer.importAll(anyString(), eq(false))).thenReturn(1);

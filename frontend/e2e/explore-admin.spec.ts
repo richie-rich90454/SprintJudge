@@ -45,6 +45,13 @@ interface BankHeader {
     stem: string;
 }
 
+interface QuestionConfig {
+    unit?: string;
+    explanation?: string;
+    options?: string[];
+    optionMeta?: Array<{ id: string; misconception: string }>;
+}
+
 interface QuizQuestion {
     id: string;
     title: string;
@@ -52,12 +59,9 @@ interface QuizQuestion {
     questionType: string;
     timeLimitSec?: number;
     pointsBase?: number;
-    config: {
-        unit?: string;
-        explanation?: string;
-        options?: string[];
-        optionMeta?: Array<{ id: string; misconception: string }>;
-    };
+    // The admin questions endpoint returns the stored config verbatim as a
+    // JSON string; the export endpoint parses it into an object.
+    config: string;
     orderIndex: number;
 }
 
@@ -68,7 +72,11 @@ interface ExportedQuestion {
     type: string;
     timeLimitSec?: number;
     pointsBase?: number;
-    config: QuizQuestion["config"];
+    config: QuestionConfig;
+}
+
+function parsedConfig(raw: string | QuestionConfig): QuestionConfig {
+    return typeof raw === "string" ? (JSON.parse(raw) as QuestionConfig) : raw;
 }
 
 interface ApiResult {
@@ -241,11 +249,12 @@ test.describe("exploratory admin journey", () => {
             ) as BankHeader[];
             for (const q of questions) {
                 expect(q.questionType).toBe("MCQ");
-                expect(q.config.unit).toBe(unit);
+                const config = parsedConfig(q.config);
+                expect(config.unit).toBe(unit);
                 expect(q.description.length).toBeGreaterThan(10);
-                expect(q.config.explanation?.length).toBeGreaterThan(0);
-                expect(q.config.options?.length).toBeGreaterThan(1);
-                expect(q.config.optionMeta?.some((m) => m.misconception.length > 0)).toBeTruthy();
+                expect(config.explanation?.length).toBeGreaterThan(0);
+                expect(config.options?.length).toBeGreaterThan(1);
+                expect(config.optionMeta?.some((m) => m.misconception.length > 0)).toBeTruthy();
                 expect(
                     headers.some((h) => firstLine(h.stem) === firstLine(q.description)),
                 ).toBeTruthy();
@@ -457,7 +466,7 @@ test.describe("exploratory admin journey", () => {
                 type: "questionType" in q ? q.questionType : q.type,
                 timeLimitSec: q.timeLimitSec,
                 pointsBase: q.pointsBase,
-                config: q.config,
+                config: parsedConfig(q.config),
             });
             expect(roundTripped.map(shape)).toEqual(entry!.questions.map(shape));
             expect((await call(page, `/api/admin/quizzes/${quizId}`, "DELETE")).status).toBe(204);
