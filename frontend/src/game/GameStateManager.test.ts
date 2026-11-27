@@ -632,7 +632,13 @@ describe("GameStateManager timer and errors", () => {
         const bracket = { type: "BRACKET", rounds: [], championUuid: null, championName: null };
         msg(bracket);
         expect(gameStateManager.state.bracket).toEqual(bracket);
-        msg({ type: "BATTLE_OPPONENT", round: 1, opponentUuid: "u2", opponentName: "Bo", bye: false });
+        msg({
+            type: "BATTLE_OPPONENT",
+            round: 1,
+            opponentUuid: "u2",
+            opponentName: "Bo",
+            bye: false,
+        });
         expect(gameStateManager.state.battleOpponent?.opponentName).toBe("Bo");
         msg({ type: "BATTLE_CHAMPION", championUuid: "u1", championName: "Al" });
         expect(gameStateManager.state.champion?.championName).toBe("Al");
@@ -813,20 +819,20 @@ describe("GameStateManager session resume", () => {
     });
 });
 
-    test("resume uses wss when the page is https", () => {
-        sessionStorage.setItem(
-            "sprintjudge_player_session",
-            JSON.stringify({ pin: "1", name: "Ada", token: "t" }),
-        );
-        const original = window.location;
-        Object.defineProperty(window, "location", {
-            configurable: true,
-            value: { protocol: "https:", host: "quiz.test" },
-        });
-        try {
-            expect(gameStateManager.resume()).toBe(true);
-            expect(fakeWs.connect).toHaveBeenCalledWith("wss://quiz.test/ws");
-        } finally {
-            Object.defineProperty(window, "location", { configurable: true, value: original });
-        }
+test("resume uses wss when the page is https", () => {
+    sessionStorage.setItem(
+        "sprintjudge_player_session",
+        JSON.stringify({ pin: "1", name: "Ada", token: "t" }),
+    );
+    const original = window.location;
+    Object.defineProperty(window, "location", {
+        configurable: true,
+        value: { protocol: "https:", host: "quiz.test" },
     });
+    try {
+        expect(gameStateManager.resume()).toBe(true);
+        expect(fakeWs.connect).toHaveBeenCalledWith("wss://quiz.test/ws");
+    } finally {
+        Object.defineProperty(window, "location", { configurable: true, value: original });
+    }
+});

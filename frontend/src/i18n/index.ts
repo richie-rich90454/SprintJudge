@@ -1,4 +1,12 @@
-import { createContext, createElement, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+    createContext,
+    createElement,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+    type ReactNode,
+} from "react";
 import { en } from "./en";
 import { ar } from "./ar";
 

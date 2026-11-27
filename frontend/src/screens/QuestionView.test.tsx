@@ -36,7 +36,9 @@ const rendererMock = vi.hoisted(() => ({
 }));
 
 vi.mock("@tanstack/react-router", () => ({
-    Link: ({ children, to }: { children: unknown; to: string }) => <a href={to}>{children as any}</a>,
+    Link: ({ children, to }: { children: unknown; to: string }) => (
+        <a href={to}>{children as any}</a>
+    ),
     Navigate: ({ to }: { to: string }) => {
         navMock.to = to;
         return null;
@@ -60,10 +62,7 @@ vi.mock("../stores/useTimerStore", () => ({
 }));
 
 vi.mock("../components/QuestionRendererHost", () => ({
-    QuestionRendererHost: (props: {
-        onResponse: (r: unknown) => void;
-        revealSignal?: number;
-    }) => {
+    QuestionRendererHost: (props: { onResponse: (r: unknown) => void; revealSignal?: number }) => {
         rendererMock.props = props;
         return null;
     },
@@ -131,7 +130,9 @@ describe("QuestionView", () => {
         gameMock.state.playerUuid = "u1";
         const first = render(<QuestionView />);
         expect(screen.getByText("Standby")).toBeInTheDocument();
-        expect(screen.getByText("Waiting for the host to start the next question.")).toBeInTheDocument();
+        expect(
+            screen.getByText("Waiting for the host to start the next question."),
+        ).toBeInTheDocument();
         first.unmount();
 
         gameMock.state.playerUuid = null;
@@ -190,7 +191,9 @@ describe("QuestionView", () => {
         fireEvent.click(screen.getByRole("button", { name: "Leave" }));
         expect(gameMock.state.leaveTeam).toHaveBeenCalled();
         expect(screen.getByRole("alert")).toHaveTextContent("socket lost");
-        expect(screen.getByText("You are on Mine. Waiting for the host to start.")).toBeInTheDocument();
+        expect(
+            screen.getByText("You are on Mine. Waiting for the host to start."),
+        ).toBeInTheDocument();
     });
 
     test("team lobby uses singular member wording", () => {
@@ -199,7 +202,9 @@ describe("QuestionView", () => {
         render(<QuestionView />);
         expect(screen.getByText("1 team")).toBeInTheDocument();
         expect(screen.getByText("1 member")).toBeInTheDocument();
-        expect(screen.getByText("Join a team before the host starts the game.")).toBeInTheDocument();
+        expect(
+            screen.getByText("Join a team before the host starts the game."),
+        ).toBeInTheDocument();
     });
 
     test("battle lobby renders byes, pairings, opponent fallbacks, and the bracket", () => {
@@ -263,7 +268,9 @@ describe("QuestionView", () => {
             bye: true,
         };
         gameMock.state.bracket = {
-            rounds: [{ number: 1, pairs: [{ p1Uuid: "u1", p2Uuid: null, winnerUuid: null, bye: true }] }],
+            rounds: [
+                { number: 1, pairs: [{ p1Uuid: "u1", p2Uuid: null, winnerUuid: null, bye: true }] },
+            ],
         };
         const bye = render(<QuestionView />);
         expect(screen.getByText("You have a bye")).toBeInTheDocument();
@@ -301,7 +308,9 @@ describe("QuestionView", () => {
         expect(screen.getByText("1,234.5")).toBeInTheDocument();
         expect(screen.getByText("Why")).toBeInTheDocument();
         expect(screen.getByText("Because reasons")).toBeInTheDocument();
-        expect(screen.getByText("The host will bring the next question when the room is ready.")).toBeInTheDocument();
+        expect(
+            screen.getByText("The host will bring the next question when the room is ready."),
+        ).toBeInTheDocument();
     });
 
     test("review practice wording and preparation state", () => {
@@ -328,8 +337,18 @@ describe("QuestionView", () => {
             matches: [{ p1Uuid: "u1", p2Uuid: "u2", winnerUuid: "u1", bye: false }],
             winners: ["u1"],
         };
-        gameMock.state.battleOpponent = { type: "BATTLE_OPPONENT", round: 1, opponentUuid: "u2", opponentName: "", bye: false };
-        gameMock.state.champion = { type: "BATTLE_CHAMPION", championUuid: "u1", championName: "Ada" };
+        gameMock.state.battleOpponent = {
+            type: "BATTLE_OPPONENT",
+            round: 1,
+            opponentUuid: "u2",
+            opponentName: "",
+            bye: false,
+        };
+        gameMock.state.champion = {
+            type: "BATTLE_CHAMPION",
+            championUuid: "u1",
+            championName: "Ada",
+        };
         const won = render(<QuestionView />);
         expect(screen.getByText("You beat your opponent.")).toBeInTheDocument();
         expect(screen.getByText("Champion: Ada")).toBeInTheDocument();
@@ -340,7 +359,12 @@ describe("QuestionView", () => {
         expect(screen.getByText("You lost this round.")).toBeInTheDocument();
         lost.unmount();
 
-        gameMock.state.battleResult.matches[0] = { p1Uuid: "u1", p2Uuid: null, winnerUuid: null, bye: true };
+        gameMock.state.battleResult.matches[0] = {
+            p1Uuid: "u1",
+            p2Uuid: null,
+            winnerUuid: null,
+            bye: true,
+        };
         render(<QuestionView />);
         expect(screen.getByText("Bye round. You advance.")).toBeInTheDocument();
     });
@@ -401,7 +425,9 @@ describe("QuestionView", () => {
 
         gameMock.state.gameMode = "BATTLE";
         gameMock.state.bracket = {
-            rounds: [{ number: 3, pairs: [{ p1Uuid: "u1", p2Uuid: null, winnerUuid: null, bye: true }] }],
+            rounds: [
+                { number: 3, pairs: [{ p1Uuid: "u1", p2Uuid: null, winnerUuid: null, bye: true }] },
+            ],
         };
         const bye = render(<QuestionView />);
         expect(screen.getByText("Bye round")).toBeInTheDocument();
@@ -425,14 +451,16 @@ describe("QuestionView", () => {
     });
 
     test("untimed questions and coding questions render their own controls", () => {
-        activeQuestion({ type: "OJ_FULL", description: "Code it", config: { starter: "print(1)" } });
+        activeQuestion({
+            type: "OJ_FULL",
+            description: "Code it",
+            config: { starter: "print(1)" },
+        });
         timerMock.state.endEpochMs = Infinity;
         render(<QuestionView />);
         expect(screen.getByText("Untimed")).toBeInTheDocument();
         expect(screen.getByText("Code it")).toBeInTheDocument();
-        expect(
-            screen.getByText(/Write code that passes the hidden tests/),
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Write code that passes the hidden tests/)).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Compile and submit" })).toBeEnabled();
     });
 
@@ -441,7 +469,11 @@ describe("QuestionView", () => {
         render(<QuestionView />);
         act(() => rendererMock.props?.onResponse({ source: "x", language: "python" }));
         fireEvent.click(screen.getByRole("button", { name: "Expire timer" }));
-        expect(gameMock.state.submit).toHaveBeenCalledWith("q1", { source: "x", language: "python" }, "python");
+        expect(gameMock.state.submit).toHaveBeenCalledWith(
+            "q1",
+            { source: "x", language: "python" },
+            "python",
+        );
         fireEvent.click(screen.getByRole("button", { name: "Expire timer" }));
         expect(gameMock.state.submit).toHaveBeenCalledTimes(1);
     });

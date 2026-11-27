@@ -119,7 +119,10 @@ export class AdminApiService {
         includeCoding?: boolean;
     }) {
         return this.client
-            .post<{ quizId: string; questions: number; skipped: number }>("/admin/bank/build", request)
+            .post<{ quizId: string; questions: number; skipped: number }>(
+                "/admin/bank/build",
+                request,
+            )
             .then((r) => r.data);
     }
 

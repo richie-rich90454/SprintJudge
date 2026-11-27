@@ -99,7 +99,10 @@ describe("AdminDashboard", () => {
         fireEvent.click(screen.getByRole("button", { name: "Retry" }));
         expect(m.admin.loadQuizzes).toHaveBeenCalledTimes(2);
 
-        m.admin.loadQuizzes.mockRejectedValueOnce({ isAxiosError: true, response: { status: 401 } });
+        m.admin.loadQuizzes.mockRejectedValueOnce({
+            isAxiosError: true,
+            response: { status: 401 },
+        });
         window.history.replaceState({}, "", "/admin?error=1");
         render(<AdminDashboard />);
         expect(await screen.findByLabelText("Username")).toHaveAttribute("name", "username");
@@ -158,7 +161,9 @@ describe("AdminDashboard", () => {
             target: { value: "A description" },
         });
         fireEvent.click(screen.getByRole("button", { name: "Create" }));
-        await waitFor(() => expect(m.admin.createQuiz).toHaveBeenCalledWith("New quiz", "A description"));
+        await waitFor(() =>
+            expect(m.admin.createQuiz).toHaveBeenCalledWith("New quiz", "A description"),
+        );
 
         m.admin.createQuiz.mockRejectedValueOnce(new Error("denied"));
         fireEvent.click(screen.getByRole("button", { name: "New set" }));
@@ -276,7 +281,9 @@ describe("AdminDashboard", () => {
         const input = document.querySelector('input[type="file"]') as HTMLInputElement;
         Object.defineProperty(input, "files", { configurable: true, value: [file] });
         fireEvent.change(input);
-        await waitFor(() => expect(m.api.importBank).toHaveBeenCalledWith('{"questions":[]}', true));
+        await waitFor(() =>
+            expect(m.api.importBank).toHaveBeenCalledWith('{"questions":[]}', true),
+        );
         expect(m.admin.loadQuizzes).toHaveBeenCalledTimes(2);
 
         click.mockRestore();
@@ -328,14 +335,20 @@ describe("AdminDashboard", () => {
         fireEvent.click(screen.getByRole("button", { name: "Player view" }));
         expect(m.navigate).toHaveBeenCalledWith({ to: "/" });
         fireEvent.click(screen.getByRole("button", { name: "Browse questions" }));
-        expect(screen.getByRole("tab", { name: "Questions" })).toHaveAttribute("aria-selected", "true");
+        expect(screen.getByRole("tab", { name: "Questions" })).toHaveAttribute(
+            "aria-selected",
+            "true",
+        );
     });
 
     test("retry after a load error handles both 401 and generic failures", async () => {
         m.admin.loadQuizzes.mockRejectedValueOnce(new Error("offline"));
         const first = render(<AdminDashboard />);
         await screen.findByText(/Failed to load quizzes/);
-        m.admin.loadQuizzes.mockRejectedValueOnce({ isAxiosError: true, response: { status: 401 } });
+        m.admin.loadQuizzes.mockRejectedValueOnce({
+            isAxiosError: true,
+            response: { status: 401 },
+        });
         fireEvent.click(screen.getByRole("button", { name: "Retry" }));
         await screen.findByLabelText("Username");
         first.unmount();
@@ -380,7 +393,9 @@ describe("AdminDashboard", () => {
         fireEvent.click(screen.getByRole("button", { name: "New set" }));
         fireEvent.change(screen.getByLabelText("Quiz title"), { target: { value: "Broken" } });
         fireEvent.click(screen.getByRole("button", { name: "Create" }));
-        expect(await screen.findByText(/Could not create the quiz: unknown error/)).toBeInTheDocument();
+        expect(
+            await screen.findByText(/Could not create the quiz: unknown error/),
+        ).toBeInTheDocument();
     });
 
     test("empty quiz guards in the overview and games search", async () => {

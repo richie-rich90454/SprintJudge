@@ -117,7 +117,11 @@ describe("stage motion hooks", () => {
         const from = vi.spyOn(Flip, "from");
         function List({ attach }: { attach: boolean }) {
             const ref = useFlipList<HTMLDivElement>([attach]);
-            return <div ref={attach ? ref : undefined}><span className="flip-row">row</span></div>;
+            return (
+                <div ref={attach ? ref : undefined}>
+                    <span className="flip-row">row</span>
+                </div>
+            );
         }
         const { rerender } = render(<List attach />);
         const afterMount = from.mock.calls.length;
@@ -128,11 +132,13 @@ describe("stage motion hooks", () => {
     });
 
     test("count-up applies gsap onUpdate to the node text", () => {
-        const spy = vi.spyOn(gsap, "to").mockImplementation((target: unknown, vars: Record<string, unknown>) => {
-            (target as { value: number }).value = 42;
-            (vars.onUpdate as () => void)();
-            return {} as never;
-        });
+        const spy = vi
+            .spyOn(gsap, "to")
+            .mockImplementation((target: unknown, vars: Record<string, unknown>) => {
+                (target as { value: number }).value = 42;
+                (vars.onUpdate as () => void)();
+                return {} as never;
+            });
         render(
             <Harness hook={useCountUp} args={[true, []]}>
                 <span data-count="42">0</span>
@@ -166,7 +172,9 @@ describe("stage motion hooks", () => {
             return (
                 <div ref={ref}>
                     {rows.map((row) => (
-                        <div key={row} className="flip-row">{row}</div>
+                        <div key={row} className="flip-row">
+                            {row}
+                        </div>
                     ))}
                 </div>
             );

@@ -27,7 +27,9 @@ vi.mock("../stores/useUIStore", () => ({
 }));
 vi.mock("../services/AudioEngine", () => ({ audio: { play: vi.fn(), setMuted: vi.fn() } }));
 vi.mock("@tanstack/react-router", () => ({
-    Link: ({ children, to }: { children: unknown; to: string }) => <a href={to}>{children as any}</a>,
+    Link: ({ children, to }: { children: unknown; to: string }) => (
+        <a href={to}>{children as any}</a>
+    ),
     useParams: () => paramsMock,
     useNavigate: () => vi.fn(),
 }));

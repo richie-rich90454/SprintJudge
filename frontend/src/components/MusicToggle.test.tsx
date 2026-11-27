@@ -54,7 +54,9 @@ describe("MusicToggle", () => {
         });
         render(<MusicToggle className="header-icon" />);
         fireEvent.click(screen.getByRole("button", { name: "Turn background music on" }));
-        expect(screen.getByRole("button", { name: "Turn background music off" })).toHaveClass("header-icon");
+        expect(screen.getByRole("button", { name: "Turn background music off" })).toHaveClass(
+            "header-icon",
+        );
         getItem.mockRestore();
         setItem.mockRestore();
     });

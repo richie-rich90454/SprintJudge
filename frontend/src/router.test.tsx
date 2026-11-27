@@ -46,7 +46,9 @@ describe("AdminRouteError", () => {
             />,
         );
 
-        expect(screen.getByRole("heading", { name: "Admin service unavailable" })).toBeInTheDocument();
+        expect(
+            screen.getByRole("heading", { name: "Admin service unavailable" }),
+        ).toBeInTheDocument();
         expect(screen.getByText(/admin service is unavailable/)).toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", { name: "Retry" }));
         expect(reset).toHaveBeenCalledOnce();
@@ -54,7 +56,9 @@ describe("AdminRouteError", () => {
 
     test("uses the fallback message for a non-Error value", () => {
         render(<AdminRouteError error={"bad"} reset={vi.fn()} />);
-        expect(screen.getByText("The admin service is unavailable. Reload to try again.")).toBeInTheDocument();
+        expect(
+            screen.getByText("The admin service is unavailable. Reload to try again."),
+        ).toBeInTheDocument();
     });
 });
 
@@ -75,11 +79,18 @@ describe("router configuration", () => {
     });
 
     test("validates host search params", () => {
-        const host = router.routeTree.children?.find((child) => (child as any).options.path === "/host");
-        const validate = host?.options.validateSearch as (s: Record<string, unknown>) => Record<string, unknown>;
+        const host = router.routeTree.children?.find(
+            (child) => (child as any).options.path === "/host",
+        );
+        const validate = host?.options.validateSearch as (
+            s: Record<string, unknown>,
+        ) => Record<string, unknown>;
         expect(validate({ pin: "1234", projector: "1" })).toEqual({ pin: "1234", projector: true });
         expect(validate({ pin: 1234, projector: 1 })).toEqual({ pin: "1234", projector: true });
-        expect(validate({ pin: true, projector: false })).toEqual({ pin: undefined, projector: false });
+        expect(validate({ pin: true, projector: false })).toEqual({
+            pin: undefined,
+            projector: false,
+        });
     });
 
     test("root renders a path-keyed route container", () => {
@@ -92,11 +103,14 @@ describe("router configuration", () => {
     test("preloads every lazy route component", async () => {
         const children = router.routeTree.children ?? [];
         const lazy = children.filter(
-            (child) => typeof (child.options.component as { preload?: unknown })?.preload === "function",
+            (child) =>
+                typeof (child.options.component as { preload?: unknown })?.preload === "function",
         );
         expect(lazy.length).toBeGreaterThanOrEqual(10);
         await Promise.all(
-            lazy.map((child) => (child.options.component as { preload: () => Promise<unknown> }).preload()),
+            lazy.map((child) =>
+                (child.options.component as { preload: () => Promise<unknown> }).preload(),
+            ),
         );
     }, 30000);
 });

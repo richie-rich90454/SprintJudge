@@ -6,7 +6,11 @@ import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { TextInput } from "../ui/TextInput";
 import { Chip, EmptyState, Field, Skeleton } from "../ui/Primitives";
-import { assignmentApi, type Assignment, type StudentProgress } from "../services/AssignmentApiService";
+import {
+    assignmentApi,
+    type Assignment,
+    type StudentProgress,
+} from "../services/AssignmentApiService";
 
 function errorText(error: unknown, t: (key: string) => string): string {
     return error instanceof Error ? error.message : t("ui.somethingWentWrong");
@@ -95,7 +99,12 @@ export function AssignmentView() {
 
     const grade = useMutation({
         mutationFn: (input: { studentId: string; score: number; maxScore: number }) =>
-            assignmentApi.recordGrade(selectedId ?? "", input.studentId, input.score, input.maxScore),
+            assignmentApi.recordGrade(
+                selectedId ?? "",
+                input.studentId,
+                input.score,
+                input.maxScore,
+            ),
         onSuccess: refresh,
     });
 
@@ -109,9 +118,11 @@ export function AssignmentView() {
 
     function onTabKeyDown(event: KeyboardEvent<HTMLDivElement>) {
         const { key } = event;
-        if (!["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Home", "End"].includes(key)) return;
+        if (!["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Home", "End"].includes(key))
+            return;
         event.preventDefault();
-        const next = key === "Home" ? "list" : key === "End" ? "create" : tab === "list" ? "create" : "list";
+        const next =
+            key === "Home" ? "list" : key === "End" ? "create" : tab === "list" ? "create" : "list";
         setTab(next);
         (next === "list" ? listTabRef : createTabRef).current?.focus();
     }
@@ -121,13 +132,20 @@ export function AssignmentView() {
             <div className="page-shell py-10 md:py-14 flex flex-col gap-6">
                 <div className="max-w-2xl">
                     <p className="label-caps mb-3">{t("ui.asyncAssignments")}</p>
-                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">{t("ui.assignments")}</h1>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                        {t("ui.assignments")}
+                    </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
                         {t("ui.scheduleAQuizImportARosterAndFollowEachStudentsProgress")}
                     </p>
                 </div>
 
-                <div role="tablist" aria-label={t("ui.assignmentViews")} className="flex gap-2" onKeyDown={onTabKeyDown}>
+                <div
+                    role="tablist"
+                    aria-label={t("ui.assignmentViews")}
+                    className="flex gap-2"
+                    onKeyDown={onTabKeyDown}
+                >
                     <Button
                         ref={listTabRef}
                         id="assignment-list-tab"
@@ -155,8 +173,12 @@ export function AssignmentView() {
                 </div>
 
                 {tab === "create" && (
-                    <Card id="assignment-create-panel" role="tabpanel" aria-labelledby="assignment-create-tab"
-                        className="p-6 flex flex-col gap-4">
+                    <Card
+                        id="assignment-create-panel"
+                        role="tabpanel"
+                        aria-labelledby="assignment-create-tab"
+                        className="p-6 flex flex-col gap-4"
+                    >
                         <Field label={t("ui.quiz")} htmlFor="assignment-quiz">
                             <TextInput
                                 id="assignment-quiz"
@@ -200,22 +222,34 @@ export function AssignmentView() {
                                 />
                             </Field>
                         </div>
-                        {create.isError && <p className="text-sm text-red-600">{errorText(create.error, t)}</p>}
+                        {create.isError && (
+                            <p className="text-sm text-red-600">{errorText(create.error, t)}</p>
+                        )}
                         <div>
                             <Button
                                 onClick={() => create.mutate()}
                                 disabled={create.isPending || !quizId.trim() || !title.trim()}
                             >
-                                {create.isPending ? t("ui.creatingEllipsis") : t("ui.createAssignment")}
+                                {create.isPending
+                                    ? t("ui.creatingEllipsis")
+                                    : t("ui.createAssignment")}
                             </Button>
                         </div>
                     </Card>
                 )}
 
                 {tab === "list" && (
-                    <div id="assignment-list-panel" role="tabpanel" aria-labelledby="assignment-list-tab">
+                    <div
+                        id="assignment-list-panel"
+                        role="tabpanel"
+                        aria-labelledby="assignment-list-tab"
+                    >
                         {list.isPending && (
-                            <div className="grid gap-4 md:grid-cols-2" role="status" aria-label={t("ui.loadingAssignments")}>
+                            <div
+                                className="grid gap-4 md:grid-cols-2"
+                                role="status"
+                                aria-label={t("ui.loadingAssignments")}
+                            >
                                 <Skeleton className="h-28" />
                                 <Skeleton className="h-28" />
                             </div>
@@ -225,7 +259,11 @@ export function AssignmentView() {
                                 <EmptyState
                                     title={t("ui.couldNotLoadAssignments")}
                                     hint={errorText(list.error, t)}
-                                    action={<Button variant="secondary" onClick={() => list.refetch()}>{t("ui.retry")}</Button>}
+                                    action={
+                                        <Button variant="secondary" onClick={() => list.refetch()}>
+                                            {t("ui.retry")}
+                                        </Button>
+                                    }
                                 />
                             </Card>
                         )}
@@ -246,16 +284,24 @@ export function AssignmentView() {
                                                 type="button"
                                                 className="text-left font-bold leading-snug cursor-pointer"
                                                 onClick={() =>
-                                                    setSelectedId(selectedId === item.id ? null : item.id)
+                                                    setSelectedId(
+                                                        selectedId === item.id ? null : item.id,
+                                                    )
                                                 }
                                                 aria-expanded={selectedId === item.id}
                                             >
                                                 {item.title}
                                             </button>
                                             <span className="flex flex-wrap gap-2">
-                                                <Chip tone="neutral">Quiz {item.quizId.slice(0, 8)}</Chip>
-                                                <Chip tone="accent">Releases {formatTime(item.releaseAt)}</Chip>
-                                                <Chip tone="neutral">Due {formatTime(item.dueAt)}</Chip>
+                                                <Chip tone="neutral">
+                                                    Quiz {item.quizId.slice(0, 8)}
+                                                </Chip>
+                                                <Chip tone="accent">
+                                                    Releases {formatTime(item.releaseAt)}
+                                                </Chip>
+                                                <Chip tone="neutral">
+                                                    Due {formatTime(item.dueAt)}
+                                                </Chip>
                                             </span>
                                         </Card>
                                     </li>
@@ -277,14 +323,20 @@ export function AssignmentView() {
                                 onChange={(e) => setCsv(e.target.value)}
                                 placeholder={t("ui.rosterExample")}
                             />
-                            {importCsv.isError && <p className="text-sm text-red-600">{errorText(importCsv.error, t)}</p>}
+                            {importCsv.isError && (
+                                <p className="text-sm text-red-600">
+                                    {errorText(importCsv.error, t)}
+                                </p>
+                            )}
                             <div className="flex items-center gap-3">
                                 <Button
                                     variant="secondary"
                                     disabled={importCsv.isPending || !csv.trim()}
                                     onClick={() => importCsv.mutate()}
                                 >
-                                    {importCsv.isPending ? t("ui.importingEllipsis") : t("ui.importCSV")}
+                                    {importCsv.isPending
+                                        ? t("ui.importingEllipsis")
+                                        : t("ui.importCSV")}
                                 </Button>
                                 <span className="text-sm text-[var(--oq-ink-soft)]">
                                     {roster.isError
@@ -301,30 +353,53 @@ export function AssignmentView() {
                                 <EmptyState
                                     title={t("ui.couldNotLoadStudentProgress")}
                                     hint={t("ui.checkYourConnectionAndTryAgain")}
-                                    action={<Button variant="secondary" onClick={() => progress.refetch()}>{t("ui.retry")}</Button>}
+                                    action={
+                                        <Button
+                                            variant="secondary"
+                                            onClick={() => progress.refetch()}
+                                        >
+                                            {t("ui.retry")}
+                                        </Button>
+                                    }
                                 />
                             )}
                             {!progress.isPending && !progress.isError && rows.length === 0 && (
-                                <p className="text-sm text-[var(--oq-ink-soft)]">{t("ui.noProgressYet")}</p>
+                                <p className="text-sm text-[var(--oq-ink-soft)]">
+                                    {t("ui.noProgressYet")}
+                                </p>
                             )}
                             {rows.map((row) => {
                                 const draft = grades[row.studentId] ?? String(row.score ?? points);
                                 return (
-                                    <div key={row.id || row.studentId} className="flex flex-wrap items-center gap-3 border-b border-[var(--oq-line)] py-2">
-                                        <span className="font-semibold min-w-32">{row.studentId}</span>
-                                        <Chip tone={tone(row.status)}>{row.status.replace(/_/g, " ")}</Chip>
+                                    <div
+                                        key={row.id || row.studentId}
+                                        className="flex flex-wrap items-center gap-3 border-b border-[var(--oq-line)] py-2"
+                                    >
+                                        <span className="font-semibold min-w-32">
+                                            {row.studentId}
+                                        </span>
+                                        <Chip tone={tone(row.status)}>
+                                            {row.status.replace(/_/g, " ")}
+                                        </Chip>
                                         <TextInput
-                                            aria-label={t("ui.scoreFor", { student: row.studentId })}
+                                            aria-label={t("ui.scoreFor", {
+                                                student: row.studentId,
+                                            })}
                                             className="w-20"
                                             type="number"
                                             min={0}
                                             max={points}
                                             value={draft}
                                             onChange={(e) =>
-                                                setGrades((current) => ({ ...current, [row.studentId]: e.target.value }))
+                                                setGrades((current) => ({
+                                                    ...current,
+                                                    [row.studentId]: e.target.value,
+                                                }))
                                             }
                                         />
-                                        <span className="text-sm text-[var(--oq-ink-soft)]">/ {row.maxScore ?? points}</span>
+                                        <span className="text-sm text-[var(--oq-ink-soft)]">
+                                            / {row.maxScore ?? points}
+                                        </span>
                                         <Button
                                             size="sm"
                                             variant="secondary"
@@ -342,7 +417,9 @@ export function AssignmentView() {
                                     </div>
                                 );
                             })}
-                            {grade.isError && <p className="text-sm text-red-600">{errorText(grade.error, t)}</p>}
+                            {grade.isError && (
+                                <p className="text-sm text-red-600">{errorText(grade.error, t)}</p>
+                            )}
                         </Card>
 
                         <Card className="p-6 flex flex-col gap-3">
@@ -364,7 +441,9 @@ export function AssignmentView() {
                                     {t("ui.startAssignment")}
                                 </Button>
                             </div>
-                            {start.isError && <p className="text-sm text-red-600">{errorText(start.error, t)}</p>}
+                            {start.isError && (
+                                <p className="text-sm text-red-600">{errorText(start.error, t)}</p>
+                            )}
                             {start.data && (
                                 <p className="text-sm text-[var(--oq-ink-soft)]">
                                     {start.data.studentId}: {start.data.status}

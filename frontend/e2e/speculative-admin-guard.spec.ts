@@ -12,7 +12,9 @@ test.use({ serviceWorkers: "block" });
  * component must render a usable retry prompt.
  */
 test.describe("speculative adminGuard failure", () => {
-    test("non-authenticated transient failure shows a usable error UI with Retry", async ({ page }) => {
+    test("non-authenticated transient failure shows a usable error UI with Retry", async ({
+        page,
+    }) => {
         await page.route("**/api/admin/settings", (route) =>
             route.fulfill({ status: 500, contentType: "application/json", body: "{}" }),
         );
@@ -21,8 +23,12 @@ test.describe("speculative adminGuard failure", () => {
 
         const alert = page.getByRole("alert");
         await expect(alert).toBeVisible({ timeout: 15000 });
-        await expect(page.getByRole("heading", { name: "Admin service unavailable" })).toBeVisible();
-        await expect(page.getByText("The admin service is unavailable. Reload to try again.")).toBeVisible();
+        await expect(
+            page.getByRole("heading", { name: "Admin service unavailable" }),
+        ).toBeVisible();
+        await expect(
+            page.getByText("The admin service is unavailable. Reload to try again."),
+        ).toBeVisible();
 
         const retry = page.getByRole("button", { name: "Retry" });
         await expect(retry).toBeVisible();

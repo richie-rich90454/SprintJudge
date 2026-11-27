@@ -19,13 +19,11 @@ const timerMock = vi.hoisted(() => ({
 }));
 
 vi.mock("../../stores/useGameStore", () => ({
-    useGameStore: (selector: (s: Record<string, unknown>) => unknown) =>
-        selector(gameMock.state),
+    useGameStore: (selector: (s: Record<string, unknown>) => unknown) => selector(gameMock.state),
 }));
 
 vi.mock("../../stores/useTimerStore", () => ({
-    useTimerStore: (selector: (s: Record<string, unknown>) => unknown) =>
-        selector(timerMock.state),
+    useTimerStore: (selector: (s: Record<string, unknown>) => unknown) => selector(timerMock.state),
 }));
 
 function LocaleHarness({ children }: { children: ReactNode }) {
@@ -41,7 +39,11 @@ function LocaleHarness({ children }: { children: ReactNode }) {
 }
 
 function renderInProvider(ui: ReactNode) {
-    return render(<I18nProvider><LocaleHarness>{ui}</LocaleHarness></I18nProvider>);
+    return render(
+        <I18nProvider>
+            <LocaleHarness>{ui}</LocaleHarness>
+        </I18nProvider>,
+    );
 }
 
 describe("HostStage", () => {
@@ -121,7 +123,11 @@ function makeScore(correct: boolean) {
     };
 }
 
-function makeRound(correctAnswer: Record<string, unknown>, scores: ReturnType<typeof makeScore>[], answerCounts?: Record<string, number>): RoundResult {
+function makeRound(
+    correctAnswer: Record<string, unknown>,
+    scores: ReturnType<typeof makeScore>[],
+    answerCounts?: Record<string, number>,
+): RoundResult {
     return {
         type: "ROUND_RESULT",
         questionId: "q1",
@@ -132,7 +138,11 @@ function makeRound(correctAnswer: Record<string, unknown>, scores: ReturnType<ty
     };
 }
 
-function makeRoom(players: RoomState["players"], questionCount = 0, currentQuestionIndex = 0): RoomState {
+function makeRoom(
+    players: RoomState["players"],
+    questionCount = 0,
+    currentQuestionIndex = 0,
+): RoomState {
     return {
         type: "ROOM_STATE",
         status: "ACTIVE",
@@ -233,10 +243,11 @@ describe("HostStage active/review states", () => {
             optionMeta: [{ id: "A", misconception: "config misconception" }],
             explanation: "config explanation",
         });
-        gameMock.state.lastResult = makeRound(
-            { correctIndex: 0 },
-            [makeScore(true), makeScore(true), makeScore(false)],
-        );
+        gameMock.state.lastResult = makeRound({ correctIndex: 0 }, [
+            makeScore(true),
+            makeScore(true),
+            makeScore(false),
+        ]);
 
         renderInProvider(<HostStage pin="1234" joinUrl="http://localhost/join" />);
         expect(screen.getAllByText(/^Correct$/).length).toBeGreaterThan(0);

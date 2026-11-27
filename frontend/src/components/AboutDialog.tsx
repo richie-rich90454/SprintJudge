@@ -23,7 +23,9 @@ export function AboutDialog() {
                     <p className="font-bold text-[var(--oq-ink)]">SprintJudge 1.0.0</p>
                     <p>{t("ui.selfhostedClassroomQuizAndCodeJudge")}</p>
                     <p>
-                        {t("ui.releasedUnderTheGNUGeneralPublicLicenseV30TheFullLicenseTextShipsWithTheSourceDistribution")}
+                        {t(
+                            "ui.releasedUnderTheGNUGeneralPublicLicenseV30TheFullLicenseTextShipsWithTheSourceDistribution",
+                        )}
                     </p>
                 </div>
             </Dialog>

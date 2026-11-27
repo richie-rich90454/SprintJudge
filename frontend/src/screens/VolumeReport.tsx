@@ -95,7 +95,9 @@ export function VolumeReport() {
                         {t("ui.howManyQuestionsAreReady")}
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        {t("ui.eachSubjectNeedsAtLeast3000QuestionsBeforeItCanBeUsedInClassThisPageShowsWhereEachSubjectStands")}
+                        {t(
+                            "ui.eachSubjectNeedsAtLeast3000QuestionsBeforeItCanBeUsedInClassThisPageShowsWhereEachSubjectStands",
+                        )}
                     </p>
                 </div>
                 {volume.isPending && (
@@ -128,8 +130,8 @@ export function VolumeReport() {
                 {volume.data && rows.length > 0 && (
                     <>
                         <p className="label-caps" aria-live="polite">
-                            {formatCount(total)} questions in total, {ready} of{" "}
-                            {rows.length} subjects at 3,000
+                            {formatCount(total)} questions in total, {ready} of {rows.length}{" "}
+                            subjects at 3,000
                         </p>
                         <Card className="p-0 overflow-x-auto">
                             <table className="table-dotted w-full text-sm">
@@ -163,7 +165,9 @@ export function VolumeReport() {
                                                 {row.count >= GOAL ? (
                                                     <Chip tone="success">{t("ui.ready")}</Chip>
                                                 ) : (
-                                                    <Chip tone="neutral">{t("ui.stillAdding")}</Chip>
+                                                    <Chip tone="neutral">
+                                                        {t("ui.stillAdding")}
+                                                    </Chip>
                                                 )}
                                             </td>
                                         </tr>

@@ -48,12 +48,15 @@ export function ProfileView() {
 
     const rename = useMutation({
         mutationFn: (nickname: string) => updateProfile(identity!, { nickname }),
-        onSuccess: (report) => queryClient.setQueryData(["player-profile", report.profile.id], report),
+        onSuccess: (report) =>
+            queryClient.setQueryData(["player-profile", report.profile.id], report),
     });
 
     const link = useMutation({
-        mutationFn: () => updateProfile(identity!, { playerUuid: playerUuid!, rejoinToken: rejoinToken! }),
-        onSuccess: (report) => queryClient.setQueryData(["player-profile", report.profile.id], report),
+        mutationFn: () =>
+            updateProfile(identity!, { playerUuid: playerUuid!, rejoinToken: rejoinToken! }),
+        onSuccess: (report) =>
+            queryClient.setQueryData(["player-profile", report.profile.id], report),
     });
 
     const discard = () => {
@@ -66,9 +69,13 @@ export function ProfileView() {
             <div className="page-shell py-10 md:py-14 flex flex-col gap-6">
                 <div className="max-w-2xl">
                     <p className="label-caps mb-3">{t("ui.playerProgress")}</p>
-                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">{t("ui.yourProfile")}</h1>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                        {t("ui.yourProfile")}
+                    </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        {t("ui.joiningAGameStaysAnonymousAProfileIsOptionalItKeepsYourNicknameScoreHistoryAchievementsAndTheQuizzesYouHaveFinished")}
+                        {t(
+                            "ui.joiningAGameStaysAnonymousAProfileIsOptionalItKeepsYourNicknameScoreHistoryAchievementsAndTheQuizzesYouHaveFinished",
+                        )}
                     </p>
                 </div>
 
@@ -76,7 +83,9 @@ export function ProfileView() {
                     <Card className="p-6 max-w-lg flex flex-col gap-4">
                         <h2 className="text-xl font-extrabold">{t("ui.createAProfile")}</h2>
                         <p className="text-sm text-[var(--oq-ink-soft)]">
-                            {t("ui.chooseANicknameIfYouHaveJustPlayedThisDeviceCanAlsoLinkThatGameIdentitySoYourExistingResultsAppearHere")}
+                            {t(
+                                "ui.chooseANicknameIfYouHaveJustPlayedThisDeviceCanAlsoLinkThatGameIdentitySoYourExistingResultsAppearHere",
+                            )}
                         </p>
                         <Field label={t("ui.nickname")} htmlFor="profile-nickname">
                             <TextInput
@@ -91,13 +100,20 @@ export function ProfileView() {
                         {create.isError && (
                             <p className="text-sm text-[var(--oq-danger)]" role="alert">
                                 Could not create a profile:{" "}
-                                {create.error instanceof Error ? create.error.message : t("ui.unknownError")}. Check the
-                                nickname and try again.
+                                {create.error instanceof Error
+                                    ? create.error.message
+                                    : t("ui.unknownError")}
+                                . Check the nickname and try again.
                             </p>
                         )}
                         <div>
-                            <Button disabled={create.isPending || !newNickname.trim()} onClick={() => create.mutate()}>
-                                {create.isPending ? t("ui.creatingEllipsis") : t("ui.createProfile")}
+                            <Button
+                                disabled={create.isPending || !newNickname.trim()}
+                                onClick={() => create.mutate()}
+                            >
+                                {create.isPending
+                                    ? t("ui.creatingEllipsis")
+                                    : t("ui.createProfile")}
                             </Button>
                         </div>
                     </Card>
@@ -138,17 +154,25 @@ export function ProfileView() {
                                 <p className="label-caps">{t("ui.nickname")}</p>
                                 <h2 className="text-2xl font-extrabold">{data.profile.nickname}</h2>
                                 <p className="text-sm text-[var(--oq-ink-soft)] mt-1">
-                                    {data.stats.sessions} quiz{data.stats.sessions === 1 ? "" : "zes"} |{" "}
-                                    {data.stats.totalScore} points | {data.stats.correct}/{data.stats.answers} correct
+                                    {data.stats.sessions} quiz
+                                    {data.stats.sessions === 1 ? "" : "zes"} |{" "}
+                                    {data.stats.totalScore} points | {data.stats.correct}/
+                                    {data.stats.answers} correct
                                 </p>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                                {playerUuid && rejoinToken && data.profile.playerUuid !== playerUuid && (
-                                    <Button variant="secondary" size="sm" disabled={link.isPending}
-                                        onClick={() => link.mutate()}>
-                                        {t("ui.linkThisGameIdentity")}
-                                    </Button>
-                                )}
+                                {playerUuid &&
+                                    rejoinToken &&
+                                    data.profile.playerUuid !== playerUuid && (
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            disabled={link.isPending}
+                                            onClick={() => link.mutate()}
+                                        >
+                                            {t("ui.linkThisGameIdentity")}
+                                        </Button>
+                                    )}
                                 <Button variant="ghost" size="sm" onClick={discard}>
                                     {t("ui.forgetThisDevice")}
                                 </Button>
@@ -168,11 +192,17 @@ export function ProfileView() {
                                     <Card key={achievement.id} className="p-4 flex flex-col gap-2">
                                         <div className="flex items-center justify-between gap-2">
                                             <h3 className="font-extrabold">{achievement.title}</h3>
-                                            <Chip tone={achievement.unlocked ? "success" : "neutral"}>
-                                                {achievement.unlocked ? t("ui.unlocked") : t("ui.locked")}
+                                            <Chip
+                                                tone={achievement.unlocked ? "success" : "neutral"}
+                                            >
+                                                {achievement.unlocked
+                                                    ? t("ui.unlocked")
+                                                    : t("ui.locked")}
                                             </Chip>
                                         </div>
-                                        <p className="text-sm text-[var(--oq-ink-soft)]">{achievement.description}</p>
+                                        <p className="text-sm text-[var(--oq-ink-soft)]">
+                                            {achievement.description}
+                                        </p>
                                     </Card>
                                 ))}
                             </div>
@@ -185,18 +215,27 @@ export function ProfileView() {
                                     <Card className="p-4">
                                         <EmptyState
                                             title={t("ui.noResultsLinkedYet")}
-                                            hint={t("ui.linkTheGameIdentityFromYourLastSessionToBringInPastScores")}
+                                            hint={t(
+                                                "ui.linkTheGameIdentityFromYourLastSessionToBringInPastScores",
+                                            )}
                                         />
                                     </Card>
                                 ) : (
                                     <Card className="divide-y divide-[var(--oq-line)]">
                                         {data.history.map((entry) => (
-                                            <div key={entry.sessionId} className="p-4 flex justify-between gap-3">
+                                            <div
+                                                key={entry.sessionId}
+                                                className="p-4 flex justify-between gap-3"
+                                            >
                                                 <div>
-                                                    <p className="font-bold">{entry.quizTitle ?? t("ui.quiz")}</p>
+                                                    <p className="font-bold">
+                                                        {entry.quizTitle ?? t("ui.quiz")}
+                                                    </p>
                                                     <p className="text-xs text-[var(--oq-ink-soft)]">
-                                                        {new Date(entry.playedAt).toLocaleDateString()} |{" "}
-                                                        {entry.correct}/{entry.answers} correct
+                                                        {new Date(
+                                                            entry.playedAt,
+                                                        ).toLocaleDateString()}{" "}
+                                                        | {entry.correct}/{entry.answers} correct
                                                     </p>
                                                 </div>
                                                 <p className="font-extrabold">{entry.score} pts</p>
@@ -210,21 +249,32 @@ export function ProfileView() {
                                 <h2 className="text-xl font-extrabold">{t("ui.quizPortfolio")}</h2>
                                 {data.portfolio.length === 0 ? (
                                     <Card className="p-4">
-                                        <EmptyState title={t("ui.noQuizzesYet")} hint={t("ui.finishAQuizToStartYourPortfolio")} />
+                                        <EmptyState
+                                            title={t("ui.noQuizzesYet")}
+                                            hint={t("ui.finishAQuizToStartYourPortfolio")}
+                                        />
                                     </Card>
                                 ) : (
                                     <Card className="divide-y divide-[var(--oq-line)]">
                                         {data.portfolio.map((entry) => (
-                                            <div key={entry.quizId} className="p-4 flex justify-between gap-3">
+                                            <div
+                                                key={entry.quizId}
+                                                className="p-4 flex justify-between gap-3"
+                                            >
                                                 <div>
-                                                    <p className="font-bold">{entry.quizTitle ?? t("ui.quiz")}</p>
+                                                    <p className="font-bold">
+                                                        {entry.quizTitle ?? t("ui.quiz")}
+                                                    </p>
                                                     <p className="text-xs text-[var(--oq-ink-soft)]">
-                                                        {entry.sessions} attempt{entry.sessions === 1 ? "" : "s"} | best{" "}
+                                                        {entry.sessions} attempt
+                                                        {entry.sessions === 1 ? "" : "s"} | best{" "}
                                                         {entry.bestScore} pts
                                                     </p>
                                                 </div>
                                                 <p className="text-xs text-[var(--oq-ink-soft)]">
-                                                    {new Date(entry.lastPlayedAt).toLocaleDateString()}
+                                                    {new Date(
+                                                        entry.lastPlayedAt,
+                                                    ).toLocaleDateString()}
                                                 </p>
                                             </div>
                                         ))}

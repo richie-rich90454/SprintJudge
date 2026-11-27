@@ -2,7 +2,12 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { AnalyticsView } from "./AnalyticsView";
-import { buildAdaptiveSet, getClassReport, getItemReports, getStudentReports } from "../services/AnalyticsApiService";
+import {
+    buildAdaptiveSet,
+    getClassReport,
+    getItemReports,
+    getStudentReports,
+} from "../services/AnalyticsApiService";
 
 const rq = vi.hoisted(() => ({
     queries: {} as Record<string, any>,
@@ -18,13 +23,15 @@ vi.mock("@tanstack/react-query", () => ({
     useQuery: (options: { queryKey: string[] }) => {
         rq.keys.push(options.queryKey);
         rq.queryOptions[options.queryKey[0]] = options;
-        return rq.queries[options.queryKey[0]] ?? {
-            isPending: false,
-            isError: false,
-            data: undefined,
-            error: null,
-            refetch: vi.fn(),
-        };
+        return (
+            rq.queries[options.queryKey[0]] ?? {
+                isPending: false,
+                isError: false,
+                data: undefined,
+                error: null,
+                refetch: vi.fn(),
+            }
+        );
     },
     useMutation: (options: any) => {
         rq.mutationCalls++;
@@ -56,8 +63,20 @@ vi.mock("../services/AnalyticsApiService", () => ({
     getStudentReports: vi.fn(),
 }));
 
-const ok = (data: unknown) => ({ isPending: false, isError: false, data, error: null, refetch: vi.fn() });
-const pending = () => ({ isPending: true, isError: false, data: undefined, error: null, refetch: vi.fn() });
+const ok = (data: unknown) => ({
+    isPending: false,
+    isError: false,
+    data,
+    error: null,
+    refetch: vi.fn(),
+});
+const pending = () => ({
+    isPending: true,
+    isError: false,
+    data: undefined,
+    error: null,
+    refetch: vi.fn(),
+});
 const failed = () => ({
     isPending: false,
     isError: true,
@@ -123,7 +142,14 @@ describe("AnalyticsView", () => {
             { playerUuid: "p1", playerName: "Ada", attempts: 1, accuracy: 0.5, avgScore: 10 },
         ]);
         rq.queries["analytics-items"] = ok([
-            { bankId: "b1", title: "Item", unit: "u", attempts: 1, pValue: 0.5, bankDifficulty: null },
+            {
+                bankId: "b1",
+                title: "Item",
+                unit: "u",
+                attempts: 1,
+                pValue: 0.5,
+                bankDifficulty: null,
+            },
         ]);
         rq.mutationResult = { questionCount: 2, quizId: "q1", avgDifficulty: 0.5, skipped: 0 };
 
@@ -179,7 +205,9 @@ describe("AnalyticsView", () => {
         fireEvent.change(screen.getByLabelText("Mode"), { target: { value: "adaptive" } });
         fireEvent.change(screen.getByLabelText("Questions"), { target: { value: "7" } });
         fireEvent.change(screen.getByLabelText("Target difficulty"), { target: { value: "0.75" } });
-        fireEvent.change(screen.getByLabelText("Title (optional)"), { target: { value: " Mixed " } });
+        fireEvent.change(screen.getByLabelText("Title (optional)"), {
+            target: { value: " Mixed " },
+        });
         rq.mutationResult = {
             questionCount: 2,
             quizId: "q1",
@@ -199,7 +227,9 @@ describe("AnalyticsView", () => {
         });
         expect(screen.getByText("2 questions ready")).toBeInTheDocument();
         expect(screen.getByText("q1")).toBeInTheDocument();
-        expect(screen.getByText(/Average difficulty 50%, discrimination 0.80, 0 skipped/)).toBeInTheDocument();
+        expect(
+            screen.getByText(/Average difficulty 50%, discrimination 0.80, 0 skipped/),
+        ).toBeInTheDocument();
         expect(screen.getByText("easy: 1")).toBeInTheDocument();
         expect(screen.getByText("hard: 1")).toBeInTheDocument();
     });
@@ -262,7 +292,14 @@ describe("AnalyticsView", () => {
         empty.unmount();
 
         rq.queries["analytics-students"] = ok([
-            { playerUuid: "p2", playerName: "", attempts: 2, accuracy: 0.25, avgScore: 9.6, avgAttemptsPerItem: 1.23 },
+            {
+                playerUuid: "p2",
+                playerName: "",
+                attempts: 2,
+                accuracy: 0.25,
+                avgScore: 9.6,
+                avgAttemptsPerItem: 1.23,
+            },
         ]);
         rq.queries["analytics-items"] = ok([
             {

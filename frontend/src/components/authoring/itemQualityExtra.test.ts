@@ -6,7 +6,8 @@ const base: QualityInput = {
     title: "Select",
     description: "Which options apply?",
     config: {
-        explanation: "A sufficiently long explanation that teaches why the first options are the correct ones here.",
+        explanation:
+            "A sufficiently long explanation that teaches why the first options are the correct ones here.",
         hint: "Look at each option in turn.",
         options: ["alpha value here", "beta value here", "gamma value here"],
         correctIndex: 0,
@@ -57,7 +58,8 @@ describe("checkItemQuality option and misconception shapes", () => {
             title: "Code",
             description: "int x = 1;",
             config: {
-                explanation: "A sufficiently long explanation that teaches the reasoning behind the answer here.",
+                explanation:
+                    "A sufficiently long explanation that teaches the reasoning behind the answer here.",
                 hint: "A short nudge.",
             },
         });
@@ -68,7 +70,8 @@ describe("checkItemQuality option and misconception shapes", () => {
         const findings = checkItemQuality({
             ...base,
             config: {
-                explanation: "A sufficiently long explanation that teaches the correct answer here today.",
+                explanation:
+                    "A sufficiently long explanation that teaches the correct answer here today.",
                 hint: "h",
                 options: ["", "", ""],
                 correctIndex: 0,
@@ -84,7 +87,8 @@ describe("checkItemQuality explanation and media", () => {
             ...base,
             config: {
                 ...base.config,
-                explanation: "This explanation teaches the complete reasoning without any final mark",
+                explanation:
+                    "This explanation teaches the complete reasoning without any final mark",
             },
         });
         expect(findings.some((f) => f.message.includes("no terminal punctuation"))).toBe(true);

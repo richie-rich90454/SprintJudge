@@ -3,7 +3,9 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { VolumeReport } from "./VolumeReport";
 
-const rq = vi.hoisted(() => ({ state: { isPending: false, isError: false, data: undefined as any, refetch: vi.fn() } }));
+const rq = vi.hoisted(() => ({
+    state: { isPending: false, isError: false, data: undefined as any, refetch: vi.fn() },
+}));
 
 vi.mock("@tanstack/react-query", () => ({ useQuery: () => rq.state }));
 vi.mock("../components/Shell", () => ({
@@ -47,9 +49,14 @@ describe("VolumeReport", () => {
         expect(container.querySelector('[aria-live="polite"]')).toHaveTextContent(
             "6,000 questions in total, 1 of 3 subjects at 3,000",
         );
-        const names = screen.getAllByRole("row").slice(1).map((row) => (row as HTMLTableRowElement).cells[0].textContent);
+        const names = screen
+            .getAllByRole("row")
+            .slice(1)
+            .map((row) => (row as HTMLTableRowElement).cells[0].textContent);
         expect(names).toEqual(["Algebra I", "Chemistry", "CUSTOM_CODE"]);
-        expect((screen.getAllByRole("row")[2] as HTMLTableRowElement).cells[1]).toHaveTextContent("3,000");
+        expect((screen.getAllByRole("row")[2] as HTMLTableRowElement).cells[1]).toHaveTextContent(
+            "3,000",
+        );
         expect(screen.getByText("2,999")).toBeInTheDocument();
         expect(screen.getByText("Ready")).toBeInTheDocument();
         expect(screen.getAllByText("Still adding")).toHaveLength(2);

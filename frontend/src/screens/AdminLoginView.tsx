@@ -39,7 +39,9 @@ export function AdminLoginView() {
                     <div className="p-6">
                         <div className="flex items-center gap-2.5 mb-6">
                             <LogoMark size={28} />
-                            <span className="font-extrabold tracking-tight">{t("ui.sprintjudgeAdmin")}</span>
+                            <span className="font-extrabold tracking-tight">
+                                {t("ui.sprintjudgeAdmin")}
+                            </span>
                         </div>
                         <form method="POST" action="/admin/login" className="flex flex-col gap-4">
                             <label className="label-caps block mb-1" htmlFor="al-user">
@@ -66,7 +68,11 @@ export function AdminLoginView() {
                                 aria-invalid={loginFailed}
                             />
                             {loginFailed && (
-                                <p id="al-error" role="alert" className="text-[var(--oq-danger)] text-sm">
+                                <p
+                                    id="al-error"
+                                    role="alert"
+                                    className="text-[var(--oq-danger)] text-sm"
+                                >
                                     {t("ui.wrongUsernameOrPasswordPleaseTryAgain")}
                                 </p>
                             )}

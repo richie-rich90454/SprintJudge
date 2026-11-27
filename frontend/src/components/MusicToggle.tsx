@@ -45,7 +45,11 @@ export function MusicToggle({ className = "" }: { className?: string }) {
         <button
             type="button"
             aria-label={on ? t("ui.turnBackgroundMusicOff") : t("ui.turnBackgroundMusicOn")}
-            title={sound === "off" ? t("ui.musicFollowsTheMasterSoundSwitch") : t("ui.musicState", { state: on ? "on" : "off" })}
+            title={
+                sound === "off"
+                    ? t("ui.musicFollowsTheMasterSoundSwitch")
+                    : t("ui.musicState", { state: on ? "on" : "off" })
+            }
             aria-pressed={on}
             onClick={toggle}
             className={`btn btn-ghost btn-icon text-lg ${className}`.trim()}

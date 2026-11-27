@@ -206,11 +206,11 @@ describe("useAdminStore persistence", () => {
         adminMock.addQuestion.mockResolvedValue({ id: "new-q" });
         adminMock.getQuestions.mockResolvedValue([]);
         useAdminStore.getState().openWizard("quiz-1");
-        useAdminStore.setState({ draft: { ...useAdminStore.getState().draft, config: null } as any });
+        useAdminStore.setState({
+            draft: { ...useAdminStore.getState().draft, config: null } as any,
+        });
         await useAdminStore.getState().saveQuestion();
-        expect(adminMock.addQuestion).toHaveBeenCalledWith(
-            expect.objectContaining({ config: {} }),
-        );
+        expect(adminMock.addQuestion).toHaveBeenCalledWith(expect.objectContaining({ config: {} }));
     });
 
     test("createQuiz creates, reloads quizzes and returns the id", async () => {

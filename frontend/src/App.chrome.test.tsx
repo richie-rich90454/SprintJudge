@@ -85,9 +85,9 @@ describe("App chrome", () => {
 
     test("honors OS reduced-motion changes while mounted", () => {
         render(<App />);
-        const listener = mq.addEventListener.mock.calls.find((call) => call[0] === "change")?.[1] as
-            | (() => void)
-            | undefined;
+        const listener = mq.addEventListener.mock.calls.find(
+            (call) => call[0] === "change",
+        )?.[1] as (() => void) | undefined;
         expect(listener).toBeTypeOf("function");
         mq.matches = true;
         listener!();

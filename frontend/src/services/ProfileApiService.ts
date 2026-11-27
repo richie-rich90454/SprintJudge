@@ -90,7 +90,11 @@ function bearer(identity: ProfileIdentity): string {
     return `Bearer ${identity.token}`;
 }
 
-async function request<T>(path: string, identity?: ProfileIdentity, body?: Record<string, string>): Promise<T> {
+async function request<T>(
+    path: string,
+    identity?: ProfileIdentity,
+    body?: Record<string, string>,
+): Promise<T> {
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (identity) headers.Authorization = bearer(identity);
     let res: Response;
@@ -135,7 +139,11 @@ export function updateProfile(
     return patch<ProfileReport>(`/${encodeURIComponent(identity.id)}`, identity, body);
 }
 
-async function patch<T>(path: string, identity: ProfileIdentity, body: Record<string, string>): Promise<T> {
+async function patch<T>(
+    path: string,
+    identity: ProfileIdentity,
+    body: Record<string, string>,
+): Promise<T> {
     let res: Response;
     try {
         res = await fetch(`/api/public/profiles${path}`, {

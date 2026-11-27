@@ -92,7 +92,8 @@ describe("applyStoredLocale", () => {
     });
 });
 
-const wrapper = ({ children }: { children: ReactNode }) => createElement(I18nProvider, null, children);
+const wrapper = ({ children }: { children: ReactNode }) =>
+    createElement(I18nProvider, null, children);
 
 describe("I18nProvider / useI18n", () => {
     it("throws when used outside the provider", () => {

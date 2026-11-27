@@ -18,11 +18,17 @@ describe("MotionToggle", () => {
         expect(button).toHaveClass("header-icon");
 
         fireEvent.click(button);
-        fireEvent.click(screen.getByRole("button", { name: "Motion: full. Activate for reduced." }));
-        const reduced = screen.getByRole("button", { name: "Motion: reduced. Activate for system." });
+        fireEvent.click(
+            screen.getByRole("button", { name: "Motion: full. Activate for reduced." }),
+        );
+        const reduced = screen.getByRole("button", {
+            name: "Motion: reduced. Activate for system.",
+        });
         expect(reduced).toHaveAttribute("aria-pressed", "true");
 
         fireEvent.click(reduced);
-        expect(screen.getByRole("button", { name: "Motion: system. Activate for full." })).toBeInTheDocument();
+        expect(
+            screen.getByRole("button", { name: "Motion: system. Activate for full." }),
+        ).toBeInTheDocument();
     });
 });

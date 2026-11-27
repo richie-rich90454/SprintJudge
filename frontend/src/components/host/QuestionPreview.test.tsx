@@ -3,7 +3,11 @@ import { describe, expect, test } from "vitest";
 import type { QuestionDto, QuestionType, RoundResult } from "../../types";
 import { QuestionPreview } from "./QuestionPreview";
 
-function question(type: QuestionType, config: Record<string, unknown>, description = ""): QuestionDto {
+function question(
+    type: QuestionType,
+    config: Record<string, unknown>,
+    description = "",
+): QuestionDto {
     return {
         id: "q1",
         type,
@@ -30,18 +34,35 @@ const ACCENT = "color-mix";
 
 describe("QuestionPreview", () => {
     test("uses csaUnit, topic, or type for the label and toggles the description", () => {
-        const { rerender, container } = render(<QuestionPreview question={question("MCQ", {})} round={null} />);
+        const { rerender, container } = render(
+            <QuestionPreview question={question("MCQ", {})} round={null} />,
+        );
         expect(screen.getByText("MCQ")).toBeInTheDocument();
         expect(screen.queryByText("A description")).not.toBeInTheDocument();
 
-        rerender(<QuestionPreview question={question("MCQ", { topic: "Topic" }, "A description")} round={null} />);
+        rerender(
+            <QuestionPreview
+                question={question("MCQ", { topic: "Topic" }, "A description")}
+                round={null}
+            />,
+        );
         expect(screen.getByText("Topic")).toBeInTheDocument();
         expect(screen.getByText("A description")).toBeInTheDocument();
 
-        rerender(<QuestionPreview question={question("MCQ", { topic: "Question Title" })} round={null} />);
+        rerender(
+            <QuestionPreview
+                question={question("MCQ", { topic: "Question Title" })}
+                round={null}
+            />,
+        );
         expect(screen.getByText("MCQ")).toBeInTheDocument();
 
-        rerender(<QuestionPreview question={question("MCQ", { csaUnit: "Unit", topic: "Topic" })} round={null} />);
+        rerender(
+            <QuestionPreview
+                question={question("MCQ", { csaUnit: "Unit", topic: "Topic" })}
+                round={null}
+            />,
+        );
         expect(screen.getByText("Unit")).toBeInTheDocument();
         expect(container.firstChild).not.toHaveClass("extra");
     });
@@ -63,7 +84,9 @@ describe("QuestionPreview", () => {
         revealed.unmount();
 
         const hidden = render(<QuestionPreview question={q} round={round(null, false)} />);
-        expect(hidden.container.querySelectorAll("pre code > span")[1].className).not.toContain(ACCENT);
+        expect(hidden.container.querySelectorAll("pre code > span")[1].className).not.toContain(
+            ACCENT,
+        );
         hidden.unmount();
 
         const empty = render(<QuestionPreview question={question("CLICK_BUG", {})} round={null} />);
@@ -72,13 +95,18 @@ describe("QuestionPreview", () => {
 
     test("renders starter code for OJ types, with a fallback", () => {
         const withStarter = render(
-            <QuestionPreview question={question("OJ_FULL", { starter: "class Main {}" })} round={null} />,
+            <QuestionPreview
+                question={question("OJ_FULL", { starter: "class Main {}" })}
+                round={null}
+            />,
         );
         expect(withStarter.getByText("Starter")).toBeInTheDocument();
         expect(withStarter.getByText("class Main {}")).toBeInTheDocument();
         withStarter.unmount();
 
-        const fallback = render(<QuestionPreview question={question("OJ_PATCH", {})} round={null} />);
+        const fallback = render(
+            <QuestionPreview question={question("OJ_PATCH", {})} round={null} />,
+        );
         expect(fallback.getByText("Write your solution in the editor.")).toBeInTheDocument();
     });
 
@@ -93,11 +121,16 @@ describe("QuestionPreview", () => {
         expect(screen.getByText("B")).toBeInTheDocument();
         unmount();
 
-        const { container: hidden } = render(<QuestionPreview question={q} round={round(null, false)} />);
+        const { container: hidden } = render(
+            <QuestionPreview question={q} round={round(null, false)} />,
+        );
         expect(hidden.querySelectorAll(".grid > div")[0].className).not.toContain(ACCENT);
 
         const bad = render(
-            <QuestionPreview question={question("MCQ", { options: [1, 2], correctIndex: "x" })} round={round({})} />,
+            <QuestionPreview
+                question={question("MCQ", { options: [1, 2], correctIndex: "x" })}
+                round={round({})}
+            />,
         );
         expect(bad.getByText("1")).toBeInTheDocument();
         expect(bad.container.querySelectorAll(".grid > div")[0].className).not.toContain(ACCENT);
@@ -121,14 +154,21 @@ describe("QuestionPreview", () => {
     });
 
     test("renders option rows for OUTPUT_PRED and COMPLEXITY", () => {
-        render(<QuestionPreview question={question("OUTPUT_PRED", { options: ["x", "y"] })} round={null} />);
+        render(
+            <QuestionPreview
+                question={question("OUTPUT_PRED", { options: ["x", "y"] })}
+                round={null}
+            />,
+        );
         expect(screen.getByText("x")).toBeInTheDocument();
         expect(screen.getByText("y")).toBeInTheDocument();
     });
 
     test("renders true/false with reveal from answer then config", () => {
         const q = question("TRUE_FALSE", { correct: false });
-        const fromAnswer = render(<QuestionPreview question={q} round={round({ correct: true })} />);
+        const fromAnswer = render(
+            <QuestionPreview question={q} round={round({ correct: true })} />,
+        );
         const rows = fromAnswer.container.querySelectorAll(".grid > div");
         expect(rows[0].className).toContain(ACCENT);
         expect(screen.getByText("True")).toBeInTheDocument();
@@ -145,7 +185,10 @@ describe("QuestionPreview", () => {
 
     test("renders numeric and fill-blank answers with fallbacks", () => {
         const numeric = render(
-            <QuestionPreview question={question("NUMERIC", { answer: 7 })} round={round({ answer: 42 })} />,
+            <QuestionPreview
+                question={question("NUMERIC", { answer: 7 })}
+                round={round({ answer: 42 })}
+            />,
         );
         expect(numeric.getByText("42")).toBeInTheDocument();
         numeric.unmount();
@@ -156,31 +199,37 @@ describe("QuestionPreview", () => {
         expect(numericConfig.getByText("7")).toBeInTheDocument();
         numericConfig.unmount();
 
-        const numericUnknown = render(<QuestionPreview question={question("NUMERIC", {})} round={round({})} />);
+        const numericUnknown = render(
+            <QuestionPreview question={question("NUMERIC", {})} round={round({})} />,
+        );
         expect(numericUnknown.getByText("?")).toBeInTheDocument();
         numericUnknown.unmount();
 
-        const hidden = render(<QuestionPreview question={question("NUMERIC", {})} round={round(null, false)} />);
+        const hidden = render(
+            <QuestionPreview question={question("NUMERIC", {})} round={round(null, false)} />,
+        );
         expect(hidden.getByText("Enter a number")).toBeInTheDocument();
         hidden.unmount();
 
         const blank = render(
-            <QuestionPreview question={question("FILL_BLANK", { answer: "word" })} round={round({ answer: "yes" })} />,
+            <QuestionPreview
+                question={question("FILL_BLANK", { answer: "word" })}
+                round={round({ answer: "yes" })}
+            />,
         );
         expect(blank.getByText("yes")).toBeInTheDocument();
         expect(blank.getByText("Blank")).toBeInTheDocument();
         blank.unmount();
 
-        const blankHidden = render(<QuestionPreview question={question("FILL_BLANK", {})} round={round(null, false)} />);
+        const blankHidden = render(
+            <QuestionPreview question={question("FILL_BLANK", {})} round={round(null, false)} />,
+        );
         expect(blankHidden.getByText("One answer")).toBeInTheDocument();
     });
 
     test("handles blank lines, a null config and the fill-blank config fallback", () => {
         const blankLine = render(
-            <QuestionPreview
-                question={question("CLICK_BUG", { lines: [""] })}
-                round={null}
-            />,
+            <QuestionPreview question={question("CLICK_BUG", { lines: [""] })} round={null} />,
         );
         expect(blankLine.container.textContent).toContain(" ");
         blankLine.unmount();
@@ -192,7 +241,10 @@ describe("QuestionPreview", () => {
         nullConfig.unmount();
 
         const blankFallback = render(
-            <QuestionPreview question={question("FILL_BLANK", { answer: "word" })} round={round({})} />,
+            <QuestionPreview
+                question={question("FILL_BLANK", { answer: "word" })}
+                round={round({})}
+            />,
         );
         expect(blankFallback.getByText("word")).toBeInTheDocument();
         blankFallback.unmount();
@@ -205,19 +257,28 @@ describe("QuestionPreview", () => {
 
     test("renders the generic correct-answer block for other types", () => {
         const exemplar = render(
-            <QuestionPreview question={question("CODE_COMPLETION", {})} round={round({ exemplar: "done" })} />,
+            <QuestionPreview
+                question={question("CODE_COMPLETION", {})}
+                round={round({ exemplar: "done" })}
+            />,
         );
         expect(exemplar.getByText("done")).toBeInTheDocument();
         exemplar.unmount();
 
         const formatted = render(
-            <QuestionPreview question={question("DRAG_SORT", {})} round={round({ correctOrder: [1, 0] })} />,
+            <QuestionPreview
+                question={question("DRAG_SORT", {})}
+                round={round({ correctOrder: [1, 0] })}
+            />,
         );
         expect(formatted.getByText("Correct order: 1. 1, 2. 0")).toBeInTheDocument();
         formatted.unmount();
 
         const hidden = render(
-            <QuestionPreview question={question("CODE_COMPLETION", {})} round={round(null, false)} />,
+            <QuestionPreview
+                question={question("CODE_COMPLETION", {})}
+                round={round(null, false)}
+            />,
         );
         expect(hidden.queryByText("Correct answer")).not.toBeInTheDocument();
     });

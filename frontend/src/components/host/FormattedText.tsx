@@ -52,7 +52,11 @@ export function FormattedText({ text, className = "" }: { text: string; classNam
     return (
         <div className={`whitespace-pre-wrap leading-relaxed ${className}`.trim()}>
             {parts.map((part, i) =>
-                i % 2 === 1 ? <CodeBlock key={i} code={part} /> : <InlineText key={i} text={part} />,
+                i % 2 === 1 ? (
+                    <CodeBlock key={i} code={part} />
+                ) : (
+                    <InlineText key={i} text={part} />
+                ),
             )}
         </div>
     );

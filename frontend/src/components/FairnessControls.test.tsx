@@ -17,15 +17,24 @@ describe("FairnessControls", () => {
     test("defaults to both options shuffled", () => {
         expect(readFairness()).toEqual({ shuffleOptions: true, shuffleQuestions: true });
         render(<FairnessControls />);
-        expect(screen.getAllByRole("switch").every((el) => el.getAttribute("aria-checked") === "true")).toBe(true);
+        expect(
+            screen.getAllByRole("switch").every((el) => el.getAttribute("aria-checked") === "true"),
+        ).toBe(true);
         expect(screen.getAllByText("ON")).toHaveLength(2);
     });
 
     test("reads persisted choices, including explicit false values", () => {
-        localStorage.setItem("oq-fairness", JSON.stringify({ shuffleOptions: false, shuffleQuestions: false }));
+        localStorage.setItem(
+            "oq-fairness",
+            JSON.stringify({ shuffleOptions: false, shuffleQuestions: false }),
+        );
         expect(readFairness()).toEqual({ shuffleOptions: false, shuffleQuestions: false });
         render(<FairnessControls />);
-        expect(screen.getAllByRole("switch").every((el) => el.getAttribute("aria-checked") === "false")).toBe(true);
+        expect(
+            screen
+                .getAllByRole("switch")
+                .every((el) => el.getAttribute("aria-checked") === "false"),
+        ).toBe(true);
         expect(screen.getAllByText("OFF")).toHaveLength(2);
     });
 

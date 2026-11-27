@@ -54,7 +54,13 @@ function defaultConfig(type: string): Record<string, unknown> {
         case "FILL_BLANK":
             return { answer: "" };
         case "DRAG_SORT":
-            return { lines: [{ id: "0", text: "" }, { id: "1", text: "" }], correctOrder: [0, 1] };
+            return {
+                lines: [
+                    { id: "0", text: "" },
+                    { id: "1", text: "" },
+                ],
+                correctOrder: [0, 1],
+            };
         case "CLICK_BUG":
             return { codeLines: [""], bugLine: 0 };
         case "CODE_COMPLETION":

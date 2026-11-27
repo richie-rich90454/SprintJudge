@@ -42,7 +42,9 @@ describe("ExtraTypeConfigForm - HOT_SPOT", () => {
         const onChange = vi.fn();
         render(<Stateful type="HOT_SPOT" initial={initial} onChange={onChange} />);
 
-        fireEvent.change(screen.getByLabelText("Image URL"), { target: { value: "https://x/img.png" } });
+        fireEvent.change(screen.getByLabelText("Image URL"), {
+            target: { value: "https://x/img.png" },
+        });
         expect(onChange).toHaveBeenCalledWith({ imageUrl: "https://x/img.png" });
 
         const numbers = screen.getAllByRole("spinbutton");
@@ -65,7 +67,9 @@ describe("ExtraTypeConfigForm - HOT_SPOT", () => {
     });
 
     test("preview shows an http image, correct border, and re-checking a region", () => {
-        render(<Stateful type="HOT_SPOT" initial={{ ...initial, imageUrl: "https://x/img.png" }} />);
+        render(
+            <Stateful type="HOT_SPOT" initial={{ ...initial, imageUrl: "https://x/img.png" }} />,
+        );
         expect(screen.getByRole("img", { name: "Hot-spot target" })).toBeInTheDocument();
         const region = document.querySelector("div.rounded-full") as HTMLElement;
         expect(region.getAttribute("style")).toContain("var(--oq-accent)");
@@ -77,7 +81,9 @@ describe("ExtraTypeConfigForm - HOT_SPOT", () => {
     });
 
     test("preview ignores a non-http image URL", () => {
-        render(<Stateful type="HOT_SPOT" initial={{ ...initial, imageUrl: "javascript:alert(1)" }} />);
+        render(
+            <Stateful type="HOT_SPOT" initial={{ ...initial, imageUrl: "javascript:alert(1)" }} />,
+        );
         expect(screen.queryByRole("img")).not.toBeInTheDocument();
     });
 });
@@ -133,7 +139,9 @@ describe("ExtraTypeConfigForm - MATCHING", () => {
         );
         expect(screen.getByText("alpha → one")).toBeInTheDocument();
 
-        const empty = render(<Stateful type="MATCHING" initial={{ left: [], right: [], pairs: [] }} />);
+        const empty = render(
+            <Stateful type="MATCHING" initial={{ left: [], right: [], pairs: [] }} />,
+        );
         expect(empty.getByText("No pairs set")).toBeInTheDocument();
     });
 });
@@ -162,7 +170,10 @@ describe("ExtraTypeConfigForm - TOLERANCE_NUMERIC", () => {
 
     test("preview uses absolute mode without a percent suffix", () => {
         render(
-            <Stateful type="TOLERANCE_NUMERIC" initial={{ answer: 7, tolerance: 1, toleranceMode: "absolute", unit: "" }} />,
+            <Stateful
+                type="TOLERANCE_NUMERIC"
+                initial={{ answer: 7, tolerance: 1, toleranceMode: "absolute", unit: "" }}
+            />,
         );
         expect(screen.getByText(/Expected: 7 ± 1/)).toBeInTheDocument();
     });
@@ -175,15 +186,23 @@ describe("ExtraTypeConfigForm - MULTI_PART", () => {
         const onChange = vi.fn();
         render(<Stateful type="MULTI_PART" initial={{ parts: [part] }} onChange={onChange} />);
 
-        fireEvent.change(screen.getByPlaceholderText("Part 1 prompt"), { target: { value: "First" } });
+        fireEvent.change(screen.getByPlaceholderText("Part 1 prompt"), {
+            target: { value: "First" },
+        });
         fireEvent.change(screen.getByLabelText("Kind"), { target: { value: "MCQ" } });
         const numbers = screen.getAllByRole("spinbutton");
         fireEvent.change(numbers[0], { target: { value: "3" } });
         fireEvent.change(screen.getByLabelText("Expected answer"), { target: { value: "yes" } });
-        expect(onChange).toHaveBeenCalledWith({ parts: [expect.objectContaining({ prompt: "First" })] });
-        expect(onChange).toHaveBeenCalledWith({ parts: [expect.objectContaining({ kind: "MCQ" })] });
+        expect(onChange).toHaveBeenCalledWith({
+            parts: [expect.objectContaining({ prompt: "First" })],
+        });
+        expect(onChange).toHaveBeenCalledWith({
+            parts: [expect.objectContaining({ kind: "MCQ" })],
+        });
         expect(onChange).toHaveBeenCalledWith({ parts: [expect.objectContaining({ points: 3 })] });
-        expect(onChange).toHaveBeenCalledWith({ parts: [expect.objectContaining({ answer: "yes" })] });
+        expect(onChange).toHaveBeenCalledWith({
+            parts: [expect.objectContaining({ answer: "yes" })],
+        });
 
         fireEvent.change(screen.getByLabelText("Options (comma separated)"), {
             target: { value: "yes, no" },
@@ -238,7 +257,10 @@ describe("ExtraTypeConfigForm empty-config fallbacks", () => {
         empty.unmount();
 
         render(
-            <Stateful type="MATCHING" initial={{ left: [], right: [], pairs: [{ left: 3, right: 4 }] }} />,
+            <Stateful
+                type="MATCHING"
+                initial={{ left: [], right: [], pairs: [{ left: 3, right: 4 }] }}
+            />,
         );
         expect(screen.getByText("3 → 4")).toBeInTheDocument();
     });

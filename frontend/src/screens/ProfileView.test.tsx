@@ -18,7 +18,11 @@ const mock = vi.hoisted(() => ({
     mutationCalls: 0,
     mutationStates: {} as Record<number, any>,
     mutationResults: {} as Record<number, any>,
-    game: { playerName: null as string | null, playerUuid: null as string | null, rejoinToken: null as string | null },
+    game: {
+        playerName: null as string | null,
+        playerUuid: null as string | null,
+        rejoinToken: null as string | null,
+    },
     queryClient: { setQueryData: vi.fn() },
 }));
 
@@ -72,8 +76,25 @@ const report = {
         { id: "a1", title: "First Quiz", description: "Played one", unlocked: true },
         { id: "a2", title: "Sharpshooter", description: "Perfect run", unlocked: false },
     ],
-    history: [{ sessionId: "s1", quizTitle: "Quiz A", playedAt: "2024-01-01T00:00:00Z", correct: 1, answers: 2, score: 10 }],
-    portfolio: [{ quizId: "q1", quizTitle: "Quiz A", sessions: 1, bestScore: 10, lastPlayedAt: "2024-01-01T00:00:00Z" }],
+    history: [
+        {
+            sessionId: "s1",
+            quizTitle: "Quiz A",
+            playedAt: "2024-01-01T00:00:00Z",
+            correct: 1,
+            answers: 2,
+            score: 10,
+        },
+    ],
+    portfolio: [
+        {
+            quizId: "q1",
+            quizTitle: "Quiz A",
+            sessions: 1,
+            bestScore: 10,
+            lastPlayedAt: "2024-01-01T00:00:00Z",
+        },
+    ],
 };
 const mutation = (slot: number) => mock.mutationOptions[mock.mutationCalls - 3 + slot];
 
@@ -95,13 +116,17 @@ describe("ProfileView", () => {
             error: new Error("nickname taken"),
         };
         render(<ProfileView />);
-        expect(screen.getByRole("alert")).toHaveTextContent("Could not create a profile: nickname taken");
+        expect(screen.getByRole("alert")).toHaveTextContent(
+            "Could not create a profile: nickname taken",
+        );
     });
 
     test("does not render 'undefined' for non-Error rejections", () => {
         mock.mutationStates[0] = { isError: true, error: { code: 400 } };
         render(<ProfileView />);
-        expect(screen.getByRole("alert")).toHaveTextContent("Could not create a profile: unknown error");
+        expect(screen.getByRole("alert")).toHaveTextContent(
+            "Could not create a profile: unknown error",
+        );
         expect(screen.queryByText(/undefined/)).not.toBeInTheDocument();
     });
 
@@ -123,7 +148,10 @@ describe("ProfileView", () => {
         mock.mutationResults[0] = report;
         fireEvent.click(createButton);
         expect(storeIdentity).toHaveBeenCalledWith({ id: "p1", token: "tok" });
-        expect(mock.queryClient.setQueryData).toHaveBeenCalledWith(["player-profile", "p1"], report);
+        expect(mock.queryClient.setQueryData).toHaveBeenCalledWith(
+            ["player-profile", "p1"],
+            report,
+        );
     });
 
     test("create omits missing game identifiers, shows pending state, and fetches the profile", () => {
@@ -231,12 +259,16 @@ describe("ProfileView", () => {
 
         mock.game = { playerName: "Ada", playerUuid: null, rejoinToken: "rejoin-1" };
         const noUuid = render(<ProfileView />);
-        expect(screen.queryByRole("button", { name: "Link this game identity" })).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole("button", { name: "Link this game identity" }),
+        ).not.toBeInTheDocument();
         noUuid.unmount();
 
         mock.game = { playerName: "Ada", playerUuid: "uuid-1", rejoinToken: null };
         const noToken = render(<ProfileView />);
-        expect(screen.queryByRole("button", { name: "Link this game identity" })).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole("button", { name: "Link this game identity" }),
+        ).not.toBeInTheDocument();
         noToken.unmount();
 
         mock.query = {
@@ -246,7 +278,9 @@ describe("ProfileView", () => {
             refetch: vi.fn(),
         };
         const linked = render(<ProfileView />);
-        expect(screen.queryByRole("button", { name: "Link this game identity" })).not.toBeInTheDocument();
+        expect(
+            screen.queryByRole("button", { name: "Link this game identity" }),
+        ).not.toBeInTheDocument();
         linked.unmount();
 
         mock.query = { data: report, isPending: false, isError: false, refetch: vi.fn() };
@@ -254,10 +288,16 @@ describe("ProfileView", () => {
         vi.mocked(updateProfile).mockResolvedValue(report as any);
         const view = render(<ProfileView />);
         void mutation(2).mutationFn();
-        expect(updateProfile).toHaveBeenCalledWith(identity, { playerUuid: "uuid-1", rejoinToken: "rejoin-1" });
+        expect(updateProfile).toHaveBeenCalledWith(identity, {
+            playerUuid: "uuid-1",
+            rejoinToken: "rejoin-1",
+        });
         mock.mutationResults[2] = report;
         fireEvent.click(screen.getByRole("button", { name: "Link this game identity" }));
-        expect(mock.queryClient.setQueryData).toHaveBeenCalledWith(["player-profile", "p1"], report);
+        expect(mock.queryClient.setQueryData).toHaveBeenCalledWith(
+            ["player-profile", "p1"],
+            report,
+        );
         view.unmount();
 
         mock.mutationStates[2] = { isPending: true };
@@ -276,7 +316,10 @@ describe("ProfileView", () => {
         expect(updateProfile).toHaveBeenCalledWith(identity, { nickname: "Grace" });
         mock.mutationResults[1] = report;
         fireEvent.click(screen.getByRole("button", { name: "Save" }));
-        expect(mock.queryClient.setQueryData).toHaveBeenCalledWith(["player-profile", "p1"], report);
+        expect(mock.queryClient.setQueryData).toHaveBeenCalledWith(
+            ["player-profile", "p1"],
+            report,
+        );
         view.unmount();
 
         mock.mutationStates[1] = { isError: true, error: new Error("stale") };

@@ -29,7 +29,9 @@ export function AdminRouteError({ error, reset }: ErrorComponentProps) {
         <div className="page-shell py-10" role="alert">
             <h1 className="text-2xl font-extrabold">Admin service unavailable</h1>
             <p className="mt-3 text-[var(--oq-ink-soft)]">
-                {error instanceof Error ? error.message : "The admin service is unavailable. Reload to try again."}
+                {error instanceof Error
+                    ? error.message
+                    : "The admin service is unavailable. Reload to try again."}
             </p>
             <button type="button" className="btn btn-primary btn-sm mt-4" onClick={reset}>
                 Retry

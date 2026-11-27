@@ -1,6 +1,5 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
 
-
 import { BaseQuestionRenderer } from "./BaseQuestionRenderer";
 import { McqRenderer } from "./McqRenderer";
 import { TrueFalseRenderer } from "./TrueFalseRenderer";

@@ -88,16 +88,22 @@ export class AssignmentApiService {
     }
 
     get(id: string): Promise<Assignment> {
-        return this.client.get<Assignment>(`/admin/assignments/${encodeURIComponent(id)}`).then((r) => r.data);
+        return this.client
+            .get<Assignment>(`/admin/assignments/${encodeURIComponent(id)}`)
+            .then((r) => r.data);
     }
 
     roster(id: string): Promise<RosterStudent[]> {
-        return this.client.get<RosterStudent[]>(`/admin/assignments/${encodeURIComponent(id)}/roster`).then((r) => r.data);
+        return this.client
+            .get<RosterStudent[]>(`/admin/assignments/${encodeURIComponent(id)}/roster`)
+            .then((r) => r.data);
     }
 
     importRoster(id: string, csv: string): Promise<{ imported: number }> {
         return this.client
-            .post<{ imported: number }>(`/admin/assignments/${encodeURIComponent(id)}/roster`, { csv })
+            .post<{ imported: number }>(`/admin/assignments/${encodeURIComponent(id)}/roster`, {
+                csv,
+            })
             .then((r) => r.data);
     }
 
@@ -107,7 +113,12 @@ export class AssignmentApiService {
             .then((r) => r.data);
     }
 
-    recordGrade(id: string, studentId: string, score: number, maxScore: number): Promise<GradeResult> {
+    recordGrade(
+        id: string,
+        studentId: string,
+        score: number,
+        maxScore: number,
+    ): Promise<GradeResult> {
         return this.client
             .post<GradeResult>(`/admin/assignments/${encodeURIComponent(id)}/grades`, {
                 studentId,
@@ -119,19 +130,25 @@ export class AssignmentApiService {
 
     start(id: string, studentId: string): Promise<StudentProgress> {
         return this.client
-            .post<StudentProgress>(`/public/assignments/${encodeURIComponent(id)}/start`, { studentId })
+            .post<StudentProgress>(`/public/assignments/${encodeURIComponent(id)}/start`, {
+                studentId,
+            })
             .then((r) => r.data);
     }
 
     studentProgress(id: string, studentId: string): Promise<StudentProgress> {
         const q = new URLSearchParams({ studentId });
         return this.client
-            .get<StudentProgress>(`/public/assignments/${encodeURIComponent(id)}/progress?${q.toString()}`)
+            .get<StudentProgress>(
+                `/public/assignments/${encodeURIComponent(id)}/progress?${q.toString()}`,
+            )
             .then((r) => r.data);
     }
 
     ltiLaunch(claims: Record<string, unknown>): Promise<LtiLaunchResult> {
-        return this.client.post<LtiLaunchResult>("/public/assignments/lti/launch", claims).then((r) => r.data);
+        return this.client
+            .post<LtiLaunchResult>("/public/assignments/lti/launch", claims)
+            .then((r) => r.data);
     }
 }
 

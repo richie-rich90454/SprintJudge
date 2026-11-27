@@ -9,7 +9,12 @@ import {
 
 describe("authoringTypes", () => {
     it("exposes the extra types and the full wizard list", () => {
-        expect(EXTRA_QUESTION_TYPES).toEqual(["HOT_SPOT", "MATCHING", "TOLERANCE_NUMERIC", "MULTI_PART"]);
+        expect(EXTRA_QUESTION_TYPES).toEqual([
+            "HOT_SPOT",
+            "MATCHING",
+            "TOLERANCE_NUMERIC",
+            "MULTI_PART",
+        ]);
         expect(WIZARD_QUESTION_TYPES).toContain("MCQ");
         expect(WIZARD_QUESTION_TYPES).toContain("OJ_PATCH");
         expect(WIZARD_QUESTION_TYPES).toHaveLength(16);

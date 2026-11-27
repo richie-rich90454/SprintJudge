@@ -22,7 +22,8 @@ export function isSafeMediaUrl(url: string, kind: "image" | "audio"): boolean {
     const value = url.trim();
     if (/^https?:\/\/\S+$/i.test(value)) return true;
     if (value.startsWith("/") && !value.startsWith("//")) return true;
-    const prefix = kind === "image" ? "data:image/(png|jpeg|gif|webp)" : "data:audio/(mpeg|mp3|wav|ogg|webm)";
+    const prefix =
+        kind === "image" ? "data:image/(png|jpeg|gif|webp)" : "data:audio/(mpeg|mp3|wav|ogg|webm)";
     return new RegExp("^" + prefix + ";base64,[A-Za-z0-9+/=]+$", "i").test(value);
 }
 

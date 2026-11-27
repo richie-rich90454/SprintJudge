@@ -23,10 +23,16 @@ describe("friendlyError", () => {
 
     test("maps rejoin, seat and host-left errors", () => {
         expect(friendlyError("rejoin token expired")).toMatch(/session changed/);
-        expect(friendlyError("The host left the game. Ask them to reopen the host screen to continue."))
-            .toMatch(/host left/);
-        expect(friendlyError("This game is open in another tab. Close that tab and reload to continue."))
-            .toMatch(/another tab/);
+        expect(
+            friendlyError(
+                "The host left the game. Ask them to reopen the host screen to continue.",
+            ),
+        ).toMatch(/host left/);
+        expect(
+            friendlyError(
+                "This game is open in another tab. Close that tab and reload to continue.",
+            ),
+        ).toMatch(/another tab/);
     });
 
     test("keeps short safe messages verbatim", () => {
@@ -35,9 +41,12 @@ describe("friendlyError", () => {
     });
 
     test("hides internal ids, long and non-string messages", () => {
-        expect(friendlyError("Quiz not found: q-12345-abcd")).toBe("Something went wrong. Please try again.");
-        expect(friendlyError("Unknown player: 550e8400-e29b-41d4-a716-446655440000"))
-            .toBe("Something went wrong. Please try again.");
+        expect(friendlyError("Quiz not found: q-12345-abcd")).toBe(
+            "Something went wrong. Please try again.",
+        );
+        expect(friendlyError("Unknown player: 550e8400-e29b-41d4-a716-446655440000")).toBe(
+            "Something went wrong. Please try again.",
+        );
         expect(friendlyError("x".repeat(100))).toBe("Something went wrong. Please try again.");
         expect(friendlyError(null)).toBe("Something went wrong. Please try again.");
         expect(friendlyError(42)).toBe("Something went wrong. Please try again.");

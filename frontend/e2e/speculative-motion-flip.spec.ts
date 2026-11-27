@@ -9,7 +9,9 @@ test.use({ serviceWorkers: "block" });
  * must update that class in place, with no reload and no manual in-app toggle.
  */
 test.describe("speculative OS motion preference flip", () => {
-    test("flipping prefers-reduced-motion updates the motion class without reload", async ({ page }) => {
+    test("flipping prefers-reduced-motion updates the motion class without reload", async ({
+        page,
+    }) => {
         // A fresh context has no persisted 'oq-motion' key, so motion is 'system';
         // the init script keeps it that way across any incidental navigation.
         await page.addInitScript(() => localStorage.removeItem("oq-motion"));
@@ -30,6 +32,10 @@ test.describe("speculative OS motion preference flip", () => {
         await page.emulateMedia({ reducedMotion: "no-preference" });
         await expect(html).not.toHaveClass(/motion-reduced/);
 
-        expect(await page.evaluate(() => (window as unknown as { __oqNoReload?: string }).__oqNoReload)).toBe("alive");
+        expect(
+            await page.evaluate(
+                () => (window as unknown as { __oqNoReload?: string }).__oqNoReload,
+            ),
+        ).toBe("alive");
     });
 });

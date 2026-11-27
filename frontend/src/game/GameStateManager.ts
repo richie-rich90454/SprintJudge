@@ -346,10 +346,13 @@ export class GameStateManager {
                 // Keep the final review across reloads/deep links to /results;
                 // GAME_REVIEW is a one-shot push that is gone on refresh.
                 try {
-                    sessionStorage.setItem("sprintjudge_last_review", JSON.stringify({
-                        review,
-                        leaderboard: review.rankings ?? [],
-                    }));
+                    sessionStorage.setItem(
+                        "sprintjudge_last_review",
+                        JSON.stringify({
+                            review,
+                            leaderboard: review.rankings ?? [],
+                        }),
+                    );
                 } catch {
                     /* storage unavailable - live view still works */
                 }

@@ -15,7 +15,12 @@ describe("buildAdaptiveSet CSRF", () => {
         });
         vi.stubGlobal("fetch", fetchMock);
 
-        await buildAdaptiveSet({ subject: "MATH", size: 5, mode: "balanced", targetDifficulty: 0.5 });
+        await buildAdaptiveSet({
+            subject: "MATH",
+            size: 5,
+            mode: "balanced",
+            targetDifficulty: 0.5,
+        });
 
         expect(fetchMock).toHaveBeenCalledWith(
             "/api/admin/analytics/adaptive-set",

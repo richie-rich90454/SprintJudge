@@ -11,7 +11,9 @@ const gameMock = vi.hoisted(() => ({
         join: vi.fn(),
     },
 }));
-const uiMock = vi.hoisted(() => ({ state: { sound: "on", motion: "system", theme: "light", pin: null, setPin: vi.fn() } }));
+const uiMock = vi.hoisted(() => ({
+    state: { sound: "on", motion: "system", theme: "light", pin: null, setPin: vi.fn() },
+}));
 const navigate = vi.fn();
 
 vi.mock("../stores/useGameStore", () => ({
@@ -22,7 +24,9 @@ vi.mock("../stores/useUIStore", () => ({
 }));
 vi.mock("../services/AudioEngine", () => ({ audio: { play: vi.fn(), setMuted: vi.fn() } }));
 vi.mock("@tanstack/react-router", () => ({
-    Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
+    Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+        <a href={to}>{children}</a>
+    ),
     useNavigate: () => navigate,
 }));
 
@@ -36,7 +40,10 @@ describe("SoloView", () => {
     test("renders the practice PIN form and a link to a fresh practice set", () => {
         render(<SoloView />);
         expect(screen.getByText("Enter your practice PIN")).toBeInTheDocument();
-        expect(screen.getByRole("link", { name: "start a practice set" })).toHaveAttribute("href", "/practice");
+        expect(screen.getByRole("link", { name: "start a practice set" })).toHaveAttribute(
+            "href",
+            "/practice",
+        );
         expect(screen.getByRole("button", { name: "Join game" })).toBeDisabled();
     });
 

@@ -35,7 +35,12 @@ describe("searchBank", () => {
     test("sends subject, unit, scope, and format as URL params with credentials", async () => {
         fetchMock.mockResolvedValue(ok([header]));
         await expect(
-            searchBank({ subject: "Biology", unit: " Cells ", scope: "current-scope", format: "CONCEPT_MCQ" }),
+            searchBank({
+                subject: "Biology",
+                unit: " Cells ",
+                scope: "current-scope",
+                format: "CONCEPT_MCQ",
+            }),
         ).resolves.toEqual([header]);
         expect(fetchMock).toHaveBeenCalledWith(
             "/api/admin/bank/search?subject=Biology&unit=Cells&scope=current-scope&format=CONCEPT_MCQ",

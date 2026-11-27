@@ -30,7 +30,11 @@ function Harness() {
     };
     return (
         <div>
-            <button type="button" data-testid="rerender" onClick={() => setGeneration((g) => g + 1)}>
+            <button
+                type="button"
+                data-testid="rerender"
+                onClick={() => setGeneration((g) => g + 1)}
+            >
                 Force re-render
             </button>
             <p data-testid="generation">{generation}</p>

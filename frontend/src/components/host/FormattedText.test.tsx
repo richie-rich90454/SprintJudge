@@ -17,7 +17,9 @@ describe("FormattedText", () => {
     });
 
     test("renders fenced blocks with a language tag, line numbers and blank lines", () => {
-        const { container } = render(<FormattedText text={"intro\n```java\nint a = 1;\n\nint b = 2;  \n```\noutro"} />);
+        const { container } = render(
+            <FormattedText text={"intro\n```java\nint a = 1;\n\nint b = 2;  \n```\noutro"} />,
+        );
         const lines = container.querySelectorAll("pre code > span");
         expect(lines).toHaveLength(3);
         expect(lines[0]).toHaveTextContent("1int a = 1;");

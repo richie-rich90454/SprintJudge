@@ -44,7 +44,9 @@ describe("JoinForm", () => {
         gameMock.state.error = "Wrong name";
         render(<JoinForm initialPin="12" />);
         fireEvent.change(screen.getByPlaceholderText("Alice"), { target: { value: "Ada" } });
-        expect(screen.getByRole("status")).toHaveTextContent("Enter all 6 digits of the PIN (2/6).");
+        expect(screen.getByRole("status")).toHaveTextContent(
+            "Enter all 6 digits of the PIN (2/6).",
+        );
         expect(screen.getByRole("alert")).toHaveTextContent("Wrong name");
     });
 
@@ -55,7 +57,9 @@ describe("JoinForm", () => {
         fireEvent.click(screen.getByRole("button", { name: "Join game" }));
 
         expect(gameMock.state.clearError).toHaveBeenCalledOnce();
-        expect(gameMock.state.connect).toHaveBeenCalledWith(expect.stringMatching(/^wss?:\/\/.*\/ws$/));
+        expect(gameMock.state.connect).toHaveBeenCalledWith(
+            expect.stringMatching(/^wss?:\/\/.*\/ws$/),
+        );
         expect(gameMock.state.join).toHaveBeenCalledWith("123456", "Ada");
         expect(uiMock.setPin).toHaveBeenCalledWith("123456");
         expect(audioMock.play).toHaveBeenCalledWith("start");

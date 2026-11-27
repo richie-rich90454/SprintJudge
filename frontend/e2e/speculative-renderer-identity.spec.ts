@@ -10,7 +10,9 @@ test.use({ serviceWorkers: "block" });
  * the renderer must call the newest callback.
  */
 test.describe("speculative renderer callback identity", () => {
-    test("fresh inline onResponse does not remount the renderer or wipe input", async ({ page }) => {
+    test("fresh inline onResponse does not remount the renderer or wipe input", async ({
+        page,
+    }) => {
         await page.goto("/e2e/speculative-renderer-harness.html");
 
         const input = page.locator(".renderer-host input");

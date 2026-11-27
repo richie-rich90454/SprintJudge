@@ -18,13 +18,15 @@ vi.mock("@tanstack/react-query", () => ({
     useQueryClient: () => rq.queryClient,
     useQuery: (options: { queryKey: string[] }) => {
         rq.queryOptions[options.queryKey[0]] = options;
-        return rq.queries[options.queryKey[0]] ?? {
-            isPending: false,
-            isError: false,
-            data: undefined,
-            error: null,
-            refetch: vi.fn(),
-        };
+        return (
+            rq.queries[options.queryKey[0]] ?? {
+                isPending: false,
+                isError: false,
+                data: undefined,
+                error: null,
+                refetch: vi.fn(),
+            }
+        );
     },
     useMutation: (options: any) => {
         const index = rq.mutationCalls++;
@@ -63,8 +65,20 @@ vi.mock("../services/AssignmentApiService", () => ({
     },
 }));
 
-const ok = (data: unknown) => ({ isPending: false, isError: false, data, error: null, refetch: vi.fn() });
-const pending = () => ({ isPending: true, isError: false, data: undefined, error: null, refetch: vi.fn() });
+const ok = (data: unknown) => ({
+    isPending: false,
+    isError: false,
+    data,
+    error: null,
+    refetch: vi.fn(),
+});
+const pending = () => ({
+    isPending: true,
+    isError: false,
+    data: undefined,
+    error: null,
+    refetch: vi.fn(),
+});
 const failed = (message = "offline") => ({
     isPending: false,
     isError: true,
@@ -103,9 +117,15 @@ describe("AssignmentView", () => {
 
         expect(listTab).toHaveAttribute("aria-selected", "false");
         expect(createTab).toHaveAttribute("aria-selected", "true");
-        expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "assignment-create-tab");
+        expect(screen.getByRole("tabpanel")).toHaveAttribute(
+            "aria-labelledby",
+            "assignment-create-tab",
+        );
         fireEvent.click(listTab);
-        expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", "assignment-list-tab");
+        expect(screen.getByRole("tabpanel")).toHaveAttribute(
+            "aria-labelledby",
+            "assignment-list-tab",
+        );
     });
 
     test("supports arrow-key navigation between tabs and ignores other keys", () => {
@@ -194,9 +214,7 @@ describe("AssignmentView", () => {
         expect(screen.getByText("No assignments yet")).toBeInTheDocument();
         third.unmount();
 
-        rq.queries.assignments = ok([
-            { ...assignment, releaseAt: 1700000000, dueAt: 1700003600 },
-        ]);
+        rq.queries.assignments = ok([{ ...assignment, releaseAt: 1700000000, dueAt: 1700003600 }]);
         render(<AssignmentView />);
         expect(screen.getByText(/Releases/)).toBeInTheDocument();
         expect(screen.getByText(/Due/)).toBeInTheDocument();
@@ -217,7 +235,9 @@ describe("AssignmentView", () => {
         fireEvent.change(screen.getByLabelText("Release at"), {
             target: { value: "2024-01-01T00:00" },
         });
-        fireEvent.change(screen.getByLabelText("Due at"), { target: { value: "2024-02-02T00:00" } });
+        fireEvent.change(screen.getByLabelText("Due at"), {
+            target: { value: "2024-02-02T00:00" },
+        });
 
         vi.mocked(assignmentApi.create).mockResolvedValue({ id: "a2" } as any);
         void mutation(0).mutationFn();
@@ -236,9 +256,14 @@ describe("AssignmentView", () => {
 
         rq.mutationResults[0] = { id: "a2" };
         fireEvent.click(createButton);
-        expect(screen.getByRole("tab", { name: "All assignments" })).toHaveAttribute("aria-selected", "true");
+        expect(screen.getByRole("tab", { name: "All assignments" })).toHaveAttribute(
+            "aria-selected",
+            "true",
+        );
         expect(screen.getByRole("button", { name: "Quiz A" })).toBeInTheDocument();
-        expect(rq.queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["assignments"] });
+        expect(rq.queryClient.invalidateQueries).toHaveBeenCalledWith({
+            queryKey: ["assignments"],
+        });
         expect(rq.queryClient.invalidateQueries).toHaveBeenCalledWith({
             queryKey: ["assignment-progress", null],
         });
@@ -259,7 +284,11 @@ describe("AssignmentView", () => {
         );
 
         const due = screen.getByLabelText("Due at") as HTMLInputElement;
-        Object.defineProperty(due, "value", { configurable: true, writable: true, value: "garbage" });
+        Object.defineProperty(due, "value", {
+            configurable: true,
+            writable: true,
+            value: "garbage",
+        });
         fireEvent.change(due);
         void mutation(0).mutationFn();
         expect(assignmentApi.create).toHaveBeenLastCalledWith(
@@ -395,7 +424,10 @@ describe("AssignmentView", () => {
         fireEvent.change(screen.getByLabelText("Student id"), { target: { value: " s5 " } });
         expect(startButton).toBeEnabled();
 
-        vi.mocked(assignmentApi.start).mockResolvedValue({ studentId: "s5", status: "ACTIVE" } as any);
+        vi.mocked(assignmentApi.start).mockResolvedValue({
+            studentId: "s5",
+            status: "ACTIVE",
+        } as any);
         void mutation(3).mutationFn();
         expect(assignmentApi.start).toHaveBeenCalledWith("a1", "s5");
 

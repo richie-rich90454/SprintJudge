@@ -15,7 +15,9 @@ export function SoloView() {
                         {t("ui.drillAtYourOwnPace")}
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        {t("ui.soloRunsOnAPRACTICEmodeRoomPINUntimedWithInstantFeedbackAfterEveryAnswerAndAutomaticAdvanceToTheNextQuestionNoHostNoWaiting")}
+                        {t(
+                            "ui.soloRunsOnAPRACTICEmodeRoomPINUntimedWithInstantFeedbackAfterEveryAnswerAndAutomaticAdvanceToTheNextQuestionNoHostNoWaiting",
+                        )}
                     </p>
                 </div>
                 <Card className="p-6">

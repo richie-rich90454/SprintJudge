@@ -6,11 +6,15 @@ const base: QualityInput = {
     title: "Values",
     description: "Which option is correct?",
     config: {
-        explanation: "The first value is correct because the rule applies only to the first case, so the second case is excluded.",
+        explanation:
+            "The first value is correct because the rule applies only to the first case, so the second case is excluded.",
         hint: "Look at the rule again.",
         options: ["alpha value", "beta value"],
         correctIndex: 0,
-        misconceptions: ["believes the first value is always larger than the second", "believes the second value is always larger than the first"],
+        misconceptions: [
+            "believes the first value is always larger than the second",
+            "believes the second value is always larger than the first",
+        ],
     },
 };
 
@@ -47,6 +51,8 @@ describe("checkItemQuality", () => {
         const code = checkItemQuality({ ...base, type: "OJ_FULL" });
         expect(code.map((f) => f.message).join(" ")).toContain("carries no code");
         const empty = checkItemQuality({ ...base, title: "", description: "" });
-        expect(empty.some((f) => f.level === "error" && f.message.includes("Stem is empty"))).toBe(true);
+        expect(empty.some((f) => f.level === "error" && f.message.includes("Stem is empty"))).toBe(
+            true,
+        );
     });
 });

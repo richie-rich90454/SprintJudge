@@ -31,7 +31,9 @@ function CodeLines({
                         <span
                             key={i}
                             className={`flex gap-4 px-2 ${
-                                isBug ? "bg-[color-mix(in_oklab,var(--stage-accent)_18%,transparent)]" : ""
+                                isBug
+                                    ? "bg-[color-mix(in_oklab,var(--stage-accent)_18%,transparent)]"
+                                    : ""
                             }`}
                         >
                             <span
@@ -74,8 +76,7 @@ export function QuestionPreview({
     const revealIndices = Array.isArray(answer.correctIndices)
         ? answer.correctIndices.filter((v): v is number => typeof v === "number")
         : correctIndices;
-    const revealBoolean =
-        typeof answer.correct === "boolean" ? answer.correct : correctBoolean;
+    const revealBoolean = typeof answer.correct === "boolean" ? answer.correct : correctBoolean;
 
     const showDescription = question.description && question.description !== question.title;
 
@@ -167,7 +168,9 @@ export function QuestionPreview({
             )}
             {question.type === "NUMERIC" && (
                 <div className="mt-6 flex items-center gap-4 rounded-[2px] border border-[var(--stage-border)] bg-[var(--stage-surface)] px-4 py-4">
-                    <span className="font-mono text-sm text-[var(--stage-ink-soft)]">{t("ui.answer")}</span>
+                    <span className="font-mono text-sm text-[var(--stage-ink-soft)]">
+                        {t("ui.answer")}
+                    </span>
                     <span className="font-mono text-2xl">
                         {reveal
                             ? String(answer.answer ?? config.answer ?? "?")
@@ -177,7 +180,9 @@ export function QuestionPreview({
             )}
             {question.type === "FILL_BLANK" && (
                 <div className="mt-6 flex items-center gap-4 rounded-[2px] border border-[var(--stage-border)] bg-[var(--stage-surface)] px-4 py-4">
-                    <span className="font-mono text-sm text-[var(--stage-ink-soft)]">{t("ui.blank")}</span>
+                    <span className="font-mono text-sm text-[var(--stage-ink-soft)]">
+                        {t("ui.blank")}
+                    </span>
                     <span className="font-mono text-xl">
                         {reveal ? String(answer.answer ?? config.answer ?? "?") : t("ui.oneAnswer")}
                     </span>
@@ -193,7 +198,11 @@ export function QuestionPreview({
                         <p className="text-lg leading-snug">
                             {answer.exemplar != null
                                 ? String(answer.exemplar)
-                                : formatAnswer(question.type, answer, stringList(config["options"]))}
+                                : formatAnswer(
+                                      question.type,
+                                      answer,
+                                      stringList(config["options"]),
+                                  )}
                         </p>
                     </div>
                 )}

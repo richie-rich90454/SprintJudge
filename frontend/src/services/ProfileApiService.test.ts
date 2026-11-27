@@ -43,7 +43,9 @@ afterEach(() => {
 
 describe("local identity", () => {
     test("storedIdentity returns both keys when present", () => {
-        storage.getItem.mockImplementation((key: string) => (key === "player_profile_id" ? "id1" : "tok1"));
+        storage.getItem.mockImplementation((key: string) =>
+            key === "player_profile_id" ? "id1" : "tok1",
+        );
         expect(storedIdentity()).toEqual({ id: "id1", token: "tok1" });
     });
 
@@ -53,7 +55,9 @@ describe("local identity", () => {
     });
 
     test("storedIdentity returns null when the token is missing", () => {
-        storage.getItem.mockImplementation((key: string) => (key === "player_profile_id" ? "id1" : null));
+        storage.getItem.mockImplementation((key: string) =>
+            key === "player_profile_id" ? "id1" : null,
+        );
         expect(storedIdentity()).toBeNull();
     });
 
@@ -94,15 +98,12 @@ describe("local identity", () => {
 describe("createProfile", () => {
     test("POSTs only the nickname when optional fields are absent", async () => {
         await expect(createProfile("Nick")).resolves.toEqual({ ok: true });
-        expect(fetchMock).toHaveBeenCalledWith(
-            "/api/public/profiles",
-            {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nickname: "Nick" }),
-            },
-        );
+        expect(fetchMock).toHaveBeenCalledWith("/api/public/profiles", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nickname: "Nick" }),
+        });
     });
 
     test("POSTs the optional playerUuid and rejoinToken", async () => {
@@ -110,7 +111,11 @@ describe("createProfile", () => {
         expect(fetchMock).toHaveBeenCalledWith(
             "/api/public/profiles",
             expect.objectContaining({
-                body: JSON.stringify({ nickname: "Nick", playerUuid: "uuid", rejoinToken: "token" }),
+                body: JSON.stringify({
+                    nickname: "Nick",
+                    playerUuid: "uuid",
+                    rejoinToken: "token",
+                }),
             }),
         );
     });
@@ -120,18 +125,15 @@ describe("fetchProfile", () => {
     test("GETs the encoded id with a bearer token", async () => {
         fetchMock.mockResolvedValue(ok({ profile: { id: "p 1" } }));
         await expect(fetchProfile(identity)).resolves.toEqual({ profile: { id: "p 1" } });
-        expect(fetchMock).toHaveBeenCalledWith(
-            "/api/public/profiles/p%201",
-            {
-                method: "GET",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer tok",
-                },
-                body: undefined,
+        expect(fetchMock).toHaveBeenCalledWith("/api/public/profiles/p%201", {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer tok",
             },
-        );
+            body: undefined,
+        });
     });
 
     test("network failure maps to a plain error", async () => {
@@ -148,18 +150,15 @@ describe("fetchProfile", () => {
 describe("updateProfile", () => {
     test("PATCHes an empty body with a bearer token", async () => {
         await expect(updateProfile(identity, {})).resolves.toEqual({ ok: true });
-        expect(fetchMock).toHaveBeenCalledWith(
-            "/api/public/profiles/p%201",
-            {
-                method: "PATCH",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer tok",
-                },
-                body: "{}",
+        expect(fetchMock).toHaveBeenCalledWith("/api/public/profiles/p%201", {
+            method: "PATCH",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer tok",
             },
-        );
+            body: "{}",
+        });
     });
 
     test("PATCHes all supplied changes including an empty nickname", async () => {
@@ -179,6 +178,8 @@ describe("updateProfile", () => {
 
     test("non-2xx responses map to a status error", async () => {
         fetchMock.mockResolvedValue(http(403));
-        await expect(updateProfile(identity, {})).rejects.toThrow("Request failed with status code 403");
+        await expect(updateProfile(identity, {})).rejects.toThrow(
+            "Request failed with status code 403",
+        );
     });
 });

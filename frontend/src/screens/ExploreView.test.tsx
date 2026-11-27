@@ -19,9 +19,15 @@ vi.mock("../components/Shell", () => ({
     Shell: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 vi.mock("@tanstack/react-router", () => ({
-    Link: ({ children, to, search }: { children: ReactNode; to: string; search?: { bank?: string } }) => (
-        <a href={search ? `${to}?bank=${search.bank}` : to}>{children}</a>
-    ),
+    Link: ({
+        children,
+        to,
+        search,
+    }: {
+        children: ReactNode;
+        to: string;
+        search?: { bank?: string };
+    }) => <a href={search ? `${to}?bank=${search.bank}` : to}>{children}</a>,
 }));
 vi.mock("../services/AdminApiService", () => ({ adminApi: { listBanks: rq.listBanks } }));
 
@@ -92,8 +98,14 @@ describe("ExploreView", () => {
         };
         render(<ExploreView />);
         expect(screen.getByText(/of 26 quizzes/)).toBeInTheDocument();
-        expect(screen.getAllByRole("link", { name: "Practice solo" })[0]).toHaveAttribute("href", "/practice?bank=b0");
-        expect(screen.getAllByRole("link", { name: "Join with PIN" })[0]).toHaveAttribute("href", "/join");
+        expect(screen.getAllByRole("link", { name: "Practice solo" })[0]).toHaveAttribute(
+            "href",
+            "/practice?bank=b0",
+        );
+        expect(screen.getAllByRole("link", { name: "Join with PIN" })[0]).toHaveAttribute(
+            "href",
+            "/join",
+        );
         expect(screen.queryByText("Bank 25")).not.toBeInTheDocument();
 
         fireEvent.click(screen.getByRole("button", { name: "Show more (2 remaining)" }));

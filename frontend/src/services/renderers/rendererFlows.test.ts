@@ -98,7 +98,6 @@ vi.mock("tone", () => {
     };
 });
 
-
 import { McqRenderer } from "./McqRenderer";
 import { TrueFalseRenderer } from "./TrueFalseRenderer";
 import { MultipleSelectRenderer } from "./MultipleSelectRenderer";

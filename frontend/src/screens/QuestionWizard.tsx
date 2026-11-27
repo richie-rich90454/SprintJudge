@@ -8,7 +8,12 @@ import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Dialog } from "../ui/Dialog";
 import { QuestionDto } from "../types";
-import { ExtraQuestionType, extraDefaultConfig, isExtraQuestionType, WIZARD_QUESTION_TYPES } from "../components/authoring/authoringTypes";
+import {
+    ExtraQuestionType,
+    extraDefaultConfig,
+    isExtraQuestionType,
+    WIZARD_QUESTION_TYPES,
+} from "../components/authoring/authoringTypes";
 import { ExtraTypeConfigForm, ExtraTypePreview } from "../components/authoring/ExtraTypeConfigForm";
 import { RichStemEditor, RichStemPreview } from "../components/authoring/RichStemFields";
 import { readRichStem, RichStem } from "../components/authoring/richStem";
@@ -25,7 +30,9 @@ function ConfigForm() {
     const set = (patch: Record<string, unknown>) => setDraft({ config: { ...config, ...patch } });
 
     if (isExtraQuestionType(type as string)) {
-        return <ExtraTypeConfigForm type={type as ExtraQuestionType} config={config} onChange={set} />;
+        return (
+            <ExtraTypeConfigForm type={type as ExtraQuestionType} config={config} onChange={set} />
+        );
     }
 
     switch (type) {
@@ -47,7 +54,9 @@ function ConfigForm() {
                         <input
                             key={i}
                             value={o}
-                            placeholder={t("ui.optionLabel", { letter: String.fromCharCode(65 + i) })}
+                            placeholder={t("ui.optionLabel", {
+                                letter: String.fromCharCode(65 + i),
+                            })}
                             onChange={(e) => {
                                 const n = [...options];
                                 n[i] = e.target.value;
@@ -91,7 +100,9 @@ function ConfigForm() {
                         <input
                             key={i}
                             value={o}
-                            placeholder={t("ui.optionLabel", { letter: String.fromCharCode(65 + i) })}
+                            placeholder={t("ui.optionLabel", {
+                                letter: String.fromCharCode(65 + i),
+                            })}
                             onChange={(e) => {
                                 const n = [...options];
                                 n[i] = e.target.value;
@@ -194,7 +205,9 @@ function ConfigForm() {
                     </label>
                     <input
                         placeholder={t("ui.eg201")}
-                        value={(config["correctOrder"] as string) ?? lines.map((_, i) => i).join(",")}
+                        value={
+                            (config["correctOrder"] as string) ?? lines.map((_, i) => i).join(",")
+                        }
                         onChange={(e) => set({ correctOrder: e.target.value })}
                         className="input-underline"
                     />
@@ -354,7 +367,8 @@ export function QuestionWizard() {
         try {
             await saveQuestion();
         } catch (error) {
-            const detail = (error as { response?: { data?: { error?: string } } })?.response?.data?.error;
+            const detail = (error as { response?: { data?: { error?: string } } })?.response?.data
+                ?.error;
             setValidationError(detail ? t("ui.saveFailedDetail", { detail }) : t("ui.saveFailed"));
         } finally {
             setSaving(false);
@@ -375,7 +389,9 @@ export function QuestionWizard() {
                     {STEPS.map((s) => (
                         <Button
                             key={s}
-                            ref={(el) => { stepButtons.current[s] = el; }}
+                            ref={(el) => {
+                                stepButtons.current[s] = el;
+                            }}
                             variant={wizardStep === s ? "primary" : "secondary"}
                             size="sm"
                             aria-current={wizardStep === s ? "step" : undefined}
@@ -396,7 +412,9 @@ export function QuestionWizard() {
                                 onClick={() => {
                                     setType(type as QuestionType);
                                     if (isExtraQuestionType(type as string)) {
-                                        setDraft({ config: extraDefaultConfig(type as ExtraQuestionType) });
+                                        setDraft({
+                                            config: extraDefaultConfig(type as ExtraQuestionType),
+                                        });
                                     }
                                     setStep("statement");
                                 }}
@@ -430,7 +448,9 @@ export function QuestionWizard() {
                         />
                         <RichStemEditor value={rich} onChange={setRich} />
                         <div className="border border-[var(--oq-border)] p-3 rounded-[2px]">
-                            <p className="text-xs text-[var(--oq-ink-soft)] mb-2">{t("ui.liveStemPreview")}</p>
+                            <p className="text-xs text-[var(--oq-ink-soft)] mb-2">
+                                {t("ui.liveStemPreview")}
+                            </p>
                             <RichStemPreview value={rich} description={draft.description} />
                         </div>
                         <div className="flex gap-4">
@@ -488,10 +508,18 @@ export function QuestionWizard() {
                             <div className="p-6">
                                 {previewExtra ? (
                                     <div className="flex flex-col gap-4">
-                                        <RichStemPreview value={rich} description={draft.description} />
-                                        <ExtraTypePreview type={draft.questionType as ExtraQuestionType} config={config} />
+                                        <RichStemPreview
+                                            value={rich}
+                                            description={draft.description}
+                                        />
+                                        <ExtraTypePreview
+                                            type={draft.questionType as ExtraQuestionType}
+                                            config={config}
+                                        />
                                         <p className="text-xs text-[var(--oq-ink-soft)]">
-                                            {t("ui.authoringPreviewOnlyRuntimeAndServerValidationForThisTypeAreOwnedByTheEngineTrack")}
+                                            {t(
+                                                "ui.authoringPreviewOnlyRuntimeAndServerValidationForThisTypeAreOwnedByTheEngineTrack",
+                                            )}
                                         </p>
                                     </div>
                                 ) : (
@@ -502,7 +530,9 @@ export function QuestionWizard() {
                                         <ErrorBoundary
                                             fallback={
                                                 <p className="text-[var(--oq-ink-soft)] text-sm">
-                                                    {t("ui.previewUnavailableForThisConfigurationCheckTheFieldsAbove")}
+                                                    {t(
+                                                        "ui.previewUnavailableForThisConfigurationCheckTheFieldsAbove",
+                                                    )}
                                                 </p>
                                             }
                                         >
@@ -517,9 +547,14 @@ export function QuestionWizard() {
                                                 onResponse={() => {}}
                                             />
                                         </ErrorBoundary>
-                                        { (rich.imageUrl || rich.audioUrl || rich.latex || rich.code) && (
+                                        {(rich.imageUrl ||
+                                            rich.audioUrl ||
+                                            rich.latex ||
+                                            rich.code) && (
                                             <div className="mt-4 border-t border-[var(--oq-border)] pt-4">
-                                                <p className="text-xs text-[var(--oq-ink-soft)] mb-2">{t("ui.richStemMediaAuthorPreview")}</p>
+                                                <p className="text-xs text-[var(--oq-ink-soft)] mb-2">
+                                                    {t("ui.richStemMediaAuthorPreview")}
+                                                </p>
                                                 <RichStemPreview value={rich} />
                                             </div>
                                         )}

@@ -33,10 +33,7 @@ function answerBars(round: RoundResult | null, optionCount = 0) {
     ];
 }
 
-function topMisconception(
-    round: RoundResult | null,
-    options: OptionMeta[],
-): string | null {
+function topMisconception(round: RoundResult | null, options: OptionMeta[]): string | null {
     if (!round?.answerCounts) return null;
     const meta = new Map<string, string>();
     for (const option of options) {
@@ -124,7 +121,11 @@ export function HostStage({
                     </p>
                     <h2
                         className="mt-3 font-black leading-[0.95] tracking-[-0.04em]"
-                        style={{ fontSize: projector ? "clamp(44px, 6vw, 88px)" : "clamp(36px, 5vw, 64px)" }}
+                        style={{
+                            fontSize: projector
+                                ? "clamp(44px, 6vw, 88px)"
+                                : "clamp(36px, 5vw, 64px)",
+                        }}
                     >
                         {t(status === "ENDED" ? "ui.stageRoundEnded" : "ui.stageJoinRoom")}
                     </h2>
@@ -138,7 +139,11 @@ export function HostStage({
                         <p className="label-caps text-[var(--stage-ink-soft)]">{t("ui.gamePIN")}</p>
                         <p
                             className="font-mono font-semibold leading-none tracking-[0.16em]"
-                            style={{ fontSize: projector ? "clamp(64px, 9vw, 132px)" : "clamp(48px, 7vw, 92px)" }}
+                            style={{
+                                fontSize: projector
+                                    ? "clamp(64px, 9vw, 132px)"
+                                    : "clamp(48px, 7vw, 92px)",
+                            }}
                         >
                             {pin}
                         </p>
@@ -151,7 +156,12 @@ export function HostStage({
                     </div>
                     <div className="rounded-[2px] border border-[var(--stage-border)] bg-white p-3">
                         <QRCodeSVG
-                            role="img" value={joinUrl} size={projector ? 196 : 148} level="M" aria-label={t("ui.qrLabel", { pin: pin ?? "" })} />
+                            role="img"
+                            value={joinUrl}
+                            size={projector ? 196 : 148}
+                            level="M"
+                            aria-label={t("ui.qrLabel", { pin: pin ?? "" })}
+                        />
                     </div>
                 </div>
             </section>
@@ -186,9 +196,14 @@ export function HostStage({
                     {isReview && (
                         <div className="text-right">
                             <p className="font-mono text-3xl font-semibold">
-                                {answerCount > 0 ? Math.round((correctCount / answerCount) * 100) : 0}%
+                                {answerCount > 0
+                                    ? Math.round((correctCount / answerCount) * 100)
+                                    : 0}
+                                %
                             </p>
-                            <p className="label-caps text-[var(--stage-ink-soft)]">{t("status.correct")}</p>
+                            <p className="label-caps text-[var(--stage-ink-soft)]">
+                                {t("status.correct")}
+                            </p>
                         </div>
                     )}
                 </div>
@@ -197,7 +212,9 @@ export function HostStage({
             <div ref={revealRef} className="mt-6">
                 {isReview && answerText && (
                     <div className="reveal-correct reveal-card mb-6 border-2 border-[var(--stage-accent)] bg-[var(--stage-surface)] p-5 text-center">
-                        <p className="label-caps text-[var(--stage-ink-soft)]">{t("ui.correctAnswer")}</p>
+                        <p className="label-caps text-[var(--stage-ink-soft)]">
+                            {t("ui.correctAnswer")}
+                        </p>
                         <p className="mt-1 whitespace-pre-wrap text-2xl font-black leading-tight text-[var(--stage-ink)] md:text-3xl">
                             {answerText}
                         </p>
@@ -209,7 +226,9 @@ export function HostStage({
             {isReview && (
                 <div className="mt-6 grid gap-5 border-t border-[var(--stage-border)] pt-5 md:grid-cols-[1.2fr_0.8fr]">
                     <div className="reveal-card">
-                        <p className="label-caps mb-3 text-[var(--stage-ink-soft)]">{t("ui.distribution")}</p>
+                        <p className="label-caps mb-3 text-[var(--stage-ink-soft)]">
+                            {t("ui.distribution")}
+                        </p>
                         <div className="flex flex-col gap-3">
                             {bars.map((bar) => (
                                 <div key={bar.key} className="flex items-center gap-3">
@@ -243,7 +262,9 @@ export function HostStage({
                     </div>
                     {explanation && (
                         <div className="reveal-card rounded-[2px] border border-[var(--stage-border)] bg-[var(--stage-surface)] p-4">
-                            <p className="label-caps mb-2 text-[var(--stage-ink-soft)]">{t("ui.why")}</p>
+                            <p className="label-caps mb-2 text-[var(--stage-ink-soft)]">
+                                {t("ui.why")}
+                            </p>
                             <FormattedText
                                 text={explanation}
                                 className="text-sm text-[var(--stage-ink-soft)]"

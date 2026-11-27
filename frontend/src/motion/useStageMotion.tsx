@@ -18,7 +18,13 @@ export function useStageEnter<T extends HTMLElement>(deps: unknown[] = []) {
             gsap.fromTo(
                 el,
                 { y: 18, opacity: 0 },
-                { y: 0, opacity: 1, duration: 0.46, ease: EASE_OUT, clearProps: "transform,opacity" },
+                {
+                    y: 0,
+                    opacity: 1,
+                    duration: 0.46,
+                    ease: EASE_OUT,
+                    clearProps: "transform,opacity",
+                },
             );
             const children = el.querySelectorAll<HTMLElement>(".stage-enter");
             if (children.length) {

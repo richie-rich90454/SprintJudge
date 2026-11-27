@@ -56,10 +56,7 @@ export function CollectionsMenu({ quizId, title }: { quizId: string; title: stri
     const create = () => {
         const clean = name.trim();
         if (!clean) return;
-        const next = [
-            ...collections,
-            { id: `${Date.now()}`, name: clean, quizIds: [quizId] },
-        ];
+        const next = [...collections, { id: `${Date.now()}`, name: clean, quizIds: [quizId] }];
         setCollections(next);
         persist(next);
         setName("");
@@ -93,7 +90,9 @@ export function CollectionsMenu({ quizId, title }: { quizId: string; title: stri
                         </li>
                     ))}
                     {collections.length === 0 && (
-                        <li className="text-sm text-[var(--oq-ink-soft)]">{t("ui.noFoldersYet")}</li>
+                        <li className="text-sm text-[var(--oq-ink-soft)]">
+                            {t("ui.noFoldersYet")}
+                        </li>
                     )}
                 </ul>
                 <div className="flex gap-2">

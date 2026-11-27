@@ -48,7 +48,11 @@ describe("StageTheme", () => {
     });
 
     test("the picker marks the active theme and switches on click", () => {
-        render(<I18nProvider><StageThemePicker className="host-picker" /></I18nProvider>);
+        render(
+            <I18nProvider>
+                <StageThemePicker className="host-picker" />
+            </I18nProvider>,
+        );
         const buttons = screen.getAllByRole("button");
         expect(buttons).toHaveLength(STAGE_THEMES.length);
         expect(buttons[0]).toHaveAttribute("aria-pressed", "true");

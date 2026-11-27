@@ -66,7 +66,9 @@ describe("AdminApiService endpoints", () => {
     test("listBanks GETs the public bank headers", async () => {
         const svc = new AdminApiService();
         client.get.mockResolvedValue(ok([{ id: "b", title: "T", description: null }]));
-        await expect(svc.listBanks()).resolves.toEqual([{ id: "b", title: "T", description: null }]);
+        await expect(svc.listBanks()).resolves.toEqual([
+            { id: "b", title: "T", description: null },
+        ]);
         expect(client.get).toHaveBeenCalledWith("/public/banks");
     });
 

@@ -47,7 +47,11 @@ export function QuizActions({
                 const payload: QuestionPayload = { ...q, quizId: built.id, id: undefined };
                 await adminApi.addQuestion(payload);
             }
-            setMessage(t("ui.createdInDashboard", { kind: `${suffix[0].toUpperCase()}${suffix.slice(1)}` }));
+            setMessage(
+                t("ui.createdInDashboard", {
+                    kind: `${suffix[0].toUpperCase()}${suffix.slice(1)}`,
+                }),
+            );
         } catch {
             setMessage(t("ui.couldNotCopyThisQuizSignInAsAdminAndRetry"));
         } finally {

@@ -17,7 +17,11 @@ function LocaleHarness({ children }: { children: ReactNode }) {
 }
 
 function renderInProvider(ui: ReactNode) {
-    return render(<I18nProvider><LocaleHarness>{ui}</LocaleHarness></I18nProvider>);
+    return render(
+        <I18nProvider>
+            <LocaleHarness>{ui}</LocaleHarness>
+        </I18nProvider>,
+    );
 }
 
 describe("RichStemFields locale switching", () => {
@@ -45,7 +49,9 @@ describe("RichStemFields locale switching", () => {
         fireEvent.click(screen.getByRole("button", { name: "Switch to Arabic" }));
 
         expect(screen.getByLabelText("معاينة نص السؤال")).toBeInTheDocument();
-        expect(screen.getByText("حُظر رابط الصورة من قبل قائمة السماح للمعاينة.")).toBeInTheDocument();
+        expect(
+            screen.getByText("حُظر رابط الصورة من قبل قائمة السماح للمعاينة."),
+        ).toBeInTheDocument();
     });
 });
 

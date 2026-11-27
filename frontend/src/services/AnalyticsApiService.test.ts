@@ -1,5 +1,11 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { getStudentReports, getClassReport, getItemReports, buildAdaptiveSet, type AdaptiveSetRequest } from "./AnalyticsApiService";
+import {
+    getStudentReports,
+    getClassReport,
+    getItemReports,
+    buildAdaptiveSet,
+    type AdaptiveSetRequest,
+} from "./AnalyticsApiService";
 
 const fetchMock = vi.fn();
 vi.stubGlobal("fetch", fetchMock);
@@ -32,10 +38,7 @@ describe("getStudentReports", () => {
 
     test("omits the query for a blank session id", async () => {
         await getStudentReports("   ");
-        expect(fetchMock).toHaveBeenCalledWith(
-            "/api/admin/analytics/students",
-            expect.anything(),
-        );
+        expect(fetchMock).toHaveBeenCalledWith("/api/admin/analytics/students", expect.anything());
     });
 
     test("trims and encodes a session id", async () => {
@@ -51,18 +54,12 @@ describe("getStudentReports", () => {
 describe("getClassReport", () => {
     test("omits the query when no session is given", async () => {
         await expect(getClassReport()).resolves.toEqual([]);
-        expect(fetchMock).toHaveBeenCalledWith(
-            "/api/admin/analytics/classes",
-            expect.anything(),
-        );
+        expect(fetchMock).toHaveBeenCalledWith("/api/admin/analytics/classes", expect.anything());
     });
 
     test("omits the query for a blank session id", async () => {
         await getClassReport("");
-        expect(fetchMock).toHaveBeenCalledWith(
-            "/api/admin/analytics/classes",
-            expect.anything(),
-        );
+        expect(fetchMock).toHaveBeenCalledWith("/api/admin/analytics/classes", expect.anything());
     });
 
     test("trims and encodes a session id", async () => {
@@ -98,16 +95,16 @@ describe("buildAdaptiveSet", () => {
             seed: 7,
         };
         fetchMock.mockResolvedValue(ok({ quizId: "q1", questionCount: 10 }));
-        await expect(buildAdaptiveSet(payload)).resolves.toEqual({ quizId: "q1", questionCount: 10 });
-        expect(fetchMock).toHaveBeenCalledWith(
-            "/api/admin/analytics/adaptive-set",
-            {
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                method: "POST",
-                body: JSON.stringify(payload),
-            },
-        );
+        await expect(buildAdaptiveSet(payload)).resolves.toEqual({
+            quizId: "q1",
+            questionCount: 10,
+        });
+        expect(fetchMock).toHaveBeenCalledWith("/api/admin/analytics/adaptive-set", {
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
+            body: JSON.stringify(payload),
+        });
     });
 });
 
@@ -120,11 +117,13 @@ describe("request errors", () => {
     test("non-2xx responses map to a status error", async () => {
         fetchMock.mockResolvedValue(http(500));
         await expect(getClassReport()).rejects.toThrow("Request failed with status code 500");
-        await expect(buildAdaptiveSet({
-            subject: "X",
-            size: 1,
-            mode: "balanced",
-            targetDifficulty: 0.5,
-        })).rejects.toThrow("Request failed with status code 500");
+        await expect(
+            buildAdaptiveSet({
+                subject: "X",
+                size: 1,
+                mode: "balanced",
+                targetDifficulty: 0.5,
+            }),
+        ).rejects.toThrow("Request failed with status code 500");
     });
 });

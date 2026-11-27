@@ -62,7 +62,14 @@ describe("AssignmentApiService endpoints", () => {
     });
 
     test("create POSTs the new assignment", async () => {
-        const input = { quizId: "q1", title: "T", description: "D", releaseAt: 1, dueAt: 2, ltiDeploymentId: "d" };
+        const input = {
+            quizId: "q1",
+            title: "T",
+            description: "D",
+            releaseAt: 1,
+            dueAt: 2,
+            ltiDeploymentId: "d",
+        };
         client.post.mockResolvedValue(ok({ id: "a1" }));
         await expect(svc.create(input)).resolves.toEqual({ id: "a1" });
         expect(client.post).toHaveBeenCalledWith("/admin/assignments", input);
@@ -83,7 +90,9 @@ describe("AssignmentApiService endpoints", () => {
     test("importRoster POSTs the csv", async () => {
         client.post.mockResolvedValue(ok({ imported: 3 }));
         await expect(svc.importRoster("a1", "s,email")).resolves.toEqual({ imported: 3 });
-        expect(client.post).toHaveBeenCalledWith("/admin/assignments/a1/roster", { csv: "s,email" });
+        expect(client.post).toHaveBeenCalledWith("/admin/assignments/a1/roster", {
+            csv: "s,email",
+        });
     });
 
     test("progress GETs the progress list", async () => {
@@ -105,15 +114,15 @@ describe("AssignmentApiService endpoints", () => {
     test("start POSTs the public start endpoint", async () => {
         client.post.mockResolvedValue(ok({ id: "p1" }));
         await expect(svc.start("a1", "s1")).resolves.toEqual({ id: "p1" });
-        expect(client.post).toHaveBeenCalledWith("/public/assignments/a1/start", { studentId: "s1" });
+        expect(client.post).toHaveBeenCalledWith("/public/assignments/a1/start", {
+            studentId: "s1",
+        });
     });
 
     test("studentProgress GETs with a query string", async () => {
         client.get.mockResolvedValue(ok({ id: "p1" }));
         await expect(svc.studentProgress("a1", "s 1")).resolves.toEqual({ id: "p1" });
-        expect(client.get).toHaveBeenCalledWith(
-            "/public/assignments/a1/progress?studentId=s+1",
-        );
+        expect(client.get).toHaveBeenCalledWith("/public/assignments/a1/progress?studentId=s+1");
     });
 
     test("ltiLaunch POSTs the claims", async () => {
