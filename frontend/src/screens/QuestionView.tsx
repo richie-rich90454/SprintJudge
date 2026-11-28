@@ -42,7 +42,10 @@ export function QuestionView() {
     const roomPlayers = useGameStore((s) => s.room?.players);
     const joinTeam = useGameStore((s) => s.joinTeam);
     const leaveTeam = useGameStore((s) => s.leaveTeam);
-    const [response, setResponse] = useState<unknown>(null);
+    // Tag the renderer's answer with its question id: a child's mount emit
+    // runs before this component's reset effect, so an untagged reset would
+    // wipe the fresh answer (SUBMIT carried response:null on the first question).
+    const [answer, setAnswer] = useState<{ questionId: string; response: unknown } | null>(null);
     const [submitted, setSubmitted] = useState(false);
     // Ref mirror: a click and the timer expiry in the same tick both read
     // stale state, so the ref (not the state) owns the once-only guard.
@@ -64,7 +67,6 @@ export function QuestionView() {
     useEffect(() => {
         setSubmitted(false);
         submittedRef.current = false;
-        setResponse(null);
         setFeedback(null);
         setShake(false);
         if (shakeTimer.current) {
@@ -444,6 +446,8 @@ export function QuestionView() {
     const untimed = !isFinite(end);
     const coding = isCoding(q.type);
     const description = q.description && q.description !== q.title ? q.description : null;
+    const response = answer?.questionId === q.id ? answer.response : null;
+    const onResponse = (value: unknown) => setAnswer({ questionId: q.id, response: value });
     const hasResponse = coding || response !== null;
 
     const doSubmit = () => {
@@ -554,7 +558,7 @@ export function QuestionView() {
                     <ErrorBoundary key={q.id}>
                         <QuestionRendererHost
                             question={q}
-                            onResponse={setResponse}
+                            onResponse={onResponse}
                             revealSignal={revealSignal}
                         />
                     </ErrorBoundary>

@@ -191,16 +191,18 @@ test.describe("explore judge (real native executor)", () => {
         const submits: SubmitFrame[] = [];
         const results: SubmissionResultFrame[] = [];
         student.on("websocket", (ws) => {
-            ws.on("framereceived", (frame) => {
-                if (typeof frame.payload !== "string") return;
+            const parse = (payload: unknown) => {
+                if (typeof payload !== "string") return;
                 try {
-                    const msg = JSON.parse(frame.payload) as SubmitFrame & SubmissionResultFrame;
+                    const msg = JSON.parse(payload) as SubmitFrame & SubmissionResultFrame;
                     if (msg.type === "SUBMIT") submits.push(msg);
                     if (msg.type === "SUBMISSION_RESULT") results.push(msg);
                 } catch {
                     /* binary/control frames are not JSON */
                 }
-            });
+            };
+            ws.on("framesent", (frame) => parse(frame.payload));
+            ws.on("framereceived", (frame) => parse(frame.payload));
         });
         try {
             await host.goto(`${BACKEND}/host?pin=${pin}`);
@@ -240,6 +242,14 @@ test.describe("explore judge (real native executor)", () => {
             await expect(student.locator(".renderer-host select")).toHaveValue("python");
             await expect(student.getByRole("button", { name: "Compile and submit" })).toBeEnabled();
             await student.getByRole("button", { name: "Compile and submit" }).click();
+            // The default-language path must emit source/language on mount; a
+            // null response here makes the judge fail both cases (0/2).
+            await expect
+                .poll(() => submits.find((f) => f.questionId === pyId), { timeout: 5_000 })
+                .toMatchObject({
+                    language: "python",
+                    response: { source: "print(42)", language: "python" },
+                });
             await expect(student.locator(".feedback-banner")).toContainText("2/2 tests passed", {
                 timeout: 25_000,
             });

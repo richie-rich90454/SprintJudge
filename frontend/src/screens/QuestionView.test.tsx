@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { useEffect } from "react";
 import { QuestionView } from "./QuestionView";
 import { audio } from "../services/AudioEngine";
 
@@ -33,6 +34,7 @@ const navMock = vi.hoisted(() => ({ to: null as string | null }));
 const timerProps = vi.hoisted(() => ({ value: null as any }));
 const rendererMock = vi.hoisted(() => ({
     props: null as null | { onResponse: (r: unknown) => void; revealSignal?: number },
+    initialResponse: null as unknown,
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -64,6 +66,12 @@ vi.mock("../stores/useTimerStore", () => ({
 vi.mock("../components/QuestionRendererHost", () => ({
     QuestionRendererHost: (props: { onResponse: (r: unknown) => void; revealSignal?: number }) => {
         rendererMock.props = props;
+        // Real renderers emit on mount; child effects run before the parent's
+        // question-reset effect, which used to wipe this fresh answer.
+        useEffect(() => {
+            if (rendererMock.initialResponse !== null)
+                props.onResponse(rendererMock.initialResponse);
+        }, []);
         return null;
     },
 }));
@@ -115,6 +123,7 @@ describe("QuestionView", () => {
         };
         timerMock.state = { endEpochMs: null, totalSec: 30 };
         rendererMock.props = null;
+        rendererMock.initialResponse = null;
         timerProps.value = null;
         navMock.to = null;
         localStorage.clear();
@@ -462,6 +471,18 @@ describe("QuestionView", () => {
         expect(screen.getByText("Code it")).toBeInTheDocument();
         expect(screen.getByText(/Write code that passes the hidden tests/)).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Compile and submit" })).toBeEnabled();
+    });
+
+    test("a renderer's mount-time answer survives the question reset", () => {
+        activeQuestion({ type: "OJ_FULL", config: { starter: "print(1)" } });
+        rendererMock.initialResponse = { source: "print(1)", language: "python" };
+        render(<QuestionView />);
+        fireEvent.click(screen.getByRole("button", { name: "Compile and submit" }));
+        expect(gameMock.state.submit).toHaveBeenCalledWith(
+            "q1",
+            { source: "print(1)", language: "python" },
+            "python",
+        );
     });
 
     test("timer expiry submits a coding answer with its language, once only", () => {
