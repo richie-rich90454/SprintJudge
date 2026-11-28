@@ -275,8 +275,9 @@ describe("AdminDashboard", () => {
         render(<AdminDashboard />);
         fireEvent.click(screen.getByRole("button", { name: "Export" }));
         await waitFor(() => expect(m.api.exportBank).toHaveBeenCalledOnce());
-        const blob = (URL.createObjectURL as unknown as { mock: { calls: unknown[][] } }).mock
-            .calls.at(-1)?.[0] as Blob;
+        const blob = (
+            URL.createObjectURL as unknown as { mock: { calls: unknown[][] } }
+        ).mock.calls.at(-1)?.[0] as Blob;
         expect(await blob.text()).toContain('"version":"1.0"');
         click.mockRestore();
     });
