@@ -4,6 +4,7 @@ import com.sprintjudge.domain.dto.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -80,6 +81,14 @@ public class GlobalExceptionHandler {
 		// Browsers probe /favicon.ico and similar paths constantly; a missing
 		// static asset is a 404, never a logged stack trace.
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage("ERROR", "Not found"));
+	}
+
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<ErrorMessage> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+		// An unsupported verb (e.g. DELETE on a read-only endpoint) is a client
+		// error; the catch-all below would otherwise turn it into a 500.
+		return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+				.body(new ErrorMessage("ERROR", "Method not allowed"));
 	}
 
 	@ExceptionHandler(Exception.class)

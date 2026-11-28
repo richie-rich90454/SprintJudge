@@ -263,7 +263,7 @@ public class SecurityConfig {
 		}
 		CorsConfiguration cfg = new CorsConfiguration();
 		cfg.setAllowedOriginPatterns(origins);
-		cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		cfg.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "X-XSRF-TOKEN"));
 		cfg.setAllowCredentials(true);
 		UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();

@@ -78,6 +78,14 @@ class GlobalExceptionHandlerTest {
 	}
 
 	@Test
+	void handleMethodNotSupportedReturns405() {
+		org.springframework.http.ResponseEntity<com.sprintjudge.domain.dto.ErrorMessage> resp = handler
+				.handleMethodNotSupported(new org.springframework.web.HttpRequestMethodNotSupportedException("DELETE"));
+		assertEquals(405, resp.getStatusCode().value());
+		assertEquals("Method not allowed", resp.getBody().getMessage());
+	}
+
+	@Test
 	void handleGenericReturns500() {
 		org.springframework.http.ResponseEntity<com.sprintjudge.domain.dto.ErrorMessage> resp = handler
 				.handleGeneric(new RuntimeException("kaboom"));

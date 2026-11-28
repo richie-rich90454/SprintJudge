@@ -132,7 +132,8 @@ class SecurityConfigTest {
 		org.springframework.web.cors.CorsConfiguration cfg = src
 				.getCorsConfiguration(new org.springframework.mock.web.MockHttpServletRequest("GET", "/"));
 		assertNotNull(cfg);
-		assertTrue(cfg.getAllowedMethods().containsAll(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")));
+		assertTrue(cfg.getAllowedMethods()
+				.containsAll(java.util.List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")));
 		assertTrue(cfg.getAllowedHeaders().contains("Authorization"));
 		assertTrue(cfg.getAllowedHeaders().contains("X-XSRF-TOKEN"));
 	}
