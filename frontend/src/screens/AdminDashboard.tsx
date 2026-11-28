@@ -290,7 +290,10 @@ export function AdminDashboard() {
     const doExport = async () => {
         setBannerError(null);
         try {
-            const json = await adminApi.exportBank();
+            const exported = await adminApi.exportBank();
+            // Axios may parse the response into an object depending on the
+            // converter's content type; Blob needs the serialized JSON either way.
+            const json = typeof exported === "string" ? exported : JSON.stringify(exported);
             const blob = new Blob([json], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");

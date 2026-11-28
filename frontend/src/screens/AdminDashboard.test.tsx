@@ -269,6 +269,18 @@ describe("AdminDashboard", () => {
         rerender(<AdminDashboard />);
     });
 
+    test("serializes object export responses before download", async () => {
+        const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+        m.api.exportBank.mockResolvedValueOnce({ version: "1.0", quizzes: [] });
+        render(<AdminDashboard />);
+        fireEvent.click(screen.getByRole("button", { name: "Export" }));
+        await waitFor(() => expect(m.api.exportBank).toHaveBeenCalledOnce());
+        const blob = (URL.createObjectURL as unknown as { mock: { calls: unknown[][] } }).mock
+            .calls.at(-1)?.[0] as Blob;
+        expect(await blob.text()).toContain('"version":"1.0"');
+        click.mockRestore();
+    });
+
     test("exports and imports the bank from the header", async () => {
         const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
         render(<AdminDashboard />);
