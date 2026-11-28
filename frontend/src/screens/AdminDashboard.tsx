@@ -465,6 +465,7 @@ export function AdminDashboard() {
                                 <select
                                     value={gameMode}
                                     onChange={(e) => setGameMode(e.target.value as GameMode)}
+                                    aria-label={t("ui.gameModeForHosting")}
                                     className="input-underline text-sm"
                                 >
                                     <option value="STANDARD">{t("ui.standard")}</option>

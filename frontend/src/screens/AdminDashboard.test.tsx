@@ -92,6 +92,11 @@ describe("AdminDashboard", () => {
         expect(screen.getAllByRole("button", { name: /CSA|Mixed/ })).toHaveLength(5);
     });
 
+    test("gives the dashboard game-mode select an accessible name", () => {
+        render(<AdminDashboard />);
+        expect(screen.getByRole("combobox", { name: "Game mode for hosting" })).toBeInTheDocument();
+    });
+
     test("offers a retry after a failed quiz load and shows a sign-in form on 401", async () => {
         m.admin.loadQuizzes.mockRejectedValueOnce(new Error("offline"));
         render(<AdminDashboard />);
