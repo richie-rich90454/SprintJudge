@@ -351,14 +351,20 @@ test.describe("exploratory admin accessibility", () => {
             // Bars are aria-hidden; the adjacent percentage text is the alternative.
             expect.soft(await summary.getByText(/\d+% correct/).count()).toBeGreaterThan(0);
             const tables = page.getByRole("table");
-            expect.soft(await tables.count()).toBeGreaterThan(0);
-            for (let i = 0; i < (await tables.count()); i += 1) {
-                expect
-                    .soft(
-                        await tables.nth(i).locator("thead th[scope=col]").count(),
-                        `table ${i} headers`,
-                    )
-                    .toBeGreaterThan(0);
+            if ((await tables.count()) === 0) {
+                // A fresh CI database has no submissions yet, so the reports
+                // correctly render their empty states instead of tables.
+                expect.soft(await students.getByText("No submissions yet").count()).toBe(1);
+                expect.soft(await items.getByText("No item data yet").count()).toBe(1);
+            } else {
+                for (let i = 0; i < (await tables.count()); i += 1) {
+                    expect
+                        .soft(
+                            await tables.nth(i).locator("thead th[scope=col]").count(),
+                            `table ${i} headers`,
+                        )
+                        .toBeGreaterThan(0);
+                }
             }
 
             expect
