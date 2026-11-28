@@ -500,3 +500,102 @@ describe("QuestionWizard statement, preview and save", () => {
         expect(screen.getByText("No findings from the bank advisory rules.")).toBeInTheDocument();
     });
 });
+
+describe("QuestionWizard accessibility", () => {
+    afterEach(() => {
+        localStorage.removeItem("oq-locale");
+        setWizard("MCQ", {}, "type");
+    });
+
+    test("names the title and description fields on the statement step", () => {
+        setWizard("MCQ", {}, "statement");
+        render(<QuestionWizard />);
+        expect(screen.getByRole("textbox", { name: "Title" })).toHaveAttribute(
+            "aria-required",
+            "true",
+        );
+        expect(screen.getByRole("textbox", { name: "Description (Markdown)" })).toBeInTheDocument();
+    });
+
+    test("names option fields and associates the correct-index labels", () => {
+        setWizard("MCQ", { options: ["A"], correctIndex: 0 });
+        const { unmount } = render(<QuestionWizard />);
+        expect(screen.getByRole("textbox", { name: "Option A" })).toBeInTheDocument();
+        expect(
+            screen.getByRole("spinbutton", { name: "Correct option index" }),
+        ).toBeInTheDocument();
+        unmount();
+
+        setWizard("MULTIPLE_SELECT", { options: ["B"], correctIndices: [0] });
+        render(<QuestionWizard />);
+        expect(screen.getByRole("textbox", { name: "Option A" })).toBeInTheDocument();
+        expect(
+            screen.getByRole("textbox", { name: "Correct indices (comma sep)" }),
+        ).toBeInTheDocument();
+    });
+
+    test("names the remaining unlabeled config controls", () => {
+        setWizard("DRAG_SORT", { lines: [{ id: "l", text: "x" }] });
+        const { unmount } = render(<QuestionWizard />);
+        expect(screen.getByRole("textbox", { name: "Line 1" })).toBeInTheDocument();
+        expect(
+            screen.getByRole("textbox", { name: "Correct order (line numbers, comma separated)" }),
+        ).toBeInTheDocument();
+        unmount();
+
+        setWizard("CLICK_BUG", { codeLines: ["x"] });
+        const bug = render(<QuestionWizard />);
+        expect(screen.getByRole("textbox", { name: "One buggy line per row" })).toBeInTheDocument();
+        expect(
+            screen.getByRole("spinbutton", { name: "Bug line index (0-based)" }),
+        ).toBeInTheDocument();
+        bug.unmount();
+
+        setWizard("OJ_FULL", {
+            testCases: [{ input: "1", expectedOutput: "2", isHidden: false }],
+        });
+        render(<QuestionWizard />);
+        expect(screen.getByRole("textbox", { name: "input" })).toBeInTheDocument();
+        expect(screen.getByRole("textbox", { name: "expected" })).toBeInTheDocument();
+    });
+
+    test("uses translated labels when the Arabic locale is active", () => {
+        localStorage.setItem("oq-locale", "ar");
+        setWizard("MCQ", { options: ["A"], correctIndex: 0 }, "statement");
+        render(<QuestionWizard />);
+        expect(screen.getByRole("textbox", { name: "العنوان" })).toBeInTheDocument();
+        expect(screen.getByRole("textbox", { name: "الوصف (Markdown)" })).toBeInTheDocument();
+
+        act(() => setWizard("MCQ", { options: ["A"], correctIndex: 0 }, "config"));
+        expect(screen.getByRole("textbox", { name: "الخيار A" })).toBeInTheDocument();
+        expect(screen.getByRole("spinbutton", { name: "فهرس الخيار الصحيح" })).toBeInTheDocument();
+    });
+
+    test("focuses the alert when a blocked save moves back to the statement step", () => {
+        setWizard("MCQ", {}, "preview", { title: "  " });
+        render(<QuestionWizard />);
+        fireEvent.click(screen.getByRole("button", { name: "Save question" }));
+        const alert = screen.getByRole("alert");
+        expect(alert).toHaveTextContent("Title is required");
+        expect(alert).toHaveFocus();
+        expect(screen.getByRole("button", { name: "Statement" })).not.toHaveFocus();
+    });
+
+    test("focuses the alert when a save fails on the preview step", async () => {
+        setWizard("MCQ", {}, "preview");
+        const save = useAdminStore.getState().saveQuestion as ReturnType<typeof vi.fn>;
+        save.mockRejectedValueOnce(new Error("boom"));
+        render(<QuestionWizard />);
+        fireEvent.click(screen.getByRole("button", { name: "Save question" }));
+        const alert = await screen.findByRole("alert");
+        expect(alert).toHaveTextContent(/Save failed/);
+        expect(alert).toHaveFocus();
+    });
+
+    test("still focuses the active step button on ordinary navigation", () => {
+        setWizard("MCQ", {}, "statement");
+        render(<QuestionWizard />);
+        fireEvent.click(screen.getByRole("button", { name: /Next: configure/i }));
+        expect(screen.getByRole("button", { name: "Config" })).toHaveFocus();
+    });
+});

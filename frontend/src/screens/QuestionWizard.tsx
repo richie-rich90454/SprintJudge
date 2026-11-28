@@ -44,6 +44,7 @@ function ConfigForm() {
                 <div className="flex flex-col gap-4">
                     {type === "OUTPUT_PRED" && (
                         <textarea
+                            aria-label={t("ui.codeSnippet")}
                             placeholder={t("ui.codeSnippet")}
                             value={(config["code"] as string) ?? ""}
                             onChange={(e) => set({ code: e.target.value })}
@@ -53,6 +54,9 @@ function ConfigForm() {
                     {options.map((o, i) => (
                         <input
                             key={i}
+                            aria-label={t("ui.optionLabel", {
+                                letter: String.fromCharCode(65 + i),
+                            })}
                             value={o}
                             placeholder={t("ui.optionLabel", {
                                 letter: String.fromCharCode(65 + i),
@@ -65,10 +69,14 @@ function ConfigForm() {
                             className="input-underline"
                         />
                     ))}
-                    <label className="text-sm text-[var(--oq-ink-soft)] mt-2">
+                    <label
+                        htmlFor="oq-correct-index"
+                        className="text-sm text-[var(--oq-ink-soft)] mt-2"
+                    >
                         {t("ui.correctOptionIndex")}
                     </label>
                     <input
+                        id="oq-correct-index"
                         type="number"
                         min={0}
                         value={(config["correctIndex"] as number) ?? 0}
@@ -99,6 +107,9 @@ function ConfigForm() {
                     {options.map((o, i) => (
                         <input
                             key={i}
+                            aria-label={t("ui.optionLabel", {
+                                letter: String.fromCharCode(65 + i),
+                            })}
                             value={o}
                             placeholder={t("ui.optionLabel", {
                                 letter: String.fromCharCode(65 + i),
@@ -111,10 +122,14 @@ function ConfigForm() {
                             className="input-underline"
                         />
                     ))}
-                    <label className="text-sm text-[var(--oq-ink-soft)] mt-2">
+                    <label
+                        htmlFor="oq-correct-indices"
+                        className="text-sm text-[var(--oq-ink-soft)] mt-2"
+                    >
                         {t("ui.correctIndicesCommaSep")}
                     </label>
                     <input
+                        id="oq-correct-indices"
                         value={((config["correctIndices"] as number[]) ?? []).join(",")}
                         onChange={(e) =>
                             set({
@@ -157,12 +172,14 @@ function ConfigForm() {
             return (
                 <div className="flex flex-col gap-4">
                     <textarea
+                        aria-label={t("ui.snippetUseForTheBlank")}
                         placeholder={t("ui.snippetUseForTheBlank")}
                         value={(config["snippet"] as string) ?? ""}
                         onChange={(e) => set({ snippet: e.target.value })}
                         className="mono w-full min-h-[100px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
                     />
                     <input
+                        aria-label={t("ui.correctAnswer")}
                         placeholder={t("ui.correctAnswer")}
                         value={(config["answer"] as string) ?? ""}
                         onChange={(e) => set({ answer: e.target.value })}
@@ -182,6 +199,7 @@ function ConfigForm() {
                     {lines.map((l, i) => (
                         <input
                             key={i}
+                            aria-label={t("ui.lineLabel", { n: i + 1 })}
                             value={l.text}
                             placeholder={t("ui.lineLabel", { n: i + 1 })}
                             onChange={(e) => {
@@ -200,10 +218,11 @@ function ConfigForm() {
                     >
                         {t("ui.addLine")}
                     </button>
-                    <label className="text-sm text-[var(--oq-ink-soft)]">
+                    <label htmlFor="oq-correct-order" className="text-sm text-[var(--oq-ink-soft)]">
                         {t("ui.correctOrderLineNumbersCommaSeparated")}
                     </label>
                     <input
+                        id="oq-correct-order"
                         placeholder={t("ui.eg201")}
                         value={
                             (config["correctOrder"] as string) ?? lines.map((_, i) => i).join(",")
@@ -225,15 +244,17 @@ function ConfigForm() {
                         </p>
                     )}
                     <textarea
+                        aria-label={t("ui.oneBuggyLinePerRow")}
                         placeholder={t("ui.oneBuggyLinePerRow")}
                         value={codeLines.join("\n")}
                         onChange={(e) => set({ codeLines: e.target.value.split("\n") })}
                         className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
                     />
-                    <label className="text-sm text-[var(--oq-ink-soft)]">
+                    <label htmlFor="oq-bug-line" className="text-sm text-[var(--oq-ink-soft)]">
                         {t("ui.bugLineIndex0based")}
                     </label>
                     <input
+                        id="oq-bug-line"
                         type="number"
                         value={(config["bugLine"] as number) ?? 0}
                         onChange={(e) => set({ bugLine: Number(e.target.value) })}
@@ -246,12 +267,14 @@ function ConfigForm() {
             return (
                 <div className="flex flex-col gap-4">
                     <textarea
+                        aria-label={t("ui.skeletonStarterCodeEditableRegion")}
                         placeholder={t("ui.skeletonStarterCodeEditableRegion")}
                         value={(config["skeleton"] as string) ?? ""}
                         onChange={(e) => set({ skeleton: e.target.value })}
                         className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
                     />
                     <textarea
+                        aria-label={t("ui.expectedCompletedCodeUsedToGrade")}
                         placeholder={t("ui.expectedCompletedCodeUsedToGrade")}
                         value={(config[t("ui.expected")] as string) ?? ""}
                         onChange={(e) => set({ expected: e.target.value })}
@@ -271,6 +294,7 @@ function ConfigForm() {
                 <div className="flex flex-col gap-4">
                     {type === "OJ_PATCH" && (
                         <textarea
+                            aria-label={t("ui.buggyFunction")}
                             placeholder={t("ui.buggyFunction")}
                             value={(config["buggyFunction"] as string) ?? ""}
                             onChange={(e) => set({ buggyFunction: e.target.value })}
@@ -279,6 +303,7 @@ function ConfigForm() {
                     )}
                     {type === "OJ_FULL" && (
                         <textarea
+                            aria-label={t("ui.starterCode")}
                             placeholder={t("ui.starterCode")}
                             value={(config["starter"] as string) ?? ""}
                             onChange={(e) => set({ starter: e.target.value })}
@@ -289,6 +314,7 @@ function ConfigForm() {
                     {tc.map((c, i) => (
                         <div key={i} className="tc-row flex gap-4">
                             <input
+                                aria-label={t("ui.input")}
                                 placeholder={t("ui.input")}
                                 value={c.input}
                                 onChange={(e) => {
@@ -299,6 +325,7 @@ function ConfigForm() {
                                 className="input-underline flex-1 text-sm"
                             />
                             <input
+                                aria-label={t("ui.expected")}
                                 placeholder={t("ui.expected")}
                                 value={c.expectedOutput}
                                 onChange={(e) => {
@@ -338,9 +365,14 @@ export function QuestionWizard() {
     const [validationError, setValidationError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
     const stepButtons = useRef<Partial<Record<WizardStep, HTMLButtonElement | null>>>({});
+    const errorRef = useRef<HTMLParagraphElement | null>(null);
     useEffect(() => {
         stepButtons.current[wizardStep]?.focus();
     }, [wizardStep]);
+    // Runs after the step effect so an error raised together with a step change keeps focus.
+    useEffect(() => {
+        if (validationError) errorRef.current?.focus();
+    }, [validationError]);
     const config = (draft.config as Record<string, unknown>) ?? {};
     const rich = readRichStem(config);
     const setRich = (next: RichStem) => setDraft({ config: { ...config, rich: next } });
@@ -428,6 +460,7 @@ export function QuestionWizard() {
                 {wizardStep === "statement" && (
                     <div className="flex flex-col gap-4">
                         <input
+                            aria-label={t("ui.title")}
                             placeholder={t("ui.title")}
                             value={draft.title ?? ""}
                             onChange={(e) => setDraft({ title: e.target.value })}
@@ -436,11 +469,17 @@ export function QuestionWizard() {
                             className="input-underline"
                         />
                         {validationError && (
-                            <p role="alert" className="text-[var(--oq-danger)] text-sm">
+                            <p
+                                ref={errorRef}
+                                role="alert"
+                                tabIndex={-1}
+                                className="text-[var(--oq-danger)] text-sm"
+                            >
                                 {validationError}
                             </p>
                         )}
                         <textarea
+                            aria-label={t("ui.descriptionMarkdown")}
                             placeholder={t("ui.descriptionMarkdown")}
                             value={draft.description ?? ""}
                             onChange={(e) => setDraft({ description: e.target.value })}
@@ -563,7 +602,12 @@ export function QuestionWizard() {
                             </div>
                         </Card>
                         {validationError && (
-                            <p role="alert" className="text-[var(--oq-danger)] text-sm mt-4">
+                            <p
+                                ref={errorRef}
+                                role="alert"
+                                tabIndex={-1}
+                                className="text-[var(--oq-danger)] text-sm mt-4"
+                            >
                                 {validationError}
                             </p>
                         )}
