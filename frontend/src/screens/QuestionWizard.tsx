@@ -1,5 +1,5 @@
 import { useI18n } from "../i18n";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAdminStore, WizardStep } from "../stores/useAdminStore";
 import { QuestionType } from "../types";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
@@ -366,6 +366,12 @@ export function QuestionWizard() {
     const [saving, setSaving] = useState(false);
     const stepButtons = useRef<Partial<Record<WizardStep, HTMLButtonElement | null>>>({});
     const errorRef = useRef<HTMLParagraphElement | null>(null);
+    // Focus on mount as well as on message change: an async save error can
+    // mount a fresh alert with an unchanged message text.
+    const attachError = useCallback((node: HTMLParagraphElement | null) => {
+        errorRef.current = node;
+        if (node) node.focus();
+    }, []);
     useEffect(() => {
         stepButtons.current[wizardStep]?.focus();
     }, [wizardStep]);
@@ -470,7 +476,7 @@ export function QuestionWizard() {
                         />
                         {validationError && (
                             <p
-                                ref={errorRef}
+                                ref={attachError}
                                 role="alert"
                                 tabIndex={-1}
                                 className="text-[var(--oq-danger)] text-sm"
@@ -603,7 +609,7 @@ export function QuestionWizard() {
                         </Card>
                         {validationError && (
                             <p
-                                ref={errorRef}
+                                ref={attachError}
                                 role="alert"
                                 tabIndex={-1}
                                 className="text-[var(--oq-danger)] text-sm mt-4"

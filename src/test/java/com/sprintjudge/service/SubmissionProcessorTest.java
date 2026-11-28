@@ -1255,16 +1255,15 @@ class SubmissionProcessorTest {
 	void seededJavaConfigPassesBothCasesWithRealExecutor(@org.junit.jupiter.api.io.TempDir java.nio.file.Path tmp)
 			throws Exception {
 		org.junit.jupiter.api.Assumptions.assumeTrue(javacAvailable());
-		String javaCorrect =
-				"public class Main { public static void main(String[] a) { System.out.println(42); } }";
+		String javaCorrect = "public class Main { public static void main(String[] a) { System.out.println(42); } }";
 		String config = "{\"starter\":\"" + javaCorrect.replace("\"", "\\\"") + "\",\"defaultLanguage\":\"python\","
 				+ "\"testCases\":[{\"input\":\"\",\"expectedOutput\":\"42\"},"
 				+ "{\"input\":\"ignored\\n\",\"expectedOutput\":\"42\"}]}";
 		Semaphore slot = new Semaphore(2);
-		com.sprintjudge.service.executor.CompileArtifactCache cache =
-				new com.sprintjudge.service.executor.CompileArtifactCache(tmp.resolve("cache").toString(), 16, 16);
-		com.sprintjudge.service.executor.NativeExecutor real =
-				new com.sprintjudge.service.executor.NativeExecutor(cache);
+		com.sprintjudge.service.executor.CompileArtifactCache cache = new com.sprintjudge.service.executor.CompileArtifactCache(
+				tmp.resolve("cache").toString(), 16, 16);
+		com.sprintjudge.service.executor.NativeExecutor real = new com.sprintjudge.service.executor.NativeExecutor(
+				cache);
 		org.springframework.test.util.ReflectionTestUtils.setField(real, "workDirBase", tmp.resolve("work").toString());
 		org.springframework.test.util.ReflectionTestUtils.setField(real, "defaultTimeoutSec", 10);
 		SubmissionProcessor p = new SubmissionProcessor(real, submissionRepository, questionRepository, scoringEngine,
