@@ -456,6 +456,45 @@ describe("GameStateManager leaderboard deltas", () => {
         gameStateManager.requestLeaderboardResync();
         expect(fakeWs.send).toHaveBeenCalledWith({ type: "RESYNC_LEADERBOARD" });
     });
+
+    test("resync with a multi-seq jump is applied, not dropped as a gap", () => {
+        delta(
+            2,
+            [
+                { uuid: "a", name: "Ada", score: 0, rank: 1 },
+                { uuid: "b", name: "Grace", score: 0, rank: 2 },
+            ],
+            true,
+        );
+        // Two score mutations coalesce into one batch stamped seq 4.
+        delta(4, [{ uuid: "a", name: "Ada", score: 100, rank: 1 }]);
+        expect(fakeWs.send).toHaveBeenCalledWith({ type: "RESYNC_LEADERBOARD" });
+        vi.clearAllMocks();
+        // The requested full snapshot carries the same current seq, still >1 ahead.
+        delta(
+            4,
+            [
+                { uuid: "a", name: "Ada", score: 100, rank: 1 },
+                { uuid: "b", name: "Grace", score: 0, rank: 2 },
+            ],
+            true,
+        );
+        expect(gameStateManager.state.leaderboard.find((e) => e.uuid === "a")?.score).toBe(100);
+        expect(fakeWs.send).not.toHaveBeenCalledWith({ type: "RESYNC_LEADERBOARD" });
+    });
+
+    test("first resync is applied without a seq baseline", () => {
+        delta(7, [{ uuid: "a", name: "Ada", score: 30, rank: 1 }], true);
+        expect(gameStateManager.state.leaderboard).toEqual([
+            { uuid: "a", name: "Ada", score: 30, rank: 1 },
+        ]);
+    });
+
+    test("stale resync older than the applied seq is ignored", () => {
+        delta(3, [{ uuid: "a", name: "Ada", score: 30, rank: 1 }]);
+        delta(2, [{ uuid: "a", name: "Ada", score: 10, rank: 1 }], true);
+        expect(gameStateManager.state.leaderboard[0].score).toBe(30);
+    });
 });
 
 describe("GameStateManager results and game end", () => {
