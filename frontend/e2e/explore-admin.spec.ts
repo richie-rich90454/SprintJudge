@@ -284,7 +284,11 @@ test.describe("exploratory admin journey", () => {
             const assignment = assignments.find((a) => a.title === assignmentTitle);
             expect(assignment).toBeTruthy();
             assignmentId = assignment!.id;
-            await titleButton.click();
+            // Creation already selects the new assignment; clicking the row
+            // again would toggle it closed.
+            if ((await page.locator('textarea[aria-label="Roster CSV"]').count()) === 0) {
+                await titleButton.click();
+            }
 
             const roster = `student_id,name,email\n${studentId},E2E Student,e2e@example.test`;
             await page.locator('textarea[aria-label="Roster CSV"]').fill(roster);
