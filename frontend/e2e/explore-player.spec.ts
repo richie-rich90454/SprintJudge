@@ -181,8 +181,12 @@ test.describe("explore player journey", () => {
                 timeout: 15000,
             });
             await expect(student.getByText("No game", { exact: true })).toHaveCount(0);
-            await expect(scoreRow).toHaveText(/Ada\s+[1-9]\d*/, { timeout: 10000 });
-            const scoreAfterRejoin = (await scoreRow.innerText()).trim();
+            const readScore = async () => {
+                const match = /Ada\s*([1-9][\d,]*)/.exec((await scoreRow.innerText()).trim());
+                return match ? Number(match[1].replace(/,/g, "")) : 0;
+            };
+            await expect.poll(readScore, { timeout: 10000 }).toBeGreaterThan(0);
+            const scoreAfterRejoin = await readScore();
 
             // Drop the socket and let the client reconnect + rejoin by token.
             const socketsBefore = await student.evaluate(
@@ -204,7 +208,7 @@ test.describe("explore player journey", () => {
                 .toBe(socketsBefore + 1);
             await expect(student.getByRole("heading", { name: MCQ_TITLE })).toBeVisible();
             await expect(scoreRow).toBeVisible({ timeout: 10000 });
-            expect((await scoreRow.innerText()).trim()).toBe(scoreAfterRejoin);
+            expect(await readScore()).toBe(scoreAfterRejoin);
 
             await host.getByRole("button", { name: "Reveal answer" }).click();
             await expect(student.getByText("Round complete")).toBeVisible({ timeout: 10000 });

@@ -123,7 +123,9 @@ test.describe("explore experience", () => {
         await expect(page.getByRole("dialog")).toBeVisible();
         await page.keyboard.press("Escape");
         await expect(page.getByRole("dialog")).toHaveCount(0);
-        expect((await activeInfo(page)).aria).toBe("About SprintJudge");
+        // Radix restores opener focus in a setTimeout, after the dialog is gone.
+        await expect(page.getByRole("button", { name: "About SprintJudge" })).toBeFocused();
+        expect((await activeInfo(page)).tag).not.toBe("BODY");
 
         // Mount the real DragSortRenderer via Vite's module server: the arrow
         // buttons are the renderer's own keyboard affordance.
