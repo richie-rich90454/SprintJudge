@@ -422,6 +422,10 @@ export class GameStateManager {
             return;
         }
         this.lastSeq = delta.seq;
+        // An accepted incremental delta proves the stream is healthy. Clear any
+        // in-flight resync flag: a JOINED resync on an empty board gets no reply,
+        // and leaving it set would block every later gap repair.
+        this.resyncInFlight = false;
 
         if (delta.entries.length === 0) {
             // Authoritative replacement (also covers "everyone at zero" rooms).

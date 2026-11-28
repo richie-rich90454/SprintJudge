@@ -495,6 +495,29 @@ describe("GameStateManager leaderboard deltas", () => {
         delta(2, [{ uuid: "a", name: "Ada", score: 10, rank: 1 }], true);
         expect(gameStateManager.state.leaderboard[0].score).toBe(30);
     });
+
+    test("gap after an unanswered JOINED resync still repairs the board", () => {
+        joined();
+        // Empty board: the server sends no resync reply, so the flag would stick.
+        delta(1, [{ uuid: "ada", name: "Ada", score: 0, rank: 1 }]);
+        delta(2, [{ uuid: "grace", name: "Grace", score: 0, rank: 2 }]);
+        vi.clearAllMocks();
+        // Review publishes both students in one batch stamped seq 4.
+        delta(4, [
+            { uuid: "ada", name: "Ada", score: 100, rank: 1 },
+            { uuid: "grace", name: "Grace", score: 0, rank: 2 },
+        ]);
+        expect(fakeWs.send).toHaveBeenCalledWith({ type: "RESYNC_LEADERBOARD" });
+        delta(
+            4,
+            [
+                { uuid: "ada", name: "Ada", score: 100, rank: 1 },
+                { uuid: "grace", name: "Grace", score: 0, rank: 2 },
+            ],
+            true,
+        );
+        expect(gameStateManager.state.leaderboard.find((e) => e.uuid === "ada")?.score).toBe(100);
+    });
 });
 
 describe("GameStateManager results and game end", () => {

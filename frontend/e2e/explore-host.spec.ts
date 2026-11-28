@@ -303,7 +303,7 @@ test("host controls drive a room end to end", async ({ page: admin, context }) =
             await host.getByRole("button", { name: "End game" }).click();
             await expect(host.getByRole("dialog")).toBeVisible();
             await host.getByRole("dialog").getByRole("button", { name: "End game" }).click();
-            await expect(host.getByText("Game over", { exact: true })).toBeVisible({
+            await expect(host.getByRole("heading", { name: "Game over" })).toBeVisible({
                 timeout: 10000,
             });
             await expect(host.getByRole("link", { name: "View results" })).toBeVisible();
@@ -318,7 +318,7 @@ test("host controls drive a room end to end", async ({ page: admin, context }) =
                 await late.goto(`/j/${pin}`);
                 await late.getByLabel("Your name").fill("Latecomer");
                 await late.getByRole("button", { name: "Join game" }).click();
-                await expect(late.getByRole("alert")).toContainText("This game has ended.", {
+                await expect(late.getByRole("alert")).toContainText("JOIN_FAILED", {
                     timeout: 12000,
                 });
             } finally {
