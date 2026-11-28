@@ -422,6 +422,20 @@ test.describe("exploratory admin journey", () => {
         });
 
         await test.step("export and re-import a quiz bundle round-trip", async () => {
+            // Use a separate quiz: the assignment quiz is referenced by the
+            // async assignment and cannot be deleted without cascading it.
+            const exportBuild = ok(
+                await call(page, "/api/admin/bank/build", "POST", {
+                    subject,
+                    unit,
+                    format,
+                    count: 3,
+                    seed: 20261128,
+                    title: `E2E export ${stamp}`,
+                }),
+                "export quiz build",
+            ) as { quizId: string; questions: number };
+            quizId = exportBuild.quizId;
             await page.goto(`${B}/admin/dashboard`);
             const [download] = await Promise.all([
                 page.waitForEvent("download"),
@@ -454,13 +468,6 @@ test.describe("exploratory admin journey", () => {
                 "quiz re-import",
             ) as { importedQuestions: number };
             expect(imported.importedQuestions).toBe(entry!.questions.length);
-            // The student step designated this quiz as the public practice set;
-            // restore that designation after the delete/re-import cycle so
-            // later specs that rely on a practice set still work.
-            ok(
-                await call(page, "/api/public/practice", "POST", { quizId }),
-                "restore practice set",
-            );
             const roundTripped = ok(
                 await call(page, `/api/admin/quizzes/${quizId}/questions`),
                 "re-imported questions",

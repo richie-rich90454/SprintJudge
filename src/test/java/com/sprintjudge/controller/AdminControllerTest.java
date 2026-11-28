@@ -88,6 +88,15 @@ class AdminControllerTest {
 	}
 
 	@Test
+	void deleteReferencedQuizConflicts() {
+		org.mockito.Mockito.doThrow(new org.jooq.exception.DataAccessException("fk")).when(quizRepository)
+				.delete("abc");
+		org.springframework.web.server.ResponseStatusException error = assertThrows(
+				org.springframework.web.server.ResponseStatusException.class, () -> controller.deleteQuiz("abc"));
+		assertEquals(409, error.getStatusCode().value());
+	}
+
+	@Test
 	void questionsByQuiz() {
 		when(questionRepository.findByQuiz("q1"))
 				.thenReturn(List.of(new Question("qid", "q1", "Q", null, "MCQ", null, 30, 10, "{}", 0, null)));
