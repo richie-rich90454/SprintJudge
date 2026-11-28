@@ -22,6 +22,13 @@ interface RunResult {
     status: string;
 }
 
+interface SubmitFrame {
+    type: string;
+    questionId: string;
+    language?: string;
+    response?: { source?: string; language?: string };
+}
+
 async function runCode(
     request: APIRequestContext,
     language: string,
@@ -170,6 +177,20 @@ test.describe("explore judge (real native executor)", () => {
         const pin = await hostGame(admin, quizId, "STANDARD");
         const host = await context.newPage();
         const student = await context.newPage();
+        // Watch the real frames: the feedback banner only reports the judge's
+        // verdict, so a lost source or language is otherwise invisible here.
+        const submits: SubmitFrame[] = [];
+        student.on("websocket", (ws) => {
+            ws.on("framereceived", (frame) => {
+                if (typeof frame.payload !== "string") return;
+                try {
+                    const msg = JSON.parse(frame.payload) as SubmitFrame;
+                    if (msg.type === "SUBMIT") submits.push(msg);
+                } catch {
+                    /* binary/control frames are not JSON */
+                }
+            });
+        });
         try {
             await host.goto(`${BACKEND}/host?pin=${pin}`);
             await expect(host.getByRole("button", { name: "Start round" })).toBeVisible({
@@ -221,8 +242,26 @@ test.describe("explore judge (real native executor)", () => {
 
             // Switch to Java on a Python-default question: the same correct
             // program in a different language must still pass both cases.
-            await student.locator(".renderer-host select").selectOption("java");
+            const langSelect = student.locator(".renderer-host select");
+            // The renderer emits only on select change. A fresh emit after the
+            // question-change reset is what puts {source, language} in the frame.
+            await langSelect.selectOption("node");
+            await expect(langSelect).toHaveValue("node");
+            await langSelect.selectOption("java");
+            await expect(langSelect).toHaveValue("java");
+            expect(
+                await student.evaluate(
+                    (id) => localStorage.getItem(`sprintjudge_code_${id}`),
+                    javaId,
+                ),
+                "cached Java draft survived Q1's ack",
+            ).toBe(javaCorrect);
+
             await student.getByRole("button", { name: "Compile and submit" }).click();
+            const javaSubmits = submits.filter((f) => f.questionId === javaId);
+            expect(javaSubmits.length, "one SUBMIT for the Java question").toBe(1);
+            expect(javaSubmits[0].language, "SUBMIT language").toBe("java");
+            expect(javaSubmits[0].response?.source, "SUBMIT source").toBe(javaCorrect);
             await expect(student.locator(".feedback-banner")).toContainText("2/2 tests passed", {
                 timeout: 25_000,
             });
