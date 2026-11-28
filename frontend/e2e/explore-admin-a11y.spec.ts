@@ -175,6 +175,9 @@ test.describe("exploratory admin accessibility", () => {
             expect
                 .soft(await dialog.evaluate((el) => el.contains(document.activeElement)))
                 .toBe(true);
+            // Entrance motion can still be running; axe reads mid-animation opacity
+            // as low contrast. Sample the settled dialog, not the transition.
+            await page.waitForTimeout(400);
             await expectNoSeriousViolations(page, "question wizard (open)");
 
             for (const step of ["Type", "Statement", "Config", "Preview"]) {
@@ -231,7 +234,7 @@ test.describe("exploratory admin accessibility", () => {
             await dialog
                 .locator('textarea[placeholder="Description (Markdown)"]')
                 .fill("keyboard a11e probe");
-            await dialog.getByRole("button", { name: "Config" }).focus();
+            await dialog.getByRole("button", { name: "Config", exact: true }).focus();
             await page.keyboard.press("Enter");
             for (const letter of ["A", "B", "C", "D"]) {
                 const named = await dialog
