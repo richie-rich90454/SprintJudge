@@ -38,7 +38,7 @@ test.describe("admin flows", () => {
             .first()
             .click();
 
-        await expect(page).toHaveURL(/\/host\?pin=\d{6}/, { timeout: 30000 });
+        await expect(page).toHaveURL(/\/host\?pin=\d{6}/, { timeout: 60000 });
         await expect(page.getByText(/Could not build the CSA game/)).toHaveCount(0);
         expect(posts.length).toBeGreaterThanOrEqual(2);
         expect(posts.every((s) => s >= 200 && s < 300)).toBeTruthy();

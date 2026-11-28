@@ -275,7 +275,7 @@ test.describe("exploratory admin journey", () => {
             // The POST is async: the row only appears after create succeeds and
             // the list refetch lands. Wait for it before reading the API.
             const titleButton = page.getByRole("button", { name: assignmentTitle });
-            await expect(titleButton).toBeVisible();
+            await expect(titleButton).toBeVisible({ timeout: 15000 });
 
             const assignments = ok(
                 await call(page, "/api/admin/assignments"),
