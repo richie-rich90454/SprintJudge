@@ -282,10 +282,11 @@ test.describe("explore profiles and settings", () => {
 
     test("display preferences persist by device, not by profile", async ({
         browser,
-        page: admin,
+        page,
         context,
     }) => {
         test.setTimeout(60_000);
+        const admin = await context.newPage();
         await loginAdmin(admin);
         const quizId = await seedQuiz(admin, [
             {
@@ -380,6 +381,7 @@ test.describe("explore profiles and settings", () => {
             await host.close();
         } finally {
             await discardQuiz(admin, quizId);
+            await admin.close();
         }
     });
 

@@ -7,6 +7,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -104,11 +105,14 @@ class SecurityConfigTest {
 	}
 
 	@Test
-	void corsEmptyDefaultAllowsNoCrossOrigin() {
+	void corsEmptyDefaultAllowsLoopbackOnly() {
 		CorsConfigurationSource src = config("admin", "x").corsConfigurationSource("");
 		CorsConfiguration cfg = src.getCorsConfiguration(new MockHttpServletRequest("GET", "/"));
 		assertNotNull(cfg);
-		assertTrue(cfg.getAllowedOriginPatterns().isEmpty());
+		assertEquals(2, cfg.getAllowedOriginPatterns().size());
+		assertTrue(cfg.getAllowedOriginPatterns().contains("http://localhost:*"));
+		assertTrue(cfg.getAllowedOriginPatterns().contains("http://127.0.0.1:*"));
+		assertFalse(cfg.getAllowedOriginPatterns().contains("*"));
 	}
 
 	@Test

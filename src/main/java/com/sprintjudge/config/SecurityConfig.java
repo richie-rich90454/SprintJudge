@@ -245,6 +245,13 @@ public class SecurityConfig {
 		// site ride the admin session cookie. Refuse to boot instead. Trim each
 		// entry so "http://a, http://b" does not create a leading-space origin.
 		List<String> origins = new java.util.ArrayList<>();
+		if (allowedOrigins.isBlank()) {
+			// No explicit origins configured: keep local development usable while
+			// staying fail-closed for everything else (loopback only, never a
+			// wildcard that could ride the admin session cookie).
+			origins.add("http://localhost:*");
+			origins.add("http://127.0.0.1:*");
+		}
 		for (String origin : allowedOrigins.split(",")) {
 			String trimmed = origin.trim();
 			if (trimmed.contains("*")) {
