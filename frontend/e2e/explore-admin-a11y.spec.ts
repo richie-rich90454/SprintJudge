@@ -175,9 +175,17 @@ test.describe("exploratory admin accessibility", () => {
             expect
                 .soft(await dialog.evaluate((el) => el.contains(document.activeElement)))
                 .toBe(true);
-            // Entrance motion can still be running; axe reads mid-animation opacity
-            // as low contrast. Sample the settled dialog, not the transition.
-            await page.waitForTimeout(400);
+            // Stagger-in fades the quiz cards behind the dialog; axe reads their
+            // mid-animation opacity as low contrast. Wait for the last card to
+            // finish rather than guessing a fixed settle time.
+            await page.waitForFunction(
+                () =>
+                    Array.from(document.querySelectorAll<HTMLElement>(".oq-quiz-card")).every(
+                        (el) => !el.style.opacity || el.style.opacity === "1",
+                    ),
+                null,
+                { timeout: 10_000 },
+            );
             await expectNoSeriousViolations(page, "question wizard (open)");
 
             for (const step of ["Type", "Statement", "Config", "Preview"]) {
@@ -217,7 +225,7 @@ test.describe("exploratory admin accessibility", () => {
 
             // Empty-title submit via Enter: the validation message must be announced
             // *and* take focus as an error summary.
-            await dialog.getByRole("button", { name: "Preview" }).focus();
+            await dialog.getByRole("button", { name: "Preview" }).first().focus();
             await page.keyboard.press("Enter");
             await dialog.getByRole("button", { name: "Save question" }).focus();
             await page.keyboard.press("Enter");
@@ -260,7 +268,7 @@ test.describe("exploratory admin accessibility", () => {
                     namedIndex,
                 );
             await dialog.locator('input[type="number"]').first().fill("0");
-            await dialog.getByRole("button", { name: "Preview" }).focus();
+            await dialog.getByRole("button", { name: "Preview" }).first().focus();
             await page.keyboard.press("Enter");
             await dialog.getByRole("button", { name: "Save question" }).focus();
             await page.keyboard.press("Enter");
