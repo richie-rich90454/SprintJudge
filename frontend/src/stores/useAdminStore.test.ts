@@ -157,6 +157,7 @@ describe("useAdminStore persistence", () => {
         useAdminStore.getState().setDraft({ title: "New" });
         await useAdminStore.getState().saveQuestion();
         expect(adminMock.addQuestion).toHaveBeenCalled();
+        expect(typeof adminMock.addQuestion.mock.calls[0][0].config).toBe("string");
         expect(adminMock.updateQuestion).not.toHaveBeenCalled();
         expect(adminMock.getQuestions).toHaveBeenCalledWith("quiz-1");
         expect(useAdminStore.getState().wizardOpen).toBe(false);
@@ -192,14 +193,12 @@ describe("useAdminStore persistence", () => {
             config: { correctOrder: "2, 0, 1, nope", correctIndices: "0,2" },
         });
         await useAdminStore.getState().saveQuestion();
-        expect(adminMock.addQuestion).toHaveBeenCalledWith(
-            expect.objectContaining({
-                config: expect.objectContaining({
-                    correctOrder: [2, 0, 1],
-                    correctIndices: [0, 2],
-                }),
-            }),
-        );
+        const sent = adminMock.addQuestion.mock.calls[0][0];
+        expect(typeof sent.config).toBe("string");
+        expect(JSON.parse(sent.config)).toEqual({
+            correctOrder: [2, 0, 1],
+            correctIndices: [0, 2],
+        });
     });
 
     test("saveQuestion handles a null config by sending an empty object", async () => {
@@ -210,7 +209,9 @@ describe("useAdminStore persistence", () => {
             draft: { ...useAdminStore.getState().draft, config: null } as any,
         });
         await useAdminStore.getState().saveQuestion();
-        expect(adminMock.addQuestion).toHaveBeenCalledWith(expect.objectContaining({ config: {} }));
+        expect(adminMock.addQuestion).toHaveBeenCalledWith(
+            expect.objectContaining({ config: "{}" }),
+        );
     });
 
     test("createQuiz creates, reloads quizzes and returns the id", async () => {
@@ -434,7 +435,7 @@ describe("useAdminStore wizard workflows", () => {
             .setDraft({ title: "Ordered", orderIndex: 4, config: { options: ["x"] } });
         await useAdminStore.getState().saveQuestion();
         expect(adminMock.addQuestion).toHaveBeenCalledWith(
-            expect.objectContaining({ orderIndex: 4, config: { options: ["x"] } }),
+            expect.objectContaining({ orderIndex: 4, config: '{"options":["x"]}' }),
         );
     });
 

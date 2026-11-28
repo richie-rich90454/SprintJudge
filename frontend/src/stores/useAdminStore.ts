@@ -143,7 +143,9 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
                 .map((part) => Number(part.trim()))
                 .filter((n) => Number.isFinite(n));
         }
-        const payload = { ...draft, config } as QuestionPayload;
+        // Question.config is a String on the server; send serialized JSON,
+        // never an object (the admin API would reject it as malformed).
+        const payload = { ...draft, config: JSON.stringify(config) } as unknown as QuestionPayload;
         if (draft.id) await adminApi.updateQuestion(payload);
         else await adminApi.addQuestion(payload);
         const activeQuizId = get().activeQuizId;
