@@ -117,23 +117,29 @@ test.describe("exploratory admin accessibility", () => {
             await page.keyboard.press("ArrowDown");
             await page.keyboard.press("Enter");
             await expect(subject).not.toHaveValue("Java Programming");
+            await page.keyboard.press("ArrowUp");
+            await page.keyboard.press("Enter");
+            await expect(subject).toHaveValue("Java Programming");
             await scope.focus();
             await page.keyboard.press("End");
             await expect(scope).toHaveValue("core-scope");
+            await page.keyboard.press("Home");
+            await expect(scope).toHaveValue("everything");
 
             const coverage = page.locator('p[aria-live="polite"]').first();
             await expect(coverage).toHaveAttribute("aria-live", "polite");
             await expect(coverage).toContainText(/questions across \d+ units/);
 
+            // The bank filter matches the exact unit name, not topic keywords.
             await unit.focus();
-            await page.keyboard.type("Objects");
+            await page.keyboard.type("Unit 2");
             const announced = page.locator('p[aria-live="polite"]').last();
             await expect(announced).toHaveAttribute("aria-live", "polite");
-            await expect(announced).toHaveText(/^\d+ questions?$/, { timeout: 10_000 });
+            await expect(announced).toHaveText(/^[1-9]\d* questions?$/, { timeout: 10_000 });
 
-            const result = page.locator("ul li button").first();
+            const result = page.locator("ul li button[aria-expanded]").first();
             await expect(result).toBeVisible();
-            await expect(result).toContainText(/Objects/i);
+            await expect(result).toContainText(/Unit 2/i);
             await result.focus();
             await page.keyboard.press("Enter");
             await expect(result).toHaveAttribute("aria-expanded", "true");
