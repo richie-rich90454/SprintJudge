@@ -197,4 +197,65 @@ class BankStoreTest {
 		assertEquals(1, loaded.getSkipped());
 		assertEquals(1, loaded.getHeaders().size());
 	}
+
+	@Test
+	void indexesArePopulatedForConstantTimeLookups() throws Exception {
+		BankStore store = store();
+		assertEquals(Map.of("a1", 0, "a2", 1, "a3", 2, "b1", 3), field(store, "idIndex"));
+		Map<?, ?> bySubject = (Map<?, ?>) field(store, "bySubject");
+		assertEquals(List.of(0, 1, 2), java.util.Arrays.stream((int[]) bySubject.get("MATH")).boxed().toList());
+		assertEquals(List.of(3), java.util.Arrays.stream((int[]) bySubject.get("PHYS")).boxed().toList());
+	}
+
+	@Test
+	void duplicateIdsKeepTheFirstHeaderWithoutDroppingQuestions() {
+		List<Map<String, Object>> seed = List.of(question("a1", "MATH", "U1", "First", "core-scope", "F", 0.7),
+				question("a1", "MATH", "U2", "Second", "core-scope", "F", 0.2));
+		BankStore store = new BankStore(seed);
+		assertEquals("First", store.headerById("a1").get().get("topic"));
+		assertEquals(2, store.search("MATH", null, null, null).size());
+	}
+
+	@Test
+	void emptyStoreHasEmptyIndexesAndLookups() throws Exception {
+		BankStore store = new BankStore(List.of());
+		assertTrue(store.headerById("x").isEmpty());
+		assertTrue(store.volume().isEmpty());
+		assertTrue(store.search("MATH", null, null, null).isEmpty());
+		assertTrue(store.coverage("MATH").isEmpty());
+		java.lang.reflect.Constructor<BankStore> ctor = BankStore.class.getDeclaredConstructor(BankStore.Loaded.class);
+		ctor.setAccessible(true);
+		assertEquals(0, ctor.newInstance(new BankStore.Loaded()).skippedResources());
+	}
+
+	@Test
+	void streamingLoadMatchesTreeBasedExtraction() throws Exception {
+		ObjectMapper mapper = new ObjectMapper();
+		String batch = "{\"meta\":{\"k\":\"v\"},\"questions\":["
+				+ "{\"id\":\"x\",\"subject\":\"MATH\",\"unit\":\"U1\",\"topic\":\"T\",\"scope\":\"s\",\"format\":\"F\",\"stem\":\"stem\",\"difficulty\":{\"bloom\":\"KNOW\"},\"answer\":{\"correctId\":\"A\"}},"
+				+ "{\"id\":\"y\",\"difficulty\":2,\"subject\":\"MATH\"}," + "{\"id\":\"z\",\"difficulty\":null},"
+				+ "{\"id\":\"w\",\"difficulty\":\"hard\"}," + "{\"difficulty\":true}," + "5" + "]}";
+		assertEquals(BankStore.recordsOf(mapper.readTree(batch), mapper), loaded(batch, mapper).getHeaders());
+		String single = "{\"id\":\"s\",\"subject\":\"A\",\"difficulty\":0.5}";
+		assertEquals(BankStore.recordsOf(mapper.readTree(single), mapper), loaded(single, mapper).getHeaders());
+		String nonArray = "{\"questions\":\"nope\",\"id\":\"n\",\"subject\":\"A\"}";
+		assertEquals(BankStore.recordsOf(mapper.readTree(nonArray), mapper), loaded(nonArray, mapper).getHeaders());
+		String arrayRoot = "[]";
+		assertEquals(BankStore.recordsOf(mapper.readTree(arrayRoot), mapper), loaded(arrayRoot, mapper).getHeaders());
+	}
+
+	private static BankStore.Loaded loaded(String body, ObjectMapper mapper) {
+		return BankStore.loadAll(new org.springframework.core.io.Resource[]{json(body)}, mapper);
+	}
+
+	private static org.springframework.core.io.Resource json(String body) {
+		return new org.springframework.core.io.ByteArrayResource(
+				body.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+	}
+
+	private static Object field(BankStore store, String name) throws Exception {
+		java.lang.reflect.Field field = BankStore.class.getDeclaredField(name);
+		field.setAccessible(true);
+		return field.get(store);
+	}
 }

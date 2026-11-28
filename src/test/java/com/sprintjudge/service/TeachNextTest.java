@@ -22,6 +22,12 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -73,8 +79,8 @@ class TeachNextTest {
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1, q2));
 		when(submissionRepository.findBySession("s1")).thenReturn(List.of(sub("q1", false), sub("q2", true)));
 		when(bankRecords.subjects()).thenReturn(Set.of("JAVA_PROGRAMMING"));
-		when(bankRecords.records("JAVA_PROGRAMMING", null))
-				.thenReturn(List.of(Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 3", "topic", "For Loops")));
+		when(bankRecords.unitsOf("JAVA_PROGRAMMING")).thenReturn(List.of("Unit 3"));
+		when(bankRecords.topicMatches("JAVA_PROGRAMMING", "Unit 3", "Loops")).thenReturn(2);
 		when(bankRecords.records("JAVA_PROGRAMMING", "Unit 3"))
 				.thenReturn(List.of(Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 3", "topic", "For Loops"),
 						Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 3", "topic", "More Loops")));
@@ -93,10 +99,7 @@ class TeachNextTest {
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1, q2));
 		when(submissionRepository.findBySession("s1")).thenReturn(List.of());
 		when(bankRecords.subjects()).thenReturn(Set.of("JAVA_PROGRAMMING"));
-		when(bankRecords.records("JAVA_PROGRAMMING", null)).thenReturn(
-				List.of(Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 1", "topic", "Primitive Types")));
-		when(bankRecords.records("JAVA_PROGRAMMING", "Unit 1")).thenReturn(
-				List.of(Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 1", "topic", "Primitive Types")));
+		when(bankRecords.unitsOf("JAVA_PROGRAMMING")).thenReturn(List.of("Unit 1"));
 		TeachNextService.Recommendation rec = service().recommendPractice("s1");
 		assertEquals("Variables", rec.getTopic());
 		assertEquals("", rec.getSubject());
@@ -112,16 +115,7 @@ class TeachNextTest {
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1));
 		when(submissionRepository.findBySession("s1")).thenReturn(List.of());
 		when(bankRecords.subjects()).thenReturn(Set.of("JAVA_PROGRAMMING"));
-		when(bankRecords.records("JAVA_PROGRAMMING", null)).thenReturn(
-				List.of(Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 1", "topic", "Primitive Types")));
-		when(bankRecords.records("JAVA_PROGRAMMING", "Unit 1")).thenReturn(
-				List.of(Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 1", "topic", "Primitive Types")));
-		// topic Zzzz won't match, but loop still scans; need default. However first
-		// record topic doesn't contain Zzzz, unit doesn't contain Zzzz, so no match ->
-		// default.
-		// But our mock returns records for JAVA_PROGRAMMING; scan finds no match, stays
-		// default subject/unit JAVA_PROGRAMMING/Unit 1. count from records(default) =
-		// above 1 -> min(10,1)=1.
+		when(bankRecords.unitsOf("JAVA_PROGRAMMING")).thenReturn(List.of("Unit 1"));
 		TeachNextService.Recommendation rec = service().recommendPractice("s1");
 		assertEquals("", rec.getSubject());
 		assertEquals("", rec.getUnit());
@@ -147,7 +141,6 @@ class TeachNextTest {
 		when(sessionRepository.findById("s1")).thenReturn(Optional.of(session()));
 		Question q1 = q("q1", "Primitive Types", "{}");
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1));
-		when(submissionRepository.findBySession("s1")).thenReturn(List.of());
 		when(bankRecords.subjects()).thenReturn(Set.of());
 		TeachNextService.Recommendation rec = service().recommendPractice("s1");
 		assertEquals("Primitive Types", rec.getTopic());
@@ -158,10 +151,9 @@ class TeachNextTest {
 		when(sessionRepository.findById("s1")).thenReturn(Optional.of(session()));
 		Question q1 = q("q1", "T", "{\"topic\":\"T\"}");
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1));
-		when(submissionRepository.findBySession("s1")).thenReturn(List.of());
 		when(bankRecords.subjects()).thenReturn(Set.of("JAVA_PROGRAMMING"));
-		when(bankRecords.records("JAVA_PROGRAMMING", null))
-				.thenReturn(List.of(Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 1", "topic", "T")));
+		when(bankRecords.unitsOf("JAVA_PROGRAMMING")).thenReturn(List.of("Unit 1"));
+		when(bankRecords.topicMatches("JAVA_PROGRAMMING", "Unit 1", "T")).thenReturn(1);
 		when(bankRecords.records("JAVA_PROGRAMMING", "Unit 1")).thenReturn(java.util.Collections.nCopies(12,
 				Map.of("subject", "JAVA_PROGRAMMING", "unit", "Unit 1", "topic", "T")));
 		TeachNextService.Recommendation rec = service().recommendPractice("s1");
@@ -195,8 +187,7 @@ class TeachNextTest {
 		Question q1 = q("q1", "", "{\"topic\":\"\"}");
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1));
 		when(bankRecords.subjects()).thenReturn(Set.of("JAVA_PROGRAMMING"));
-		when(bankRecords.records("JAVA_PROGRAMMING", null))
-				.thenReturn(List.of(Map.of("topic", "Loops"), Map.of("unit", "U1", "topic", "Loops")));
+		when(bankRecords.unitsOf("JAVA_PROGRAMMING")).thenReturn(List.of("U1"));
 		TeachNextService.Recommendation rec = service().recommendPractice("s1");
 		assertEquals("", rec.getTopic());
 		assertEquals(0, rec.getCount());
@@ -208,9 +199,10 @@ class TeachNextTest {
 		Question q1 = q("q1", "Loops", "{\"topic\":\"Loops\"}");
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1));
 		when(bankRecords.subjects()).thenReturn(Set.of("JAVA_PROGRAMMING"));
+		when(bankRecords.unitsOf("JAVA_PROGRAMMING")).thenReturn(List.of("U1"));
+		when(bankRecords.topicMatches("JAVA_PROGRAMMING", "U1", "Loops")).thenReturn(2);
 		List<Map<String, Object>> records = List.of(Map.of("unit", "U1", "topic", "Loop"), Map.of("topic", "Loops"),
 				Map.of("unit", "U1"));
-		when(bankRecords.records("JAVA_PROGRAMMING", null)).thenReturn(records);
 		when(bankRecords.records("JAVA_PROGRAMMING", "U1")).thenReturn(records);
 		TeachNextService.Recommendation rec = service().recommendPractice("s1");
 		assertEquals("JAVA_PROGRAMMING", rec.getSubject());
@@ -226,9 +218,10 @@ class TeachNextTest {
 		subjects.add("PYTHON");
 		subjects.add("JAVA_PROGRAMMING");
 		when(bankRecords.subjects()).thenReturn(subjects);
-		when(bankRecords.records("PYTHON", null)).thenReturn(List.of(Map.of("unit", "U1", "topic", "Loops")));
-		when(bankRecords.records("PYTHON", "U1")).thenReturn(List.of(Map.of("unit", "U1", "topic", "Loops")));
-		when(bankRecords.records("JAVA_PROGRAMMING", null)).thenReturn(List.of(Map.of("unit", "JU", "topic", "Loops")));
+		when(bankRecords.unitsOf("PYTHON")).thenReturn(List.of("U1"));
+		when(bankRecords.unitsOf("JAVA_PROGRAMMING")).thenReturn(List.of("JU"));
+		when(bankRecords.topicMatches("PYTHON", "U1", "Loops")).thenReturn(1);
+		when(bankRecords.topicMatches("JAVA_PROGRAMMING", "JU", "Loops")).thenReturn(1);
 		when(bankRecords.records("JAVA_PROGRAMMING", "JU")).thenReturn(List.of(Map.of("unit", "JU", "topic", "Loops")));
 		TeachNextService.Recommendation rec = service().recommendPractice("s1");
 		assertEquals("JAVA_PROGRAMMING", rec.getSubject());
@@ -240,10 +233,10 @@ class TeachNextTest {
 		Question q1 = q("q1", "Loops", "{\"topic\":\"Loops\"}");
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1));
 		when(bankRecords.subjects()).thenReturn(Set.of("JAVA_PROGRAMMING"));
-		when(bankRecords.records("JAVA_PROGRAMMING", null))
-				.thenReturn(List.of(Map.of("unit", "U1", "topic", "Loops"), Map.of("unit", "U2", "topic", "Loops")));
+		when(bankRecords.unitsOf("JAVA_PROGRAMMING")).thenReturn(List.of("U1", "U2"));
+		when(bankRecords.topicMatches("JAVA_PROGRAMMING", "U1", "Loops")).thenReturn(1);
+		when(bankRecords.topicMatches("JAVA_PROGRAMMING", "U2", "Loops")).thenReturn(1);
 		when(bankRecords.records("JAVA_PROGRAMMING", "U1")).thenReturn(List.of(Map.of("topic", "Loops")));
-		when(bankRecords.records("JAVA_PROGRAMMING", "U2")).thenReturn(List.of(Map.of("topic", "Loops")));
 		TeachNextService.Recommendation rec = service().recommendPractice("s1");
 		assertEquals("JAVA_PROGRAMMING", rec.getSubject());
 		assertEquals("U1", rec.getUnit());
@@ -259,16 +252,15 @@ class TeachNextTest {
 		subjects.add("PYTHON");
 		subjects.add("C");
 		when(bankRecords.subjects()).thenReturn(subjects);
-		when(bankRecords.records("JAVA_PROGRAMMING", null))
-				.thenReturn(List.of(Map.of("unit", "U1", "topic", "Loops"), Map.of("unit", "U2", "topic", "Loops")));
+		when(bankRecords.unitsOf("JAVA_PROGRAMMING")).thenReturn(List.of("U1", "U2"));
+		when(bankRecords.unitsOf("PYTHON")).thenReturn(List.of("P1"));
+		when(bankRecords.unitsOf("C")).thenReturn(List.of("C1"));
+		when(bankRecords.topicMatches("JAVA_PROGRAMMING", "U1", "Loops")).thenReturn(2);
+		when(bankRecords.topicMatches("JAVA_PROGRAMMING", "U2", "Loops")).thenReturn(2);
+		when(bankRecords.topicMatches("PYTHON", "P1", "Loops")).thenReturn(1);
+		when(bankRecords.topicMatches("C", "C1", "Loops")).thenReturn(2);
 		when(bankRecords.records("JAVA_PROGRAMMING", "U1"))
 				.thenReturn(List.of(Map.of("topic", "Loops"), Map.of("topic", "Loops")));
-		when(bankRecords.records("JAVA_PROGRAMMING", "U2"))
-				.thenReturn(List.of(Map.of("topic", "Loops"), Map.of("topic", "Loops")));
-		when(bankRecords.records("PYTHON", null)).thenReturn(List.of(Map.of("unit", "P1", "topic", "Loops")));
-		when(bankRecords.records("PYTHON", "P1")).thenReturn(List.of(Map.of("topic", "Loops")));
-		when(bankRecords.records("C", null)).thenReturn(List.of(Map.of("unit", "C1", "topic", "Loops")));
-		when(bankRecords.records("C", "C1")).thenReturn(List.of(Map.of("topic", "Loops"), Map.of("topic", "Loops")));
 		TeachNextService.Recommendation rec = service().recommendPractice("s1");
 		assertEquals("JAVA_PROGRAMMING", rec.getSubject());
 	}
@@ -282,13 +274,32 @@ class TeachNextTest {
 		subjects.add("A");
 		subjects.add("B");
 		when(bankRecords.subjects()).thenReturn(subjects);
-		when(bankRecords.records("A", null)).thenReturn(List.of(Map.of("unit", "U", "topic", "X")));
-		when(bankRecords.records("A", "U")).thenReturn(List.of(Map.of("topic", "X")));
-		when(bankRecords.records("B", null)).thenReturn(List.of(Map.of("unit", "U", "topic", "Y")));
-		when(bankRecords.records("B", "U")).thenReturn(List.of(Map.of("topic", "Y")));
+		when(bankRecords.unitsOf("A")).thenReturn(List.of("U"));
+		when(bankRecords.unitsOf("B")).thenReturn(List.of("U"));
 		TeachNextService.Recommendation rec = service().recommendPractice("s1");
 		assertEquals("", rec.getSubject());
 		assertEquals(0, rec.getCount());
+	}
+
+	@Test
+	void recommendationUsesIndexInsteadOfScanningEveryUnit() {
+		when(sessionRepository.findById("s1")).thenReturn(Optional.of(session()));
+		Question q1 = q("q1", "Loops", "{\"topic\":\"Loops\"}");
+		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1));
+		Set<String> subjects = new LinkedHashSet<String>();
+		for (int i = 0; i < 82; i++) {
+			subjects.add("S" + i);
+		}
+		when(bankRecords.subjects()).thenReturn(subjects);
+		for (int i = 0; i < 82; i++) {
+			when(bankRecords.unitsOf("S" + i)).thenReturn(List.of("U1", "U2", "U3"));
+		}
+		TeachNextService.Recommendation rec = service().recommendPractice("s1");
+		assertEquals(0, rec.getCount());
+		verify(bankRecords, times(82)).unitsOf(anyString());
+		verify(bankRecords, times(246)).topicMatches(anyString(), anyString(), eq("Loops"));
+		// No slice is loaded: scanning no longer triggers a bank re-parse per unit.
+		verify(bankRecords, never()).records(anyString(), any());
 	}
 
 	@Test
@@ -311,8 +322,9 @@ class TeachNextTest {
 		when(sessionRepository.findById("s1")).thenReturn(Optional.of(session()));
 		Question q1 = q("q1", "T", "{\"topic\":\"T\"}");
 		when(questionRepository.findByQuiz("qz")).thenReturn(List.of(q1));
-		when(submissionRepository.findBySession("s1")).thenReturn(List.of());
 		when(bankRecords.subjects()).thenReturn(Set.of("JAVA_PROGRAMMING"));
+		when(bankRecords.unitsOf("JAVA_PROGRAMMING")).thenReturn(List.of(""));
+		when(bankRecords.topicMatches("JAVA_PROGRAMMING", "", "T")).thenReturn(1);
 		when(bankRecords.records("JAVA_PROGRAMMING", null))
 				.thenReturn(List.of(Map.of("subject", "JAVA_PROGRAMMING", "unit", "", "topic", "T")));
 		TeachNextService.Recommendation rec = service().recommendPractice("s1");

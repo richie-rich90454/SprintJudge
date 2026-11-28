@@ -1,6 +1,5 @@
 package com.sprintjudge.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.sprintjudge.bank.BankRecordSource;
 import com.sprintjudge.bank.BankStore;
 import com.sprintjudge.domain.analytics.AdaptiveSetRequest;
@@ -303,19 +302,8 @@ public class AnalyticsService {
 		Map<String, String[]> meta = new HashMap<>();
 		for (org.jooq.Record record : dsl.select(Tables.QUESTIONS_ID, Tables.QUESTIONS_CONFIG).from(Tables.QUESTIONS)
 				.fetch()) {
-			String topic = "";
-			String unit = "";
-			String config = record.get(Tables.QUESTIONS_CONFIG);
-			if (config != null && !config.isBlank()) {
-				try {
-					JsonNode node = Json.readTree(config);
-					topic = node.path("topic").asText("");
-					unit = node.path("unit").asText("");
-				} catch (RuntimeException ignored) {
-					// A question with an unreadable config simply has no bank match.
-				}
-			}
-			meta.put(record.get(Tables.QUESTIONS_ID), new String[]{topic, unit});
+			String[] parsed = BankRecordSource.configMeta(record.get(Tables.QUESTIONS_CONFIG));
+			meta.put(record.get(Tables.QUESTIONS_ID), new String[]{parsed[0], parsed[1]});
 		}
 		return meta;
 	}
