@@ -272,6 +272,11 @@ test.describe("exploratory admin journey", () => {
             await page.locator("#assignment-description").fill("round-trip verification");
             await page.getByRole("button", { name: "Create assignment" }).click();
 
+            // The POST is async: the row only appears after create succeeds and
+            // the list refetch lands. Wait for it before reading the API.
+            const titleButton = page.getByRole("button", { name: assignmentTitle });
+            await expect(titleButton).toBeVisible();
+
             const assignments = ok(
                 await call(page, "/api/admin/assignments"),
                 "assignments list",
@@ -279,8 +284,7 @@ test.describe("exploratory admin journey", () => {
             const assignment = assignments.find((a) => a.title === assignmentTitle);
             expect(assignment).toBeTruthy();
             assignmentId = assignment!.id;
-            await expect(page.getByRole("button", { name: assignmentTitle })).toBeVisible();
-            await page.getByRole("button", { name: assignmentTitle }).click();
+            await titleButton.click();
 
             const roster = `student_id,name,email\n${studentId},E2E Student,e2e@example.test`;
             await page.locator('textarea[aria-label="Roster CSV"]').fill(roster);
