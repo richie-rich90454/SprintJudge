@@ -161,7 +161,9 @@ test.describe("explore judge (real native executor)", () => {
             "public class Main { public static void main(String[] a) { System.out.println(7); } }";
         const questions = [
             oj(pyId, "Judge: print forty-two", "print(42)"),
-            oj(javaId, "Judge: switched to Java", "print(42)"),
+            // Wrong-output Java starter on a Python-default question: switching
+            // the editor's language select is what makes the submission run.
+            oj(javaId, "Judge: switched to Java", javaWrong),
             oj(loopId, "Judge: console stress", "while True: pass"),
         ];
 
@@ -171,22 +173,17 @@ test.describe("explore judge (real native executor)", () => {
         const host = await context.newPage();
         const student = await context.newPage();
         try {
-            // The OJ renderer restores sprintjudge_code_<id> at mount, so this
-            // seeds the editor without driving Monaco from the test.
-            await student.addInitScript(
-                (drafts: Record<string, string>) => {
-                    for (const [id, code] of Object.entries(drafts)) {
-                        localStorage.setItem(`sprintjudge_code_${id}`, code);
-                    }
-                },
-                { [pyId]: "print(42)", [javaId]: javaWrong, [loopId]: "while True: pass" },
-            );
-
+            // Pre-seeded sprintjudge_code_<id> drafts would be wiped by join()
+            // (clearStaleDrafts), so the questions' starters are the source of
+            // truth for the editor here.
             await host.goto(`${BACKEND}/host?pin=${pin}`);
             await expect(host.getByRole("button", { name: "Start round" })).toBeVisible({
                 timeout: 15_000,
             });
-            await student.goto(`/j/${pin}`);
+            // Backend-served SPA, same origin as the host and the console API:
+            // the Vite proxy would forward Origin: localhost:5173 and the
+            // console's POST /api/public/run would be rejected as cross-origin.
+            await student.goto(`${BACKEND}/j/${pin}`);
             await student.getByLabel("Your name").fill("Ada");
             await student.getByRole("button", { name: "Join game" }).click();
             await host.getByRole("button", { name: "Start round" }).click();
@@ -208,8 +205,8 @@ test.describe("explore judge (real native executor)", () => {
                 timeout: 10_000,
             });
 
-            // Switch to Java on a Python-default question. The seeded Java code
-            // prints 7, so wrong output fails both visible case results.
+            // Switch to Java on a Python-default question. The Java starter prints
+            // 7, so wrong output fails both visible case results.
             await student.locator(".renderer-host select").selectOption("java");
             await student.getByRole("button", { name: "Compile and submit" }).click();
             await expect(student.locator(".feedback-banner")).toContainText("0/2 tests passed", {

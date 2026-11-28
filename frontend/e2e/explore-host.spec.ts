@@ -152,8 +152,11 @@ test("host controls drive a room end to end", async ({ page: admin, context }) =
             await expect(host.getByText("2 students", { exact: true }).first()).toBeVisible({
                 timeout: 10000,
             });
-            await expect(host.getByRole("button", { name: `Kick ${ADA}` })).toBeVisible();
-            await expect(host.getByRole("button", { name: `Kick ${GRACE}` })).toBeVisible();
+            // A join pushes LEADERBOARD_DELTA, not ROOM_STATE. The roster controls
+            // below only refresh on the next ROOM_STATE (round start), so verify
+            // both live seats here through the leaderboard rows the server does push.
+            await expect(host.locator(".lb-row").filter({ hasText: ADA })).toBeVisible();
+            await expect(host.locator(".lb-row").filter({ hasText: GRACE })).toBeVisible();
             // Both seats are live: each student is on the play screen, not an error page.
             await expect(ada.getByText("No game", { exact: true })).toHaveCount(0);
             await expect(grace.getByText("No game", { exact: true })).toHaveCount(0);
@@ -161,6 +164,10 @@ test("host controls drive a room end to end", async ({ page: admin, context }) =
 
         await test.step("extend timer: both students see the extra time and cannot answer after the extended deadline", async () => {
             await host.getByRole("button", { name: "Start round" }).click();
+            // Starting the round broadcasts ROOM_STATE, which is what refreshes
+            // the host's Kick controls with the already-connected students.
+            await expect(host.getByRole("button", { name: `Kick ${ADA}` })).toBeVisible();
+            await expect(host.getByRole("button", { name: `Kick ${GRACE}` })).toBeVisible();
             await expect(ada!.getByRole("heading", { name: q1Title })).toBeVisible({
                 timeout: 15000,
             });
