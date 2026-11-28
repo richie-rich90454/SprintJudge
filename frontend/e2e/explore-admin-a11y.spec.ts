@@ -354,8 +354,12 @@ test.describe("exploratory admin accessibility", () => {
             if ((await tables.count()) === 0) {
                 // A fresh CI database has no submissions yet, so the reports
                 // correctly render their empty states instead of tables.
-                expect.soft(await students.getByText("No submissions yet").count()).toBe(1);
-                expect.soft(await items.getByText("No item data yet").count()).toBe(1);
+                await expect(students.getByText("No submissions yet")).toBeVisible({
+                    timeout: 10_000,
+                });
+                await expect(items.getByText("No item data yet")).toBeVisible({
+                    timeout: 10_000,
+                });
             } else {
                 for (let i = 0; i < (await tables.count()); i += 1) {
                     expect
