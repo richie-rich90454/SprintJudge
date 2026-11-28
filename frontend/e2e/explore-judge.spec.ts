@@ -29,6 +29,15 @@ interface SubmitFrame {
     response?: { source?: string; language?: string };
 }
 
+interface SubmissionResultFrame {
+    type: string;
+    questionId: string;
+    passed?: number;
+    totalTests?: number;
+    allPassed?: boolean;
+    score?: number;
+}
+
 async function runCode(
     request: APIRequestContext,
     language: string,
@@ -180,12 +189,14 @@ test.describe("explore judge (real native executor)", () => {
         // Watch the real frames: the feedback banner only reports the judge's
         // verdict, so a lost source or language is otherwise invisible here.
         const submits: SubmitFrame[] = [];
+        const results: SubmissionResultFrame[] = [];
         student.on("websocket", (ws) => {
             ws.on("framereceived", (frame) => {
                 if (typeof frame.payload !== "string") return;
                 try {
-                    const msg = JSON.parse(frame.payload) as SubmitFrame;
+                    const msg = JSON.parse(frame.payload) as SubmitFrame & SubmissionResultFrame;
                     if (msg.type === "SUBMIT") submits.push(msg);
+                    if (msg.type === "SUBMISSION_RESULT") results.push(msg);
                 } catch {
                     /* binary/control frames are not JSON */
                 }
@@ -262,9 +273,15 @@ test.describe("explore judge (real native executor)", () => {
             expect(javaSubmits.length, "one SUBMIT for the Java question").toBe(1);
             expect(javaSubmits[0].language, "SUBMIT language").toBe("java");
             expect(javaSubmits[0].response?.source, "SUBMIT source").toBe(javaCorrect);
-            await expect(student.locator(".feedback-banner")).toContainText("2/2 tests passed", {
-                timeout: 25_000,
-            });
+            await expect
+                .poll(() => results.find((r) => r.questionId === javaId)?.passed, {
+                    timeout: 25_000,
+                })
+                .toBe(2);
+            const javaResult = results.find((r) => r.questionId === javaId)!;
+            expect(javaResult.totalTests, "judge test count").toBe(2);
+            expect(javaResult.allPassed, "judge verdict").toBe(true);
+            await expect(student.locator(".feedback-banner")).toContainText("2/2 tests passed");
 
             await host.getByRole("button", { name: "Reveal answer" }).click();
             await expect(student.getByText("Round complete")).toBeVisible({ timeout: 10_000 });

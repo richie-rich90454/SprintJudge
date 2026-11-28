@@ -300,6 +300,17 @@ class NativeExecutorTest {
 	}
 
 	@Test
+	void judgeJavaTwoSeededCases(@TempDir Path tmp) throws IOException {
+		assumeTrue(toolAvailable("javac", "-version"));
+		assumeTrue(toolAvailable("java", "-version"));
+		NativeExecutor ex = executor(tmp, tmp, 20);
+		String src = "public class Main { public static void main(String[] a) { System.out.println(42); } }";
+		JudgeResult r = ex.judge(judgeReq("java", src, List.of(tc("", "42"), tc("ignored\n", "42")), 30));
+		assertEquals(2, r.getPassed());
+		assertTrue(r.isAllPassed());
+	}
+
+	@Test
 	void judgeCompileErrorWithZeroCases(@TempDir Path tmp) throws IOException {
 		assumeTrue(toolAvailable("javac", "-version"));
 		NativeExecutor ex = executor(tmp, tmp, 20);
