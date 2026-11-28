@@ -308,7 +308,7 @@ test.describe("exploratory admin journey", () => {
 
             // The public launch surface is a metadata URL (no student HTML page
             // exists yet). Verify it from an anonymous browser context.
-            const link = `${B}/api/public/assignments/${assignmentId}`;
+            const link = `${B}/api/public/assignments/${assignmentId}?studentId=${encodeURIComponent(studentId)}`;
             const studentCtx = await browser.newContext({ serviceWorkers: "block" });
             try {
                 const response = await studentCtx.request.get(link);

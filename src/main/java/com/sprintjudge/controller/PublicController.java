@@ -36,6 +36,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Deliberately minimal public surface. Question payloads (which embed answer
@@ -57,12 +59,23 @@ public class PublicController {
 	private final QuestionRepository questionRepository;
 
 	/** Fixed-window per-IP rate limit for the live runner (abuse guard). */
-	private final ConcurrentHashMap<String, long[]> runWindow = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, RateSlot> runWindow = new ConcurrentHashMap<>();
 	private static final int RUN_LIMIT_PER_MIN = 30;
-	private final ConcurrentHashMap<String, long[]> practiceWindow = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, RateSlot> practiceWindow = new ConcurrentHashMap<>();
 	private static final int PRACTICE_LIMIT_PER_MIN = 10;
 	private static final long WINDOW_MS = 60_000;
 	private static final long STALE_MS = 120_000;
+
+	/** Per-key atomic counters: concurrent requests cannot lose a count. */
+	static final class RateSlot {
+		final AtomicLong last;
+		final AtomicInteger count;
+
+		RateSlot(long last, int count) {
+			this.last = new AtomicLong(last);
+			this.count = new AtomicInteger(count);
+		}
+	}
 
 	@org.springframework.beans.factory.annotation.Value("${sprintjudge.executor.mode:native}")
 	private String executorMode = "native";
@@ -98,22 +111,21 @@ public class PublicController {
 	}
 
 	/** Shared fixed-window limiter; true when the caller is over budget. */
-	private static boolean overLimit(ConcurrentHashMap<String, long[]> window, String ip, int limit) {
+	private static boolean overLimit(ConcurrentHashMap<String, RateSlot> window, String ip, int limit) {
 		long now = System.currentTimeMillis();
-		long[] slot = window.compute(ip, new java.util.function.BiFunction<String, long[], long[]>() {
+		RateSlot slot = window.compute(ip, new java.util.function.BiFunction<String, RateSlot, RateSlot>() {
 			@Override
-			public long[] apply(String k, long[] v) {
+			public RateSlot apply(String k, RateSlot v) {
 				// Age from the LAST request, not the first: idling must not hand
 				// the caller a fresh budget.
-				if (v == null || now - v[0] > WINDOW_MS) {
-					return new long[]{now, 1};
-				}
-				v[0] = now;
-				v[1]++;
+				if (v == null || now - v.last.get() > WINDOW_MS)
+					return new RateSlot(now, 1);
+				v.last.set(now);
+				v.count.incrementAndGet();
 				return v;
 			}
 		});
-		return slot[1] > limit;
+		return slot.count.get() > limit;
 	}
 
 	/**
@@ -131,7 +143,8 @@ public class PublicController {
 	 * anonymously - without a live PIN there is nothing to see.
 	 */
 	@GetMapping("/quizzes")
-	public List<Quiz> listQuizzes(@RequestParam(value = "pin", required = false) String pin, HttpServletRequest http) {
+	public List<BankDto> listQuizzes(@RequestParam(value = "pin", required = false) String pin,
+			HttpServletRequest http) {
 		if (pin == null || pin.isBlank())
 			return List.of();
 		// Same per-IP budget as /practice: without it this endpoint is a free
@@ -148,7 +161,9 @@ public class PublicController {
 		java.util.Optional<Quiz> quizOpt = quizRepository.findById(s.getQuizId());
 		if (!quizOpt.isPresent())
 			return List.of();
-		return List.of(quizOpt.get());
+		Quiz q = quizOpt.get();
+		// Header only: createdBy/template/config never reach an anonymous caller.
+		return List.of(new BankDto(q.getId(), q.getTitle(), q.getDescription()));
 	}
 
 	/**
@@ -374,16 +389,16 @@ public class PublicController {
 	@Scheduled(fixedRate = 60_000)
 	public void evictStaleRateLimits() {
 		long now = System.currentTimeMillis();
-		Iterator<Map.Entry<String, long[]>> runIt = runWindow.entrySet().iterator();
+		Iterator<Map.Entry<String, RateSlot>> runIt = runWindow.entrySet().iterator();
 		while (runIt.hasNext()) {
-			Map.Entry<String, long[]> e = runIt.next();
-			if (now - e.getValue()[0] > STALE_MS)
+			Map.Entry<String, RateSlot> e = runIt.next();
+			if (now - e.getValue().last.get() > STALE_MS)
 				runIt.remove();
 		}
-		Iterator<Map.Entry<String, long[]>> practiceIt = practiceWindow.entrySet().iterator();
+		Iterator<Map.Entry<String, RateSlot>> practiceIt = practiceWindow.entrySet().iterator();
 		while (practiceIt.hasNext()) {
-			Map.Entry<String, long[]> e = practiceIt.next();
-			if (now - e.getValue()[0] > STALE_MS)
+			Map.Entry<String, RateSlot> e = practiceIt.next();
+			if (now - e.getValue().last.get() > STALE_MS)
 				practiceIt.remove();
 		}
 	}

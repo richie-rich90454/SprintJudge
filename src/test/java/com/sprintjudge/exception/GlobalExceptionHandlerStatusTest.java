@@ -48,4 +48,14 @@ class GlobalExceptionHandlerStatusTest {
 		assertEquals(400, resp.getStatusCode().value());
 		assertNotNull(resp.getBody().getMessage());
 	}
+
+	@Test
+	void rawExceptionTextIsNeverEchoed() {
+		ResponseStatusException ex = new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"SELECT * FROM quiz WHERE title='secret'");
+		org.springframework.http.ResponseEntity<com.sprintjudge.domain.dto.ErrorMessage> resp = handler
+				.handleStatus(ex);
+		assertEquals(400, resp.getStatusCode().value());
+		assertEquals("Request rejected", resp.getBody().getMessage());
+	}
 }

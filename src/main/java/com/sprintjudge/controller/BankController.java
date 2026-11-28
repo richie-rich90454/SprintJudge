@@ -128,7 +128,9 @@ public class BankController {
 		try {
 			return builder.build(request);
 		} catch (IllegalArgumentException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+			// Builder details may contain ids/SQL; log server-side, echo a fixed code.
+			org.slf4j.LoggerFactory.getLogger(BankController.class).warn("Quiz build rejected", e);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid-build-request", e);
 		}
 	}
 

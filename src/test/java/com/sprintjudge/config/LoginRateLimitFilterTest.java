@@ -89,15 +89,32 @@ class LoginRateLimitFilterTest {
 	}
 
 	@Test
-	void overflowKeepsAllFreshBuckets() throws Exception {
+	void overflowHardCapsFreshBuckets() throws Exception {
 		LoginRateLimitFilter f = new LoginRateLimitFilter();
 		long now = System.currentTimeMillis();
 		for (int i = 0; i < 10_001; i++)
-			f.windows.put("11.0.0." + i, new long[]{now, 1});
+			f.windows.put("11.0.0." + i, new long[]{now - i, 1});
 		FilterChain chain = mock(FilterChain.class);
 		f.doFilterInternal(login("11.9.9.9"), new MockHttpServletResponse(), chain);
-		assertEquals(10_002, f.windows.size());
+		assertTrue(f.windows.size() <= 10_000, "map must stay bounded: " + f.windows.size());
+		assertFalse(f.windows.containsKey("11.0.0.10000"), "oldest fresh bucket must be evicted");
+		assertTrue(f.windows.containsKey("11.9.9.9"));
 		verify(chain).doFilter(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+	}
+
+	@Test
+	void hardEvictionDoesNotResetActiveAttackerThrottle() throws Exception {
+		LoginRateLimitFilter f = new LoginRateLimitFilter();
+		long now = System.currentTimeMillis();
+		for (int i = 0; i < 10_000; i++)
+			f.windows.put("12.0.0." + i, new long[]{now - 1_000 - i, 1});
+		f.windows.put("5.5.5.5", new long[]{now, LoginRateLimitFilter.MAX_ATTEMPTS_PER_MIN});
+		FilterChain chain = mock(FilterChain.class);
+		MockHttpServletResponse throttled = new MockHttpServletResponse();
+		f.doFilterInternal(login("5.5.5.5"), throttled, chain);
+		assertEquals(429, throttled.getStatus());
+		assertEquals(0, org.mockito.Mockito.mockingDetails(chain).getInvocations().size());
+		assertTrue(f.windows.containsKey("5.5.5.5"));
 	}
 
 	@Test

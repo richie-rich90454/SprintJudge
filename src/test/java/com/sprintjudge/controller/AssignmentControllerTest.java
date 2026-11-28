@@ -77,6 +77,26 @@ class AssignmentControllerTest {
 	}
 
 	@Test
+	void publicGetRequiresRosterStudentIdentity() {
+		Assignment a = new Assignment("a1", "secret-quiz", "Title", "Desc", 100L, 200L, "owner@x.y", 1L, "lti-1");
+		when(service.require("a1")).thenReturn(a);
+		// Anonymous callers cannot read an arbitrary assignment id.
+		ResponseStatusException anonymous = assertThrows(ResponseStatusException.class,
+				() -> controller.publicGet("a1", "s1"));
+		assertEquals(403, anonymous.getStatusCode().value());
+
+		// An admin still needs the student to be on the roster.
+		SecurityContextHolder.getContext()
+				.setAuthentication(new UsernamePasswordAuthenticationToken(
+						User.withUsername("admin@x.y").password("p").roles("ADMIN").build(), "p",
+						List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN"))));
+		when(service.roster("a1")).thenReturn(List.of(new RosterStudent("r", "a1", "s1", "S", null)));
+		assertEquals("Title", controller.publicGet("a1", "s1").getTitle());
+		assertEquals(403, assertThrows(ResponseStatusException.class, () -> controller.publicGet("a1", "other"))
+				.getStatusCode().value());
+	}
+
+	@Test
 	void publicAssignmentValueMethods() {
 		AssignmentController.PublicAssignment dto = new AssignmentController.PublicAssignment();
 		dto.setId("x");

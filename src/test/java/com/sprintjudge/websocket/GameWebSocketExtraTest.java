@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -100,7 +101,8 @@ class GameWebSocketExtraTest {
 		props.put("playerUuid", "uuid-9");
 		when(roomManager.joinTeam("123456", "t1", "uuid-9")).thenThrow(new IllegalArgumentException("no such team"));
 		ws().onMessage(session, "{\"type\":\"JOIN_TEAM\",\"teamId\":\"t1\"}");
-		assertTrue(lastMessage().contains("no such team"));
+		assertTrue(lastMessage().contains("TEAM_ACTION_FAILED"));
+		assertFalse(lastMessage().contains("no such team"));
 	}
 
 	@Test
@@ -109,7 +111,8 @@ class GameWebSocketExtraTest {
 		props.put("playerUuid", "uuid-9");
 		when(roomManager.joinTeam("123456", "t1", "uuid-9")).thenThrow(new IllegalStateException("battle started"));
 		ws().onMessage(session, "{\"type\":\"JOIN_TEAM\",\"teamId\":\"t1\"}");
-		assertTrue(lastMessage().contains("battle started"));
+		assertTrue(lastMessage().contains("TEAM_ACTION_FAILED"));
+		assertFalse(lastMessage().contains("battle started"));
 	}
 
 	@Test
@@ -118,7 +121,8 @@ class GameWebSocketExtraTest {
 		doThrow(new IllegalArgumentException("round closed")).when(roomManager).submit(eq("123456"), eq("q1"),
 				eq("uuid-9"), eq("python"), any());
 		ws().onMessage(session, "{\"type\":\"SUBMIT\",\"questionId\":\"q1\",\"language\":\"python\",\"response\":{}}");
-		assertTrue(lastMessage().contains("round closed"));
+		assertTrue(lastMessage().contains("SUBMIT_FAILED"));
+		assertFalse(lastMessage().contains("round closed"));
 	}
 
 	@Test

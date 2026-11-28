@@ -84,8 +84,19 @@ public class AssignmentController {
 	}
 
 	@GetMapping("/api/public/assignments/{id}")
-	public PublicAssignment publicGet(@PathVariable String id) {
-		Assignment assignment = assignments.require(id);
+	public PublicAssignment publicGet(@PathVariable String id, @RequestParam(required = false) String studentId) {
+		// Same gate as start/progress: an arbitrary id is not enough to read
+		// assignment metadata anonymously.
+		requireRosterStudent(id, studentId);
+		return toPublic(assignments.require(id));
+	}
+
+	// Non-HTTP callers keep the original delegation semantics.
+	PublicAssignment publicGet(String id) {
+		return toPublic(assignments.require(id));
+	}
+
+	private static PublicAssignment toPublic(Assignment assignment) {
 		return new PublicAssignment(assignment.getId(), assignment.getTitle(), assignment.getDescription());
 	}
 

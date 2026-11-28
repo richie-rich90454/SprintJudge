@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -173,7 +174,7 @@ class GameWebSocketSecurityTest {
 		doThrow(new IllegalArgumentException("Invalid PIN")).when(roomManager).join(eq("000000"), anyString(),
 				anyString(), eq("player"), any());
 		ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"000000\",\"name\":\"A\"}");
-		assertTrue(lastMessage().contains("Invalid PIN"));
+		assertTrue(lastMessage().contains("JOIN_FAILED"));
 		verify(rateLimiter).recordFailure("unresolved");
 	}
 
@@ -419,7 +420,8 @@ class GameWebSocketSecurityTest {
 		doThrow(new IllegalStateException("room closed")).when(roomManager).join(eq("123456"), anyString(), anyString(),
 				eq("player"), any());
 		ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Al\"}");
-		assertTrue(lastMessage().contains("room closed"));
+		assertTrue(lastMessage().contains("JOIN_FAILED"));
+		assertFalse(lastMessage().contains("room closed"));
 		verify(rateLimiter).recordFailure("unresolved");
 	}
 
@@ -643,5 +645,17 @@ class GameWebSocketSecurityTest {
 								new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN"))));
 		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
 		verify(roomManager).nextQuestion("123456");
+	}
+
+	@Test
+	void joinFailureNeverEchoesManagerExceptionText() {
+		when(rateLimiter.tryJoin(anyString())).thenReturn(true);
+		doThrow(new IllegalArgumentException("SELECT * from users where id=secret-42")).when(roomManager)
+				.join(eq("123456"), anyString(), anyString(), eq("player"), any());
+		ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"A\"}");
+		String msg = lastMessage();
+		assertTrue(msg.contains("JOIN_FAILED"), msg);
+		assertFalse(msg.contains("secret-42"), msg);
+		assertFalse(msg.contains("SELECT"), msg);
 	}
 }

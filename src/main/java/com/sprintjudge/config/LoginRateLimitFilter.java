@@ -39,8 +39,9 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
-		// Evict only expired buckets: clearing all would let an attacker with a
-		// spray of spoofed source addresses reset the admin throttle.
+		// Evict expired buckets first, then hard-cap by dropping the oldest.
+		// Clearing all would let an attacker spray IPs and reset the throttle;
+		// removing only the oldest keeps active attackers (freshest) tracked.
 		if (windows.size() > MAX_TRACKED_IPS) {
 			long nowEvict = System.currentTimeMillis();
 			Iterator<Map.Entry<String, long[]>> it = windows.entrySet().iterator();
@@ -48,6 +49,18 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
 				Map.Entry<String, long[]> entry = it.next();
 				if (nowEvict - entry.getValue()[0] > WINDOW_MS)
 					it.remove();
+			}
+			while (windows.size() >= MAX_TRACKED_IPS) {
+				String oldest = null;
+				long oldestStart = Long.MAX_VALUE;
+				for (Map.Entry<String, long[]> entry : windows.entrySet()) {
+					long start = entry.getValue()[0];
+					if (start < oldestStart) {
+						oldestStart = start;
+						oldest = entry.getKey();
+					}
+				}
+				windows.remove(oldest);
 			}
 		}
 		String ip = com.sprintjudge.util.ClientIpResolver.resolve(request.getRemoteAddr(),

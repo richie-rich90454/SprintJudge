@@ -123,4 +123,26 @@ class JoinRateLimiterTest {
 		// expired entry was swept out, so a fresh window is created -> allowed again
 		assertTrue(limiter.tryJoin("old-ip"));
 	}
+
+	@Test
+	void hardCapEvictsOldestFreshWindowsWithoutResettingActiveAttacker() {
+		JoinRateLimiter limiter = limiter();
+		long base = now.get();
+		for (int i = 0; i < 10_000; i++) {
+			now.set(base + i);
+			limiter.tryJoin("fresh-" + i);
+		}
+		// Newest window: an attacker at the cap must stay blocked after eviction.
+		now.set(base + 10_000);
+		for (int i = 0; i < 10; i++) {
+			assertTrue(limiter.tryJoin("attacker"));
+			limiter.recordFailure("attacker");
+		}
+		assertTrue(limiter.windows.size() <= 10_000);
+		now.set(base + 10_001);
+		limiter.tryJoin("new-ip");
+		assertTrue(limiter.windows.size() <= 10_000, "map must stay bounded: " + limiter.windows.size());
+		assertFalse(limiter.windows.containsKey("fresh-0"), "oldest fresh window must be evicted");
+		assertFalse(limiter.tryJoin("attacker"), "active attacker must remain throttled after hard eviction");
+	}
 }

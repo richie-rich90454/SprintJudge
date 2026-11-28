@@ -49,17 +49,17 @@ class PublicControllerRunTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, long[]> runWindowMap() throws Exception {
+	private Map<String, PublicController.RateSlot> runWindowMap() throws Exception {
 		Field f = PublicController.class.getDeclaredField("runWindow");
 		f.setAccessible(true);
-		return (Map<String, long[]>) f.get(controller);
+		return (Map<String, PublicController.RateSlot>) f.get(controller);
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, long[]> practiceWindowMap() throws Exception {
+	private Map<String, PublicController.RateSlot> practiceWindowMap() throws Exception {
 		Field f = PublicController.class.getDeclaredField("practiceWindow");
 		f.setAccessible(true);
-		return (Map<String, long[]>) f.get(controller);
+		return (Map<String, PublicController.RateSlot>) f.get(controller);
 	}
 
 	private RunRequest req(String lang, String src) {
@@ -117,7 +117,7 @@ class PublicControllerRunTest {
 				});
 
 		// Inject a window timestamp 61 seconds in the past to simulate expiry.
-		runWindowMap().get("10.0.0.2")[0] = System.currentTimeMillis() - 61_000;
+		runWindowMap().get("10.0.0.2").last.set(System.currentTimeMillis() - 61_000);
 
 		RunResult afterReset = controller.run(req("python", "x"), http);
 		assertTrue(afterReset.isOk());
@@ -129,26 +129,26 @@ class PublicControllerRunTest {
 		when(http.getRemoteAddr()).thenReturn("10.0.0.3");
 		when(executor.run(any())).thenReturn(new RunResult(true, "ok", "", "ok"));
 		controller.run(req("python", "x"), http);
-		long[] slot = runWindowMap().get("10.0.0.3");
-		long first = slot[0];
+		PublicController.RateSlot slot = runWindowMap().get("10.0.0.3");
+		long first = slot.last.get();
 		// Simulate 30s of idling after the first request.
-		slot[0] = first - 30_000;
+		slot.last.set(first - 30_000);
 		controller.run(req("python", "x"), http);
-		assertEquals(2, slot[1]);
-		assertTrue(System.currentTimeMillis() - slot[0] < 5_000);
+		assertEquals(2, slot.count.get());
+		assertTrue(System.currentTimeMillis() - slot.last.get() < 5_000);
 	}
 
 	@Test
 	void evictStaleRateLimitsRemovesStaleKeepsFresh() throws Exception {
-		Map<String, long[]> windows = runWindowMap();
+		Map<String, PublicController.RateSlot> windows = runWindowMap();
 		windows.clear();
-		Map<String, long[]> practice = practiceWindowMap();
+		Map<String, PublicController.RateSlot> practice = practiceWindowMap();
 		practice.clear();
 		long now = System.currentTimeMillis();
-		windows.put("stale-ip", new long[]{now - 130_000, 5});
-		windows.put("fresh-ip", new long[]{now, 3});
-		practice.put("stale-pr", new long[]{now - 130_000, 2});
-		practice.put("fresh-pr", new long[]{now, 1});
+		windows.put("stale-ip", new PublicController.RateSlot(now - 130_000, 5));
+		windows.put("fresh-ip", new PublicController.RateSlot(now, 3));
+		practice.put("stale-pr", new PublicController.RateSlot(now - 130_000, 2));
+		practice.put("fresh-pr", new PublicController.RateSlot(now, 1));
 
 		controller.evictStaleRateLimits();
 
@@ -160,9 +160,9 @@ class PublicControllerRunTest {
 
 	@Test
 	void evictStaleRateLimitsKeepsBoundaryEntry() throws Exception {
-		Map<String, long[]> windows = runWindowMap();
+		Map<String, PublicController.RateSlot> windows = runWindowMap();
 		windows.clear();
-		windows.put("edge-ip", new long[]{System.currentTimeMillis(), 1});
+		windows.put("edge-ip", new PublicController.RateSlot(System.currentTimeMillis(), 1));
 
 		controller.evictStaleRateLimits();
 
@@ -353,7 +353,7 @@ class PublicControllerRunTest {
 
 	@Test
 	void vrEachIpTrackedIndependently() throws Exception {
-		Map<String, long[]> windows = runWindowMap();
+		Map<String, PublicController.RateSlot> windows = runWindowMap();
 		windows.clear();
 		when(http.getRemoteAddr()).thenReturn("vr-8");
 		when(executor.run(any())).thenReturn(new RunResult(true, "ok", "", "ok"));
@@ -367,11 +367,11 @@ class PublicControllerRunTest {
 
 	@Test
 	void vrEvictKeepsMultipleFreshIps() throws Exception {
-		Map<String, long[]> windows = runWindowMap();
+		Map<String, PublicController.RateSlot> windows = runWindowMap();
 		windows.clear();
 		long now = System.currentTimeMillis();
-		windows.put("vr-a", new long[]{now, 1});
-		windows.put("vr-b", new long[]{now, 2});
+		windows.put("vr-a", new PublicController.RateSlot(now, 1));
+		windows.put("vr-b", new PublicController.RateSlot(now, 2));
 		controller.evictStaleRateLimits();
 		assertTrue(windows.containsKey("vr-a"));
 		assertTrue(windows.containsKey("vr-b"));

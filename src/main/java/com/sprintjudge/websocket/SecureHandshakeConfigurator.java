@@ -33,6 +33,7 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 	public static final String AUTHENTICATED = "oq.authenticated";
 	public static final String ADMIN = "oq.admin";
 	public static final String REMOTE_ADDR = "oq.remoteAddr";
+	public static final String HTTP_SESSION = "oq.httpSession";
 
 	private static volatile ApplicationContext context;
 
@@ -85,12 +86,18 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 		private boolean authed;
 		private boolean admin;
 		private long nanos;
+		private Object httpSession;
 
 		public Staged(String ip, boolean authed, boolean admin, long nanos) {
+			this(ip, authed, admin, nanos, null);
+		}
+
+		public Staged(String ip, boolean authed, boolean admin, long nanos, Object httpSession) {
 			this.ip = ip;
 			this.authed = authed;
 			this.admin = admin;
 			this.nanos = nanos;
+			this.httpSession = httpSession;
 		}
 
 		public String getIp() {
@@ -158,9 +165,12 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 				&& !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken);
 		boolean admin = authenticated
 				&& auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+		// Capture the HttpSession too: its Spring Security context is the live
+		// authority during the connection, unlike the handshake principal.
+		Object httpSession = httpSession(request);
 		// Admin travels with the per-handshake staged entry, never on the shared
 		// ServerEndpointConfig user-properties map (which is reused per endpoint).
-		staged.put(token, new Staged(remoteAddr, authenticated, admin, System.nanoTime()));
+		staged.put(token, new Staged(remoteAddr, authenticated, admin, System.nanoTime(), httpSession));
 		sec.getUserProperties().put(REMOTE_ADDR, token);
 	}
 
@@ -168,15 +178,21 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 		private String ip;
 		private boolean authed;
 		private boolean admin;
+		private Object httpSession;
 
 		@SuppressWarnings("all")
 		public StagedConnection() {
 		}
 
 		public StagedConnection(String ip, boolean authed, boolean admin) {
+			this(ip, authed, admin, null);
+		}
+
+		public StagedConnection(String ip, boolean authed, boolean admin, Object httpSession) {
 			this.ip = ip;
 			this.authed = authed;
 			this.admin = admin;
+			this.httpSession = httpSession;
 		}
 
 		public String getIp() {
@@ -198,6 +214,10 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 		public boolean isAdmin() {
 			return admin;
 		}
+
+		public Object getHttpSession() {
+			return httpSession;
+		}
 	}
 
 	/**
@@ -211,7 +231,8 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 		Staged s = staged.remove(token.toString());
 		if (s == null)
 			return new StagedConnection("unresolved", false, false);
-		return new StagedConnection(s.getIp() != null ? s.getIp() : "unresolved", s.isAuthed(), s.isAdmin());
+		return new StagedConnection(s.getIp() != null ? s.getIp() : "unresolved", s.isAuthed(), s.isAdmin(),
+				s.httpSession);
 	}
 
 	/**
@@ -232,17 +253,23 @@ public class SecureHandshakeConfigurator extends ServerEndpointConfig.Configurat
 					request.getUserPrincipal(), null, java.util.List
 							.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER")));
 		}
-		try {
-			Object httpSession = request.getHttpSession();
-			if (httpSession instanceof jakarta.servlet.http.HttpSession) {
-				Object ctx = ((jakarta.servlet.http.HttpSession) httpSession).getAttribute("SPRING_SECURITY_CONTEXT");
-				if (ctx instanceof org.springframework.security.core.context.SecurityContext) {
-					return ((org.springframework.security.core.context.SecurityContext) ctx).getAuthentication();
-				}
+		Object httpSession = httpSession(request);
+		if (httpSession instanceof jakarta.servlet.http.HttpSession) {
+			Object ctx = ((jakarta.servlet.http.HttpSession) httpSession).getAttribute("SPRING_SECURITY_CONTEXT");
+			if (ctx instanceof org.springframework.security.core.context.SecurityContext) {
+				return ((org.springframework.security.core.context.SecurityContext) ctx).getAuthentication();
 			}
-		} catch (Exception ignored) {
 		}
 		return null;
+	}
+
+	/** The servlet session carried by the upgrade request, when available. */
+	private Object httpSession(HandshakeRequest request) {
+		try {
+			return request.getHttpSession();
+		} catch (RuntimeException e) {
+			return null;
+		}
 	}
 
 	private static void evictStale() {
