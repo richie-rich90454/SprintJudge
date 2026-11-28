@@ -454,6 +454,13 @@ test.describe("exploratory admin journey", () => {
                 "quiz re-import",
             ) as { importedQuestions: number };
             expect(imported.importedQuestions).toBe(entry!.questions.length);
+            // The student step designated this quiz as the public practice set;
+            // restore that designation after the delete/re-import cycle so
+            // later specs that rely on a practice set still work.
+            ok(
+                await call(page, "/api/public/practice", "POST", { quizId }),
+                "restore practice set",
+            );
             const roundTripped = ok(
                 await call(page, `/api/admin/quizzes/${quizId}/questions`),
                 "re-imported questions",
