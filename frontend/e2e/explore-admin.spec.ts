@@ -306,20 +306,27 @@ test.describe("exploratory admin journey", () => {
             expect(row?.status).toBe("IN_PROGRESS");
             expect(row!.maxScore).toBeGreaterThan(0);
 
-            // The public launch surface is a metadata URL (no student HTML page
-            // exists yet). Verify it from an anonymous browser context.
-            const link = `${B}/api/public/assignments/${assignmentId}?studentId=${encodeURIComponent(studentId)}`;
+            // Public assignment metadata is identity-gated: a known student id
+            // alone must not let an anonymous caller read it. The authenticated
+            // admin may read metadata for any roster student.
+            const metaPath = `/api/public/assignments/${assignmentId}?studentId=${encodeURIComponent(studentId)}`;
             const studentCtx = await browser.newContext({ serviceWorkers: "block" });
             try {
-                const response = await studentCtx.request.get(link);
-                expect(response.ok()).toBeTruthy();
-                const meta = (await response.json()) as Record<string, unknown>;
+                const anonymous = await studentCtx.request.get(`${B}${metaPath}`);
+                expect(anonymous.status(), "anonymous public assignment read must be denied").toBe(
+                    403,
+                );
+                const meta = ok(await call(page, metaPath), "public assignment metadata") as Record<
+                    string,
+                    unknown
+                >;
                 expect(meta.title).toBe(assignmentTitle);
                 expect(JSON.stringify(meta)).not.toContain(quizId);
 
+                // No student HTML launch page exists yet, so the answer goes
+                // through the public practice game in the anonymous context.
                 const studentPage = await studentCtx.newPage();
-                await studentPage.goto(link);
-                await expect(studentPage.locator("body")).toContainText(assignmentTitle);
+                await studentPage.goto(`${B}/`);
 
                 // Real student answer submission: a practice room on the built
                 // MCQ quiz auto-starts Q1 on first join.
