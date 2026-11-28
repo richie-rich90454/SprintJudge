@@ -221,7 +221,10 @@ test.describe("explore profiles and settings", () => {
                 profile,
                 `/${profileA.profile.id}`,
                 "PATCH",
-                gameIdentity,
+                {
+                    playerUuid: gameIdentity.uuid,
+                    rejoinToken: gameIdentity.rejoinToken,
+                },
                 profileA.profile.linkToken,
             );
             expect(linked.status).toBe(200);
