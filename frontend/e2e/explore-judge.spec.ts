@@ -157,13 +157,11 @@ test.describe("explore judge (real native executor)", () => {
             timeLimitSec: 30,
             pointsBase: 100,
         });
-        const javaWrong =
-            "public class Main { public static void main(String[] a) { System.out.println(7); } }";
+        const javaCorrect =
+            "public class Main { public static void main(String[] a) { System.out.println(42); } }";
         const questions = [
             oj(pyId, "Judge: print forty-two", "print(42)"),
-            // Wrong-output Java starter on a Python-default question: switching
-            // the editor's language select is what makes the submission run.
-            oj(javaId, "Judge: switched to Java", javaWrong),
+            oj(javaId, "Judge: switched to Java", javaCorrect),
             oj(loopId, "Judge: console stress", "while True: pass"),
         ];
 
@@ -173,9 +171,6 @@ test.describe("explore judge (real native executor)", () => {
         const host = await context.newPage();
         const student = await context.newPage();
         try {
-            // Pre-seeded sprintjudge_code_<id> drafts would be wiped by join()
-            // (clearStaleDrafts), so the questions' starters are the source of
-            // truth for the editor here.
             await host.goto(`${BACKEND}/host?pin=${pin}`);
             await expect(host.getByRole("button", { name: "Start round" })).toBeVisible({
                 timeout: 15_000,
@@ -186,12 +181,31 @@ test.describe("explore judge (real native executor)", () => {
             await student.goto(`${BACKEND}/j/${pin}`);
             await student.getByLabel("Your name").fill("Ada");
             await student.getByRole("button", { name: "Join game" }).click();
+            await expect(student).toHaveURL(/\/play/, { timeout: 15_000 });
+            await expect(
+                student.getByText("Waiting for the host to start the next question."),
+            ).toBeVisible({ timeout: 15_000 });
+            // join() calls clearStaleDrafts(), so seed only after the JOINED ack.
+            // The renderer restores these at mount, ahead of the first submission.
+            await student.evaluate(
+                (drafts: Record<string, string>) => {
+                    for (const [id, code] of Object.entries(drafts)) {
+                        localStorage.setItem(`sprintjudge_code_${id}`, code);
+                    }
+                },
+                {
+                    [pyId]: "print(42)",
+                    [javaId]: javaCorrect,
+                    [loopId]: "while True: pass",
+                },
+            );
             await host.getByRole("button", { name: "Start round" }).click();
 
             // Correct Python: both hidden cases pass, visible in the banner.
             await expect(student.getByRole("heading", { name: questions[0].title })).toBeVisible({
                 timeout: 15_000,
             });
+            await expect(student.locator(".renderer-host select")).toHaveValue("python");
             await expect(student.getByRole("button", { name: "Compile and submit" })).toBeEnabled();
             await student.getByRole("button", { name: "Compile and submit" }).click();
             await expect(student.locator(".feedback-banner")).toContainText("2/2 tests passed", {
@@ -205,11 +219,11 @@ test.describe("explore judge (real native executor)", () => {
                 timeout: 10_000,
             });
 
-            // Switch to Java on a Python-default question. The Java starter prints
-            // 7, so wrong output fails both visible case results.
+            // Switch to Java on a Python-default question: the same correct
+            // program in a different language must still pass both cases.
             await student.locator(".renderer-host select").selectOption("java");
             await student.getByRole("button", { name: "Compile and submit" }).click();
-            await expect(student.locator(".feedback-banner")).toContainText("0/2 tests passed", {
+            await expect(student.locator(".feedback-banner")).toContainText("2/2 tests passed", {
                 timeout: 25_000,
             });
 

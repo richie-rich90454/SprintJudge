@@ -211,8 +211,10 @@ test("host controls drive a room end to end", async ({ page: admin, context }) =
                 .toBe(true);
             await expect(ada!.getByText(EXPLANATION)).toBeVisible();
 
-            expect(await scoreOf(host, ADA)).toBeGreaterThan(0);
-            expect(await scoreOf(host, GRACE)).toBe(0);
+            // STANDARD freezes the public board mid-round; deltas are flushed
+            // on the ACTIVE -> REVIEW transition, so poll for the published score.
+            await expect.poll(() => scoreOf(host, ADA), { timeout: 10000 }).toBeGreaterThan(0);
+            await expect.poll(() => scoreOf(host, GRACE), { timeout: 10000 }).toBe(0);
         });
 
         await test.step("skip a question: all clients advance together and the skipped round is not scored", async () => {
