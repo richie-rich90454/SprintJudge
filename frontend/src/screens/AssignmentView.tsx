@@ -50,7 +50,7 @@ export function AssignmentView() {
     const [grades, setGrades] = useState<Record<string, string>>({});
     const [studentId, setStudentId] = useState("");
 
-    const list = useQuery({ queryKey: ["assignments"], queryFn: assignmentApi.list });
+    const list = useQuery({ queryKey: ["assignments"], queryFn: () => assignmentApi.list() });
     const progress = useQuery({
         queryKey: ["assignment-progress", selectedId],
         queryFn: () => assignmentApi.progress(selectedId ?? ""),

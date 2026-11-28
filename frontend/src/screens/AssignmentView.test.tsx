@@ -450,6 +450,12 @@ describe("AssignmentView", () => {
         expect(screen.getByText("start failed")).toBeInTheDocument();
     });
 
+    test("list query calls the API without losing its receiver", async () => {
+        render(<AssignmentView />);
+        await rq.queryOptions["assignments"].queryFn();
+        expect(assignmentApi.list).toHaveBeenCalled();
+    });
+
     test("deselects an assignment when the open row is clicked again", () => {
         render(<AssignmentView />);
         const row = screen.getByRole("button", { name: "Quiz A" });
