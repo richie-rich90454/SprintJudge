@@ -39,6 +39,7 @@ class BankControllerUnitTest {
 					}
 				});
 		assertEquals(HttpStatus.BAD_REQUEST, error.getStatusCode());
+		assertEquals("invalid-build-request", error.getReason());
 	}
 
 	@Test

@@ -10,9 +10,7 @@ const MOTION_KEY = "oq-motion";
  */
 function themeColor(): string {
     try {
-        const value = getComputedStyle(document.documentElement)
-            .getPropertyValue("--oq-bg")
-            .trim();
+        const value = getComputedStyle(document.documentElement).getPropertyValue("--oq-bg").trim();
         return value || "white";
     } catch {
         return "white";

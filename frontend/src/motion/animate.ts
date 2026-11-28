@@ -51,10 +51,7 @@ export function animate(target: any, keyframes: any, opts: any = {}): AnimationP
     };
 
     if (isMulti) {
-        const len = Math.max(
-            1,
-            ...arrays.map((a) => (Array.isArray(a) ? a.length : 1)),
-        );
+        const len = Math.max(1, ...arrays.map((a) => (Array.isArray(a) ? a.length : 1)));
         const steps: Record<string, number>[] = [];
         for (let i = 0; i < len; i++) {
             const step: Record<string, number> = {};

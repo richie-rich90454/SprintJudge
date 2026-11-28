@@ -81,7 +81,20 @@ class PojoContractTest {
 			com.sprintjudge.controller.PublicController.NetInfo.class,
 			com.sprintjudge.repository.RoomEventRepository.StoredEvent.class,
 			com.sprintjudge.websocket.SecureHandshakeConfigurator.StagedConnection.class,
-			type("com.sprintjudge.bank.BankStore$Loaded"), com.sprintjudge.util.ExecIo.WaitOutcome.class};
+			type("com.sprintjudge.bank.BankStore$Loaded"), com.sprintjudge.util.ExecIo.WaitOutcome.class,
+			com.sprintjudge.domain.analytics.AdaptiveSetRequest.class,
+			com.sprintjudge.domain.analytics.AdaptiveSetResult.class,
+			com.sprintjudge.domain.analytics.ClassReport.class,
+			com.sprintjudge.domain.analytics.ClassReport.SessionStat.class,
+			com.sprintjudge.domain.analytics.ItemReport.class, com.sprintjudge.domain.analytics.StudentReport.class,
+			com.sprintjudge.domain.assignment.Assignment.class, com.sprintjudge.domain.assignment.GradeResult.class,
+			com.sprintjudge.domain.assignment.RosterStudent.class,
+			com.sprintjudge.domain.assignment.StudentProgress.class, com.sprintjudge.domain.profile.PlayerProfile.class,
+			com.sprintjudge.domain.profile.ProfileReport.class,
+			com.sprintjudge.domain.profile.ProfileReport.Stats.class,
+			com.sprintjudge.domain.profile.ProfileReport.ScoreEntry.class,
+			com.sprintjudge.domain.profile.ProfileReport.Achievement.class,
+			com.sprintjudge.domain.profile.ProfileReport.PortfolioEntry.class};
 
 	private static Class<?> type(String name) {
 		try {

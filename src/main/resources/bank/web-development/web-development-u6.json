@@ -294,13 +294,13 @@
       "options": [
         {
           "id": "A",
-          "text": "104, 105 and 106 either way, because both address the same window of the table",
-          "misconception": "believes the two schemes cannot disagree about which rows come next"
+          "text": "105, 106 and 107, and the cursor returns 104, 105 and 106, so offset skips 104 entirely",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "105, 106 and 107, and the cursor returns 104, 105 and 106, so offset skips 104 entirely",
-          "misconception": ""
+          "text": "104, 105 and 106 either way, because both address the same window of the table",
+          "misconception": "believes the two schemes cannot disagree about which rows come next"
         },
         {
           "id": "C",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "Offset paging is a count of positions, so the insert pushes every later row one place forward and the window that used to start at 104 now starts at 105. The consequence is the row at 104, which was never on a page the client saw and is now behind the window, so it never appears at all. A cursor records a position in the ordering rather than a number of rows to skip, so resuming after 103 means everything after 103, which is 104, 105 and 106, and the insert does not affect it. This is why a list that changes while it is being read needs a cursor, and why the offset is cheap to implement and expensive to get right.",
       "hint": "Work out the list after the insert, then count five positions into it and compare with resuming after 103.",
@@ -328,7 +328,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -341,7 +341,7 @@
         "cursors",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -368,13 +368,13 @@
         },
         {
           "id": "B",
-          "text": "Three charges, because every request that arrives is a separate instruction to charge",
-          "misconception": "believes a repeated request cannot be recognised as the same one"
+          "text": "Two charges, and the repeated request gets back the result recorded for its key",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Two charges, and the repeated request gets back the result recorded for its key",
-          "misconception": ""
+          "text": "Three charges, because every request that arrives is a separate instruction to charge",
+          "misconception": "believes a repeated request cannot be recognised as the same one"
         },
         {
           "id": "D",
@@ -383,7 +383,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The store is keyed by whatever the client sent, so the two requests that share a key collapse into one recorded charge and the third, with a different key, is a different charge: two in total. The repeated request does not get refused, which matters more than it looks, because a client that cannot tell a repeat from a rejection has no safe way to retry: it would either pay twice or give up on a payment that had already gone through. The key has to be generated per intended operation rather than per attempt, and the recorded result has to be returned unchanged, or the retry is not doing its job.",
       "hint": "Ask how many distinct keys arrive and what the map does with the second one.",
@@ -397,7 +397,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -410,7 +410,7 @@
         "retries",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -442,17 +442,17 @@
         },
         {
           "id": "C",
-          "text": "All seven of the non-200 responses, because anything other than success is a failure",
-          "misconception": "believes the distinction between 4xx and 5xx is not worth making"
+          "text": "500, 502 and 503, so three, because the rest describe what the caller did wrong",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "500, 502 and 503, so three, because the rest describe what the caller did wrong",
-          "misconception": ""
+          "text": "All seven of the non-200 responses, because anything other than success is a failure",
+          "misconception": "believes the distinction between 4xx and 5xx is not worth making"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "The five hundred range means the server failed to do what was asked: the request was understood and the answer could not be produced, which is what should wake somebody. The four hundred range means the request itself was the problem, whether it was unauthenticated, aimed at something that is not there, or refused on its content, and paging a service because a caller sent a bad token is the alert crying wolf until the real page is ignored. A gateway status is still a failure of the service to answer, so 502 and 503 count, and the run here gives three against four.",
       "hint": "Read the class of each status, and ask who is at fault for it.",
@@ -466,7 +466,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -479,7 +479,7 @@
         "alerting",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -506,8 +506,8 @@
         },
         {
           "id": "B",
-          "text": "GET is safe because it changes nothing, and PUT is idempotent because a repeat is the same",
-          "misconception": ""
+          "text": "GET is unsafe and PUT is not idempotent, because any request with a body can change state",
+          "misconception": "believes a body is proof that a repeat will not land the same way"
         },
         {
           "id": "C",
@@ -516,12 +516,12 @@
         },
         {
           "id": "D",
-          "text": "GET is unsafe and PUT is not idempotent, because any request with a body can change state",
-          "misconception": "believes a body is proof that a repeat will not land the same way"
+          "text": "GET is safe because it changes nothing, and PUT is idempotent because a repeat is the same",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The two words answer different questions. Safety is about intent: a safe method is one whose whole point is to read, and a server that honours that will not let a get change anything. Idempotence is about repetition: an idempotent method can be called several times and the effect is the same as calling it once, which is what makes a client or a network free to retry it. A get is both, and a put is idempotent without being safe, and a post is neither, which is why a client that loses the response to a post has a problem a retry cannot solve by itself.",
       "hint": "Ask separately what a repeat does and what the method is meant to do.",
@@ -535,7 +535,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -548,7 +548,7 @@
         "idempotence",
         "safety"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -570,8 +570,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A path can name two versions at once, so a client can compare them in a single request",
-          "misconception": "believes one address can carry two versions for comparison"
+          "text": "The version is part of the address, so a wrong version is a different resource to everything",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -580,8 +580,8 @@
         },
         {
           "id": "C",
-          "text": "The version is part of the address, so a wrong version is a different resource to everything",
-          "misconception": ""
+          "text": "A path can name two versions at once, so a client can compare them in a single request",
+          "misconception": "believes one address can carry two versions for comparison"
         },
         {
           "id": "D",
@@ -590,7 +590,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A version in the path makes the version part of the resource's identity, so a request to the old version and a request to the new one are simply different resources and everything downstream can tell them apart: a log line, a cache key, an access rule, a dashboard of which clients are still on the old one. A version header is equally capable of working, but it is separate from the address, so anything that keys on the address, which is nearly everything, cannot see it. The arguments against paths are about tidiness rather than function, and they are outweighed by being able to answer the question of who is still using the old version.",
       "hint": "Ask what a log line or a cache key can tell you when the version is in the address.",
@@ -604,7 +604,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -617,7 +617,7 @@
         "api-design",
         "http"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -644,8 +644,8 @@
         },
         {
           "id": "B",
-          "text": "A guarantee that the client never receives a body the endpoint did not describe",
-          "misconception": "believes a shared shape means a shared set of possible values"
+          "text": "One place to parse and one set of rules to follow, so no outcome is left unhandled",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -654,12 +654,12 @@
         },
         {
           "id": "D",
-          "text": "One place to parse and one set of rules to follow, so no outcome is left unhandled",
-          "misconception": ""
+          "text": "A guarantee that the client never receives a body the endpoint did not describe",
+          "misconception": "believes a shared shape means a shared set of possible values"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The value is that there is one thing to learn and one place to get it wrong, so a client that has handled one response from this endpoint has handled the shape of all of them, and a new outcome cannot arrive as a surprise the client has no branch for. The error field is what makes it work, because it gives a failure somewhere to go without inventing a second body format. It is worth being clear about what it does not do: a shape cannot make a refusal into a success, and it cannot tell a client whether to retry, which is what the status and any retry advice are for.",
       "hint": "Ask what a client has to implement once, rather than once per outcome.",
@@ -673,7 +673,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -686,7 +686,7 @@
         "api-design",
         "errors"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -713,13 +713,13 @@
         },
         {
           "id": "B",
-          "text": "The key acts for the integration itself, and the token acts for one user and can be narrowed",
-          "misconception": ""
+          "text": "Both act for the user, and the key is simply a token that was never given an expiry",
+          "misconception": "believes a key and a token differ only in how long they last"
         },
         {
           "id": "C",
-          "text": "Both act for the user, and the key is simply a token that was never given an expiry",
-          "misconception": "believes a key and a token differ only in how long they last"
+          "text": "The key acts for the integration itself, and the token acts for one user and can be narrowed",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -728,7 +728,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The two identify different things. A key identifies a caller that is a program rather than a person, it is usually shared by everyone using that integration, and it is revoked by being replaced, so it cannot express much about which person is doing what. A token is issued to a user, carries a claim about who they are, and is normally narrowed to a set of operations and a short lifetime, so it can be thrown away when it leaks. Treating the key as the user's credential is the mistake that produces an integration which can do anything to anybody, because every holder of it is the same caller as far as the service is concerned.",
       "hint": "Ask who each credential is standing in for at the far end of the request.",
@@ -742,7 +742,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -755,7 +755,7 @@
         "tokens",
         "authorisation"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -787,17 +787,17 @@
         },
         {
           "id": "C",
-          "text": "Which operations that token's holder may perform, checked by the service on each request",
-          "misconception": ""
+          "text": "Which fields the response carries, so a narrow scope hides the ones it does not name",
+          "misconception": "believes scope filters the fields returned rather than the operations allowed"
         },
         {
           "id": "D",
-          "text": "Which fields the response carries, so a narrow scope hides the ones it does not name",
-          "misconception": "believes scope filters the fields returned rather than the operations allowed"
+          "text": "Which operations that token's holder may perform, checked by the service on each request",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "A scope is a statement about what may be done with the token, and it is enforced at the resource server on every request, which is the only place where enforcing it means anything. Two tokens for the same user with different scopes are the normal result of asking for less, and it is what lets a read-only client be issued without discussion. The enforcement point is the part worth being clear about, because a scope checked in the browser is a preference rather than a control, and a scope applied to the shape of the response would be a data minimisation idea rather than an authorisation one.",
       "hint": "Ask where a check has to happen for it to be worth anything.",
@@ -811,7 +811,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -824,7 +824,7 @@
         "tokens",
         "authorisation"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -846,8 +846,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A count of failed requests, so a caller is refused once it has failed that many times",
-          "misconception": "believes the day figure counts failures rather than everything"
+          "text": "A total for the whole period, so an allowance cannot be spent in a minute and then be gone",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -861,12 +861,12 @@
         },
         {
           "id": "D",
-          "text": "A total for the whole period, so an allowance cannot be spent in a minute and then be gone",
-          "misconception": ""
+          "text": "A count of failed requests, so a caller is refused once it has failed that many times",
+          "misconception": "believes the day figure counts failures rather than everything"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The two limits answer different questions and each catches what the other misses. A rate limit is about smoothness: it stops one caller from taking the whole capacity in one burst, and it protects the service and everyone else using it. A quota is about the total: it stops a caller from consuming a day's work in ten minutes, which a per-minute limit allows perfectly happily. A service with only a rate limit can be asked for a million requests spread over a day, so a quota with no rate limit lets a single caller flatten the service in one burst, and the pair together is what makes a shared service survivable.",
       "hint": "Ask which question each number answers, and what the other one lets through.",
@@ -880,7 +880,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -893,7 +893,7 @@
         "quotas",
         "protection"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1122,13 +1122,13 @@
       "options": [
         {
           "id": "A",
-          "text": "About 99.9 percent, so roughly 10 of the 10,000 requests fail",
-          "misconception": "believes a chain of independent services is as available as its best member"
+          "text": "About 99.6 percent, so roughly 40 of the 10,000 requests fail",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "About 99.6 percent, so roughly 40 of the 10,000 requests fail",
-          "misconception": ""
+          "text": "About 99.9 percent, so roughly 10 of the 10,000 requests fail",
+          "misconception": "believes a chain of independent services is as available as its best member"
         },
         {
           "id": "C",
@@ -1142,7 +1142,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "A request succeeds only if every step succeeds, so the chances multiply rather than add, and four chances of 0.999 give 0.996006, which is about 99.6 percent. The failures are what is left, which is 0.003994 of the traffic, so of 10,000 requests roughly 40 fail. The habit worth building is to multiply first and round last, because a chain of individually excellent services is what quietly produces an endpoint nobody trusts, and it is why removing a hop from a request path is often a better availability move than improving any one of the hops.",
       "hint": "Multiply the four chances together, then subtract the product from one and apply it to 10,000.",
@@ -1156,7 +1156,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1169,7 +1169,7 @@
         "two-stage",
         "call-chains"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1196,13 +1196,13 @@
         },
         {
           "id": "B",
-          "text": "Three, and then four",
-          "misconception": "believes the two classes run the other way round from their names"
+          "text": "Four, and then three",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Four, and then three",
-          "misconception": ""
+          "text": "Three, and then four",
+          "misconception": "believes the two classes run the other way round from their names"
         },
         {
           "id": "D",
@@ -1211,7 +1211,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The four hundreds are 400, 401, 404 and 422, and the five hundreds are 500, 502 and 503, so four and three. Keeping the two apart is what lets the two questions be asked separately: which callers are sending requests the service cannot accept, and is the service failing to answer requests it should have accepted. A dashboard that adds them together answers neither, and a page that fires on the total is a page that fires on an unauthenticated integration, which is a decision somebody made in a configuration file rather than a fault worth waking anyone for.",
       "hint": "Split the ten statuses by their hundreds digit and count each group.",
@@ -1225,7 +1225,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1238,7 +1238,7 @@
         "two-stage",
         "monitoring"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1398,17 +1398,17 @@
         },
         {
           "id": "C",
-          "text": "One succeeds, because presenting a replaced token invalidates the whole series",
-          "misconception": "believes one bad presentation cancels the tokens the holder already holds"
+          "text": "Two succeed, and the refusal means a second copy of the token exists somewhere",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "Two succeed, and the refusal means a second copy of the token exists somewhere",
-          "misconception": ""
+          "text": "One succeeds, because presenting a replaced token invalidates the whole series",
+          "misconception": "believes one bad presentation cancels the tokens the holder already holds"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "Rotation works because each token is good exactly once: r2 becomes r3, so the copy of r2 is spent, and the holder carrying r3 carries on normally, which is two successes out of three. The third exchange is the signal, because a client that only ever holds one token cannot present a spent one unless there are two of them, so the refusal is the detection mechanism rather than a fault. That is also the reason a rotation scheme is worth the extra store: a non-rotating refresh token stays a long-lived credential with no way to notice that it leaked, whereas here the leak announces itself the first time the thief uses it.",
       "hint": "Count the presentations of a token that has already been replaced, and ask who else could hold one.",
@@ -1422,7 +1422,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1435,7 +1435,7 @@
         "rotation",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1462,8 +1462,8 @@
         },
         {
           "id": "B",
-          "text": "sid=abc; Path=/; HttpOnly; SameSite=Lax, and the cookie can still travel over plain http",
-          "misconception": ""
+          "text": "sid=abc; Secure; HttpOnly; SameSite=Lax; Path=/, and the value is written in the clear",
+          "misconception": "believes a cookie value is transmitted without being encoded in the header"
         },
         {
           "id": "C",
@@ -1472,12 +1472,12 @@
         },
         {
           "id": "D",
-          "text": "sid=abc; Secure; HttpOnly; SameSite=Lax; Path=/, and the value is written in the clear",
-          "misconception": "believes a cookie value is transmitted without being encoded in the header"
+          "text": "sid=abc; Path=/; HttpOnly; SameSite=Lax, and the cookie can still travel over plain http",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The filter drops any flag whose value is false, so a flag that was not requested is not written, which leaves the header with the path, the restriction on script and the same-site rule. The gap is the missing Secure, which is what would have required the cookie to travel only over an encrypted connection; without it the browser will attach the session to a plain http request to the same host, so anyone on the path can read it. The other three answers all assume the builder produced something other than what its own code does, and it is worth reading the helper rather than assuming which flags a session cookie usually carries.",
       "hint": "Work down the array and keep only the parts whose flag is true.",
@@ -1491,7 +1491,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1504,7 +1504,7 @@
         "session-flags",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1526,8 +1526,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The second and third, because a broader scope covers every operation beneath it",
-          "misconception": "believes a general scope implies the specific ones that sit under it"
+          "text": "Only the second, because a scope has to name the operation in exactly that order",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1536,8 +1536,8 @@
         },
         {
           "id": "C",
-          "text": "Only the second, because a scope has to name the operation in exactly that order",
-          "misconception": ""
+          "text": "The second and third, because a broader scope covers every operation beneath it",
+          "misconception": "believes a general scope implies the specific ones that sit under it"
         },
         {
           "id": "D",
@@ -1546,7 +1546,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A scope string is a set of exact names and the check is set membership, so only the second pair matches: its string contains orders:write as one whole token. The third is refused because orders is not orders:read, and the fourth is refused because read:orders and orders:read are different strings, which is why the vocabulary has to be fixed and documented rather than improvised. The third answer is the one worth guarding against, because a prefix looks like a covering but is only a covering if the service is written to say so, and a service that treats it as a covering has handed every holder of orders:read a way to write.",
       "hint": "Split each scope string on spaces and ask whether the needed name is one of the whole words.",
@@ -1560,7 +1560,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1573,7 +1573,7 @@
         "authorisation",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1600,8 +1600,8 @@
         },
         {
           "id": "B",
-          "text": "Six, because the two retry counts add, since each layer can only try once more",
-          "misconception": "believes retries at two layers sum rather than compound"
+          "text": "Nine, because the two retry counts multiply, so a small policy becomes a large one",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1610,12 +1610,12 @@
         },
         {
           "id": "D",
-          "text": "Nine, because the two retry counts multiply, so a small policy becomes a large one",
-          "misconception": ""
+          "text": "Six, because the two retry counts add, since each layer can only try once more",
+          "misconception": "believes retries at two layers sum rather than compound"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "A's three attempts each become three attempts at B, and each of those reaches the store, so the store sees nine attempts from a single call the client made once. The store is already down, so nine attempts buy nothing at all, and they cost exactly what a struggling service can least afford, because the retries arrive at the moment its connections are already exhausted. This is why a retry policy is only safe in one place in a chain, and why the layer that knows what the caller can tolerate should own it, with the rest either passing the call through or refusing quickly.",
       "hint": "Multiply the attempts at each layer rather than adding them, since every attempt nests inside the one above.",
@@ -1629,7 +1629,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1642,7 +1642,7 @@
         "amplification",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1669,13 +1669,13 @@
         },
         {
           "id": "B",
-          "text": "2,000 ms and then 1,000 ms, because each service caps the time the one below may take",
-          "misconception": ""
+          "text": "2,000 ms and then 1,700 ms, because the cap applies once and is not re-applied further down",
+          "misconception": "believes the cap is set at the first hop and inherited unchanged below it"
         },
         {
           "id": "C",
-          "text": "2,000 ms and then 1,700 ms, because the cap applies once and is not re-applied further down",
-          "misconception": "believes the cap is set at the first hop and inherited unchanged below it"
+          "text": "2,000 ms and then 1,000 ms, because each service caps the time the one below may take",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1684,9 +1684,9 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
-      "explanation": "A has 2,600 ms left when it calls B, but its own limit is 2,000, so B gets 2,000. B then has 1,700 left against its own 1,000, so C gets 1,000, and C's 500 is the least of the three anyway. Passing the smaller of the remaining time and the service's own limit is what keeps the whole chain inside the caller's budget: a service that passed on all 2,600 would let B take 2,600 and C take 1,700 within it, which is over three seconds for a caller who allowed three, and is why a chain of unpropagated timeouts is a common way to produce a latency that no single service's configuration explains.",
+      "explanation": "A has 2,600 ms left when it calls B, but its own limit is 2,000, so B gets 2,000. B then has 1,700 left against its own 1,000, so C gets 1,000, and B's 500 is the least of the three anyway. Passing the smaller of the remaining time and the service's own limit is what keeps the whole chain inside the caller's budget: a service that passed on all 2,600 would let B take 2,600 and B take 1,700 within it, which is over three seconds for a caller who allowed three, and is why a chain of unpropagated timeouts is a common way to produce a latency that no single service's configuration explains.",
       "hint": "At each hop take the smaller of the time left and that service's own limit.",
       "difficulty": 0.55,
       "discrimination": 0.45,
@@ -1698,7 +1698,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1711,7 +1711,7 @@
         "deadlines",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1743,17 +1743,17 @@
         },
         {
           "id": "C",
-          "text": "Six reached it, three were refused, and the breaker was closed at the end",
-          "misconception": ""
+          "text": "Four reached it and five were refused, because the trial is counted as a call that got through",
+          "misconception": "believes a trial call that is admitted does not reach the dependency"
         },
         {
           "id": "D",
-          "text": "Four reached it and five were refused, because the trial is counted as a call that got through",
-          "misconception": "believes a trial call that is admitted does not reach the dependency"
+          "text": "Six reached it, three were refused, and the breaker was closed at the end",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The first three calls fail and the breaker opens, so calls four, five and six are refused without touching the dependency. The trial call is the seventh: it reaches the dependency, succeeds, and closes the breaker, and the last two calls are then passed straight through, which is six reaching it and three refused, with the breaker closed. The point of the whole arrangement is the three refused calls, because a breaker is a way of stopping a service from spending its remaining capacity on calls that are already known to fail, and a breaker that forwards while open has given up the only thing it was for.",
       "hint": "Count the calls refused before the trial, then add the trial and everything after it.",
@@ -1767,7 +1767,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1780,7 +1780,7 @@
         "states",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1802,8 +1802,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Two orders and no event, because the store and the bus are each written once independently",
-          "misconception": "believes two separate stores each record the order for themselves"
+          "text": "One order and no event, while the outbox gives one order and one relayed event",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1817,12 +1817,12 @@
         },
         {
           "id": "D",
-          "text": "One order and no event, while the outbox gives one order and one relayed event",
-          "misconception": ""
+          "text": "Two orders and no event, because the store and the bus are each written once independently",
+          "misconception": "believes two separate stores each record the order for themselves"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The insert completed and the publish never started, so the order exists and the event does not, and nothing in either system will notice: the order is a real row and the event is simply absent. That is the dual write problem, and no ordering of the two lines fixes it, because the failure is between them rather than around them. Writing the event as a row in the same transaction as the order makes the two atomic, so the process can die anywhere and both survive together, and a separate relay then reads the outbox and publishes, retrying until it succeeds, which converts one unwritable pair of systems into one that has already committed and one that catches up.",
       "hint": "Ask which of the two statements completed before the process was killed, then apply that to both arrangements.",
@@ -1836,7 +1836,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1849,7 +1849,7 @@
         "dual-writes",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2078,13 +2078,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A copy of the data, so the two sides now have to be told about every change either makes",
-          "misconception": "believes a split duplicates state rather than defining an interface"
+          "text": "A contract between two separately deployable things, so a change on one side can break the other",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "A contract between two separately deployable things, so a change on one side can break the other",
-          "misconception": ""
+          "text": "A copy of the data, so the two sides now have to be told about every change either makes",
+          "misconception": "believes a split duplicates state rather than defining an interface"
         },
         {
           "id": "C",
@@ -2098,7 +2098,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The value of a boundary is that the two halves can change, deploy and fail independently, and the price is that they can now change in ways the other cannot see coming. Inside one process a renamed field is a compile error; across a boundary it is a runtime surprise for whichever version happens to be deployed, which is why the contract has to be explicit and why a boundary wants a version of its own. The coupling does not go away when the boundary is drawn, it changes shape: from a reference the compiler checks to an agreement two deployments have to keep.",
       "hint": "Ask what a change on one side can do to the other that it could not do before.",
@@ -2112,7 +2112,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2125,7 +2125,7 @@
         "coupling",
         "design"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2152,13 +2152,13 @@
         },
         {
           "id": "B",
-          "text": "That events arrive in the order they were written, so a later one always follows an earlier one",
-          "misconception": "believes the broker preserves the order events were produced in"
+          "text": "That the same event can arrive more than once, so each one has to be safe to apply again",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "That the same event can arrive more than once, so each one has to be safe to apply again",
-          "misconception": ""
+          "text": "That events arrive in the order they were written, so a later one always follows an earlier one",
+          "misconception": "believes the broker preserves the order events were produced in"
         },
         {
           "id": "D",
@@ -2167,7 +2167,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A consumer has to assume the same event can arrive twice, and it has to be written so that applying it twice is the same as applying it once, which is what a check on the event's own identifier buys. The other three are the properties a queue gives up in exchange for not blocking a publisher: delivery is at least once rather than exactly once, ordering is per partition rather than global, and a consumer that was stopped is handed everything it missed. Designs that assume exactly-once delivery across a network end up with handlers that are not safe to repeat, and duplicates then turn into double charges.",
       "hint": "Ask what happens to a handler that ran successfully and then has its work redelivered.",
@@ -2181,7 +2181,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2194,7 +2194,7 @@
         "delivery",
         "events"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2226,17 +2226,17 @@
         },
         {
           "id": "C",
-          "text": "One caller's failures cannot be seen by the others, so a single alert covers everything",
-          "misconception": "believes isolation is a way of hiding one caller's errors from the service"
+          "text": "One caller cannot occupy every worker, so a slow caller stops being able to starve the others",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "One caller cannot occupy every worker, so a slow caller stops being able to starve the others",
-          "misconception": ""
+          "text": "One caller's failures cannot be seen by the others, so a single alert covers everything",
+          "misconception": "believes isolation is a way of hiding one caller's errors from the service"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "The problem is exhaustion. With one shared pool, a caller that sends slow work occupies workers that everyone else needs, and because those workers are blocked rather than busy, the whole service degrades while the offending caller is still being served. Giving each caller its own pool caps how much of the service any one of them can hold, and refusing beyond that is the right answer, because queueing unboundedly only converts a refusal into a timeout that every caller eventually experiences. The pools are not a security boundary and they are not a way of hiding failures, they are a way of bounding the damage one caller can do to everyone else.",
       "hint": "Ask what a slow caller does to a pool that every other caller is also waiting on.",
@@ -2250,7 +2250,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2263,7 +2263,7 @@
         "isolation",
         "overload"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2290,8 +2290,8 @@
         },
         {
           "id": "B",
-          "text": "The caller waits on a connection that will never answer, so a timeout on that call has to be set",
-          "misconception": ""
+          "text": "The caller queues the request and forgets it, so the failure shows up as a slow queue",
+          "misconception": "believes an unfinished internal call is parked until the dependency returns"
         },
         {
           "id": "C",
@@ -2300,12 +2300,12 @@
         },
         {
           "id": "D",
-          "text": "The caller queues the request and forgets it, so the failure shows up as a slow queue",
-          "misconception": "believes an unfinished internal call is parked until the dependency returns"
+          "text": "The caller waits on a connection that will never answer, so a timeout on that call has to be set",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A request with no timeout and a connection that is never closed is a caller that has given up nothing, and since it is holding a worker, a request and often a transaction while it waits, one hung dependency turns into a service that is up and answering nothing. The single change is a deadline on the call, propagated from the caller's own budget so the whole chain fits inside it, and a caller that hits it gets a real error it can act on. This is the failure the propagation rule exists to prevent: a service that waits forever cannot be timed out from above, because there is nothing above it willing to.",
       "hint": "Ask what a request with no deadline does while the far end holds the connection open.",
@@ -2319,7 +2319,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2332,7 +2332,7 @@
         "call-chains",
         "diagnosing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2354,8 +2354,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Add a delay between the retries, so the store has time to come back between them",
-          "misconception": "believes spacing the retries out reduces how many of them arrive"
+          "text": "Let only one layer retry, so the attempts do not nest inside one another on the way down",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2364,8 +2364,8 @@
         },
         {
           "id": "C",
-          "text": "Let only one layer retry, so the attempts do not nest inside one another on the way down",
-          "misconception": ""
+          "text": "Add a delay between the retries, so the store has time to come back between them",
+          "misconception": "believes spacing the retries out reduces how many of them arrive"
         },
         {
           "id": "D",
@@ -2374,7 +2374,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The cost comes from the attempts nesting, so one client's call becomes nine at the bottom, and the fix is to have the retries happen in one place. Reducing the count or spacing them out only changes the size of the pile, and preferring timeouts does not help because a store that is unavailable produces plenty of those. Choosing the layer matters as much as the count: the layer that knows what its caller can tolerate should own the retries, and the ones below it should fail fast so the layer above can decide, which is also what makes a slow dependency produce a fast answer rather than a slow one.",
       "hint": "Ask where in the chain the retries should live so that they do not nest.",
@@ -2388,7 +2388,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2401,7 +2401,7 @@
         "amplification",
         "diagnosing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2428,8 +2428,8 @@
         },
         {
           "id": "B",
-          "text": "Acknowledge each event before handling it, so a redelivery finds nothing left to do",
-          "misconception": "believes acknowledging first stops the broker from sending it again"
+          "text": "Check the event's own identifier before applying it, so a second delivery does nothing",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2438,12 +2438,12 @@
         },
         {
           "id": "D",
-          "text": "Check the event's own identifier before applying it, so a second delivery does nothing",
-          "misconception": ""
+          "text": "Acknowledge each event before handling it, so a redelivery finds nothing left to do",
+          "misconception": "believes acknowledging first stops the broker from sending it again"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The check has to be against something that survives, and the event's identifier recorded in the same place as the effect is the thing that does: the handler asks whether it has already applied this event, and if so returns without charging, which makes the operation idempotent rather than merely careful. Acknowledging first makes things worse, since it promises the work is done before it is. One transaction per batch does not help either, because the redelivery is of a batch that already committed, and in-memory deduplication forgets precisely when it is needed, which is after a restart.",
       "hint": "Ask what record of what has been applied would still be there after a restart.",
@@ -2457,7 +2457,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2470,7 +2470,7 @@
         "delivery",
         "diagnosing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2497,13 +2497,13 @@
         },
         {
           "id": "B",
-          "text": "Six running, and four refused",
-          "misconception": ""
+          "text": "Three running, and seven refused, because the pools share the places between them",
+          "misconception": "believes the two pools are one pool with a total of three places"
         },
         {
           "id": "C",
-          "text": "Three running, and seven refused, because the pools share the places between them",
-          "misconception": "believes the two pools are one pool with a total of three places"
+          "text": "Six running, and four refused",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2512,7 +2512,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Each pool runs up to its own three places, so six pieces of work run at once across the two callers, and everything beyond a pool's capacity is refused rather than queued: three for the first caller and one for the second, four in total. Refusing promptly is the design, and it is what distinguishes a bulkhead from a queue, since a queue with no bound converts the refusal into a wait that every caller in front of the backlog also pays. The second caller's work is unaffected by the first caller's burst, which is the whole reason the pools are separate.",
       "hint": "Fill each pool to its capacity, then count whatever is left over in each.",
@@ -2526,7 +2526,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2539,7 +2539,7 @@
         "overload",
         "two-stage"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2571,17 +2571,17 @@
         },
         {
           "id": "C",
-          "text": "Ten rows, then six, because the check turns each event into at most one row",
-          "misconception": ""
+          "text": "Fourteen rows, then six, because a repeated delivery is written once for each copy it has",
+          "misconception": "believes duplicate deliveries each add an extra row rather than one"
         },
         {
           "id": "D",
-          "text": "Fourteen rows, then six, because a repeated delivery is written once for each copy it has",
-          "misconception": "believes duplicate deliveries each add an extra row rather than one"
+          "text": "Ten rows, then six, because the check turns each event into at most one row",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "Ten deliveries means ten writes with no check, and six distinct identifiers means six writes once the handler asks whether it has already applied the event before inserting. The difference of four is exactly the number of redeliveries, which is the number of times the effect would have been applied twice. The check only works if the record of what has been applied is written in the same step as the effect, since a check that records afterwards still has a window in which the same event arrives and passes, and a consumer that keeps the record in memory loses it on the restart that made the redelivery necessary.",
       "hint": "Count the deliveries for the first number and the distinct identifiers for the second.",
@@ -2595,7 +2595,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2608,7 +2608,7 @@
         "delivery",
         "two-stage"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2726,8 +2726,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It accepts qty and rejects the other two, because an integer is the only type a quantity needs",
-          "misconception": "believes a price is not something the endpoint has to check"
+          "text": "It rejects qty and price, and accepts sku, because 1.5 is not an integer and -2 is negative",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2741,14 +2741,14 @@
         },
         {
           "id": "D",
-          "text": "It rejects qty and price, and accepts sku, because 1.5 is not an integer and -2 is negative",
-          "misconception": ""
+          "text": "It accepts qty and rejects the other two, because an integer is the only type a quantity needs",
+          "misconception": "believes a price is not something the endpoint has to check"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
-      "explanation": "Each rule is asked about its own field, so the failures are independent: qty arrives as 1.5, which is a number but not an integer, and price is a number but below the minimum the rule sets. sku is a non-empty string and passes. The reason this check has to happen here rather than in a page is that the type of a value in a body is whatever the body says it is: the sender decides, a script can send anything, and a body of strings is normal. Reporting the failing fields by name, rather than one refusal for the whole body, is what lets a client point at the field the user has to",
+      "explanation": "Each rule is asked about its own field, so the failures are independent: qty arrives as 1.5, which is a number but not an integer, and price is a number but below the minimum the rule sets. sku is a non-empty string and passes. The reason this check has to happen here rather than in a page is that the type of a value in a body is whatever the body says it is: the sender decides, a script can send anything, and a body of strings is normal. Reporting the failing fields by name, rather than one refusal for the whole body, is what lets a client point at the field the user has to correct.",
       "hint": "Apply each rule to its own field and keep the ones whose rule returns false.",
       "difficulty": 0.52,
       "discrimination": 0.43,
@@ -2760,7 +2760,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2773,7 +2773,7 @@
         "request-body",
         "tracing"
       ],
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3278,13 +3278,13 @@
       "options": [
         {
           "id": "A",
-          "text": "That the service is healthy, since anything that cannot reach a database cannot answer",
-          "misconception": "believes a running process is necessarily a working service"
+          "text": "Only that the process is running, which says nothing about whether it can answer requests",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "Only that the process is running, which says nothing about whether it can answer requests",
-          "misconception": ""
+          "text": "That the service is healthy, since anything that cannot reach a database cannot answer",
+          "misconception": "believes a running process is necessarily a working service"
         },
         {
           "id": "C",
@@ -3298,7 +3298,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The check answers one question, and the question is whether the process is running, which is a real question: it is what a sender should use to decide whether to restart a process that has hung rather than to decide whether to send it work. Everything a service needs in order to answer requests is outside it, and a process with a full connection pool, a dependency that is refusing or a cache that has failed to load will answer that check perfectly. Keeping the two questions apart is the point: one asks whether to restart the process, the other asks whether to send it traffic.",
       "hint": "Ask what the handler touches, and then what it therefore cannot know.",
@@ -3312,7 +3312,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3325,7 +3325,7 @@
         "health-checks",
         "readiness"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3352,13 +3352,13 @@
         },
         {
           "id": "B",
-          "text": "Whether the instance should be deleted, since a report of not ready ends its service",
-          "misconception": "believes a readiness report removes the instance rather than pausing it"
+          "text": "Whether this instance should be given new work while it is reporting that way",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Whether this instance should be given new work while it is reporting that way",
-          "misconception": ""
+          "text": "Whether the instance should be deleted, since a report of not ready ends its service",
+          "misconception": "believes a readiness report removes the instance rather than pausing it"
         },
         {
           "id": "D",
@@ -3367,7 +3367,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The report is a single bit that the sender acts on, and what it acts on is the choice of which instance to use. Not ready means use the others, which is what makes it the right signal during a rollout, during a warm-up and when a dependency has gone away, because in all three cases the process is running and should keep running while it is not sent work. It is not a verdict on the code and not a restart instruction; a service that reports not ready because its connections are exhausted is exactly the service that must be left alone long enough to drain them.",
       "hint": "Ask what the sender does differently once it has read the report.",
@@ -3381,7 +3381,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3394,7 +3394,7 @@
         "health-checks",
         "rollouts"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3426,17 +3426,17 @@
         },
         {
           "id": "C",
-          "text": "The timeout applies to a whole service, and the breaker applies to a single request",
-          "misconception": "believes the two work at opposite ends of the call rather than together"
+          "text": "The timeout bounds one call in wall clock time, and the breaker stops the calls that are failing now",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "The timeout bounds one call in wall clock time, and the breaker stops the calls that are failing now",
-          "misconception": ""
+          "text": "The timeout applies to a whole service, and the breaker applies to a single request",
+          "misconception": "believes the two work at opposite ends of the call rather than together"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "They answer different questions and are both needed. A timeout says how long this one caller is prepared to wait, which stops a slow dependency from occupying a worker for ever, and it is the only thing that bounds a call whose failure is silence rather than a refusal. A breaker looks across many calls and says whether the dependency is failing at all, which is what stops the service from spending its remaining capacity on calls already known to fail. Neither substitutes for the other: a timeout on its own turns a broken dependency into a slow one, and a breaker on its own only notices once calls have actually gone and come back.",
       "hint": "Ask what each one can observe: one call, or many calls over time.",
@@ -3450,7 +3450,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3463,7 +3463,7 @@
         "circuit-breaker",
         "failure-behaviour"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3490,8 +3490,8 @@
         },
         {
           "id": "B",
-          "text": "A second write with the same effect, and a key that lets the service recognise the repeat",
-          "misconception": ""
+          "text": "A shorter response, because the second attempt is the one the service can now answer",
+          "misconception": "believes repeating a request makes the service able to answer it"
         },
         {
           "id": "C",
@@ -3500,12 +3500,12 @@
         },
         {
           "id": "D",
-          "text": "A shorter response, because the second attempt is the one the service can now answer",
-          "misconception": "believes repeating a request makes the service able to answer it"
+          "text": "A second write with the same effect, and a key that lets the service recognise the repeat",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A timeout says the caller stopped waiting, and the write may well have happened, so a retry that arrives as an ordinary new request produces the effect twice: two charges, two rows, two emails. What makes it safe is something the service can recognise, and the usual form of that is a key the client generates once for the intended operation and sends with every attempt, so the second attempt is answered with the first attempt's result rather than performed again. This is why a client that cannot do that should surface the uncertainty to a person instead of retrying a create on its own.",
       "hint": "Ask what a timeout tells the client about what happened on the far side.",
@@ -3519,7 +3519,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3532,7 +3532,7 @@
         "idempotency",
         "client-behaviour"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3554,8 +3554,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The migration runs first in the same release, so the code that needs it always finds the new name",
-          "misconception": "believes the order of two steps in one release is the order they happen in"
+          "text": "Old and new instances run at once with one name missing, so the change has to be made in stages",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3564,8 +3564,8 @@
         },
         {
           "id": "C",
-          "text": "Old and new instances run at once with one name missing, so the change has to be made in stages",
-          "misconception": ""
+          "text": "The migration runs first in the same release, so the code that needs it always finds the new name",
+          "misconception": "believes the order of two steps in one release is the order they happen in"
         },
         {
           "id": "D",
@@ -3574,7 +3574,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A release replaces instances one at a time, so for a while some are running the old code and some the new one, and a rename makes the two incompatible in both directions: the old code wants a name the migration has already taken away, and the new code wants a name that only exists after the migration. The staging that avoids it is expand and contract: add the new column, release code that writes both and reads the old one, backfill, release code that reads the new one, and only then remove the old. Each step is safe in both directions, which is the property a rolling deployment needs and a rename does not have.",
       "hint": "Ask what the instances that have not been replaced yet are running during the release.",
@@ -3588,7 +3588,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3601,7 +3601,7 @@
         "deployments",
         "diagnosing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3628,8 +3628,8 @@
         },
         {
           "id": "B",
-          "text": "Move the counter into a service worker, so it survives a page reload before the limit resets",
-          "misconception": "believes the count is unreliable because the page can be reloaded"
+          "text": "Enforce the limit in the service, since only the service sees every caller at once",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3638,12 +3638,12 @@
         },
         {
           "id": "D",
-          "text": "Enforce the limit in the service, since only the service sees every caller at once",
-          "misconception": ""
+          "text": "Move the counter into a service worker, so it survives a page reload before the limit resets",
+          "misconception": "believes the count is unreliable because the page can be reloaded"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "A limit has to be counted where the work is accepted, and the only place every caller passes through is the service. A counter in the page measures the behaviour of one page for one user, and a user who is sent a URL, a script, another tab or a modified copy of the page does not consult it, so the number of requests the service actually receives is unrelated to the number the page believes it made. The other three address ways the page might be circumvented, when the point is that the page is not the thing being protected: the service and everyone else on it are.",
       "hint": "Ask where the work is accepted, and who can reach it without the page.",
@@ -3657,7 +3657,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3670,7 +3670,7 @@
         "trust-boundary",
         "diagnosing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3697,13 +3697,13 @@
         },
         {
           "id": "B",
-          "text": "About 97.0 percent, and no, because three one second waits make three seconds",
-          "misconception": ""
+          "text": "About 97.0 percent, and yes, because the hops run one after another and share the two seconds",
+          "misconception": "believes sequential timeouts share the caller's budget instead of consuming it"
         },
         {
           "id": "C",
-          "text": "About 97.0 percent, and yes, because the hops run one after another and share the two seconds",
-          "misconception": "believes sequential timeouts share the caller's budget instead of consuming it"
+          "text": "About 97.0 percent, and no, because three one second waits make three seconds",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3712,7 +3712,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A request succeeds only if every hop does, so 0.99 cubed is 0.970299, which is about 97.0 percent, and the timeouts do not share the budget: three hops that each wait their full second take three seconds, which is over what the caller allowed. The two numbers are the same design problem seen from two sides, and the interesting conclusion is that a budget of two seconds cannot be spent on three hops of one second each unless each hop knows what is left, which is why the deadline has to be propagated rather than restated at every hop. Shortening the chain fixes both numbers at once.",
       "hint": "Multiply the three chances together, then add the three timeouts and compare with the budget.",
@@ -3726,7 +3726,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3739,7 +3739,7 @@
         "timeouts",
         "two-stage"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3771,17 +3771,17 @@
         },
         {
           "id": "C",
-          "text": "Sixty through the minute limit, and then only forty through the daily quota",
-          "misconception": ""
+          "text": "Eighty through both, since neither limit applies to a caller that is already over the day",
+          "misconception": "believes exceeding a limit suspends the limits for the rest of the period"
         },
         {
           "id": "D",
-          "text": "Eighty through both, since neither limit applies to a caller that is already over the day",
-          "misconception": "believes exceeding a limit suspends the limits for the rest of the period"
+          "text": "Sixty through the minute limit, and then only forty through the daily quota",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The minute limit and the daily quota are two separate gates and both have to be passed, so the burst is cut to sixty by the first and then to forty by the second, because only 40 of the day's 1,000 remain. The twenty requests that pass the minute gate and are then refused by the quota have still consumed rate allowance, which is a detail worth knowing when reading a client's own counters. Keeping the two apart is the point of having both: the first protects the service from a burst and the second stops a caller from spending a day's capacity in a minute and then being useless for the rest of it.",
       "hint": "Apply the smaller burst first, then take what is left of the day's allowance.",
@@ -3795,7 +3795,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3808,7 +3808,7 @@
         "quotas",
         "two-stage"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },

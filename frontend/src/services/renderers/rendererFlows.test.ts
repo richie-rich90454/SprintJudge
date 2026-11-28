@@ -98,7 +98,6 @@ vi.mock("tone", () => {
     };
 });
 
-
 import { McqRenderer } from "./McqRenderer";
 import { TrueFalseRenderer } from "./TrueFalseRenderer";
 import { MultipleSelectRenderer } from "./MultipleSelectRenderer";
@@ -337,7 +336,7 @@ describe("rendererFlows mount-interact-respond-destroy-remount cycles", () => {
         input.dispatchEvent(new Event("input", { bubbles: true }));
         input.value = "world";
         input.dispatchEvent(new Event("input", { bubbles: true }));
-        expect(a.seen).toEqual([{ text: "hello" }, { text: "" }, { text: "world" }]);
+        expect(a.seen).toEqual([{ text: "" }, { text: "hello" }, { text: "" }, { text: "world" }]);
         r1.destroy();
         const b = host();
         const r2 = new FillBlankRenderer(b.div, { snippet: "x = ___" }, onChange(b.seen));

@@ -39,6 +39,34 @@ class WebSocketSessionManagerBreadthTest {
 	}
 
 	@Test
+	void concurrentRegistrationNeverExceedsCap() throws Exception {
+		WebSocketSessionManager mgr = new WebSocketSessionManager();
+		Session shared = openSession(mock(RemoteEndpoint.Basic.class));
+		for (int i = 0; i < 9_999; i++)
+			mgr.register("s" + i, shared);
+		int racers = 64;
+		java.util.concurrent.CountDownLatch go = new java.util.concurrent.CountDownLatch(1);
+		java.util.List<Thread> workers = new java.util.ArrayList<>();
+		for (int i = 0; i < racers; i++) {
+			String id = "c" + i;
+			Thread t = new Thread(() -> {
+				try {
+					go.await();
+					mgr.register(id, shared);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			});
+			workers.add(t);
+			t.start();
+		}
+		go.countDown();
+		for (Thread t : workers)
+			t.join(5_000);
+		assertEquals(10_000, mgr.size());
+	}
+
+	@Test
 	void unregisterUnknownKeepsSize() {
 		WebSocketSessionManager mgr = new WebSocketSessionManager();
 		mgr.register("a", openSession(mock(RemoteEndpoint.Basic.class)));

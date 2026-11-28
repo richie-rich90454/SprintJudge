@@ -99,7 +99,14 @@ public class AdminController {
 
 	@DeleteMapping("/quizzes/{id}")
 	public org.springframework.http.ResponseEntity<Void> deleteQuiz(@PathVariable String id) {
-		quizRepository.delete(id);
+		try {
+			quizRepository.delete(id);
+		} catch (org.jooq.exception.DataAccessException e) {
+			// A quiz referenced by an assignment or another record must not leak
+			// a database error; report a safe conflict instead.
+			throw new org.springframework.web.server.ResponseStatusException(
+					org.springframework.http.HttpStatus.CONFLICT, "quiz is still referenced");
+		}
 		return org.springframework.http.ResponseEntity.noContent().build();
 	}
 

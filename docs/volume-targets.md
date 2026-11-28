@@ -21,6 +21,8 @@ Algebra I, Algebra II, Geometry 4,000 each.
 Integrated Math I, II, III 4,000 each.
 Python Programming, Web Development, Cybersecurity, Data Science
 4,000 each.
+C Programming, C++ Programming, JavaScript Programming, Discrete Mathematics
+4,000 each.
 
 ## Per-unit floor
 

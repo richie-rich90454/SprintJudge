@@ -24,11 +24,15 @@ flowchart LR
 4. You appear in the host lobby.
 
 The public library at `/explore` lists available quizzes with a live search
-(title + description). It never links anywhere that needs a login.
+(title + description). It never links anywhere that needs a login. The
+**Collections** control saves a quiz into folders kept in your browser, so you
+can group practices for later without an account.
 
 ## Header buttons
 
 - **Speaker** — toggles all game sounds (8-bit SFX + procedural music). Persisted.
+- **Music note** — toggles background music on its own; the speaker remains the
+  master switch for sound effects. Persisted.
 - **Running figure** — cycles the motion preference: `system` (follow the OS
   reduced-motion setting) → `full` (always animate) → `reduced` (no animation:
   confetti, pulses, shakes and page transitions all stay off). Persisted.
@@ -78,7 +82,9 @@ never scored and never appears in the rankings.
 
 ## Post-game review
 
-The results screen has four tabs: podium, answer key, students, analysis.
+The results screen has five tabs: podium, answer key, students, teams (team
+games only), analysis. The podium includes a shareable result card — copy a
+plain-text summary or download the card as an image.
 The answer key shows the correct choice in plain words (letter plus option
 text), never raw JSON. Click any question to expand per-player results for
 that question: who got it, the points earned, and the attempts used.

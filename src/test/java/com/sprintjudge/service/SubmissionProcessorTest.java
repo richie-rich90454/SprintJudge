@@ -59,6 +59,15 @@ class SubmissionProcessorTest {
 				leaderboardBroadcaster, writeBuffer, aiGradingService, slot);
 	}
 
+	private static boolean javacAvailable() {
+		try {
+			Process p = new ProcessBuilder("javac", "-version").redirectErrorStream(true).start();
+			return p.waitFor(20, java.util.concurrent.TimeUnit.SECONDS) && p.exitValue() == 0;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	private Question codingQuestion(String config) {
 		Question q = mock(Question.class);
 		when(q.getQuestionType()).thenReturn("OJ_FULL");
@@ -1240,6 +1249,44 @@ class SubmissionProcessorTest {
 		assertEquals(2, cap.getValue().getTestCases().size());
 		assertFalse(cap.getValue().getTestCases().get(0).isHidden());
 		assertFalse(cap.getValue().getTestCases().get(1).isHidden());
+	}
+
+	@Test
+	void seededJavaConfigPassesBothCasesWithRealExecutor(@org.junit.jupiter.api.io.TempDir java.nio.file.Path tmp)
+			throws Exception {
+		org.junit.jupiter.api.Assumptions.assumeTrue(javacAvailable());
+		String javaCorrect = "public class Main { public static void main(String[] a) { System.out.println(42); } }";
+		String config = "{\"starter\":\"" + javaCorrect.replace("\"", "\\\"") + "\",\"defaultLanguage\":\"python\","
+				+ "\"testCases\":[{\"input\":\"\",\"expectedOutput\":\"42\"},"
+				+ "{\"input\":\"ignored\\n\",\"expectedOutput\":\"42\"}]}";
+		Semaphore slot = new Semaphore(2);
+		com.sprintjudge.service.executor.CompileArtifactCache cache = new com.sprintjudge.service.executor.CompileArtifactCache(
+				tmp.resolve("cache").toString(), 16, 16);
+		com.sprintjudge.service.executor.NativeExecutor real = new com.sprintjudge.service.executor.NativeExecutor(
+				cache);
+		org.springframework.test.util.ReflectionTestUtils.setField(real, "workDirBase", tmp.resolve("work").toString());
+		org.springframework.test.util.ReflectionTestUtils.setField(real, "defaultTimeoutSec", 10);
+		SubmissionProcessor p = new SubmissionProcessor(real, submissionRepository, questionRepository, scoringEngine,
+				leaderboardBroadcaster, writeBuffer, aiGradingService, slot);
+		Question q = codingQuestion(config);
+		when(questionRepository.findById("q")).thenReturn(Optional.of(q));
+		when(scoringEngine.scoreCoding(anyInt(), anyInt(), anyInt(), anyBoolean(), anyLong(), anyLong(), anyInt(),
+				any())).thenReturn(100);
+		when(submissionRepository.findBest(anyString(), anyString(), anyString())).thenReturn(Optional.empty());
+		int[] got = {-1, -1};
+		boolean[] all = {false};
+		CodingOutcomeConsumer handler = new com.sprintjudge.service.CodingOutcomeConsumer() {
+			@Override
+			public void accept(java.lang.String u, int s, boolean ap, int passed, int total, java.lang.String ai) {
+				got[0] = passed;
+				got[1] = total;
+				all[0] = ap;
+			}
+		};
+		assertTrue(p.processCoding("s", "pin", "q", "name", "u", "java", javaCorrect, 1, Map.of(), 0L, handler).get());
+		assertEquals(2, got[0]);
+		assertEquals(2, got[1]);
+		assertTrue(all[0]);
 	}
 
 	@Test

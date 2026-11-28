@@ -346,10 +346,13 @@ export class GameStateManager {
                 // Keep the final review across reloads/deep links to /results;
                 // GAME_REVIEW is a one-shot push that is gone on refresh.
                 try {
-                    sessionStorage.setItem("sprintjudge_last_review", JSON.stringify({
-                        review,
-                        leaderboard: review.rankings ?? [],
-                    }));
+                    sessionStorage.setItem(
+                        "sprintjudge_last_review",
+                        JSON.stringify({
+                            review,
+                            leaderboard: review.rankings ?? [],
+                        }),
+                    );
                 } catch {
                     /* storage unavailable - live view still works */
                 }
@@ -401,16 +404,32 @@ export class GameStateManager {
 
     /** Strict seq application with automatic resync on gap — never approximate. */
     private applyDelta(delta: LeaderboardDelta) {
+        if (delta.resync) {
+            // A full snapshot is self-contained and stamped with the current seq,
+            // which may jump >1 when several score mutations coalesce. Treating
+            // that jump as a gap would drop the very repair the client requested,
+            // leaving a stale board forever. Only a strictly newer local state
+            // makes a snapshot stale.
+            if (this.lastSeq !== null && delta.seq < this.lastSeq) return;
+            this.lastSeq = delta.seq;
+            this.patch({ leaderboard: [...delta.entries].sort((a, b) => a.rank - b.rank) });
+            this.resyncInFlight = false;
+            return;
+        }
         if (this.lastSeq !== null && delta.seq <= this.lastSeq) return; // duplicate/old
         if (this.lastSeq !== null && delta.seq > this.lastSeq + 1) {
             this.requestLeaderboardResync(); // gap
             return;
         }
         this.lastSeq = delta.seq;
+        // An accepted incremental delta proves the stream is healthy. Clear any
+        // in-flight resync flag: a JOINED resync on an empty board gets no reply,
+        // and leaving it set would block every later gap repair.
+        this.resyncInFlight = false;
 
-        if (delta.resync || delta.entries.length === 0) {
+        if (delta.entries.length === 0) {
             // Authoritative replacement (also covers "everyone at zero" rooms).
-            this.patch({ leaderboard: [...delta.entries].sort((a, b) => a.rank - b.rank) });
+            this.patch({ leaderboard: [] });
             this.resyncInFlight = false;
             return;
         }

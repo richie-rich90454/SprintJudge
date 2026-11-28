@@ -18,8 +18,8 @@
       "options": [
         {
           "id": "A",
-          "text": "start, then the caught name, then done",
-          "misconception": ""
+          "text": "start, then done, then the caught name",
+          "misconception": "believes the cleanup block preempts the handler when both are present"
         },
         {
           "id": "B",
@@ -28,8 +28,8 @@
         },
         {
           "id": "C",
-          "text": "start, then done, then the caught name",
-          "misconception": "believes the cleanup block preempts the handler when both are present"
+          "text": "start, then the caught name, then done",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -38,7 +38,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The guarded body runs until it raises, printing its first line on the way, and the matching handler then takes over and prints the fault's name, and the cleanup block runs last on the way out no matter which of those two happened. The tempting answers reorder the parts, and the ordering is worth memorising because it is what lets cleanup be trusted: the cleanup block is guaranteed to run after the handler has done its work, never before it.",
       "hint": "Follow the three parts in the order the interpreter reaches them: body, handler, cleanup.",
@@ -52,7 +52,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -67,7 +67,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0002",
@@ -92,8 +92,8 @@
         },
         {
           "id": "B",
-          "text": "the faults from that guarded body whose type the clause names",
-          "misconception": ""
+          "text": "the fault, but only after it has already stopped the whole program",
+          "misconception": "believes a handler runs once the program has already been terminated"
         },
         {
           "id": "C",
@@ -102,12 +102,12 @@
         },
         {
           "id": "D",
-          "text": "the fault, but only after it has already stopped the whole program",
-          "misconception": "believes a handler runs once the program has already been terminated"
+          "text": "the faults from that guarded body whose type the clause names",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A handler is scoped to the body it is attached to and only claims faults whose type matches what it names, so a fault of a different type passes straight through to whatever is outside. The tempting answer that makes handlers global confuses them with a top-level recovery point, and the answer that restricts them to deliberate raises ignores the language's own faults, which are the ones a handler is usually written for.",
       "hint": "Ask which faults a handler claims and how far its reach extends.",
@@ -121,7 +121,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -136,7 +136,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0003",
@@ -156,8 +156,8 @@
       "options": [
         {
           "id": "A",
-          "text": "it prints both labels",
-          "misconception": "believes every handler runs in turn and each prints its own label"
+          "text": "it prints zero",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -166,8 +166,8 @@
         },
         {
           "id": "C",
-          "text": "it prints zero",
-          "misconception": ""
+          "text": "it prints both labels",
+          "misconception": "believes every handler runs in turn and each prints its own label"
         },
         {
           "id": "D",
@@ -176,7 +176,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The body divides by zero, which raises the division fault, and the handlers are examined in the order written until one names a matching type, so the first is skipped and the second prints its label. The tempting answer that takes the first handler confuses the written order with the matching order, and the answer that prints both lines would require a fault to be claimed twice, which cannot happen since the claiming handler ends the search.",
       "hint": "Walk the handlers in written order and stop at the first whose type matches the fault.",
@@ -190,7 +190,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -205,7 +205,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0004",
@@ -230,8 +230,8 @@
         },
         {
           "id": "B",
-          "text": "it prints value",
-          "misconception": "believes the first handler claims every fault regardless of type"
+          "text": "it prints app",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -240,12 +240,12 @@
         },
         {
           "id": "D",
-          "text": "it prints app",
-          "misconception": ""
+          "text": "it prints value",
+          "misconception": "believes the first handler claims every fault regardless of type"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "A derived class is caught by a handler for its base class, so the base exception handler would also have claimed this fault, and here the handler for the custom class claims it directly. The tempting answer that requires an exact name match misses the property that makes a hierarchy of faults worth building, since it is exactly the matching that lets a caller handle a whole family of related faults with one clause.",
       "hint": "Ask whether a handler for a base class also claims a fault of a derived class.",
@@ -259,7 +259,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -274,7 +274,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0005",
@@ -299,13 +299,13 @@
         },
         {
           "id": "B",
-          "text": "an unrelated fault of another type is left to propagate outward",
-          "misconception": ""
+          "text": "only a named type can be caught at all, since a bare clause is void",
+          "misconception": "believes a bare handler is syntactically inert and catches nothing"
         },
         {
           "id": "C",
-          "text": "only a named type can be caught at all, since a bare clause is void",
-          "misconception": "believes a bare handler is syntactically inert and catches nothing"
+          "text": "an unrelated fault of another type is left to propagate outward",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Naming the type turns the handler into a claim on one family of faults, so anything else raised in that body continues outward to a caller who may be able to do something about it, and a bare handler swallows that too and reports it as if it were the problem it expected. The tempting answer about speed is a real but minor benefit, while the important one is that a hidden fault is a fault nobody can fix, since the program continues from a state its author never anticipated.",
       "hint": "Ask where a fault of a type the handler does not name ends up.",
@@ -328,7 +328,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -343,7 +343,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0006",
@@ -373,17 +373,17 @@
         },
         {
           "id": "C",
-          "text": "it prints 1 then None",
-          "misconception": ""
+          "text": "it prints None twice",
+          "misconception": "believes a bare handler intercepts even a body that completed successfully"
         },
         {
           "id": "D",
-          "text": "it prints None twice",
-          "misconception": "believes a bare handler intercepts even a body that completed successfully"
+          "text": "it prints 1 then None",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The first call finds its key and returns the stored value without any fault, and the second raises a key fault which the bare handler converts into the stated fallback, so the two results are the stored value and the absent marker. The tempting answer that lets the fault escape treats a bare clause as if it named a type, and the answer claiming a numeric zero invents a fallback that was never written, which is the second way a bare handler misleads by replacing one unstated thing with another.",
       "hint": "Ask what the fallback expression returns, and whether the first call raises at all.",
@@ -397,7 +397,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -412,7 +412,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0007",
@@ -480,8 +480,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the list holding nothing at all",
-          "misconception": "believes both blocks are skipped because no fault was raised"
+          "text": "the list holding only else",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -495,12 +495,12 @@
         },
         {
           "id": "D",
-          "text": "the list holding only else",
-          "misconception": ""
+          "text": "the list holding nothing at all",
+          "misconception": "believes both blocks are skipped because no fault was raised"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The else block on a guarded statement runs only when the body completed without raising, which is exactly this case, while the handler clause is skipped because it exists solely to claim a fault. The tempting answer that enters the handler treats it as a continuation of the body rather than as a claim, and the answer that runs both would make the pair report the same situation twice, leaving no way to tell a clean run from a handled one.",
       "hint": "The two attached blocks cover opposite outcomes; decide which one this run took.",
@@ -514,7 +514,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -529,7 +529,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0009",
@@ -804,13 +804,13 @@
       "options": [
         {
           "id": "A",
-          "text": "a class derived from the base value type, raised with a return",
-          "misconception": "believes a custom fault is an ordinary value handed back to the caller"
+          "text": "a class derived from the base fault type, raised with a raise statement",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "a class derived from the base fault type, raised with a raise statement",
-          "misconception": ""
+          "text": "a class derived from the base value type, raised with a return",
+          "misconception": "believes a custom fault is an ordinary value handed back to the caller"
         },
         {
           "id": "C",
@@ -824,7 +824,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "A custom fault is a class derived from the base fault type, so it participates in the same handling rules as every other fault and can be claimed by a handler naming either it or its base, and a raise statement is what puts an instance of that class in flight. The tempting answers each replace the mechanism with something that cannot be caught selectively, and the last one is worth singling out because passing a string to a body looks like it might signal a problem while the body has no idea what it was handed.",
       "hint": "Ask what a handler naming your fault would need to match against.",
@@ -838,7 +838,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -853,7 +853,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0014",
@@ -878,13 +878,13 @@
         },
         {
           "id": "B",
-          "text": "the value that failed the assertion, printed on its own",
-          "misconception": "believes an assertion reports the offending value by default"
+          "text": "the message the assertion was given",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "the message the assertion was given",
-          "misconception": ""
+          "text": "the value that failed the assertion, printed on its own",
+          "misconception": "believes an assertion reports the offending value by default"
         },
         {
           "id": "D",
@@ -893,7 +893,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A failed assertion raises the assertion fault carrying the message written after the comma, and converting that fault to text yields the message rather than the class name. The tempting answer that expects the offending value is right about the general shape of a fault but wrong here, because an assertion reports what it was told to report and nothing more, which is why a useful assertion message names what was expected rather than repeating the condition.",
       "hint": "Ask which part of the assertion statement is preserved when the check fails.",
@@ -907,7 +907,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -922,7 +922,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0015",
@@ -952,17 +952,17 @@
         },
         {
           "id": "C",
-          "text": "it is skipped but the message is still written to the output",
-          "misconception": "believes the message is produced even though the check never ran"
+          "text": "it is skipped entirely, so an invalid argument passes through unnoticed",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "it is skipped entirely, so an invalid argument passes through unnoticed",
-          "misconception": ""
+          "text": "it is skipped but the message is still written to the output",
+          "misconception": "believes the message is produced even though the check never ran"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "Disabling assertions removes the check from the compiled program entirely, so the condition is never evaluated and an argument that should have been rejected proceeds into the body. The tempting answers all suppose the check survives in some reduced form, and that supposition is the trap: an assertion documents an invariant for the developer, not a rule for the program, so anything the program must enforce on untrusted input has to be an ordinary conditional that raises a real fault.",
       "hint": "Ask whether the condition is still evaluated at all when the option is set.",
@@ -976,7 +976,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -991,7 +991,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0016",
@@ -1065,8 +1065,8 @@
         },
         {
           "id": "B",
-          "text": "open, the body line, then close, in that order",
-          "misconception": ""
+          "text": "open and close, with the body line replaced by the handle",
+          "misconception": "believes the block's print is overridden by the name bound to the handle"
         },
         {
           "id": "C",
@@ -1075,12 +1075,12 @@
         },
         {
           "id": "D",
-          "text": "open and close, with the body line replaced by the handle",
-          "misconception": "believes the block's print is overridden by the name bound to the handle"
+          "text": "open, the body line, then close, in that order",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The decorator turns the generator into a context manager, which runs the body up to its first yield when the block is entered and resumes after the yield once the block ends, so the open line and the body line and the close line come out in that order. The tempting answer that puts the release first mistakes the generator's shape for a plain function's, and the answer claiming the prints vanished is a useful reminder that a generator's body does not run until something pulls from it.",
       "hint": "The first yield marks the boundary between the entry half and the release half.",
@@ -1094,7 +1094,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1109,7 +1109,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0018",
@@ -1129,8 +1129,8 @@
       "options": [
         {
           "id": "A",
-          "text": "enter, the body line, then the program stops before exit",
-          "misconception": "believes the exit is skipped when the block fails"
+          "text": "enter, the body line, exit, then after",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1139,8 +1139,8 @@
         },
         {
           "id": "C",
-          "text": "enter, the body line, exit, then after",
-          "misconception": ""
+          "text": "enter, the body line, then the program stops before exit",
+          "misconception": "believes the exit is skipped when the block fails"
         },
         {
           "id": "D",
@@ -1149,7 +1149,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The exit half always runs when the block ends, and it printed its line, and because it reported a true value the fault was marked as handled so the statement after the block ran as well. The tempting answer that stops the program misses what a true result from the exit half means, and it is worth treating that as a deliberate signal rather than a convenience, since it is the one place where a context manager can quietly erase a failure and leave the program running on a state nobody checked.",
       "hint": "Ask what the exit half reported, and what a true result there changes.",
@@ -1163,7 +1163,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1178,7 +1178,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0019",
@@ -1203,8 +1203,8 @@
         },
         {
           "id": "B",
-          "text": "it runs only when the block ends without a fault occurring inside",
-          "misconception": "believes the release half is skipped on the failing path"
+          "text": "it runs when the block ends, whether or not a fault occurred inside",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1213,12 +1213,12 @@
         },
         {
           "id": "D",
-          "text": "it runs when the block ends, whether or not a fault occurred inside",
-          "misconception": ""
+          "text": "it runs only when the block ends without a fault occurring inside",
+          "misconception": "believes the release half is skipped on the failing path"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The release half runs whenever the block is left, by the ordinary route, by an early return, or because something failed inside, and that is what makes a with block the right way to hold anything that must be given back. The tempting answer that ties it to the clean path is the misconception behind a great deal of manual cleanup code, since the failing path is exactly the one where a forgotten release leaks the resource and the program carries on regardless.",
       "hint": "Ask what happens to the resource when the block ends because of a fault.",
@@ -1232,7 +1232,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1247,7 +1247,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0020",
@@ -1272,13 +1272,13 @@
         },
         {
           "id": "B",
-          "text": "the three lines numbered from one with no trailing newlines",
-          "misconception": ""
+          "text": "two lines numbered from one, because the final newline ends the file",
+          "misconception": "believes a trailing newline creates a fourth empty line that is skipped"
         },
         {
           "id": "C",
-          "text": "two lines numbered from one, because the final newline ends the file",
-          "misconception": "believes a trailing newline creates a fourth empty line that is skipped"
+          "text": "the three lines numbered from one with no trailing newlines",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1287,7 +1287,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A file handle yields one line at a time including its terminating newline, and a final newline ends the last line rather than starting a new one, so the loop body runs exactly three times and the numbering starts at one because that is what the call requests. The tempting answer about a fourth line is a reasonable worry, since other languages do treat a trailing newline that way, and the answer about starting at zero ignores the explicit value in the call.",
       "hint": "Decide whether a file's final newline produces an extra empty line.",
@@ -1301,7 +1301,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1316,7 +1316,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0021",
@@ -1395,17 +1395,17 @@
         },
         {
           "id": "C",
-          "text": "two entries, each keeping its own newline",
-          "misconception": ""
+          "text": "one entry holding both lines and both newlines",
+          "misconception": "believes a bulk read returns a single combined string"
         },
         {
           "id": "D",
-          "text": "one entry holding both lines and both newlines",
-          "misconception": "believes a bulk read returns a single combined string"
+          "text": "two entries, each keeping its own newline",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "A bulk read returns one entry per line and each entry keeps the newline that ends it, so a file whose last line is properly terminated gives two entries and both keep their terminator. The tempting answer with a third empty entry treats the closing newline as starting a new line, which is how a file with no content after its last terminator is described but not how this read reports it, and the answer that strips the final newline is the other common assumption, which the language does not make on your behalf.",
       "hint": "Decide whether the read adds an entry for the newline that ends the last line.",
@@ -1419,7 +1419,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1434,7 +1434,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0023",
@@ -1454,8 +1454,8 @@
       "options": [
         {
           "id": "A",
-          "text": "two entries, the first without a newline",
-          "misconception": "believes the terminator is stripped from the first line instead of the last"
+          "text": "two entries, the second without a newline",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1469,12 +1469,12 @@
         },
         {
           "id": "D",
-          "text": "two entries, the second without a newline",
-          "misconception": ""
+          "text": "two entries, the first without a newline",
+          "misconception": "believes the terminator is stripped from the first line instead of the last"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The read reports exactly the terminators the file holds, so the first entry keeps its newline and the second has none because the file simply ends there. The tempting answer that supplies a newline would mean the read was inventing a character, and the answer that merges the two lines is a different failure: it would require the newline between them to be missing, which it is not.",
       "hint": "A read reports what is there, so ask which terminators the file actually contains.",
@@ -1488,7 +1488,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1503,7 +1503,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0024",
@@ -1730,13 +1730,13 @@
       "options": [
         {
           "id": "A",
-          "text": "only the writing side needs it, since the reader inherits what is in use",
-          "misconception": "believes the reading side picks up the encoding from the writing side"
+          "text": "both sides must name the same encoding, or the bytes decode differently",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "both sides must name the same encoding, or the bytes decode differently",
-          "misconception": ""
+          "text": "only the writing side needs it, since the reader inherits what is in use",
+          "misconception": "believes the reading side picks up the encoding from the writing side"
         },
         {
           "id": "C",
@@ -1750,7 +1750,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "A file is a sequence of bytes with no self-describing header, so the same bytes decode into different characters under different encodings, and both programs have to agree for the text to survive the trip. The tempting answer that only the reader needs it assumes the writer leaves a note in the file, and it does not, which is also why a file written on one machine and read on another can fail in ways that look like corruption rather than a configuration mistake.",
       "hint": "Ask whether a file's bytes record which encoding produced them.",
@@ -1764,7 +1764,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1779,7 +1779,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0028",
@@ -1853,13 +1853,13 @@
         },
         {
           "id": "B",
-          "text": "It prints 1, because the append mode clears the file before writing",
-          "misconception": "believes appending still truncates the file before it adds anything"
+          "text": "It prints 2, because the append mode starts past the last line",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "It prints 2, because the append mode starts past the last line",
-          "misconception": ""
+          "text": "It prints 1, because the append mode clears the file before writing",
+          "misconception": "believes appending still truncates the file before it adds anything"
         },
         {
           "id": "D",
@@ -1868,7 +1868,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "Appending places the cursor at the end of the existing content rather than at the start, so the earlier line survives and the new one is added, giving two lines in the read. The tempting answer that counts one is right about the number and wrong about the cause, and getting this backwards is expensive in practice: a log writer that accidentally uses the truncating mode erases the very history it exists to keep, and nothing in the output says so.",
       "hint": "Decide where each mode puts the cursor before the first character is written.",
@@ -1882,7 +1882,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1897,7 +1897,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0030",
@@ -1927,17 +1927,17 @@
         },
         {
           "id": "C",
-          "text": "the module's line twice and no size, because the second import shadows it",
-          "misconception": "believes a repeated import replaces the module and discards its attributes"
+          "text": "the module's line once, then the size of its list",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "the module's line once, then the size of its list",
-          "misconception": ""
+          "text": "the module's line twice and no size, because the second import shadows it",
+          "misconception": "believes a repeated import replaces the module and discards its attributes"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "The first import runs the module's top level and registers the result, and the second import finds it already registered and hands back the same module object without running anything again, which is why the printed line appears once and the list is still readable. The tempting answer that runs it twice is the one to guard against, because a top-level print or a top-level read of a file becomes a side effect that fires at an unexpected moment and, in a program that imports a module from several places, appears to happen at random.",
       "hint": "Ask whether the second import finds the module already registered in the table of loaded modules.",
@@ -1951,7 +1951,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1966,7 +1966,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0031",
@@ -1991,8 +1991,8 @@
         },
         {
           "id": "B",
-          "text": "the clean path then one with a doubled separator",
-          "misconception": ""
+          "text": "one with a doubled separator in both results",
+          "misconception": "believes the join also appends a separator to a base that ends in one"
         },
         {
           "id": "C",
@@ -2001,12 +2001,12 @@
         },
         {
           "id": "D",
-          "text": "one with a doubled separator in both results",
-          "misconception": "believes the join also appends a separator to a base that ends in one"
+          "text": "the clean path then one with a doubled separator",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A join knows what a separator looks like and so produces one separator between the two parts even when the base already ends in one, while manual concatenation blindly inserts another, which is why the second result has a doubled separator. The tempting answer that both are clean forgets that the manual form cannot inspect what it was given, and a doubled separator is usually harmless on a real system, which is exactly what makes it a quiet bug that survives review and then breaks on a stricter platform.",
       "hint": "Ask whether the manual form can see that the base already ends in a separator.",
@@ -2020,7 +2020,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2035,7 +2035,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0032",
@@ -2055,8 +2055,8 @@
       "options": [
         {
           "id": "A",
-          "text": "it confirms the second part exists on disk before building the text",
-          "misconception": "believes joining a path also checks that the target is present"
+          "text": "it knows the separator, so a base already ending in one is not doubled",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2065,8 +2065,8 @@
         },
         {
           "id": "C",
-          "text": "it knows the separator, so a base already ending in one is not doubled",
-          "misconception": ""
+          "text": "it confirms the second part exists on disk before building the text",
+          "misconception": "believes joining a path also checks that the target is present"
         },
         {
           "id": "D",
@@ -2075,7 +2075,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A join is aware of the separator character and produces exactly one between the parts, so it behaves the same whether or not the base already ends in one, whereas manual insertion produces a doubled separator in one of those cases. The tempting answers describe side effects the join does not have, and the length argument is a red herring, because a doubled separator costs a single character and is typically accepted, which is exactly why the mistake is easy to introduce and hard to notice.",
       "hint": "Ask what the join knows about the first part that the manual form cannot inspect.",
@@ -2089,7 +2089,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2104,7 +2104,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0033",
@@ -2129,8 +2129,8 @@
         },
         {
           "id": "B",
-          "text": "False, then the name of the missing-folder fault",
-          "misconception": "believes an absent parent folder is reported as its own separate fault"
+          "text": "False, then the name of the missing-file fault",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2139,12 +2139,12 @@
         },
         {
           "id": "D",
-          "text": "False, then the name of the missing-file fault",
-          "misconception": ""
+          "text": "False, then the name of the missing-folder fault",
+          "misconception": "believes an absent parent folder is reported as its own separate fault"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The existence check consults the filesystem and reports false, and then opening the path raises the fault that names a missing file, which the handler prints. The tempting answer naming a missing folder confuses the two conditions, but a path whose parent directory is absent and a path whose file is absent produce the same fault to the program, and that indistinguishability is worth knowing, since a handler cannot tell from the fault alone which half of the path is missing.",
       "hint": "Ask what the existence check reports, and then what opening an absent path raises.",
@@ -2158,7 +2158,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2173,7 +2173,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0034",
@@ -2198,13 +2198,13 @@
         },
         {
           "id": "B",
-          "text": "a fault naming the missing file, and a handler can claim it by type",
-          "misconception": ""
+          "text": "the absent marker, because a read of a missing path quietly gives nothing",
+          "misconception": "believes a failed read returns the absent marker rather than raising"
         },
         {
           "id": "C",
-          "text": "the absent marker, because a read of a missing path quietly gives nothing",
-          "misconception": "believes a failed read returns the absent marker rather than raising"
+          "text": "a fault naming the missing file, and a handler can claim it by type",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2213,7 +2213,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Opening a path that is not present raises a fault whose type names a missing file, and because it is a normal fault a handler can claim it by that type, which is what makes a program able to say something useful about a missing input. The tempting answers that expect a quiet result are the dangerous ones, because code written on that assumption will read an absent file and conclude it was empty, and the difference between absent and empty is often the entire question being asked.",
       "hint": "Ask whether a failed read is a fault or a value, and what that decides.",
@@ -2227,7 +2227,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2242,7 +2242,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0035",
@@ -2272,17 +2272,17 @@
         },
         {
           "id": "C",
-          "text": "dict, then the value from each source",
-          "misconception": ""
+          "text": "str, then the raw text of the file",
+          "misconception": "believes neither decoder produces a value at all"
         },
         {
           "id": "D",
-          "text": "str, then the raw text of the file",
-          "misconception": "believes neither decoder produces a value at all"
+          "text": "dict, then the value from each source",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "Both decoders produce a value rather than text, and an object in the serialised form decodes to a mapping, so the type name is the same on both paths and each yields two for the key. The tempting answer that returns text confuses the decoder with the raw input, and the distinction matters because a program that treats the result as text cannot index it at all, which is a very common first error when moving from a file to an in-memory string.",
       "hint": "Ask what each call produces, and whether that is the text it was given.",
@@ -2296,7 +2296,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2311,7 +2311,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0036",
@@ -2331,8 +2331,8 @@
       "options": [
         {
           "id": "A",
-          "text": "both take a handle, and one of them reads the whole file first",
-          "misconception": "believes the text form can also be given a file handle"
+          "text": "one takes text and returns a value, the other takes a handle and returns a value",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2346,12 +2346,12 @@
         },
         {
           "id": "D",
-          "text": "one takes text and returns a value, the other takes a handle and returns a value",
-          "misconception": ""
+          "text": "both take a handle, and one of them reads the whole file first",
+          "misconception": "believes the text form can also be given a file handle"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "Both calls decode and both return a value, and the only difference is where the serialised text comes from, one from a string you already have and the other from a file handle that is read for you. The tempting answer that swaps the inputs and outputs describes a pair of encoder calls, and the answer that has one of them returning text is worth watching for, because a decoder that handed back its input would be a no-op and the two names would be pointless.",
       "hint": "Ask where each call gets the serialised text from.",
@@ -2365,7 +2365,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2380,7 +2380,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0037",
@@ -2607,13 +2607,13 @@
       "options": [
         {
           "id": "A",
-          "text": "the total, then int and str for the two field types",
-          "misconception": "believes the first record's field is the numeric one"
+          "text": "the total, then str and int for the two field types",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "the total, then str and int for the two field types",
-          "misconception": ""
+          "text": "the total, then int and str for the two field types",
+          "misconception": "believes the first record's field is the numeric one"
         },
         {
           "id": "C",
@@ -2627,7 +2627,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "A number in the serialised form decodes to a number and a quoted value decodes to text, so the two fields really do arrive in different types, and converting each before adding is what lets the total come out as a number rather than a fault or a concatenation. The tempting answer that reverses the two types is a reading error, but the important lesson is the one the item exists for: decoded data carries the types the file declared, so any field that might arrive either way has to be normalised before it is used.",
       "hint": "Ask what each declared value decodes to, before the conversion is applied.",
@@ -2641,7 +2641,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2656,7 +2656,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0041",
@@ -2681,13 +2681,13 @@
         },
         {
           "id": "B",
-          "text": "It prints 179, because the two fields are joined as text and then read",
-          "misconception": "believes adding one text field to a number produces the total as text"
+          "text": "It prints 179, because each field is converted before it is added",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "It prints 179, because each field is converted before it is added",
-          "misconception": ""
+          "text": "It prints 179, because the two fields are joined as text and then read",
+          "misconception": "believes adding one text field to a number produces the total as text"
         },
         {
           "id": "D",
@@ -2696,7 +2696,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The conversion turns the quoted value into eighty-eight and leaves the bare number as ninety-one, so the two can be added as numbers and the total is one hundred and seventy-nine. The tempting answer that describes a text join would not give a number at all, since adding a string to anything raises, and the two answers that drop a record describe a filtering behaviour this code does not perform, because the conversion accepts both forms and neither record is discarded.",
       "hint": "Ask what the conversion does to a quoted value and to a bare number.",
@@ -2710,7 +2710,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2725,7 +2725,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0042",
@@ -2755,17 +2755,17 @@
         },
         {
           "id": "C",
-          "text": "a fault naming the row whose width does not match",
-          "misconception": "believes the reader refuses a row that is not the same width as the header"
+          "text": "each row's field count, then that row as a list",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "each row's field count, then that row as a list",
-          "misconception": ""
+          "text": "a fault naming the row whose width does not match",
+          "misconception": "believes the reader refuses a row that is not the same width as the header"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "The reader splits each line and hands it over as a list, reporting three fields for the first line, two for the second, and three for the third, without complaint and without padding, because a plain reader has no idea what the widths are supposed to be. The tempting answer that raises a fault describes the checking that has to be added by hand, and that is exactly the point: validating the width is the reader's job, and a program that assumes every row matches the header will quietly index past the end of a short row.",
       "hint": "Ask what a plain reader knows about how wide the rows are meant to be.",
@@ -2779,7 +2779,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2794,7 +2794,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0043",
@@ -2819,8 +2819,8 @@
         },
         {
           "id": "B",
-          "text": "the value then the quoted value, then the value then the marker",
-          "misconception": ""
+          "text": "the value then an empty string on both rows of output",
+          "misconception": "believes a missing column reads as empty text rather than the marker"
         },
         {
           "id": "C",
@@ -2829,12 +2829,12 @@
         },
         {
           "id": "D",
-          "text": "the value then an empty string on both rows of output",
-          "misconception": "believes a missing column reads as empty text rather than the marker"
+          "text": "the value then the quoted value, then the value then the marker",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The reader keys each row by the header, so a column the row never supplied reads back as the absent marker rather than raising, which is what lets the second row be printed at all. The tempting answer that raises is the behaviour of a plain mapping, where indexing a missing key is an error, and the answer expecting an empty string confuses this with a text field that is present and happens to be blank, which is a different case entirely.",
       "hint": "Ask what the reader does for a column the row supplied no value for.",
@@ -2848,7 +2848,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2863,7 +2863,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0044",
@@ -2883,8 +2883,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the previous row's value for that same column",
-          "misconception": "believes the reader carries values forward from the row above"
+          "text": "the absent marker, rather than a raised fault of any kind",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2893,8 +2893,8 @@
         },
         {
           "id": "C",
-          "text": "the absent marker, rather than a raised fault of any kind",
-          "misconception": ""
+          "text": "the previous row's value for that same column",
+          "misconception": "believes the reader carries values forward from the row above"
         },
         {
           "id": "D",
@@ -2903,7 +2903,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A header-keyed reader fills every column the header names, and a column the row supplied nothing for reads back as the absent marker, so a short row is still delivered and its gap is visible rather than silently filled. The tempting answer expecting an empty string would make a genuinely blank field and an absent field impossible to tell apart, and the one expecting the previous row's value invents a carry-forward rule the reader does not have.",
       "hint": "Ask whether a missing column can be told apart from one that is present and blank.",
@@ -2917,7 +2917,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2932,7 +2932,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0045",
@@ -3153,8 +3153,8 @@
         },
         {
           "id": "B",
-          "text": "the rounded value, then the square root as a whole number",
-          "misconception": "believes the whole-number division applies inside the square root"
+          "text": "the rounded value, then the square root as a decimal",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3163,12 +3163,12 @@
         },
         {
           "id": "D",
-          "text": "the rounded value, then the square root as a decimal",
-          "misconception": ""
+          "text": "the rounded value, then the square root as a whole number",
+          "misconception": "believes the whole-number division applies inside the square root"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "Rounding down a value gives an integer, and the square root of a whole number whose root is exact still comes back as a floating-point value, so the two differ in type as well as in magnitude. The tempting answer that reports a whole number assumes the integer conversion applies to the second call, and the answer claiming a fault is worth knowing is false, because both forms may be used in the same file and the names they bind are simply different.",
       "hint": "Ask what type the square-root call returns for an exact whole-number root.",
@@ -3182,7 +3182,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3197,7 +3197,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0050",
@@ -3222,13 +3222,13 @@
         },
         {
           "id": "B",
-          "text": "the first binds the module itself, the second binds one name from it",
-          "misconception": ""
+          "text": "both bind the module, and the second merely shortens it",
+          "misconception": "believes the name form is only a spelling convenience for the module"
         },
         {
           "id": "C",
-          "text": "both bind the module, and the second merely shortens it",
-          "misconception": "believes the name form is only a spelling convenience for the module"
+          "text": "the first binds the module itself, the second binds one name from it",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3237,7 +3237,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Importing a module introduces the module under its own name, so its members are reached through that name, while importing a name from a module introduces only that name and leaves the module itself unbound. The tempting answer that treats the second form as a convenience misses a real consequence: with only the name bound, the module cannot be reached to reach any other member, so a later need for a second member forces a second import.",
       "hint": "Ask whether the module itself is reachable after each of the two forms.",
@@ -3251,7 +3251,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3266,7 +3266,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0051",
@@ -3296,17 +3296,17 @@
         },
         {
           "id": "C",
-          "text": "the name of the type fault",
-          "misconception": ""
+          "text": "a fault naming an unknown attribute on the whole number",
+          "misconception": "believes the call is looked up as a member of the value that was bound"
         },
         {
           "id": "D",
-          "text": "a fault naming an unknown attribute on the whole number",
-          "misconception": "believes the call is looked up as a member of the value that was bound"
+          "text": "the name of the type fault",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "Once the name holds a whole number, calling it is an attempt to call something that is not callable, and that is reported as a type fault, which the handler prints. The tempting answer that still produces the sum assumes the original meaning survives the rebinding, and the answer expecting an unknown name is worth distinguishing, because shadowing does not remove a name, it replaces what the name points at, so the call resolves and then fails on what it found.",
       "hint": "Ask whether the name still resolves, and what it now resolves to.",
@@ -3320,7 +3320,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3335,7 +3335,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0052",
@@ -3355,8 +3355,8 @@
       "options": [
         {
           "id": "A",
-          "text": "a fault naming an undefined name, then the list of three values",
-          "misconception": "believes rebinding a standard library name deletes it entirely"
+          "text": "the type fault, then the list still holding three values",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3370,12 +3370,12 @@
         },
         {
           "id": "D",
-          "text": "the type fault, then the list still holding three values",
-          "misconception": ""
+          "text": "a fault naming an undefined name, then the list of three values",
+          "misconception": "believes rebinding a standard library name deletes it entirely"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The name still resolves, but it now resolves to a list, and calling a list is a type fault, so the handler prints the fault's name and the list is printed afterwards unchanged. The tempting answer that still adds the values treats the rebinding as a temporary preference rather than a replacement, and the answer expecting a missing name is the one to rule out first, since a rebound name is still a name.",
       "hint": "Ask whether the name resolves, and separately whether what it resolves to can be called.",
@@ -3389,7 +3389,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3404,7 +3404,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0053",
@@ -3680,13 +3680,13 @@
       "options": [
         {
           "id": "A",
-          "text": "the first record as a quoted value, then the second with an empty string",
-          "misconception": "believes a column the row never supplied reads as blank text"
+          "text": "the first record as a quoted value, then the second with a marker",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "the first record as a quoted value, then the second with a marker",
-          "misconception": ""
+          "text": "the first record as a quoted value, then the second with an empty string",
+          "misconception": "believes a column the row never supplied reads as blank text"
         },
         {
           "id": "C",
@@ -3700,7 +3700,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The reader fills every column the header names, so the second record's score reads back as the absent marker and the print succeeds, showing the difference between a value that was supplied and one that was not. The tempting answers each invent a filler, and the marker is the one that is actually useful, because it is distinguishable from a genuinely blank field and from a score of zero, so a report built on it can decide for itself what a missing score should mean.",
       "hint": "Ask what a header-keyed reader supplies for a column a record left out.",
@@ -3714,7 +3714,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3729,7 +3729,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0058",
@@ -3754,13 +3754,13 @@
         },
         {
           "id": "B",
-          "text": "a fallback value and the key it was about",
-          "misconception": "believes the subscript supplies the fallback the method call would have"
+          "text": "the fault's name and the key it was about",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "the fault's name and the key it was about",
-          "misconception": ""
+          "text": "a fallback value and the key it was about",
+          "misconception": "believes the subscript supplies the fallback the method call would have"
         },
         {
           "id": "D",
@@ -3769,7 +3769,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The decoded record holds only the key id, so the subscript raises a key fault and the handler prints the fault's name followed by the offending key, which is what converting the fault to text produces. The tempting answer that expects a fallback is the confusion that matters, because the rewrite looks like a tidier spelling of the same call while actually removing the only thing that made it safe, and the traceback will now point at this line rather than at the place where the record was built.",
       "hint": "Ask whether the subscript form can produce a value for a key that was never decoded.",
@@ -3783,7 +3783,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3798,7 +3798,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.1-0059",

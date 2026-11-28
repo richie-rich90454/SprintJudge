@@ -24,7 +24,8 @@ German Language and Culture, Chinese Language and Culture, Art History,
 Music Theory, Precalculus, Research Methods, Interdisciplinary Seminar,
 Biology, Algebra I, Algebra II, Geometry, Integrated Math I,
 Integrated Math II, Integrated Math III, Python Programming,
-Web Development, Cybersecurity, Data Science.
+Web Development, Cybersecurity, Data Science, C Programming,
+C++ Programming, JavaScript Programming, Discrete Mathematics, African American Studies, Computing Principles, Italian Language and Culture, Japanese Language and Culture, Latin, Organic Chemistry I, Organic Chemistry II, Physical Chemistry, Analytical Chemistry, Biochemistry, Linear Algebra, Differential Equations, Discrete Mathematics II, Data Structures and Algorithms, Operating Systems, Computer Networks, Databases, Artificial Intelligence and Machine Learning, Modern Physics, Thermodynamics, Personal Finance, Business and Entrepreneurship, Accounting, Marketing, Introduction to Law, Ethics and Philosophy, World Religions, Sociology, Anthropology, Astronomy, Earth Science, Nutrition and Health, Film Studies, Graphic Design, Arabic Language and Culture, Korean Language and Culture.
 
 ## Frameworks as references
 

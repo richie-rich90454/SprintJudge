@@ -18,8 +18,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It records the intended types for a tool to read, and the interpreter never checks them at the call",
-          "misconception": ""
+          "text": "It records the intended types and the interpreter checks them only the first time the function is called",
+          "misconception": "believes the check happens once and is then cached for later calls"
         },
         {
           "id": "B",
@@ -33,12 +33,12 @@
         },
         {
           "id": "D",
-          "text": "It records the intended types and the interpreter checks them only the first time the function is called",
-          "misconception": "believes the check happens once and is then cached for later calls"
+          "text": "It records the intended types for a tool to read, and the interpreter never checks them at the call",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "An annotation is a piece of metadata attached to a name at the moment the definition runs, and the interpreter stores it and does nothing else with it. There is no conversion and no refusal, so a caller may pass a string to a parameter annotated as a list of integers and the body receives the string. What the annotation is for is a separate tool, which reads the same metadata and reports the places where the code contradicts it, usually long before the program is run. That is why a function annotated as returning an integer can perfectly well return a string and print it, and why the annotation being present is never itself evidence that the code is right.",
       "hint": "Ask whether the interpreter has to read an annotation to run the function at all.",
@@ -52,7 +52,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -67,7 +67,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0002",
@@ -87,13 +87,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The base class is a structural requirement, while the protocol is a nominal one checked at the constructor call",
-          "misconception": "believes the abstract base class matches on members and the protocol on inheritance"
+          "text": "The base class is a nominal requirement, while the protocol is a structural one satisfied by having the members",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "The base class is a nominal requirement, while the protocol is a structural one satisfied by having the members",
-          "misconception": ""
+          "text": "The base class is a structural requirement, while the protocol is a nominal one checked at the constructor call",
+          "misconception": "believes the abstract base class matches on members and the protocol on inheritance"
         },
         {
           "id": "C",
@@ -107,7 +107,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "A base class states a requirement by name: to be accepted, the argument's class must record that it inherits from it, and the relationship is written into the class definition before the program runs. A protocol states the requirement by shape: the argument's class does not have to know the protocol exists at all, and what makes it acceptable is that it happens to carry the members. That difference is what lets code written against a protocol accept an object from a library whose author never heard of it, and it is also why a protocol is the better default for a function that only needs one or two operations from whatever it is given.",
       "hint": "Ask whether the accepting class had to declare anything, or whether it merely happens to fit.",
@@ -121,7 +121,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -136,7 +136,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0003",
@@ -161,13 +161,13 @@
         },
         {
           "id": "B",
-          "text": "Only that exact class and no other, because a bound names one concrete class rather than a family",
-          "misconception": "believes a bound admits only the single class it names"
+          "text": "Any class that is that type or inherits from it, but the bound says nothing about the class's own shape",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Any class that is that type or inherits from it, but the bound says nothing about the class's own shape",
-          "misconception": ""
+          "text": "Only that exact class and no other, because a bound names one concrete class rather than a family",
+          "misconception": "believes a bound admits only the single class it names"
         },
         {
           "id": "D",
@@ -176,7 +176,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A bound names a class, and what it permits is that class together with everything that inherits from it, so a bound on an integer class admits integers and also admits any class built on integers. The bound is a promise about the class only, and it says nothing about what members the class has, which is why a function bounded on integers can be written to call something the integers do not have and be wrong for a subclass that lacks it. The usual way to avoid that trap is to bound on a protocol as well, so the bound states the members the body needs rather than a name the body then has to assume something about.",
       "hint": "Ask whether a subclass of the bound class is inside or outside, and what the bound says about members.",
@@ -190,7 +190,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -205,7 +205,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0004",
@@ -235,17 +235,17 @@
         },
         {
           "id": "C",
-          "text": "A performance gain, because a name is resolved once instead of being rebuilt at every call",
-          "misconception": "believes naming a type removes the work of checking it per call"
+          "text": "One place to change when the shape is wrong, and shorter signatures that can be read without decoding",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "One place to change when the shape is wrong, and shorter signatures that can be read without decoding",
-          "misconception": ""
+          "text": "A performance gain, because a name is resolved once instead of being rebuilt at every call",
+          "misconception": "believes naming a type removes the work of checking it per call"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "A type alias is one name standing for a composite type, and the value is that the composite is written once. When the shape turns out to be wrong, one edit changes all nine signatures instead of nine edits that have to be kept in step, and a signature that reads as a name rather than as a nested bracket expression is one a reader can hold in their head. The alias carries no runtime obligation of any kind, since it resolves to the same type it always did, and its value to a checking tool is that the tool can report the alias's name in a message rather than reprinting the whole expression.",
       "hint": "Ask what happens to the nine signatures when the shape has to change.",
@@ -259,7 +259,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -274,7 +274,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0005",
@@ -299,8 +299,8 @@
         },
         {
           "id": "B",
-          "text": "That it can be called with two integers and will return an integer, which is about the call and not the object's class",
-          "misconception": ""
+          "text": "That it must be a plain function, so an object with a matching call method would be refused",
+          "misconception": "believes only a plain function satisfies a callable type"
         },
         {
           "id": "C",
@@ -309,12 +309,12 @@
         },
         {
           "id": "D",
-          "text": "That it must be a plain function, so an object with a matching call method would be refused",
-          "misconception": "believes only a plain function satisfies a callable type"
+          "text": "That it can be called with two integers and will return an integer, which is about the call and not the object's class",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A callable type says what a call will do rather than what a class is: it names the parameters the call accepts, in order, and what comes back. A plain function satisfies it, and so does a class with a matching call method, and so does a partial application that has already swallowed some of the arguments, which is why an object that is not a function at all can satisfy one. Because it is a promise about a call, a callable type is the natural annotation for a callback handed to a library, and the checking tool's job is to confirm the function passed in really can be called that way.",
       "hint": "Ask whether the annotation describes a class or a call, and whether a callable object is excluded.",
@@ -328,7 +328,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -343,7 +343,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0006",
@@ -363,8 +363,8 @@
       "options": [
         {
           "id": "A",
-          "text": "To speed up the comparison, because naming the values lets the interpreter skip a string check",
-          "misconception": "believes a literal type changes how the interpreter compares a string"
+          "text": "To let a tool report the call as a mistake, because the plain string class would accept any string at all",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -373,8 +373,8 @@
         },
         {
           "id": "C",
-          "text": "To let a tool report the call as a mistake, because the plain string class would accept any string at all",
-          "misconception": ""
+          "text": "To speed up the comparison, because naming the values lets the interpreter skip a string check",
+          "misconception": "believes a literal type changes how the interpreter compares a string"
         },
         {
           "id": "D",
@@ -383,7 +383,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A literal type narrows a class to named members of it, and its whole purpose is to let a checking tool see that a call passed something outside that narrowed set and report it before the program runs. Without it the parameter is simply a string and every string is acceptable, which is the condition a checker has nothing to complain about. There is no runtime effect at all: the interpreter does not look at a literal type when the call happens, so a value outside the set goes straight through, and the only thing that catches it is a tool that was run.",
       "hint": "Ask what a plain string annotation would fail to report, and who reads a literal type.",
@@ -397,7 +397,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -412,7 +412,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0007",
@@ -437,8 +437,8 @@
         },
         {
           "id": "B",
-          "text": "So the library runs faster, because the stub replaces the real functions at import time",
-          "misconception": "believes a stub file is substituted for the library at runtime"
+          "text": "So a type checker can read the library's interface without its source, and report errors in the calling code",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -447,12 +447,12 @@
         },
         {
           "id": "D",
-          "text": "So a type checker can read the library's interface without its source, and report errors in the calling code",
-          "misconception": ""
+          "text": "So the library runs faster, because the stub replaces the real functions at import time",
+          "misconception": "believes a stub file is substituted for the library at runtime"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "A stub carries the names, parameters and annotations of a library's interface and none of its body, which is exactly what a type checker needs and nothing more. A dependency is often unavailable as source, is written in another language, or is a compiled extension, and in all three cases the checker would otherwise have nothing to read and would treat every attribute as untyped. The stub is not loaded by the running program at all, so nothing in the library's behaviour changes; it exists purely so that a mistyped keyword or a wrong argument count in the calling code becomes a reported error rather than a surprise at the first run.",
       "hint": "Ask what the checker does when a dependency has no readable source.",
@@ -466,7 +466,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -481,7 +481,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0008",
@@ -506,13 +506,13 @@
         },
         {
           "id": "B",
-          "text": "The claim that the value really does have that type, with nothing at runtime to check the claim",
-          "misconception": ""
+          "text": "A deferral, since the checker will re-examine the claim once the whole file has been read",
+          "misconception": "believes the checker returns to a cast later and confirms it"
         },
         {
           "id": "C",
-          "text": "A deferral, since the checker will re-examine the claim once the whole file has been read",
-          "misconception": "believes the checker returns to a cast later and confirms it"
+          "text": "The claim that the value really does have that type, with nothing at runtime to check the claim",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -521,7 +521,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A cast is a claim, not a conversion and not a deferral. The checker is told to stop reporting on that expression and the expression is otherwise untouched, so the value that goes on to be used is exactly the value that was there before, and if the claim was wrong the failure shows up somewhere later as a fault about an operation the value does not support. The right time to write one is at a boundary where the checker genuinely cannot see the truth, such as data that arrived as untyped input and has just been checked by hand, and the discipline that keeps casts honest is a comment saying why the claim is true.",
       "hint": "Ask what the cast does to the value, and what happens if the claim is wrong.",
@@ -535,7 +535,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -550,7 +550,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0009",
@@ -580,17 +580,17 @@
         },
         {
           "id": "C",
-          "text": "The checker finds wrong types on paths never run, and the test finds wrong values on the paths it does run",
-          "misconception": ""
+          "text": "The checker subsumes the test entirely, since a program with no type errors cannot fail a test",
+          "misconception": "believes a clean type check implies the program behaves correctly"
         },
         {
           "id": "D",
-          "text": "The checker subsumes the test entirely, since a program with no type errors cannot fail a test",
-          "misconception": "believes a clean type check implies the program behaves correctly"
+          "text": "The checker finds wrong types on paths never run, and the test finds wrong values on the paths it does run",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The two tools fail in different directions and that is the whole reason to have both. A checker reads code and reports an error whether or not that line is ever reached, so a wrong type on an error path that has not yet been triggered is found now rather than in production. A test runs the program and can only observe what actually happened, so a test written against a path that nobody takes proves nothing, but a test can catch a wrong value on a path a checker found nothing wrong with, because types are a coarse contract and a right-typed wrong number is perfectly type-correct. The error of confusing them is running a checker and declaring the program correct.",
       "hint": "Ask whether each tool needs the code to have actually run.",
@@ -604,7 +604,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -619,7 +619,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0010",
@@ -639,8 +639,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The first only fires on code that has already failed a test, and the second fires on all code",
-          "misconception": "believes a defect rule needs a failing test before it can report"
+          "text": "The first encodes a defect worth reporting and the second encodes a preference about layout",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -654,12 +654,12 @@
         },
         {
           "id": "D",
-          "text": "The first encodes a defect worth reporting and the second encodes a preference about layout",
-          "misconception": ""
+          "text": "The first only fires on code that has already failed a test, and the second fires on all code",
+          "misconception": "believes a defect rule needs a failing test before it can report"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "A linter earns its place by catching code that is wrong rather than code that is merely written differently. Comparing a value with itself is a bug shape, since the comparison is always true or always false and a branch on it is dead, and a rule for it will find real defects in code that a test suite passes because the branch never mattered. A line-length limit is a preference about layout, and it can be sensibly set differently by two teams, which is the tell: if a rule's reports could all be silenced by reformatting and no line of logic changes, it is taste, and the honest response to a taste rule is a shared configuration rather than an argument.",
       "hint": "Ask whether silencing the report would require changing what the code does.",
@@ -673,7 +673,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -688,7 +688,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0011",
@@ -915,13 +915,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Both would have installed the newest release at install time, since a lock file prefers recent versions",
-          "misconception": "believes a lock file records that latest is the right choice"
+          "text": "Both would have been told the exact version to install, so the same input would have produced the same set",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "Both would have been told the exact version to install, so the same input would have produced the same set",
-          "misconception": ""
+          "text": "Both would have installed the newest release at install time, since a lock file prefers recent versions",
+          "misconception": "believes a lock file records that latest is the right choice"
         },
         {
           "id": "C",
@@ -935,7 +935,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "A lock file records the outcome of a resolution: for every direct and transitive requirement, the exact version chosen, and often the hashes of the files that were used. Without it each machine resolves on its own, and resolution is a search over what exists now, so a release published between the two installs is enough to give them different trees even though the requirements text was identical. That is the difference between an install that is repeatable and one that is merely repeatable-ish, and the cost of a lock file is that it has to be updated deliberately, because a file that regenerates on every install buys nothing.",
       "hint": "Ask what each machine decides for itself when no resolution has been recorded.",
@@ -949,7 +949,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -964,7 +964,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0015",
@@ -989,13 +989,13 @@
         },
         {
           "id": "B",
-          "text": "list[int], then [2, 4, 6], then a fault, then a fault, because the interpreter enforces the declared argument type",
-          "misconception": "believes the interpreter refuses a call that contradicts the annotations"
+          "text": "list[int], then [2, 4, 6], then ['aa', 8], then ['xx', 'yy', 'zz'], because annotations are stored and not read",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "list[int], then [2, 4, 6], then ['aa', 8], then ['xx', 'yy', 'zz'], because annotations are stored and not read",
-          "misconception": ""
+          "text": "list[int], then [2, 4, 6], then a fault, then a fault, because the interpreter enforces the declared argument type",
+          "misconception": "believes the interpreter refuses a call that contradicts the annotations"
         },
         {
           "id": "D",
@@ -1004,7 +1004,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The return annotation is stored as written, so the first line is the text of it rather than a class, and the two later calls sail straight through because nothing in the interpreter reads an annotation at any point. Iterating a tuple of two values gives two results, and iterating a string of three characters gives three, each character scaled by the default of two. This was executed with the interpreter, and the answer claiming a fault is the belief to rule out first, because enforcement is the checker's job and the checker was never run.",
       "hint": "Ask whether anything in the interpreter has to look at an annotation to run the function.",
@@ -1018,7 +1018,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1033,7 +1033,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0016",
@@ -1063,17 +1063,17 @@
         },
         {
           "id": "C",
-          "text": "10, then a, then a fault, then a fault, because a type variable must be bound before a call can be made",
-          "misconception": "believes an unbound type variable stops the call from running"
+          "text": "10, then a, then ~T, then ~T, because the type variable is a stand-in that is never substituted at run time",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "10, then a, then ~T, then ~T, because the type variable is a stand-in that is never substituted at run time",
-          "misconception": ""
+          "text": "10, then a, then a fault, then a fault, because a type variable must be bound before a call can be made",
+          "misconception": "believes an unbound type variable stops the call from running"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "The body returns the first element whatever it is, and the two calls differ only in what the lists happen to contain, so ten and then the letter. The annotation and the variable both print with the tilde that marks them as a type expression rather than a value, and neither is ever bound: the substitution of the concrete type for the variable is something a checking tool does while reading the call, and there is no corresponding step at run time. This was executed with the interpreter, and the answer claiming the variable is replaced is the belief to rule out first.",
       "hint": "Ask whether the interpreter has a step in which the variable becomes a type.",
@@ -1087,7 +1087,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1102,7 +1102,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0017",
@@ -1127,8 +1127,8 @@
         },
         {
           "id": "B",
-          "text": "Point(x=1, y=2), then FrozenInstanceError, then True, because frozen makes hashing meaningful as well as writes fail",
-          "misconception": ""
+          "text": "Point(x=1, y=2), then FrozenInstanceError, then False, because two instances never hash alike even with equal fields",
+          "misconception": "believes equal field values cannot produce equal hash values"
         },
         {
           "id": "C",
@@ -1137,12 +1137,12 @@
         },
         {
           "id": "D",
-          "text": "Point(x=1, y=2), then FrozenInstanceError, then False, because two instances never hash alike even with equal fields",
-          "misconception": "believes equal field values cannot produce equal hash values"
+          "text": "Point(x=1, y=2), then FrozenInstanceError, then True, because frozen makes hashing meaningful as well as writes fail",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The frozen flag makes the generated write method refuse, and the refusal has its own exception type, which is what the handler prints. The flag also generates the two methods a hashable value needs, so two instances whose fields agree produce the same hash and the last line is true; without the frozen flag a data class sets equality but not hash, and using one as a dictionary key is a fault. This was executed with the interpreter, and the answer reporting a plain attribute error is the belief to rule out first, because the field is present and only the write is refused.",
       "hint": "Ask what the frozen flag changes about writing, and about being usable as a key.",
@@ -1156,7 +1156,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1171,7 +1171,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0018",
@@ -1191,8 +1191,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the three versions in the order given, then False, then the two field names, because a data class never orders itself",
-          "misconception": "believes declaring the ordering flag has no effect on the sort"
+          "text": "the three versions with minor ascending inside major, then True, then the two field names, because ordering compares fields in turn",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1201,8 +1201,8 @@
         },
         {
           "id": "C",
-          "text": "the three versions with minor ascending inside major, then True, then the two field names, because ordering compares fields in turn",
-          "misconception": ""
+          "text": "the three versions in the order given, then False, then the two field names, because a data class never orders itself",
+          "misconception": "believes declaring the ordering flag has no effect on the sort"
         },
         {
           "id": "D",
@@ -1211,7 +1211,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The ordering flag generates the comparisons, and they work through the fields in declaration order, taking the first field that differs, so the sort puts the zero-major version first and orders the two one-major versions by their minor. The field list is the declared fields, and it is the same list the comparisons are generated from, which is why the declaration order is what decides the result. This was executed with the interpreter, and the answer claiming only the first field matters is the belief to rule out first, because later fields break ties when the earlier ones agree.",
       "hint": "Ask which field decides the order when the first fields of two instances agree.",
@@ -1225,7 +1225,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1240,7 +1240,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0019",
@@ -1265,8 +1265,8 @@
         },
         {
           "id": "B",
-          "text": "5, then 5, then 5, then function, because a property is only a name and the write reaches the instance as usual",
-          "misconception": "believes a read-only property silently becomes a plain attribute on write"
+          "text": "5, then raised, then 1, then property, because a property with no setter refuses the write and holds the value",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1275,12 +1275,12 @@
         },
         {
           "id": "D",
-          "text": "5, then raised, then 1, then property, because a property with no setter refuses the write and holds the value",
-          "misconception": ""
+          "text": "5, then 5, then 5, then function, because a property is only a name and the write reaches the instance as usual",
+          "misconception": "believes a read-only property silently becomes a plain attribute on write"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The plain class lets the write through because there is no descriptor in the way, and the property class intercepts it: a property with a getter and no setter refuses the assignment, so the handler prints and the stored value is untouched. What the class dictionary holds after the decorator has run is the property object rather than the bare function, which is the mechanism the refusal comes from, and it is why a property can be checked for by type on the class. This was executed with the interpreter, and the answer treating it as a plain name is the belief to rule out first.",
       "hint": "Ask what the decorator leaves in the class dictionary, and what a property without a setter does.",
@@ -1294,7 +1294,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1309,7 +1309,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0020",
@@ -1334,13 +1334,13 @@
         },
         {
           "id": "B",
-          "text": "True then False, then no extra name, then the plain dictionary and None, then False then True",
-          "misconception": ""
+          "text": "True then False, then a fault, then the plain dictionary and None, then False then True, because an undeclared write is an error",
+          "misconception": "believes the refusal to store an undeclared name aborts the program"
         },
         {
           "id": "C",
-          "text": "True then False, then a fault, then the plain dictionary and None, then False then True, because an undeclared write is an error",
-          "misconception": "believes the refusal to store an undeclared name aborts the program"
+          "text": "True then False, then no extra name, then the plain dictionary and None, then False then True",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1349,7 +1349,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A class without slots gives each instance its own attribute dictionary, and a class with slots stores the declared names in the instance layout instead, so the second class has no dictionary to find. That is the saving: a dictionary per instance costs a pointer and a table, and a slotted instance pays only for its declared values. The second consequence is the refusal, because there is nowhere to put an undeclared name and the setter finds no descriptor to call, so the handler prints rather than the program stopping. This was executed with the interpreter, and the answer claiming both have dictionaries is the belief to rule out first.",
       "hint": "Ask where the declared name is stored when there is no instance dictionary.",
@@ -1363,7 +1363,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1378,7 +1378,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0021",
@@ -1408,17 +1408,17 @@
         },
         {
           "id": "C",
-          "text": "Row(name='a', count=2), then immutable, then Row(name='a', count=7), then True, because replacing builds a new row",
-          "misconception": ""
+          "text": "Row(name='a', count=2), then immutable, then Row(count=7), then True, because replacing drops the fields it did not set",
+          "misconception": "believes replacing discards every field the call did not mention"
         },
         {
           "id": "D",
-          "text": "Row(name='a', count=2), then immutable, then Row(count=7), then True, because replacing drops the fields it did not set",
-          "misconception": "believes replacing discards every field the call did not mention"
+          "text": "Row(name='a', count=2), then immutable, then Row(name='a', count=7), then True, because replacing builds a new row",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "A named tuple is a tuple with labels attached, so it carries the tuple's immutability and the write is refused. What it adds is the replacing method, which builds a new instance with some fields carried over and returns it, leaving the original exactly as it was, which is why the printed copy has the new count and the equality against a plain two-tuple still holds because the underlying sequence never changed. This was executed with the interpreter, and the answer claiming the copy edits the original is the belief to rule out first.",
       "hint": "Ask what the replacing method returns and what it leaves untouched.",
@@ -1432,7 +1432,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1447,7 +1447,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0022",
@@ -1467,8 +1467,8 @@
       "options": [
         {
           "id": "A",
-          "text": "False, then Colour.RED and 2, then 3 and the three names, then False, because each access builds a fresh member object",
-          "misconception": "believes naming a member twice produces two different objects"
+          "text": "True, then Colour.RED and 2, then 3 and the three names, then False, because a member is not its value",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1482,12 +1482,12 @@
         },
         {
           "id": "D",
-          "text": "True, then Colour.RED and 2, then 3 and the three names, then False, because a member is not its value",
-          "misconception": ""
+          "text": "False, then Colour.RED and 2, then 3 and the three names, then False, because each access builds a fresh member object",
+          "misconception": "believes naming a member twice produces two different objects"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "Looking a member up returns the one object the class created, so the two accesses are the same object and identity holds, which is what makes a member safe to compare with the identity operator. The automatic values start at one, so a lookup by value gives the first member and a lookup by name gives the value two, and iterating gives the three in declaration order. The last line is the distinction the whole class exists for: a member is a distinct object that happens to carry a value, not the value itself, so it is not equal to the bare number. This was executed with the interpreter.",
       "hint": "Ask what a member is, as distinct from the value it carries.",
@@ -1501,7 +1501,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1516,7 +1516,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0023",
@@ -1743,13 +1743,13 @@
       "options": [
         {
           "id": "A",
-          "text": "12, 32, 9, then None, because a built-in carries no annotation of its own to report",
-          "misconception": "believes the argument list of a built-in cannot be read at run time"
+          "text": "12, 32, 9, then int, because a built-in satisfies the annotation exactly as a lambda does",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "12, 32, 9, then int, because a built-in satisfies the annotation exactly as a lambda does",
-          "misconception": ""
+          "text": "12, 32, 9, then None, because a built-in carries no annotation of its own to report",
+          "misconception": "believes the argument list of a built-in cannot be read at run time"
         },
         {
           "id": "C",
@@ -1763,7 +1763,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The body is the same three times and only the callable changes, so a lambda multiplies, the power built-in raises two to the fifth, and the larger of the two returns nine; nothing about the annotation affects which callables are accepted. Reading the annotation's own argument list shows the first entry as the integer class, because that is the type an annotated single-argument callable declares. This was executed with the interpreter, and the answer saying built-ins are refused is the belief to rule out first, since the annotation describes a call rather than a class.",
       "hint": "Ask whether a built-in that takes two arguments and returns a number differs in any way that matters.",
@@ -1777,7 +1777,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1792,7 +1792,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0027",
@@ -1817,13 +1817,13 @@
         },
         {
           "id": "B",
-          "text": "3, 4 and 2, then 4, then int, because the annotation says every member is a sequence of the same kind",
-          "misconception": "believes a union requires the same operation on every member"
+          "text": "3, 40 and 20, then 11, then int, because the first check takes two of the three types together",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "3, 40 and 20, then 11, then int, because the first check takes two of the three types together",
-          "misconception": ""
+          "text": "3, 4 and 2, then 4, then int, because the annotation says every member is a sequence of the same kind",
+          "misconception": "believes a union requires the same operation on every member"
         },
         {
           "id": "D",
@@ -1832,7 +1832,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The check names two classes in a tuple and a value matching either takes the multiplied branch, so the byte string and the list are both scaled while the text is not, and the union annotation is satisfied by three different sequences with nothing in common but that they have a length. The second line adds a text length to a scaled list length and gets eleven, which is arithmetic and not a check. This was executed with the interpreter, and the answer saying every member behaves alike is the belief to rule out first.",
       "hint": "Ask what a check naming two classes in a tuple matches.",
@@ -1846,7 +1846,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1861,7 +1861,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0028",
@@ -1891,17 +1891,17 @@
         },
         {
           "id": "C",
-          "text": "mode=read, the two strings, then str, then mode=delete, because the alias collapses to the class of its first value",
-          "misconception": "believes a literal type becomes the plain class of one of its members"
+          "text": "mode=read, the two strings, then Literal, then mode=delete, because nothing at run time tests membership",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "mode=read, the two strings, then Literal, then mode=delete, because nothing at run time tests membership",
-          "misconception": ""
+          "text": "mode=read, the two strings, then str, then mode=delete, because the alias collapses to the class of its first value",
+          "misconception": "believes a literal type becomes the plain class of one of its members"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "The type exists only as an object the checking tool can read, so the function has no idea which values were named and formats whatever it is given, which is why the last line comes out in full. Reading the type's own arguments gives the two strings, and the name it reports is the literal form rather than a class, since it describes a set of values rather than a type. This was executed with the interpreter, and the answer claiming a refusal is the belief to rule out first, because enforcement belongs to the tool and the tool was not run.",
       "hint": "Ask what in the function body would have to test the value for a refusal to happen.",
@@ -1915,7 +1915,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1930,7 +1930,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0029",
@@ -1955,8 +1955,8 @@
         },
         {
           "id": "B",
-          "text": "3 and svc, then 3, then the return annotation, then 99, because final is a promise the interpreter keeps quiet about",
-          "misconception": ""
+          "text": "3 and svc, then 3, then the return annotation, then 3, because the function closes over the value it first saw",
+          "misconception": "believes a function reading a module name freezes the value it read"
         },
         {
           "id": "C",
@@ -1965,12 +1965,12 @@
         },
         {
           "id": "D",
-          "text": "3 and svc, then 3, then the return annotation, then 3, because the function closes over the value it first saw",
-          "misconception": "believes a function reading a module name freezes the value it read"
+          "text": "3 and svc, then 3, then the return annotation, then 99, because final is a promise the interpreter keeps quiet about",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The marker is a declaration a checking tool reads, and the interpreter keeps nothing special about the name, so the later assignment simply takes effect and the function, which looks the name up each time it is called, would return the new value afterwards. What the annotation on the function carries is its own return annotation, not the module's declarations, which is why the dictionary is not empty even though no argument is annotated. This was executed with the interpreter, and the answer claiming a fault is the belief to rule out first.",
       "hint": "Ask what the interpreter does differently about a name marked final.",
@@ -1984,7 +1984,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1999,7 +1999,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0030",
@@ -2019,8 +2019,8 @@
       "options": [
         {
           "id": "A",
-          "text": "count, extra and name, then count and name, then count and name, then count and extra, because the extra key displaces the last",
-          "misconception": "believes an undeclared key displaces one of the declared keys"
+          "text": "the three keys of the extra dictionary, then count and name, then count and name, then the two-key record",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2029,8 +2029,8 @@
         },
         {
           "id": "C",
-          "text": "the three keys of the extra dictionary, then count and name, then count and name, then the two-key record",
-          "misconception": ""
+          "text": "count, extra and name, then count and name, then count and name, then count and extra, because the extra key displaces the last",
+          "misconception": "believes an undeclared key displaces one of the declared keys"
         },
         {
           "id": "D",
@@ -2039,7 +2039,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A typed dict is an ordinary dictionary with a declaration attached, so a key the declaration does not list is stored exactly like any other, and the conversion at the end simply unpacks whatever it was given. The two key sets are metadata the checking tool reads: which keys a well-formed record must have, and what type each carries, and both agree here. This was executed with the interpreter, and the answer claiming a fault is the belief to rule out first, because a missing key in a typed dict is exactly the defect the tool reports and not one the runtime catches.",
       "hint": "Ask whether the declaration changes what the interpreter does when a record is built.",
@@ -2053,7 +2053,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2068,7 +2068,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0031",
@@ -2093,8 +2093,8 @@
         },
         {
           "id": "B",
-          "text": "True, False, missing, then an empty list, because a protocol declares no members until a class registers",
-          "misconception": "believes a protocol's declared members are not recorded anywhere"
+          "text": "True, False, missing, then the single member name, because the check looks for the member and finds none",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2103,12 +2103,12 @@
         },
         {
           "id": "D",
-          "text": "True, False, missing, then the single member name, because the check looks for the member and finds none",
-          "misconception": ""
+          "text": "True, False, missing, then an empty list, because a protocol declares no members until a class registers",
+          "misconception": "believes a protocol's declared members are not recorded anywhere"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The run-time check asks whether the object has the members the protocol names, and the first class does while the second does not, even though neither of them mentions the protocol anywhere, which is the structural point. The protocol object does record the names it declared, and the default lookup confirms the second instance has no such attribute at all. This was executed with the interpreter, and the answer claiming both pass is the belief to rule out first, because the check is a membership test on names rather than a formality.",
       "hint": "Ask what the run-time check looks for on the object it is given.",
@@ -2122,7 +2122,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2137,7 +2137,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0032",
@@ -2162,13 +2162,13 @@
         },
         {
           "id": "B",
-          "text": "3 and 4.0, then the integer class, then the variable, then int, because the bound is read and nothing refuses the call",
-          "misconception": ""
+          "text": "3, then a fault, then the integer class, then the variable, then int, because the bound refuses a value outside it",
+          "misconception": "believes a bound is enforced by the interpreter when a call is made"
         },
         {
           "id": "C",
-          "text": "3, then a fault, then the integer class, then the variable, then int, because the bound refuses a value outside it",
-          "misconception": "believes a bound is enforced by the interpreter when a call is made"
+          "text": "3 and 4.0, then the integer class, then the variable, then int, because the bound is read and nothing refuses the call",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2177,7 +2177,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The bound is a fact about the declaration that a checking tool reads, and it stops nothing: the floats go in, they are added, and what comes back is a float, which is precisely the mistake the bound is there to report. The bound class is recoverable from the variable, the annotation still names the variable rather than the class, and the class of a plain integer is the class. This was executed with the interpreter, and the answer claiming a fault is the belief to rule out first, because a bound is a promise to a tool rather than a gate.",
       "hint": "Ask what the interpreter does with a bound when the call is made.",
@@ -2191,7 +2191,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2206,7 +2206,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0033",
@@ -2236,17 +2236,17 @@
         },
         {
           "id": "C",
-          "text": "3, ab, then TypeError and the name, then None, because the comment is read by a tool and not by the interpreter",
-          "misconception": ""
+          "text": "3, a fault, then a fault, because the suppression marks the function as not accepting strings at all",
+          "misconception": "believes suppressing an operator rule stops the addition working on text"
         },
         {
           "id": "D",
-          "text": "3, a fault, then a fault, because the suppression marks the function as not accepting strings at all",
-          "misconception": "believes suppressing an operator rule stops the addition working on text"
+          "text": "3, ab, then TypeError and the name, then None, because the comment is read by a tool and not by the interpreter",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The comment is a note for a checking tool and the interpreter never reads it, so the two numeric arguments add, the two strings concatenate, and the mixed call still fails exactly as it would without the comment. Nothing on that line has changed. The docstring is None because the suppression is on a later line rather than the first statement, and a comment anywhere else in a function is never documentation. This was executed with the interpreter, and the answer claiming the mixed call works is the belief to rule out first.",
       "hint": "Ask which tool reads the comment, and whether the interpreter has ever seen it.",
@@ -2260,7 +2260,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2275,7 +2275,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0034",
@@ -2295,8 +2295,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the two values written, then 0.0, then 32.0, because the second write reads back the value it was handed",
-          "misconception": "believes a read after a write returns the value that was written"
+          "text": "the two values written, then 0.0, then 0.0, because the setter stored the transformed value both times",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2310,12 +2310,12 @@
         },
         {
           "id": "D",
-          "text": "the two values written, then 0.0, then 0.0, because the setter stored the transformed value both times",
-          "misconception": ""
+          "text": "the two values written, then 0.0, then 32.0, because the second write reads back the value it was handed",
+          "misconception": "believes a read after a write returns the value that was written"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "Every write goes through the setter, which records the value it was handed and stores the converted one instead, so the log holds both writes in order while the stored value reflects only the second, which is the conversion of thirty-two degrees and is therefore zero. The read returns the stored value, and it is a float, which is why both printed values agree. This was executed with the interpreter, and the answer returning thirty-two is the belief to rule out first, because a read returns what the setter stored rather than what the writer gave.",
       "hint": "Ask what the setter stores and what a read returns afterwards.",
@@ -2329,7 +2329,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2344,7 +2344,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0035",
@@ -2571,13 +2571,13 @@
       "options": [
         {
           "id": "A",
-          "text": "b, then .py, then the normalised path, then a fault, because two paths have no common part to report",
-          "misconception": "believes common path insists the two paths be identical"
+          "text": "b, then .py, then the normalised path, then pkg, because the tools are pure string and path arithmetic",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "b, then .py, then the normalised path, then pkg, because the tools are pure string and path arithmetic",
-          "misconception": ""
+          "text": "b, then .py, then the normalised path, then a fault, because two paths have no common part to report",
+          "misconception": "believes common path insists the two paths be identical"
         },
         {
           "id": "C",
@@ -2591,7 +2591,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "Taking the absolute path and stripping the last two components leaves the containing directory, splitting off the extension is a suffix operation, and normalising collapses the interior step and the interior parent reference without touching the filesystem. The common part of the two sibling paths is the directory they share. None of these touch anything on disk, which is the point: a module name resolves to a file by walking the search path and testing for a file inside each candidate directory, and these are the string operations that walk performs.",
       "hint": "Ask how many components stripping a file and its name removes.",
@@ -2605,7 +2605,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2620,7 +2620,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0039",
@@ -2645,13 +2645,13 @@
         },
         {
           "id": "B",
-          "text": "built, then list, because the frozen flag makes every instance share the one list on purpose",
-          "misconception": "believes sharing a mutable default is what the frozen flag asks for"
+          "text": "ValueError with the message about a mutable default, then list, because one shared list would defeat the freeze",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "ValueError with the message about a mutable default, then list, because one shared list would defeat the freeze",
-          "misconception": ""
+          "text": "built, then list, because the frozen flag makes every instance share the one list on purpose",
+          "misconception": "believes sharing a mutable default is what the frozen flag asks for"
         },
         {
           "id": "D",
@@ -2660,7 +2660,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A list literal in a class body is evaluated once, when the class is created, so every instance would share one list, and freezing the class is exactly the situation in which a shared mutable value is most clearly wrong. The decorator therefore refuses at class-definition time, before any instance exists, and the name in the message is the field that caused it. The factory is the supported way to express a per-instance default, and the last line shows it is a callable that produces the value each time rather than a value that is shared.",
       "hint": "Ask when a list written in a class body is evaluated, and who would end up sharing it.",
@@ -2674,7 +2674,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2689,7 +2689,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0040",
@@ -2709,8 +2709,8 @@
       "options": [
         {
           "id": "A",
-          "text": "name, then absent, then KeyError with the key, because the declaration describes the shape and the read raises",
-          "misconception": ""
+          "text": "name, then absent, then 1, because reading a key the declaration requires produces its default",
+          "misconception": "believes a required key acquires a default value when it is absent"
         },
         {
           "id": "B",
@@ -2719,8 +2719,8 @@
         },
         {
           "id": "C",
-          "text": "name, then absent, then 1, because reading a key the declaration requires produces its default",
-          "misconception": "believes a required key acquires a default value when it is absent"
+          "text": "name, then absent, then KeyError with the key, because the declaration describes the shape and the read raises",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2729,7 +2729,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The declaration is a description the checking tool reads, and the build call is an ordinary dictionary construction, so a record missing a required key is created without complaint and the tool is the thing that would have reported it. The safe lookup returns the marker, and the direct read raises with the key in the message. This was executed with the interpreter, and the answer saying the build fails is the belief to rule out first, because a typed dict is a plain dictionary wearing a declaration.",
       "hint": "Ask whether building the record checks anything, and what a direct read of a missing key does.",
@@ -2743,7 +2743,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2758,7 +2758,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0041",
@@ -2847,13 +2847,13 @@
       "options": [
         {
           "id": "A",
-          "text": "ok and the joined name, then both module names, because one of the two imports is served from the part already run",
-          "misconception": "believes a name defined later in a module is available to an importer above it"
+          "text": "ImportError and True, then an empty list, because the second module is only half built when the first asks it for a name",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "ImportError and True, then an empty list, because the second module is only half built when the first asks it for a name",
-          "misconception": ""
+          "text": "ok and the joined name, then both module names, because one of the two imports is served from the part already run",
+          "misconception": "believes a name defined later in a module is available to an importer above it"
         },
         {
           "id": "C",
@@ -2867,7 +2867,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The first module starts, asks for a name from the second, the second starts and asks for a name from the first, and the first is still part-built so the name it is asked for has not been defined yet, which is what the refusal reports. Neither module ends up in the table of loaded modules, so a later attempt starts from nothing rather than from a half-built state. The refactor that fixes it is to make the dependency run one way: the module that needs the other's value should not be imported by it.",
       "hint": "Ask what the second module finds when it asks the first for a name it has not defined yet.",
@@ -2881,7 +2881,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2896,7 +2896,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0043",
@@ -2921,13 +2921,13 @@
         },
         {
           "id": "B",
-          "text": "4 and the four-item list, then the four-item list, because the rebinding updated the list the function had captured",
-          "misconception": "believes rebinding a name rewrites the list the function already has"
+          "text": "4 and the four-item list, then the one-item list, because the function looked the name up when it was called",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "4 and the four-item list, then the one-item list, because the function looked the name up when it was called",
-          "misconception": ""
+          "text": "4 and the four-item list, then the four-item list, because the rebinding updated the list the function had captured",
+          "misconception": "believes rebinding a name rewrites the list the function already has"
         },
         {
           "id": "D",
@@ -2936,7 +2936,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The function looks the name up each time it runs, so it appends to whichever list the name currently refers to, and the printed pair shows the new length beside the list it produced. Rebinding the name to a fresh one-item list does not touch the four-item list, which is now referred to by nothing at all, and the last line shows the new list and its length. This is why a name in capitals says to a reader that the object should not be mutated in place, and a function that mutates it has quietly made the capital a lie.",
       "hint": "Ask when the function resolves the name, and what a rebinding does to the earlier list.",
@@ -2950,7 +2950,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2965,7 +2965,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0044",
@@ -2995,17 +2995,17 @@
         },
         {
           "id": "C",
-          "text": "before, the module's line, after and 1, then True, because executing a module's code is an import by another name",
-          "misconception": "believes executing a module's code registers it as an imported module"
+          "text": "before, the module's line, after and 1, then False, because a module body runs top to bottom when it is executed",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "before, the module's line, after and 1, then False, because a module body runs top to bottom when it is executed",
-          "misconception": ""
+          "text": "before, the module's line, after and 1, then True, because executing a module's code is an import by another name",
+          "misconception": "believes executing a module's code registers it as an imported module"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "Compiling produces the instructions and does not run them, so the first thing printed is the first line of the program; executing those instructions runs the module body from top to bottom, which is where the module's own print happens, and the name it sets is then present in the dictionary it was given. Nothing registered the module in the table of loaded modules, because that table is written by the import machinery rather than by execution. This is the whole argument for keeping side effects out of module bodies: importing a module for one of its names runs everything else it does at the top level.",
       "hint": "Ask what compiling does, and what executing the body does, in that order.",
@@ -3019,7 +3019,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3034,7 +3034,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0045",
@@ -3059,8 +3059,8 @@
         },
         {
           "id": "B",
-          "text": "ab and AB, then ba and BA, because the switches act in the order they are written whatever the call",
-          "misconception": ""
+          "text": "ab and AB, then ba and BA, then a fault, because four combinations of two switches are not reachable",
+          "misconception": "believes a two-switch function cannot be called all four ways"
         },
         {
           "id": "C",
@@ -3069,12 +3069,12 @@
         },
         {
           "id": "D",
-          "text": "ab and AB, then ba and BA, then a fault, because four combinations of two switches are not reachable",
-          "misconception": "believes a two-switch function cannot be called all four ways"
+          "text": "ab and AB, then ba and BA, because the switches act in the order they are written whatever the call",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The body is a sequence of independent steps and every combination of the two switches is reachable, so the four calls show plain, uppercased, reversed and both. The cost is not the four results but the shape of the thing: a reader looking at a call has to work out which of several behaviours they are getting, the function's name no longer says what it does, and testing every behaviour means writing every combination. Two named functions, or one function that takes the already-transformed value, say the same thing in a form a reader can take in at a glance.",
       "hint": "Ask what the four combinations of two independent switches produce, and then ask what a call site has to know.",
@@ -3088,7 +3088,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3103,7 +3103,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0046",
@@ -3123,8 +3123,8 @@
       "options": [
         {
           "id": "A",
-          "text": "1 and x, then 1.5, then a fault, because a value may be converted but may not be absent",
-          "misconception": "believes converting the value to text makes any input acceptable"
+          "text": "1 and x, then 1.5, then None, then the union, because the annotations are read by nobody at run time",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3133,8 +3133,8 @@
         },
         {
           "id": "C",
-          "text": "1 and x, then 1.5, then None, then the union, because the annotations are read by nobody at run time",
-          "misconception": ""
+          "text": "1 and x, then 1.5, then a fault, because a value may be converted but may not be absent",
+          "misconception": "believes converting the value to text makes any input acceptable"
         },
         {
           "id": "D",
@@ -3143,7 +3143,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Both out-of-union calls run and the body converts whatever it was given, so the annotation promised something the code does not deliver, and a checker that read only this file would find nothing to report because the annotation is internally consistent. The annotation itself reports as a union of the two classes, which is what it is. This is the shape of defect a static check is blind to by design, and the honest response is a test at that boundary rather than a stronger annotation.",
       "hint": "Ask what the interpreter does with an annotation, and what the body does with whatever it is handed.",
@@ -3157,7 +3157,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3172,7 +3172,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0047",
@@ -3681,8 +3681,8 @@
         },
         {
           "id": "B",
-          "text": "False, then AttributeError, then the unchanged instance, because a missing dictionary is what refuses the write",
-          "misconception": "believes a frozen write on a slotted class is reported as a missing attribute"
+          "text": "False, then FrozenInstanceError, then the unchanged instance, because the two flags remove the dictionary and refuse the write",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3691,12 +3691,12 @@
         },
         {
           "id": "D",
-          "text": "False, then FrozenInstanceError, then the unchanged instance, because the two flags remove the dictionary and refuse the write",
-          "misconception": ""
+          "text": "False, then AttributeError, then the unchanged instance, because a missing dictionary is what refuses the write",
+          "misconception": "believes a frozen write on a slotted class is reported as a missing attribute"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The slots flag gives the instance no dictionary, and the frozen flag makes the generated write method refuse, so the first line is false, the exception type is the frozen one rather than the generic attribute error, and the printed instance still shows the value it was built with. The two flags do different jobs and neither cancels the other, which is the point of combining them. This was executed with the interpreter, and the answer reporting a missing attribute is the belief to rule out first, because the field is present and only the write is refused.",
       "hint": "Ask what each flag does on its own, and which of them produces the exception.",
@@ -3710,7 +3710,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3725,7 +3725,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0058",
@@ -3750,13 +3750,13 @@
         },
         {
           "id": "B",
-          "text": "none, int2 and str:a, then True, then 3, because the first check runs before the type check on every value",
-          "misconception": ""
+          "text": "none, int0 and str:a, then True, then 3, because a false number is treated as if it were absent",
+          "misconception": "believes a false number is caught by the absent check as well"
         },
         {
           "id": "C",
-          "text": "none, int0 and str:a, then True, then 3, because a false number is treated as if it were absent",
-          "misconception": "believes a false number is caught by the absent check as well"
+          "text": "none, int2 and str:a, then True, then 3, because the first check runs before the type check on every value",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3765,7 +3765,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The absent check comes first, so only the absent value takes that branch, and the type check then catches the number, including zero, which is false but is not the absent value and so reaches the check meant for it. All three calls produce text and all three land in the list, and the comparison in the middle line is true because the two labels differ. This was executed with the interpreter, and the answer treating zero as absent is the belief to rule out first, because a test against a specific absent value is not a test for falsiness.",
       "hint": "Ask what the first check compares against, and what happens to a number equal to zero.",
@@ -3779,7 +3779,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3794,7 +3794,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0059",
@@ -3824,17 +3824,17 @@
         },
         {
           "id": "C",
-          "text": "True, then True, then the list and True, because the excluded field takes part in neither comparison",
-          "misconception": ""
+          "text": "False, then True, then the list and True, because ordering ignores a field that has no value to compare",
+          "misconception": "believes a field with no value stops the two records being ordered"
         },
         {
           "id": "D",
-          "text": "False, then True, then the list and True, because ordering ignores a field that has no value to compare",
-          "misconception": "believes a field with no value stops the two records being ordered"
+          "text": "True, then True, then the list and True, because the excluded field takes part in neither comparison",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "Marking a field out of the comparison removes it from both the equality and the ordering the decorator generates, so the two records with the same quantity are equal even after one of them has had something appended, and the ordering is decided by the quantity alone. The factory gives every instance its own list, which is why the append landed on one instance rather than on a value shared by all of them. This was executed with the interpreter, and the answer saying the appended value makes them unequal is the belief to rule out first, because that field was excluded from the comparison on purpose.",
       "hint": "Ask what the field excluded from the comparison still does, and what the factory gives each instance.",
@@ -3848,7 +3848,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3863,7 +3863,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-7.1-0060",
@@ -3883,8 +3883,8 @@
       "options": [
         {
           "id": "A",
-          "text": "b, then pkg/mod.py, then the normalised path, then pkg, because splitting a path divides it in two at the dot",
-          "misconception": "believes splitting a path divides the string at the extension separator"
+          "text": "b, then .py, then the normalised path, then pkg, because each step is pure path arithmetic and none touches disk",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3898,12 +3898,12 @@
         },
         {
           "id": "D",
-          "text": "b, then .py, then the normalised path, then pkg, because each step is pure path arithmetic and none touches disk",
-          "misconception": ""
+          "text": "b, then pkg/mod.py, then the normalised path, then pkg, because splitting a path divides it in two at the dot",
+          "misconception": "believes splitting a path divides the string at the extension separator"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The absolute path of a file has the directory stripped once to leave the containing directory, and stripping again would have left the file, so two strips is the pair that yields the directory the module sits in. Splitting off the suffix gives the extension, normalising collapses the interior directory step and the interior parent step, and the common path of two siblings is the directory they share. All four are string operations, which is what makes them usable before anything is imported, because resolving a module name is exactly this arithmetic against each candidate directory. This was executed with the interpreter.",
       "hint": "Ask how many components a module name plus its file name occupies, and which of the four calls reads a directory.",
@@ -3917,7 +3917,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3932,7 +3932,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     }
   ]
 }

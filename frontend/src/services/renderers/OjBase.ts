@@ -212,7 +212,7 @@ export abstract class OjBase extends BaseQuestionRenderer {
                         `\r\n\x1b[31m[${data.status}] program exited non-zero\x1b[0m\r\n`,
                     );
                 }
-            } catch (e) {
+            } catch {
                 stdin = "";
                 this.terminal?.write(
                     "\r\n\x1b[31m[error] runner unavailable - check that g++/gcc/python/node is installed\x1b[0m\r\n",

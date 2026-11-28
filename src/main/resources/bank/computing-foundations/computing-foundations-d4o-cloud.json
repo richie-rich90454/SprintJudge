@@ -2624,7 +2624,7 @@
     },
     {
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "cognitiveDemand": {
         "bloom": "APPLY",
@@ -2632,7 +2632,7 @@
       },
       "difficulty": 0.52,
       "discrimination": 0.43,
-      "explanation": "A pool can only have as many calls in flight as it has workers, and each worker can turn over at one call per duration, so 40 workers at 0.5 seconds each is 40 times 2, which is 80. Before the slowdown the same pool held 40 times 20, or 800, so ten times the concurrency has gone and the pool size is untouched. The second option is the figure for the old duration rather than the new one, which is the usual slip. A worker is not limited to one call at a time, it is limited by how long each call occupies it, so the third option reasons from a false constraint. The slowdown reduces per-worker throughput by ten, and applying that factor to the worker count would give a figure the arithmetic does not support.",
+      "explanation": "A worker can keep only one call in flight at a time, so a pool of 40 workers caps in-flight calls at 40 no matter how long each call takes. The slowdown from 0.05 to 0.5 seconds cuts throughput tenfold, from 800 to 80 calls per second, but it does not change the in-flight cap. Option A uses the old duration, option B confuses throughput with in-flight calls, and option D applies the slowdown factor to the worker count.",
       "format": "DATA_INTERPRETATION",
       "hint": "Divide the number of workers by the duration of one call, not the other way round.",
       "id": "cf-4.25-0039",
@@ -2645,12 +2645,12 @@
         },
         {
           "id": "B",
-          "misconception": "",
+          "misconception": "assumes two calls can be in flight per worker at once",
           "text": "80, since 40 workers at 0.5 seconds each leaves two calls in flight per worker"
         },
         {
           "id": "C",
-          "misconception": "treats a worker as able to hold only one call at a time",
+          "misconception": "",
           "text": "40, since each worker can only ever hold a single call at a time"
         },
         {
@@ -2667,7 +2667,7 @@
         "attestation": "authored from first principles; no protected content used",
         "author": "bank-team-cf-d4",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T18:00:00Z",
         "reviewer": "bank-review-cf-d4",
         "stimulusLicense": null
       },
@@ -2687,7 +2687,7 @@
       ],
       "topic": "Concurrency a fixed pool sustains at a longer duration",
       "unit": "Domain 4",
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },

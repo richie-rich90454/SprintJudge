@@ -56,9 +56,17 @@ describe("animate adapter", () => {
         el.style.transform = "translateY(24px)";
         el.style.opacity = "0";
         const onComplete = vi.fn();
-        const ctrl = animate(el, { y: [24, 0], opacity: [0, 1] }, { duration: 0.5, ease: "easeOut", onComplete });
+        const ctrl = animate(
+            el,
+            { y: [24, 0], opacity: [0, 1] },
+            { duration: 0.5, ease: "easeOut", onComplete },
+        );
         expect(fromToSpy).toHaveBeenCalled();
-        const [target, from, to] = fromToSpy.mock.calls[fromToSpy.mock.calls.length - 1] as [any, any, any];
+        const [target, from, to] = fromToSpy.mock.calls[fromToSpy.mock.calls.length - 1] as [
+            any,
+            any,
+            any,
+        ];
         expect(target).toBe(el);
         expect(from).toEqual({ y: 24, opacity: 0 });
         expect(to.y).toBe(0);
@@ -86,7 +94,11 @@ describe("animate adapter", () => {
     test("element fromTo supports yPercent and single values", () => {
         const el = document.createElement("div");
         animate(el, { yPercent: [-60, 0], foo: 5 }, { duration: 0.7 });
-        const [, from, to] = fromToSpy.mock.calls[fromToSpy.mock.calls.length - 1] as [any, any, any];
+        const [, from, to] = fromToSpy.mock.calls[fromToSpy.mock.calls.length - 1] as [
+            any,
+            any,
+            any,
+        ];
         expect(from.yPercent).toBe(-60);
         expect(to.yPercent).toBe(0);
         expect(from.foo).toBe(5);
@@ -114,7 +126,9 @@ describe("animate adapter", () => {
         const el = document.createElement("div");
         const ctrl = animate(el, { y: [0, 1] }, {});
         ctrl.stop();
-        expect((fromToSpy.mock.results[fromToSpy.mock.results.length - 1].value as any).kill).toHaveBeenCalled();
+        expect(
+            (fromToSpy.mock.results[fromToSpy.mock.results.length - 1].value as any).kill,
+        ).toHaveBeenCalled();
     });
 
     test("animate with null keyframes defaults to empty", () => {
@@ -126,7 +140,11 @@ describe("animate adapter", () => {
     test("element fromTo single-element array uses same value", () => {
         const el = document.createElement("div");
         animate(el, { y: [5] }, {});
-        const [, from, to] = fromToSpy.mock.calls[fromToSpy.mock.calls.length - 1] as [any, any, any];
+        const [, from, to] = fromToSpy.mock.calls[fromToSpy.mock.calls.length - 1] as [
+            any,
+            any,
+            any,
+        ];
         expect(from.y).toBe(5);
         expect(to.y).toBe(5);
     });
@@ -141,7 +159,11 @@ describe("animate adapter", () => {
         const el = document.createElement("div");
         el.style.transform = "scale(1.08)";
         const onComplete = vi.fn();
-        const ctrl = animate(el, { scale: [1, 1.08, 1] }, { duration: 0.36, ease: "easeOut", onComplete });
+        const ctrl = animate(
+            el,
+            { scale: [1, 1.08, 1] },
+            { duration: 0.36, ease: "easeOut", onComplete },
+        );
         expect(toSpy).toHaveBeenCalled();
         const [target, vars] = toSpy.mock.calls[toSpy.mock.calls.length - 1] as [any, any];
         expect(target).toBe(el);
@@ -206,6 +228,8 @@ describe("animate adapter", () => {
         const el = document.createElement("div");
         const ctrl = animate(el, { y: [0, 1, 2] }, {});
         ctrl.stop();
-        expect((toSpy.mock.results[toSpy.mock.results.length - 1].value as any).kill).toHaveBeenCalled();
+        expect(
+            (toSpy.mock.results[toSpy.mock.results.length - 1].value as any).kill,
+        ).toHaveBeenCalled();
     });
 });

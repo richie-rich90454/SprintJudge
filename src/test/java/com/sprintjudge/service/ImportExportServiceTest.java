@@ -660,4 +660,41 @@ class ImportExportServiceTest {
 		assertEquals(1, rp.getQr().findAll().size());
 		assertFalse(rp.getQr().findAll().get(0).getId().isBlank());
 	}
+
+	@Test
+	void importRejectsScriptInQuizTitleAndDescription() throws Exception {
+		Repos rp = repos();
+		ImportExportService svc = new ImportExportService(rp.getQr(), rp.getQnr(), rp.getSr());
+		ExportBundle badTitle = new ExportBundle("1.0", 1L,
+				List.of(qzex("q1", "<script>alert(1)</script>", List.of(qex("qu1", "Q")))), null);
+		IllegalArgumentException titleError = assertThrows(IllegalArgumentException.class,
+				() -> svc.importAll(Json.write(badTitle), false));
+		assertTrue(titleError.getMessage().contains("title"), titleError.getMessage());
+
+		ExportBundle badDescription = new ExportBundle("1.0", 1L, List
+				.of(new ExportBundle.QuizExport("q2", "Quiz", "javascript:alert(1)", false, List.of(qex("qu2", "Q")))),
+				null);
+		IllegalArgumentException descriptionError = assertThrows(IllegalArgumentException.class,
+				() -> svc.importAll(Json.write(badDescription), false));
+		assertTrue(descriptionError.getMessage().contains("description"), descriptionError.getMessage());
+		assertTrue(rp.getQr().findAll().isEmpty(), "a rejected import must not write rows");
+	}
+
+	@Test
+	void importRejectsScriptInQuestionTitleAndDescription() throws Exception {
+		Repos rp = repos();
+		ImportExportService svc = new ImportExportService(rp.getQr(), rp.getQnr(), rp.getSr());
+		ExportBundle badTitle = new ExportBundle("1.0", 1L,
+				List.of(qzex("q1", "Quiz", List.of(qex("qu1", "<script>x</script>")))), null);
+		IllegalArgumentException titleError = assertThrows(IllegalArgumentException.class,
+				() -> svc.importAll(Json.write(badTitle), false));
+		assertTrue(titleError.getMessage().contains("title"), titleError.getMessage());
+
+		ExportBundle.QuestionExport badDescription = new ExportBundle.QuestionExport("qu2", "MCQ", "Q",
+				"<script>x</script>", 30, 100, Map.of("options", List.of("a", "b"), "correctIndex", 0), null);
+		ExportBundle bundle = new ExportBundle("1.0", 1L, List.of(qzex("q2", "Quiz", List.of(badDescription))), null);
+		IllegalArgumentException descriptionError = assertThrows(IllegalArgumentException.class,
+				() -> svc.importAll(Json.write(bundle), false));
+		assertTrue(descriptionError.getMessage().contains("description"), descriptionError.getMessage());
+	}
 }

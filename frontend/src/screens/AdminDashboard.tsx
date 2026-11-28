@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
@@ -28,7 +29,11 @@ const TABS: { id: AdminTab; label: string }[] = [
 ];
 
 const CSA_PRESETS = [
-    { unit: 1, title: "Using Objects and Methods", detail: "Objects, methods, primitives, strings" },
+    {
+        unit: 1,
+        title: "Using Objects and Methods",
+        detail: "Objects, methods, primitives, strings",
+    },
     { unit: 2, title: "Selection and Iteration", detail: "Boolean logic, if statements, loops" },
     { unit: 3, title: "Class Creation", detail: "Encapsulation, constructors, invariants" },
     { unit: 4, title: "Data Collections", detail: "Arrays, lists, 2D arrays, recursion" },
@@ -36,6 +41,7 @@ const CSA_PRESETS = [
 ];
 
 function SettingsTab() {
+    const { t } = useI18n();
     const [settings, setSettings] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -72,7 +78,7 @@ function SettingsTab() {
             if (savedTimer.current) clearTimeout(savedTimer.current);
             savedTimer.current = setTimeout(() => setSaved(false), 2000);
         } catch {
-            setSaveError("Save failed - are you still logged in?");
+            setSaveError(t("ui.saveFailedAreYouStillLoggedIn"));
         } finally {
             setSaving(false);
         }
@@ -80,7 +86,7 @@ function SettingsTab() {
 
     if (loading)
         return (
-            <div aria-label="Loading settings">
+            <div aria-label={t("ui.loadingSettings")}>
                 <div className="flex flex-col gap-4 max-w-lg" aria-hidden="true">
                     {[0, 1, 2].map((i) => (
                         <div
@@ -89,22 +95,26 @@ function SettingsTab() {
                         />
                     ))}
                 </div>
-                <p className="text-[var(--oq-ink-soft)] text-sm mt-4">Loading settings…</p>
+                <p className="text-[var(--oq-ink-soft)] text-sm mt-4">
+                    {t("ui.loadingSettingsEllipsis")}
+                </p>
             </div>
         );
 
     return (
         <div className="tab-panel" key="settings">
-            <h2 className="text-lg font-extrabold mb-4">Settings</h2>
+            <h2 className="text-lg font-extrabold mb-4">{t("ui.settings")}</h2>
             {settingsError ? (
                 <div className="flex flex-col items-start gap-3">
                     <p role="alert" className="text-[var(--oq-danger)] text-sm">
-                        Could not load settings. Check the server and try again.
+                        {t("ui.couldNotLoadSettingsCheckTheServerAndTryAgain")}
                     </p>
-                    <Button variant="secondary" onClick={() => window.location.reload()}>Retry</Button>
+                    <Button variant="secondary" onClick={() => window.location.reload()}>
+                        {t("ui.retry")}
+                    </Button>
                 </div>
             ) : Object.keys(settings).length === 0 ? (
-                <p className="text-[var(--oq-ink-soft)]">No settings configured.</p>
+                <p className="text-[var(--oq-ink-soft)]">{t("ui.noSettingsConfigured")}</p>
             ) : (
                 <Card className="max-w-lg p-6">
                     <div className="flex flex-col gap-4">
@@ -121,11 +131,11 @@ function SettingsTab() {
                         ))}
                         <div className="flex gap-4 pt-2">
                             <Button variant="primary" onClick={handleSave} disabled={saving}>
-                                {saving ? "Saving..." : "Save"}
+                                {saving ? t("ui.savingDots") : t("ui.save")}
                             </Button>
                             {saved && (
                                 <span className="text-sm text-[var(--oq-success)] self-center">
-                                    Saved!
+                                    {t("ui.saved")}
                                 </span>
                             )}
                             {saveError && (
@@ -145,6 +155,7 @@ function SettingsTab() {
 }
 
 export function AdminDashboard() {
+    const { t } = useI18n();
     const loginFailed = new URLSearchParams(window.location.search).has("error");
     const { quizzes, questions, activeQuizId, loadQuizzes, loadQuestions, openWizard, createQuiz } =
         useAdminStore();
@@ -179,7 +190,7 @@ export function AdminDashboard() {
     useEffect(() => {
         loadQuizzes().catch((e: unknown) => {
             if (axios.isAxiosError(e) && e.response?.status === 401) setNeedsAuth(true);
-            else setLoadError("Failed to load quizzes. Check your connection and retry.");
+            else setLoadError(t("ui.failedToLoadQuizzesCheckYourConnectionAndRetry"));
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -191,39 +202,45 @@ export function AdminDashboard() {
                     <div className="p-6">
                         <div className="flex items-center gap-2.5 mb-6">
                             <LogoMark size={28} />
-                            <span className="font-extrabold tracking-tight">SprintJudge Admin</span>
+                            <span className="font-extrabold tracking-tight">
+                                {t("ui.sprintjudgeAdmin")}
+                            </span>
                         </div>
                         <form method="POST" action="/admin/login" className="flex flex-col gap-4">
                             <label className="label-caps block mb-1" htmlFor="un">
-                                Username
+                                {t("ui.username")}
                             </label>
                             <TextInput
                                 id="un"
                                 name="username"
-                                placeholder="admin"
+                                placeholder={t("ui.adminPlaceholder")}
                                 autoComplete="username"
                                 required
                                 aria-invalid={loginFailed}
                             />
                             <label className="label-caps block mb-1" htmlFor="pw">
-                                Password
+                                {t("ui.password")}
                             </label>
                             <TextInput
                                 id="pw"
                                 name="password"
                                 type="password"
-                                placeholder="password"
+                                placeholder={t("ui.passwordPlaceholder")}
                                 autoComplete="current-password"
                                 required
                                 aria-invalid={loginFailed}
                             />
                             {loginFailed && (
-                                <p id="admin-auth-error" role="alert" className="text-[var(--oq-danger)] text-sm">
-                                    Wrong username or password. Please try again.
+                                <p
+                                    id="admin-auth-error"
+                                    role="alert"
+                                    className="text-[var(--oq-danger)] text-sm"
+                                >
+                                    {t("ui.wrongUsernameOrPasswordPleaseTryAgain")}
                                 </p>
                             )}
                             <Button type="submit" variant="primary" className="w-full">
-                                Sign in
+                                {t("ui.signIn")}
                             </Button>
                         </form>
                     </div>
@@ -240,7 +257,7 @@ export function AdminDashboard() {
             setPin(game.pinCode);
             navigate({ to: "/host", search: { pin: game.pinCode, projector: false } });
         } catch {
-            setBannerError("Failed to create game - try again.");
+            setBannerError(t("ui.failedToCreateGameTryAgain"));
         } finally {
             setBusy(false);
         }
@@ -262,8 +279,8 @@ export function AdminDashboard() {
             const status = (e as { response?: { status?: number } })?.response?.status;
             setBannerError(
                 status === 403
-                    ? "Your session expired. Sign in again and retry."
-                    : "Could not build the CSA game. Check the bank and retry.",
+                    ? t("ui.yourSessionExpiredSignInAgainAndRetry")
+                    : t("ui.couldNotBuildTheCSAGameCheckTheBankAndRetry"),
             );
         } finally {
             setCsaBusy(null);
@@ -273,16 +290,21 @@ export function AdminDashboard() {
     const doExport = async () => {
         setBannerError(null);
         try {
-            const json = await adminApi.exportBank();
+            const exported = await adminApi.exportBank();
+            // Axios may parse the response into an object depending on the
+            // converter's content type; Blob needs the serialized JSON either way.
+            const json = typeof exported === "string" ? exported : JSON.stringify(exported);
             const blob = new Blob([json], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
             a.download = "sprintjudge-bank.json";
+            document.body.appendChild(a);
             a.click();
-            URL.revokeObjectURL(url);
+            a.remove();
+            window.setTimeout(() => URL.revokeObjectURL(url), 0);
         } catch {
-            setBannerError("Export failed - are you logged in?");
+            setBannerError(t("ui.exportFailedAreYouLoggedIn"));
         }
     };
 
@@ -293,7 +315,7 @@ export function AdminDashboard() {
             await adminApi.importBank(json, true);
             await loadQuizzes();
         } catch {
-            setBannerError("Import failed - check the file format.");
+            setBannerError(t("ui.importFailedCheckTheFileFormat"));
         }
     };
 
@@ -316,20 +338,22 @@ export function AdminDashboard() {
                 <div className="page-shell py-3 flex items-center gap-4">
                     <div className="flex items-center gap-2.5">
                         <LogoMark size={24} />
-                        <span className="font-extrabold tracking-tight text-lg">SprintJudge</span>
+                        <span className="font-extrabold tracking-tight text-lg">
+                            {t("ui.brand")}
+                        </span>
                     </div>
                     <div className="flex-1" />
                     <SoundToggle className="header-icon" />
                     <MotionToggle className="header-icon" />
                     <AboutDialog />
                     <Button variant="secondary" size="sm" onClick={() => navigate({ to: "/" })}>
-                        Player view
+                        {t("ui.playerView")}
                     </Button>
                     <Button variant="secondary" size="sm" onClick={doExport}>
-                        Export
+                        {t("ui.export")}
                     </Button>
                     <label className="btn btn-secondary btn-sm cursor-pointer">
-                        Import
+                        {t("ui.import")}
                         <input
                             type="file"
                             accept="application/json"
@@ -366,430 +390,435 @@ export function AdminDashboard() {
                                         setNeedsAuth(true);
                                     else
                                         setLoadError(
-                                            "Failed to load quizzes. Check your connection and retry.",
+                                            t("ui.failedToLoadQuizzesCheckYourConnectionAndRetry"),
                                         );
                                 });
                             }}
                         >
-                            Retry
+                            {t("ui.retry")}
                         </Button>
                     </div>
                 )}
                 <Tabs
                     value={tab}
                     onValueChange={(v) => setTab(v as AdminTab)}
-                    tabs={TABS}
-                    label="Admin sections"
+                    tabs={TABS.map((tab) => ({ ...tab, label: t(tab.label) }))}
+                    label={t("ui.adminSections")}
                 >
                     <TabPanel value="dashboard">
-                            <div className="tab-panel" key="dashboard">
-                                <div className="grid sm:grid-cols-3 gap-4 mb-8">
-                                    <Card className="stat-block card-accent">
-                                        <p className="label-caps mb-1">Quiz sets</p>
-                                        <p className="stat-value">{quizzes.length}</p>
-                                    </Card>
-                                    <Card className="stat-block card-accent">
-                                        <p className="label-caps mb-1">CSA units</p>
-                                        <p className="stat-value">4</p>
-                                    </Card>
-                                    <Card className="stat-block card-accent">
-                                        <p className="label-caps mb-1">Question types</p>
-                                        <p className="stat-value">12</p>
-                                    </Card>
-                                </div>
-                                <div className="mb-8">
-                                    <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-                                        <div>
-                                            <h3 className="text-xl font-extrabold tracking-[-0.02em]">
-                                                Start a CSA class
-                                            </h3>
-                                            <p className="mt-1 text-sm text-[var(--oq-ink-soft)]">
-                                                Sixteen questions from the bank, with one live Java
-                                                problem.
-                                            </p>
-                                        </div>
-                                        {csaBusy !== null && (
-                                            <p className="label-caps">Building the set</p>
-                                        )}
-                                    </div>
-                                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                                        {CSA_PRESETS.map((preset) => (
-                                            <button
-                                                key={preset.unit}
-                                                type="button"
-                                                onClick={() => startCsa(preset.unit)}
-                                                disabled={csaBusy !== null}
-                                                className="card min-h-[128px] p-4 text-left transition-colors hover:border-[var(--oq-accent)] disabled:opacity-50"
-                                            >
-                                                <p className="label-caps">
-                                                    {preset.unit === 5
-                                                        ? "Mixed"
-                                                        : `CSA ${preset.unit}`}
-                                                </p>
-                                                <p className="mt-2 font-bold leading-snug">
-                                                    {preset.title}
-                                                </p>
-                                                <p className="mt-1 text-xs leading-relaxed text-[var(--oq-ink-soft)]">
-                                                    {preset.detail}
-                                                </p>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <h3 className="header-double mb-4">Quick actions</h3>
-                                <div className="flex flex-wrap gap-4 items-center">
-                                    <select
-                                        value={gameMode}
-                                        onChange={(e) => setGameMode(e.target.value as GameMode)}
-                                        className="input-underline text-sm"
-                                    >
-                                        <option value="STANDARD">Standard</option>
-                                        <option value="AUTO_PILOT">Auto-pilot</option>
-                                        <option value="PRACTICE">Practice</option>
-                                        <option value="EXAM">Exam</option>
-                                        <option value="TEAM">Team</option>
-                                        <option value="BATTLE">Battle</option>
-                                    </select>
-                                    <Button
-                                        variant="primary"
-                                        onClick={() => {
-                                            setTab("quizzes");
-                                            setShowCreate(true);
-                                        }}
-                                    >
-                                        Create quiz
-                                    </Button>
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => {
-                                            if (quizzes.length > 0) host(quizzes[0].id, gameMode);
-                                        }}
-                                        disabled={quizzes.length === 0 || busy}
-                                    >
-                                        {busy ? "Hosting…" : "Host first quiz"}
-                                    </Button>
-                                    <Button variant="secondary" onClick={() => setTab("questions")}>
-                                        Browse questions
-                                    </Button>
-                                </div>
-                                <p className="mt-4 max-w-xl text-xs leading-relaxed text-[var(--oq-ink-soft)]">
-                                    Team mode scores every member's answers into a shared team
-                                    total. Battle mode runs 1v1 rounds with byes, a full bracket,
-                                    and a champion. Both are verified end to end.
-                                </p>
+                        <div className="tab-panel" key="dashboard">
+                            <div className="grid sm:grid-cols-3 gap-4 mb-8">
+                                <Card className="stat-block card-accent">
+                                    <p className="label-caps mb-1">{t("ui.quizSets")}</p>
+                                    <p className="stat-value">{quizzes.length}</p>
+                                </Card>
+                                <Card className="stat-block card-accent">
+                                    <p className="label-caps mb-1">{t("ui.csaUnits")}</p>
+                                    <p className="stat-value">4</p>
+                                </Card>
+                                <Card className="stat-block card-accent">
+                                    <p className="label-caps mb-1">{t("ui.questionTypes")}</p>
+                                    <p className="stat-value">12</p>
+                                </Card>
                             </div>
+                            <div className="mb-8">
+                                <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+                                    <div>
+                                        <h3 className="text-xl font-extrabold tracking-[-0.02em]">
+                                            {t("ui.startACSAClass")}
+                                        </h3>
+                                        <p className="mt-1 text-sm text-[var(--oq-ink-soft)]">
+                                            {t(
+                                                "ui.sixteenQuestionsFromTheBankWithOneLiveJavaProblem",
+                                            )}
+                                        </p>
+                                    </div>
+                                    {csaBusy !== null && (
+                                        <p className="label-caps">{t("ui.buildingTheSet")}</p>
+                                    )}
+                                </div>
+                                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                                    {CSA_PRESETS.map((preset) => (
+                                        <button
+                                            key={preset.unit}
+                                            type="button"
+                                            onClick={() => startCsa(preset.unit)}
+                                            disabled={csaBusy !== null}
+                                            className="card min-h-[128px] p-4 text-left transition-colors hover:border-[var(--oq-accent)] disabled:opacity-50"
+                                        >
+                                            <p className="label-caps">
+                                                {preset.unit === 5 ? "Mixed" : `CSA ${preset.unit}`}
+                                            </p>
+                                            <p className="mt-2 font-bold leading-snug">
+                                                {preset.title}
+                                            </p>
+                                            <p className="mt-1 text-xs leading-relaxed text-[var(--oq-ink-soft)]">
+                                                {preset.detail}
+                                            </p>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <h3 className="header-double mb-4">{t("ui.quickActions")}</h3>
+                            <div className="flex flex-wrap gap-4 items-center">
+                                <select
+                                    value={gameMode}
+                                    onChange={(e) => setGameMode(e.target.value as GameMode)}
+                                    aria-label={t("ui.gameModeForHosting")}
+                                    className="input-underline text-sm"
+                                >
+                                    <option value="STANDARD">{t("ui.standard")}</option>
+                                    <option value="AUTO_PILOT">{t("ui.autopilot")}</option>
+                                    <option value="PRACTICE">{t("ui.practice")}</option>
+                                    <option value="EXAM">{t("ui.exam")}</option>
+                                    <option value="TEAM">{t("ui.team")}</option>
+                                    <option value="BATTLE">{t("ui.battle")}</option>
+                                </select>
+                                <Button
+                                    variant="primary"
+                                    onClick={() => {
+                                        setTab("quizzes");
+                                        setShowCreate(true);
+                                    }}
+                                >
+                                    {t("ui.createQuiz")}
+                                </Button>
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => {
+                                        if (quizzes.length > 0) host(quizzes[0].id, gameMode);
+                                    }}
+                                    disabled={quizzes.length === 0 || busy}
+                                >
+                                    {busy ? t("ui.hostingEllipsis") : t("ui.hostFirstQuiz")}
+                                </Button>
+                                <Button variant="secondary" onClick={() => setTab("questions")}>
+                                    {t("ui.browseQuestions")}
+                                </Button>
+                            </div>
+                            <p className="mt-4 max-w-xl text-xs leading-relaxed text-[var(--oq-ink-soft)]">
+                                {t(
+                                    "ui.teamModeScoresEveryMembersAnswersIntoASharedTeamTotalBattleModeRuns1v1RoundsWithByesAFullBracketAndAChampionBothAreVerifiedEndToEnd",
+                                )}
+                            </p>
+                        </div>
                     </TabPanel>
 
                     <TabPanel value="quizzes">
-                            <div className="tab-panel" key="quizzes">
-                                <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
-                                    <h2 className="text-lg font-extrabold mr-auto">Quiz sets</h2>
-                                    <select
-                                        value={gameMode}
-                                        onChange={(e) => setGameMode(e.target.value as GameMode)}
-                                        aria-label="Game mode for hosting"
-                                        className="input-underline text-sm max-w-[140px]"
-                                    >
-                                        <option value="STANDARD">Standard</option>
-                                        <option value="AUTO_PILOT">Auto-pilot</option>
-                                        <option value="PRACTICE">Practice</option>
-                                        <option value="EXAM">Exam</option>
-                                        <option value="TEAM">Team</option>
-                                        <option value="BATTLE">Battle</option>
-                                    </select>
-                                    <TextInput
-                                        value={quizSearch}
-                                        onChange={(e) => setQuizSearch(e.target.value)}
-                                        placeholder="Search quizzes…"
-                                        aria-label="Search quizzes"
-                                        className="text-sm max-w-xs"
-                                    />
-                                    <Button
-                                        variant="primary"
-                                        size="sm"
-                                        onClick={() => setShowCreate(true)}
-                                    >
-                                        New set
-                                    </Button>
-                                </div>
-
-                                {showCreate && (
-                                    <Card className="mb-4">
-                                        <h3 className="header-double">Create question set</h3>
-                                        <div className="flex flex-col sm:flex-row gap-4">
-                                            <TextInput
-                                                value={title}
-                                                onChange={(e) => setTitle(e.target.value)}
-                                                placeholder="Title"
-                                                aria-label="Quiz title"
-                                                className="flex-1"
-                                            />
-                                            <TextInput
-                                                value={desc}
-                                                onChange={(e) => setDesc(e.target.value)}
-                                                placeholder="Description"
-                                                aria-label="Quiz description"
-                                                className="flex-1"
-                                            />
-                                            <Button
-                                                variant="primary"
-                                                onClick={async () => {
-                                                    if (!title.trim()) return;
-                                                    try {
-                                                        await createQuiz(title.trim(), desc.trim());
-                                                        setTitle("");
-                                                        setDesc("");
-                                                        setShowCreate(false);
-                                                    } catch (e) {
-                                                        setBannerError(
-                                                            `Could not create the quiz: ${(e as Error)?.message ?? "unknown error"}`,
-                                                        );
-                                                    }
-                                                }}
-                                            >
-                                                Create
-                                            </Button>
-                                        </div>
-                                    </Card>
-                                )}
-
-                                <div
-                                    ref={gridRef}
-                                    className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                        <div className="tab-panel" key="quizzes">
+                            <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
+                                <h2 className="text-lg font-extrabold mr-auto">
+                                    {t("ui.quizSets")}
+                                </h2>
+                                <select
+                                    value={gameMode}
+                                    onChange={(e) => setGameMode(e.target.value as GameMode)}
+                                    aria-label={t("ui.gameModeForHosting")}
+                                    className="input-underline text-sm max-w-[140px]"
                                 >
-                                    {filteredQuizzes.slice(0, quizLimit).map((q) => (
-                                        <Card key={q.id} className="oq-quiz-card">
-                                            <div className="flex flex-col gap-4">
-                                                <div className="flex items-start justify-between gap-4">
-                                                    <h3 className="font-bold text-base leading-snug">
-                                                        {q.title}
-                                                    </h3>
-                                                </div>
-                                                {q.description && (
-                                                    <p className="text-[var(--oq-ink-soft)] text-sm line-clamp-2 flex-1">
-                                                        {q.description}
-                                                    </p>
-                                                )}
-                                                <div className="flex flex-wrap gap-4 pt-2 border-t border-[var(--oq-border)]">
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            loadQuestions(q.id).catch(() =>
-                                                                setBannerError("Could not load questions. Try again."),
-                                                            );
-                                                            setTab("questions");
-                                                        }}
-                                                    >
-                                                        Questions
-                                                    </Button>
-                                                    <Button
-                                                        variant="primary"
-                                                        size="sm"
-                                                        disabled={busy}
-                                                        onClick={() => host(q.id, gameMode)}
-                                                    >
-                                                        {busy ? "Hosting…" : "Host"}
-                                                    </Button>
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={() => openWizard(q.id)}
-                                                    >
-                                                        Add
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    ))}
-                                    {filteredQuizzes.length === 0 && (
-                                        <Card className="oq-quiz-card col-span-full">
-                                            <div className="text-center py-16">
-                                                <p className="label-caps mb-2">Empty library</p>
-                                                <p className="text-[var(--oq-ink-soft)]">
-                                                    Create your first set or import a bank JSON.
-                                                </p>
-                                            </div>
-                                        </Card>
-                                    )}
-                                </div>
-                                {filteredQuizzes.length > quizLimit && (
-                                    <div className="mt-6 flex justify-center">
+                                    <option value="STANDARD">{t("ui.standard")}</option>
+                                    <option value="AUTO_PILOT">{t("ui.autopilot")}</option>
+                                    <option value="PRACTICE">{t("ui.practice")}</option>
+                                    <option value="EXAM">{t("ui.exam")}</option>
+                                    <option value="TEAM">{t("ui.team")}</option>
+                                    <option value="BATTLE">{t("ui.battle")}</option>
+                                </select>
+                                <TextInput
+                                    value={quizSearch}
+                                    onChange={(e) => setQuizSearch(e.target.value)}
+                                    placeholder={t("ui.searchQuizzesEllipsis")}
+                                    aria-label={t("ui.searchQuizzes")}
+                                    className="text-sm max-w-xs"
+                                />
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    onClick={() => setShowCreate(true)}
+                                >
+                                    {t("ui.newSet")}
+                                </Button>
+                            </div>
+
+                            {showCreate && (
+                                <Card className="mb-4">
+                                    <h3 className="header-double">{t("ui.createQuestionSet")}</h3>
+                                    <div className="flex flex-col sm:flex-row gap-4">
+                                        <TextInput
+                                            value={title}
+                                            onChange={(e) => setTitle(e.target.value)}
+                                            placeholder={t("ui.title")}
+                                            aria-label={t("ui.quizTitle")}
+                                            className="flex-1"
+                                        />
+                                        <TextInput
+                                            value={desc}
+                                            onChange={(e) => setDesc(e.target.value)}
+                                            placeholder={t("ui.description")}
+                                            aria-label={t("ui.quizDescription")}
+                                            className="flex-1"
+                                        />
                                         <Button
-                                            variant="secondary"
-                                            onClick={() => setQuizLimit((n) => n + 24)}
+                                            variant="primary"
+                                            onClick={async () => {
+                                                if (!title.trim()) return;
+                                                try {
+                                                    await createQuiz(title.trim(), desc.trim());
+                                                    setTitle("");
+                                                    setDesc("");
+                                                    setShowCreate(false);
+                                                } catch (e) {
+                                                    setBannerError(
+                                                        `Could not create the quiz: ${(e as Error)?.message ?? t("ui.unknownError")}`,
+                                                    );
+                                                }
+                                            }}
                                         >
-                                            Show more ({filteredQuizzes.length - quizLimit}{" "}
-                                            remaining)
+                                            {t("ui.create")}
                                         </Button>
                                     </div>
-                                )}
-                            </div>
-                    </TabPanel>
+                                </Card>
+                            )}
 
-                    <TabPanel value="questions">
-                            <div className="tab-panel" key="questions">
-                                <div className="flex items-center gap-4 mb-4 flex-wrap">
-                                    <h2 className="text-lg font-extrabold mr-auto">Questions</h2>
-                                    <select
-                                        value={activeQuizId ?? ""}
-                                        onChange={(e) => {
-                                            if (e.target.value)
-                                                loadQuestions(e.target.value).catch(() =>
-                                                    setBannerError("Could not load questions. Try again."),
-                                                );
-                                        }}
-                                        aria-label="Select quiz set"
-                                        className="input-underline text-sm max-w-xs"
-                                    >
-                                        <option value="">Select a quiz set…</option>
-                                        {quizzes.map((q) => (
-                                            <option key={q.id} value={q.id}>
-                                                {q.title}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <TextInput
-                                        value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
-                                        placeholder="Search…"
-                                        aria-label="Search questions"
-                                        className="text-sm max-w-xs"
-                                    />
-                                    <Button
-                                        variant="primary"
-                                        size="sm"
-                                        disabled={!activeQuizId}
-                                        onClick={() => activeQuizId && openWizard(activeQuizId)}
-                                    >
-                                        Add question
-                                    </Button>
-                                </div>
-
-                                {filteredQuestions.length > 0 ? (
-                                    <div className="overflow-x-auto">
-                                        <table className="table-dotted w-full">
-                                            <thead>
-                                                <tr>
-                                                    <th className="w-12">#</th>
-                                                    <th>Title</th>
-                                                    <th>Type</th>
-                                                    <th className="w-20">Time</th>
-                                                    <th className="w-20">Points</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {filteredQuestions.map((q, i) => (
-                                                    <tr key={q.id}>
-                                                        <td className="mono text-sm">{i + 1}</td>
-                                                        <td className="font-medium">{q.title}</td>
-                                                        <td>
-                                                            <Chip tone="neutral">
-                                                                {q.questionType.replace(/_/g, " ")}
-                                                            </Chip>
-                                                        </td>
-                                                        <td className="mono text-sm">
-                                                            {q.timeLimitSec}s
-                                                        </td>
-                                                        <td className="mono text-sm">
-                                                            {q.pointsBase}
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-16 text-[var(--oq-ink-soft)]">
-                                        {activeQuizId
-                                            ? "No questions match your search."
-                                            : "Select a quiz set to view questions."}
-                                    </div>
-                                )}
-                            </div>
-                    </TabPanel>
-
-                    <TabPanel value="games">
-                            <div className="tab-panel" key="games">
-                                <h2 className="text-lg font-extrabold mb-4">Games</h2>
-                                {quizzes.length === 0 ? (
-                                    <div className="text-center py-16 text-[var(--oq-ink-soft)]">
-                                        <p className="label-caps mb-2">No quiz sets yet</p>
-                                        <p>Create a quiz set first, then host a game from here.</p>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col gap-4">
-                                        <div className="flex items-center gap-4 flex-wrap">
-                                            <label className="label-caps" htmlFor="games-mode">
-                                                Mode
-                                            </label>
-                                            <select
-                                                id="games-mode"
-                                                value={gameMode}
-                                                onChange={(e) =>
-                                                    setGameMode(e.target.value as GameMode)
-                                                }
-                                                className="input-underline text-sm max-w-[160px]"
-                                            >
-                                                <option value="STANDARD">Standard</option>
-                                                <option value="AUTO_PILOT">Auto-pilot</option>
-                                                <option value="PRACTICE">Practice</option>
-                                                <option value="EXAM">Exam</option>
-                                            </select>
-                                        </div>
-                                        {filteredQuizzes.slice(0, gamesLimit).map((q) => (
-                                            <div
-                                                key={q.id}
-                                                className="flex items-center justify-between gap-4 rounded-[2px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
-                                            >
-                                                <div className="min-w-0">
-                                                    <p
-                                                        className="font-bold truncate"
-                                                        title={q.title}
-                                                    >
-                                                        {q.title}
-                                                    </p>
-                                                    {q.description && (
-                                                        <p className="text-[var(--oq-ink-soft)] text-sm truncate">
-                                                            {q.description}
-                                                        </p>
-                                                    )}
-                                                </div>
+                            <div ref={gridRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {filteredQuizzes.slice(0, quizLimit).map((q) => (
+                                    <Card key={q.id} className="oq-quiz-card">
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <h3 className="font-bold text-base leading-snug">
+                                                    {q.title}
+                                                </h3>
+                                            </div>
+                                            {q.description && (
+                                                <p className="text-[var(--oq-ink-soft)] text-sm line-clamp-2 flex-1">
+                                                    {q.description}
+                                                </p>
+                                            )}
+                                            <div className="flex flex-wrap gap-4 pt-2 border-t border-[var(--oq-border)]">
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        loadQuestions(q.id).catch(() =>
+                                                            setBannerError(
+                                                                t(
+                                                                    "ui.couldNotLoadQuestionsTryAgain",
+                                                                ),
+                                                            ),
+                                                        );
+                                                        setTab("questions");
+                                                    }}
+                                                >
+                                                    {t("ui.questions")}
+                                                </Button>
                                                 <Button
                                                     variant="primary"
                                                     size="sm"
                                                     disabled={busy}
                                                     onClick={() => host(q.id, gameMode)}
-                                                    className="shrink-0"
                                                 >
-                                                    {busy ? "Hosting…" : "Host game"}
+                                                    {busy
+                                                        ? t("ui.hostingEllipsis")
+                                                        : t("ui.hostLabel")}
                                                 </Button>
-                                            </div>
-                                        ))}
-                                        {filteredQuizzes.length === 0 && (
-                                            <p className="text-[var(--oq-ink-soft)] text-sm">
-                                                No quiz sets match your search.
-                                            </p>
-                                        )}
-                                        {filteredQuizzes.length > gamesLimit && (
-                                            <div className="flex justify-center pt-2">
                                                 <Button
                                                     variant="secondary"
-                                                    onClick={() => setGamesLimit((n) => n + 24)}
+                                                    size="sm"
+                                                    onClick={() => openWizard(q.id)}
                                                 >
-                                                    Show more (
-                                                    {filteredQuizzes.length - gamesLimit} remaining)
+                                                    {t("ui.add")}
                                                 </Button>
                                             </div>
-                                        )}
-                                    </div>
+                                        </div>
+                                    </Card>
+                                ))}
+                                {filteredQuizzes.length === 0 && (
+                                    <Card className="oq-quiz-card col-span-full">
+                                        <div className="text-center py-16">
+                                            <p className="label-caps mb-2">
+                                                {t("ui.emptyLibrary")}
+                                            </p>
+                                            <p className="text-[var(--oq-ink-soft)]">
+                                                {t("ui.createYourFirstSetOrImportABankJSON")}
+                                            </p>
+                                        </div>
+                                    </Card>
                                 )}
                             </div>
+                            {filteredQuizzes.length > quizLimit && (
+                                <div className="mt-6 flex justify-center">
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => setQuizLimit((n) => n + 24)}
+                                    >
+                                        Show more ({filteredQuizzes.length - quizLimit} remaining)
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </TabPanel>
+
+                    <TabPanel value="questions">
+                        <div className="tab-panel" key="questions">
+                            <div className="flex items-center gap-4 mb-4 flex-wrap">
+                                <h2 className="text-lg font-extrabold mr-auto">
+                                    {t("ui.questions")}
+                                </h2>
+                                <select
+                                    value={activeQuizId ?? ""}
+                                    onChange={(e) => {
+                                        if (e.target.value)
+                                            loadQuestions(e.target.value).catch(() =>
+                                                setBannerError(
+                                                    t("ui.couldNotLoadQuestionsTryAgain"),
+                                                ),
+                                            );
+                                    }}
+                                    aria-label={t("ui.selectQuizSet")}
+                                    className="input-underline text-sm max-w-xs"
+                                >
+                                    <option value="">{t("ui.selectAQuizSet")}</option>
+                                    {quizzes.map((q) => (
+                                        <option key={q.id} value={q.id}>
+                                            {q.title}
+                                        </option>
+                                    ))}
+                                </select>
+                                <TextInput
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder={t("ui.searchEllipsis")}
+                                    aria-label={t("ui.searchQuestions")}
+                                    className="text-sm max-w-xs"
+                                />
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    disabled={!activeQuizId}
+                                    onClick={() => activeQuizId && openWizard(activeQuizId)}
+                                >
+                                    {t("ui.addQuestion")}
+                                </Button>
+                            </div>
+
+                            {filteredQuestions.length > 0 ? (
+                                <div className="overflow-x-auto">
+                                    <table className="table-dotted w-full">
+                                        <thead>
+                                            <tr>
+                                                <th className="w-12">#</th>
+                                                <th>{t("ui.title")}</th>
+                                                <th>{t("ui.type")}</th>
+                                                <th className="w-20">{t("ui.time")}</th>
+                                                <th className="w-20">{t("ui.points")}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredQuestions.map((q, i) => (
+                                                <tr key={q.id}>
+                                                    <td className="mono text-sm">{i + 1}</td>
+                                                    <td className="font-medium">{q.title}</td>
+                                                    <td>
+                                                        <Chip tone="neutral">
+                                                            {q.questionType.replace(/_/g, " ")}
+                                                        </Chip>
+                                                    </td>
+                                                    <td className="mono text-sm">
+                                                        {q.timeLimitSec}s
+                                                    </td>
+                                                    <td className="mono text-sm">{q.pointsBase}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className="text-center py-16 text-[var(--oq-ink-soft)]">
+                                    {activeQuizId
+                                        ? t("ui.noQuestionsMatchYourSearch")
+                                        : t("ui.selectAQuizSetToViewQuestions")}
+                                </div>
+                            )}
+                        </div>
+                    </TabPanel>
+
+                    <TabPanel value="games">
+                        <div className="tab-panel" key="games">
+                            <h2 className="text-lg font-extrabold mb-4">{t("ui.games")}</h2>
+                            {quizzes.length === 0 ? (
+                                <div className="text-center py-16 text-[var(--oq-ink-soft)]">
+                                    <p className="label-caps mb-2">{t("ui.noQuizSetsYet")}</p>
+                                    <p>{t("ui.createAQuizSetFirstThenHostAGameFromHere")}</p>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex items-center gap-4 flex-wrap">
+                                        <label className="label-caps" htmlFor="games-mode">
+                                            {t("ui.mode")}
+                                        </label>
+                                        <select
+                                            id="games-mode"
+                                            value={gameMode}
+                                            onChange={(e) =>
+                                                setGameMode(e.target.value as GameMode)
+                                            }
+                                            className="input-underline text-sm max-w-[160px]"
+                                        >
+                                            <option value="STANDARD">{t("ui.standard")}</option>
+                                            <option value="AUTO_PILOT">{t("ui.autopilot")}</option>
+                                            <option value="PRACTICE">{t("ui.practice")}</option>
+                                            <option value="EXAM">{t("ui.exam")}</option>
+                                        </select>
+                                    </div>
+                                    {filteredQuizzes.slice(0, gamesLimit).map((q) => (
+                                        <div
+                                            key={q.id}
+                                            className="flex items-center justify-between gap-4 rounded-[2px] border border-[var(--oq-border)] bg-[var(--oq-surface)] p-6"
+                                        >
+                                            <div className="min-w-0">
+                                                <p className="font-bold truncate" title={q.title}>
+                                                    {q.title}
+                                                </p>
+                                                {q.description && (
+                                                    <p className="text-[var(--oq-ink-soft)] text-sm truncate">
+                                                        {q.description}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <Button
+                                                variant="primary"
+                                                size="sm"
+                                                disabled={busy}
+                                                onClick={() => host(q.id, gameMode)}
+                                                className="shrink-0"
+                                            >
+                                                {busy ? t("ui.hostingEllipsis") : t("ui.hostGame")}
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    {filteredQuizzes.length === 0 && (
+                                        <p className="text-[var(--oq-ink-soft)] text-sm">
+                                            {t("ui.noQuizSetsMatchYourSearch")}
+                                        </p>
+                                    )}
+                                    {filteredQuizzes.length > gamesLimit && (
+                                        <div className="flex justify-center pt-2">
+                                            <Button
+                                                variant="secondary"
+                                                onClick={() => setGamesLimit((n) => n + 24)}
+                                            >
+                                                Show more ({filteredQuizzes.length - gamesLimit}{" "}
+                                                remaining)
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </TabPanel>
 
                     <TabPanel value="settings">
-                            <SettingsTab key="settings-panel" />
+                        <SettingsTab key="settings-panel" />
                     </TabPanel>
                 </Tabs>
             </main>

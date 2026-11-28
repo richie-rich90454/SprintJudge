@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -173,7 +174,7 @@ class GameWebSocketSecurityTest {
 		doThrow(new IllegalArgumentException("Invalid PIN")).when(roomManager).join(eq("000000"), anyString(),
 				anyString(), eq("player"), any());
 		ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"000000\",\"name\":\"A\"}");
-		assertTrue(lastMessage().contains("Invalid PIN"));
+		assertTrue(lastMessage().contains("JOIN_FAILED"));
 		verify(rateLimiter).recordFailure("unresolved");
 	}
 
@@ -269,6 +270,22 @@ class GameWebSocketSecurityTest {
 	@Test
 	void adminCommandsAreForbiddenForPlayers() {
 		joinAsPlayer();
+		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).nextQuestion(anyString());
+	}
+
+	@Test
+	void hostCommandRevalidatesAdminFromLivePrincipal() {
+		props.put("oq.authenticated", Boolean.TRUE);
+		props.put("oq.admin", Boolean.TRUE);
+		props.put("role", "host");
+		props.put("pin", "123456");
+		// The handshake snapshot says admin, but the live session no longer does.
+		org.springframework.security.core.Authentication user = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+				"admin", "n/a",
+				java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER")));
+		when(session.getUserPrincipal()).thenReturn(user);
 		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
 		assertTrue(lastMessage().contains("Forbidden"));
 		verify(roomManager, never()).nextQuestion(anyString());
@@ -403,7 +420,8 @@ class GameWebSocketSecurityTest {
 		doThrow(new IllegalStateException("room closed")).when(roomManager).join(eq("123456"), anyString(), anyString(),
 				eq("player"), any());
 		ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"Al\"}");
-		assertTrue(lastMessage().contains("room closed"));
+		assertTrue(lastMessage().contains("JOIN_FAILED"));
+		assertFalse(lastMessage().contains("room closed"));
 		verify(rateLimiter).recordFailure("unresolved");
 	}
 
@@ -572,5 +590,72 @@ class GameWebSocketSecurityTest {
 		// questionId is non-blank so the second operand of the || is actually evaluated
 		ws().onMessage(session, "{\"type\":\"SUBMIT\",\"questionId\":\"q1\"}");
 		assertTrue(lastMessage().contains("requires 'questionId'"));
+	}
+
+	// ---------- live-principal revalidation edge cases ----------
+
+	private void asHostSession() {
+		props.put("role", "host");
+		props.put("pin", "123456");
+		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.TRUE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.TRUE);
+	}
+
+	@Test
+	void hostCommandRefusedWhenPrincipalLookupThrows() {
+		props.put("role", "host");
+		props.put("pin", "123456");
+		when(session.getUserPrincipal()).thenThrow(new IllegalStateException("no principal"));
+		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).nextQuestion(anyString());
+	}
+
+	@Test
+	void hostCommandRefusedForUnauthenticatedLivePrincipal() {
+		asHostSession();
+		when(session.getUserPrincipal()).thenReturn(
+				new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("user", "pw"));
+		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).nextQuestion(anyString());
+	}
+
+	@Test
+	void hostCommandRefusedForAnonymousLivePrincipal() {
+		asHostSession();
+		when(session.getUserPrincipal()).thenReturn(
+				new org.springframework.security.authentication.AnonymousAuthenticationToken("key", "anonymousUser",
+						java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority(
+								"ROLE_ANONYMOUS"))));
+		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+		assertTrue(lastMessage().contains("Forbidden"));
+		verify(roomManager, never()).nextQuestion(anyString());
+	}
+
+	@Test
+	void hostCommandAllowedForLiveAdminPrincipal() {
+		props.put("role", "host");
+		props.put("pin", "123456");
+		props.put(SecureHandshakeConfigurator.AUTHENTICATED, Boolean.FALSE);
+		props.put(SecureHandshakeConfigurator.ADMIN, Boolean.FALSE);
+		when(session.getUserPrincipal())
+				.thenReturn(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("admin",
+						"n/a", java.util.List.of(
+								new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN"))));
+		ws().onMessage(session, "{\"type\":\"NEXT_QUESTION\"}");
+		verify(roomManager).nextQuestion("123456");
+	}
+
+	@Test
+	void joinFailureNeverEchoesManagerExceptionText() {
+		when(rateLimiter.tryJoin(anyString())).thenReturn(true);
+		doThrow(new IllegalArgumentException("SELECT * from users where id=secret-42")).when(roomManager)
+				.join(eq("123456"), anyString(), anyString(), eq("player"), any());
+		ws().onMessage(session, "{\"type\":\"JOIN\",\"pin\":\"123456\",\"name\":\"A\"}");
+		String msg = lastMessage();
+		assertTrue(msg.contains("JOIN_FAILED"), msg);
+		assertFalse(msg.contains("secret-42"), msg);
+		assertFalse(msg.contains("SELECT"), msg);
 	}
 }

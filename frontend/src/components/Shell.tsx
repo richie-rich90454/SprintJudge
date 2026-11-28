@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { LogoMark } from "./LogoMark";
@@ -9,6 +10,7 @@ import { useEffect, useState } from "react";
 
 /** Shared outer shell: header with logo, connection, sound, motion and About. */
 export function Shell({ children, minimal = false }: { children: ReactNode; minimal?: boolean }) {
+    const { t } = useI18n();
     const [online, setOnline] = useState(false);
     useEffect(() => {
         const sub = webSocketService.onStatus().subscribe((s) => setOnline(s === "open"));
@@ -22,16 +24,16 @@ export function Shell({ children, minimal = false }: { children: ReactNode; mini
                     <Link
                         to="/"
                         className="flex items-center gap-2.5"
-                        aria-label="SprintJudge home"
+                        aria-label={t("ui.sprintjudgeHome")}
                     >
                         <LogoMark size={28} />
-                        <span className="font-extrabold tracking-tight">SprintJudge</span>
+                        <span className="font-extrabold tracking-tight">{t("ui.brand")}</span>
                     </Link>
                     <div className="flex items-center gap-1">
                         {!minimal && (
                             <span
                                 className="chip chip-neutral mr-1"
-                                title={online ? "Connected" : "Not connected"}
+                                title={online ? t("ui.connected") : t("ui.notConnected")}
                             >
                                 <span
                                     aria-hidden="true"
@@ -42,7 +44,7 @@ export function Shell({ children, minimal = false }: { children: ReactNode; mini
                                             : "var(--oq-border-strong)",
                                     }}
                                 />
-                                {online ? "Live" : "Offline"}
+                                {online ? t("ui.live") : t("ui.offline")}
                             </span>
                         )}
                         <SoundToggle className="header-icon" />

@@ -53,4 +53,14 @@ describe("requireAdmin", () => {
         getSettings.mockRejectedValue(new Error("network down"));
         await expect(requireAdmin()).rejects.toThrow(/admin service is unavailable/);
     });
+
+    test("does not turn a backend outage into a login redirect", async () => {
+        getSettings.mockRejectedValue(authError(500));
+        const err = await requireAdmin().then(
+            () => null,
+            (e: unknown) => e,
+        );
+        expect(err).toBeInstanceOf(Error);
+        expect(err).not.toBeInstanceOf(Response);
+    });
 });

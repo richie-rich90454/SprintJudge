@@ -2693,4 +2693,89 @@ class GameRoomManagerCoverageTest {
 		assertEquals(null, displayOptions("{\"options\":[]}"));
 		assertEquals(null, displayOptions("{\"options\":[{\"id\":\"l1\"}]}"));
 	}
+
+	// ---------- hardening guards on join / async expiry ----------
+
+	@Test
+	void joinRejectsEndedRoomStillInRegistry() {
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+		GameRoomManager mgr = manager();
+		mgr.join("123456", "Seed", "seed", "player", null);
+		roomOf(mgr).setStatus("ENDED");
+		IllegalStateException ex = assertThrows(IllegalStateException.class,
+				() -> mgr.join("123456", "Late", "late", "player", null));
+		assertEquals("This game has ended", ex.getMessage());
+	}
+
+	@Test
+	void joinRejectsRoomEvictedBetweenLookupAndGuard() throws Exception {
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+		GameRoomManager mgr = manager();
+		mgr.join("123456", "Seed", "seed", "player", null);
+		GameRoom stale = roomOf(mgr);
+		GameRoom replacement = new GameRoom("s2", "qz", "123456", "LOBBY", 500, GameRoom.GameMode.STANDARD);
+
+		RoomRegistry swapped = org.mockito.Mockito.mock(RoomRegistry.class);
+		when(swapped.get(123456)).thenReturn(stale, replacement);
+		java.lang.reflect.Field field = GameRoomManager.class.getDeclaredField("registry");
+		field.setAccessible(true);
+		field.set(mgr, swapped);
+
+		IllegalStateException ex = assertThrows(IllegalStateException.class,
+				() -> mgr.join("123456", "Late", "late", "player", null));
+		assertEquals("This game has ended", ex.getMessage());
+		assertNull(stale.getHostUuid());
+		verify(eventPublisher, times(1)).publishEvent(any(com.sprintjudge.service.event.GameEvent.PlayerJoined.class));
+	}
+
+	@Test
+	void expireRoundIsNoOpWhenRoomWasEvicted() throws Exception {
+		GameRoomManager mgr = manager();
+		callPrivate(mgr, "expireRound", "999999", "q1");
+		verify(sessionRepository, never()).updateStatus(anyString(), eq("REVIEW"));
+	}
+
+	@Test
+	void expireRoundIsNoOpWhenRoomNotActive() throws Exception {
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+		GameRoomManager mgr = manager();
+		mgr.join("123456", "A", "sa", "player", null);
+		GameRoom room = roomOf(mgr);
+		room.setStatus("REVIEW");
+		callPrivate(mgr, "expireRound", "123456", "q1");
+		assertEquals("REVIEW", room.getStatus());
+		verify(sessionRepository, never()).updateStatus(anyString(), eq("REVIEW"));
+	}
+
+	@Test
+	void expireExamIsNoOpWhenRoomWasEvicted() throws Exception {
+		GameRoomManager mgr = manager();
+		callPrivate(mgr, "expireExam", "999999");
+		verify(sessionRepository, never()).updateStatus(anyString(), eq("ENDED"));
+	}
+
+	@Test
+	void expireExamIsNoOpWhenRoomNotActive() throws Exception {
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+		GameRoomManager mgr = manager();
+		mgr.join("123456", "A", "sa", "player", null);
+		GameRoom room = roomOf(mgr);
+		room.setStatus("REVIEW");
+		callPrivate(mgr, "expireExam", "123456");
+		assertEquals("REVIEW", room.getStatus());
+		verify(sessionRepository, never()).updateStatus(anyString(), eq("ENDED"));
+	}
+
+	@Test
+	void expireExamIsNoOpWhileDeadlineInFuture() throws Exception {
+		when(sessionRepository.findByPin("123456")).thenReturn(Optional.of(session("123456")));
+		GameRoomManager mgr = manager();
+		mgr.join("123456", "A", "sa", "player", null);
+		GameRoom room = roomOf(mgr);
+		room.setStatus("ACTIVE");
+		room.setCurrentQuestionEndEpochMs(Instant.now().toEpochMilli() + 60_000);
+		callPrivate(mgr, "expireExam", "123456");
+		assertEquals("ACTIVE", room.getStatus());
+		verify(sessionRepository, never()).updateStatus(anyString(), eq("ENDED"));
+	}
 }

@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -152,7 +153,8 @@ class GameWebSocketTeamBattleTest {
 		doThrow(new IllegalStateException("Teams are locked once the game starts")).when(roomManager)
 				.leaveTeam("123456", "uuid-9");
 		ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
-		assertTrue(lastMessage().contains("locked"));
+		assertTrue(lastMessage().contains("TEAM_ACTION_FAILED"));
+		assertFalse(lastMessage().contains("locked"));
 	}
 
 	@Test
@@ -161,7 +163,8 @@ class GameWebSocketTeamBattleTest {
 		props.put("playerUuid", "uuid-9");
 		doThrow(new IllegalArgumentException("Unknown team: team-9")).when(roomManager).leaveTeam("123456", "uuid-9");
 		ws().onMessage(session, "{\"type\":\"LEAVE_TEAM\"}");
-		assertTrue(lastMessage().contains("Unknown team"));
+		assertTrue(lastMessage().contains("TEAM_ACTION_FAILED"));
+		assertFalse(lastMessage().contains("Unknown team"));
 	}
 
 	@Test

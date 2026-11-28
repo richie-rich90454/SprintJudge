@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,8 +39,30 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
-		if (windows.size() > MAX_TRACKED_IPS)
-			windows.clear();
+		// Evict expired buckets first, then hard-cap by dropping the oldest.
+		// Clearing all would let an attacker spray IPs and reset the throttle;
+		// removing only the oldest keeps active attackers (freshest) tracked.
+		if (windows.size() > MAX_TRACKED_IPS) {
+			long nowEvict = System.currentTimeMillis();
+			Iterator<Map.Entry<String, long[]>> it = windows.entrySet().iterator();
+			while (it.hasNext() && windows.size() >= MAX_TRACKED_IPS) {
+				Map.Entry<String, long[]> entry = it.next();
+				if (nowEvict - entry.getValue()[0] > WINDOW_MS)
+					it.remove();
+			}
+			while (windows.size() >= MAX_TRACKED_IPS) {
+				String oldest = null;
+				long oldestStart = Long.MAX_VALUE;
+				for (Map.Entry<String, long[]> entry : windows.entrySet()) {
+					long start = entry.getValue()[0];
+					if (start < oldestStart) {
+						oldestStart = start;
+						oldest = entry.getKey();
+					}
+				}
+				windows.remove(oldest);
+			}
+		}
 		String ip = com.sprintjudge.util.ClientIpResolver.resolve(request.getRemoteAddr(),
 				request.getHeader("X-Forwarded-For"), request.getHeader("X-Real-IP"));
 		long now = System.currentTimeMillis();

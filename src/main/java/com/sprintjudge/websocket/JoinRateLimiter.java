@@ -18,7 +18,7 @@ public class JoinRateLimiter {
 	private static final long WINDOW_MS = 60_000L;
 	private static final int MAX_TRACKED = 10_000;
 
-	private final Map<String, Window> windows = new ConcurrentHashMap<>();
+	final Map<String, Window> windows = new ConcurrentHashMap<>();
 	private final java.util.function.LongSupplier clock;
 
 	/** Production ctor: wall clock. */
@@ -46,6 +46,20 @@ public class JoinRateLimiter {
 				Map.Entry<String, Window> e = it.next();
 				if (now - e.getValue().windowStart > WINDOW_MS)
 					it.remove();
+			}
+			// All-fresh attackers must not grow the map without bound. Drop the
+			// oldest windows only, so an active attacker's window stays tracked.
+			while (windows.size() >= MAX_TRACKED) {
+				String oldest = null;
+				long oldestStart = Long.MAX_VALUE;
+				for (Map.Entry<String, Window> e : windows.entrySet()) {
+					long start = e.getValue().windowStart;
+					if (start < oldestStart) {
+						oldestStart = start;
+						oldest = e.getKey();
+					}
+				}
+				windows.remove(oldest);
 			}
 		}
 		Window w = windows.computeIfAbsent(remoteAddr, new java.util.function.Function<String, Window>() {

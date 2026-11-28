@@ -168,6 +168,8 @@ public class ImportExportService {
 		if (qe.getTitle().length() > 200) {
 			throw new IllegalArgumentException("Quiz title exceeds 200 characters");
 		}
+		QuestionConfigValidator.requireCleanText("title", qe.getTitle());
+		QuestionConfigValidator.requireCleanText("description", qe.getDescription());
 		List<ExportBundle.QuestionExport> exports = qe.getQuestions() == null ? List.of() : qe.getQuestions();
 		for (ExportBundle.QuestionExport ex : exports) {
 			validateQuestion(ex);
@@ -184,6 +186,8 @@ public class ImportExportService {
 		if (ex.getTitle().length() > 200) {
 			throw new IllegalArgumentException("Question title exceeds 200 characters");
 		}
+		QuestionConfigValidator.requireCleanText("title", ex.getTitle());
+		QuestionConfigValidator.requireCleanText("description", ex.getDescription());
 		// Throws IllegalArgumentException on unknown/blank type (maps to 400).
 		com.sprintjudge.domain.enums.QuestionType.from(ex.getType());
 		if (ex.getTimeLimitSec() < 1) {

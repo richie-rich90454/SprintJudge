@@ -14,33 +14,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "A coach's plan: try: 1/0 except ZeroDivisionError: print('caught'). Output?",
+      "stem": "A coach's plan: the following code:\n\n```python\ntry:\n    1/0\nexcept ZeroDivisionError:\n    print('caught')\n```. Output?",
       "options": [
         {
           "id": "A",
-          "text": "caught",
-          "misconception": ""
+          "text": "None",
+          "misconception": "Confuses the handler's side effect with a return value"
         },
         {
           "id": "B",
           "text": "ZeroDivisionError",
-          "misconception": "uncaught"
+          "misconception": "Assumes the handler is skipped for arithmetic errors"
         },
         {
           "id": "C",
           "text": "1/0",
-          "misconception": "prints expr"
+          "misconception": "Thinks Python echoes the failing expression"
         },
         {
           "id": "D",
-          "text": "None",
-          "misconception": "confuses result"
+          "text": "caught",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
-      "explanation": "The except catches ZeroDivisionError and prints caught.",
+      "explanation": "The try block divides by zero and raises ZeroDivisionError; the matching except clause catches it and executes print('caught'). The exception object is never printed, the expression 1/0 is not echoed, and the handler's output means the block did not fall through to None.",
       "hint": "Caught prints.",
       "difficulty": 0.25,
       "discrimination": 0.25,
@@ -52,7 +52,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -67,7 +67,7 @@
         "unit-2",
         "raise-and-handler"
       ],
-      "version": 1
+      "version": 4
     },
     {
       "id": "py-2.15-0002",
@@ -87,29 +87,29 @@
       "options": [
         {
           "id": "A",
-          "text": "Only exact ValueError",
-          "misconception": "ignores subclasses"
-        },
-        {
-          "id": "B",
           "text": "ValueError and subclasses",
           "misconception": ""
         },
         {
+          "id": "B",
+          "text": "Only exact ValueError",
+          "misconception": "ignores subclasses"
+        },
+        {
           "id": "C",
           "text": "All exceptions",
-          "misconception": "too broad"
+          "misconception": "Assumes a specific handler matches every exception class"
         },
         {
           "id": "D",
-          "text": "None",
+          "text": "No exception is ever intercepted.",
           "misconception": "denies interception"
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
-      "explanation": "A handler catches the named type and its subclasses.",
+      "explanation": "A handler matches the named class and every subclass, so an int conversion error is intercepted by except ValueError. A handler for all exceptions is far broader, and one that matches nothing cannot intercept the error; 'None' is not a plausible outcome for an exception that was raised.",
       "hint": "Subclasses caught too.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -121,7 +121,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -136,7 +136,7 @@
         "unit-2",
         "what-a-handler-intercepts"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0003",
@@ -156,18 +156,18 @@
       "options": [
         {
           "id": "A",
-          "text": "Yes",
+          "text": "Yes, the handler catches it.",
           "misconception": "wrong type catches"
         },
         {
           "id": "B",
-          "text": "Prints caught anyway",
-          "misconception": "handler runs always"
+          "text": "No, ValueError propagates",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "No, ValueError propagates",
-          "misconception": ""
+          "text": "Prints caught anyway",
+          "misconception": "handler runs always"
         },
         {
           "id": "D",
@@ -176,9 +176,9 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
-      "explanation": "int('x') raises ValueError, not caught by ZeroDivisionError handler.",
+      "explanation": "int('x') raises ValueError because the string is not a valid integer literal. The active handler names ZeroDivisionError, a sibling class, so nothing matches and the ValueError propagates out of the try statement. No syntax error is involved and the handler never runs.",
       "hint": "Type must match.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -190,7 +190,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -205,7 +205,7 @@
         "unit-2",
         "handler-of-the-wrong-type"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0004",
@@ -226,7 +226,7 @@
       "answer": {
         "exemplar": "ValueError is a subclass of Exception, so a handler for Exception matches it."
       },
-      "explanation": "Subclass instance matches base class handler.",
+      "explanation": "except Exception matches ValueError because ValueError is defined as a subclass of Exception. Python walks the exception's class hierarchy and runs the first handler whose class is a base of the raised type, so a broad base-class handler intercepts many specific errors.",
       "hint": "Subclass of Exception.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -238,7 +238,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -253,7 +253,7 @@
         "unit-2",
         "handler-matching-a-subclass"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0005",
@@ -275,7 +275,7 @@
         "value": 2,
         "tolerance": 0.01
       },
-      "explanation": "bare except catches BaseException-only types like KeyboardInterrupt, SystemExit (2).",
+      "explanation": "Bare except catches every subclass of BaseException, including KeyboardInterrupt and SystemExit, while except Exception stops at Exception and its descendants. Those two BaseException-only families are what the bare form adds, giving a count of two.",
       "hint": "Bare catches system exits.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -287,7 +287,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -302,7 +302,7 @@
         "unit-2",
         "named-type-versus-bare-handler"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0006",
@@ -332,19 +332,19 @@
         },
         {
           "id": "C",
-          "text": "No, no",
-          "misconception": "bare misses"
+          "text": "Yes, no",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "Yes, no",
-          "misconception": ""
+          "text": "No, no",
+          "misconception": "Thinks bare except misses ordinary exceptions"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
-      "explanation": "bare except catches KeyError, but swallowing is usually undesirable.",
+      "explanation": "A bare except matches KeyError because it catches every exception derived from BaseException. That breadth is usually a bug: it swallows typos, missing keys and control-flow exceptions, making failures silent. The correct pair is 'yes, no'.",
       "hint": "Catches but not desirable.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -356,7 +356,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -371,7 +371,7 @@
         "unit-2",
         "bare-handler-swallows-a-miss"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0007",
@@ -397,23 +397,23 @@
         {
           "id": "B",
           "text": "Only catches syntax errors",
-          "misconception": "wrong scope"
+          "misconception": "Believes bare except only intercepts syntax errors"
         },
         {
           "id": "C",
-          "text": "Hides all errors including bugs",
-          "misconception": ""
+          "text": "There is no downside to this approach.",
+          "misconception": "denies issue"
         },
         {
           "id": "D",
-          "text": "No risk",
-          "misconception": "denies issue"
+          "text": "Hides all errors including bugs",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
-      "explanation": "bare except swallows unexpected errors, hiding bugs.",
+      "explanation": "A bare except with pass discards every exception, including programming mistakes such as NameError or TypeError, so the program continues in an invalid state and the real cause disappears. It does not speed anything up, is not restricted to syntax errors, and definitely carries risk.",
       "hint": "Hides bugs.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -425,7 +425,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -440,7 +440,7 @@
         "unit-2",
         "what-a-bare-handler-hides"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0008",
@@ -456,12 +456,12 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "When does a try block's else run?",
+      "stem": "An exam in Python programming asks: When does a try block's else run?",
       "options": [
         {
           "id": "A",
-          "text": "Never",
-          "misconception": "denies else"
+          "text": "If no exception",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -475,14 +475,14 @@
         },
         {
           "id": "D",
-          "text": "If no exception",
-          "misconception": ""
+          "text": "Never",
+          "misconception": "Denies the clause ever executes"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
-      "explanation": "else runs only when try completes without exception.",
+      "explanation": "The else clause of a try statement runs only when the try body finishes without raising. If an exception is caught by except, else is skipped; it is neither unconditional nor equivalent to the except clause.",
       "hint": "No exception triggers else.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -494,7 +494,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T12:58:08.158Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -509,7 +509,7 @@
         "unit-2",
         "the-else-block-on-a-try"
       ],
-      "version": 1
+      "version": 4
     },
     {
       "id": "py-2.15-0009",
@@ -529,7 +529,7 @@
       "options": [
         {
           "id": "A",
-          "text": "Yes",
+          "text": "Yes, only on the error path.",
           "misconception": "conditional finally"
         },
         {
@@ -545,13 +545,13 @@
         {
           "id": "D",
           "text": "Only in functions",
-          "misconception": "scope myth"
+          "misconception": "Thinks finally is valid only inside functions"
         }
       ],
       "answer": {
         "correctId": "B"
       },
-      "explanation": "finally always runs, whether or not exception occurred.",
+      "explanation": "finally executes on every exit path: normal completion, a caught or uncaught exception, and an early return. Its purpose is cleanup that must not be skipped, so the claim that it runs only on errors is false.",
       "hint": "Always runs.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -563,7 +563,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -578,7 +578,7 @@
         "unit-2",
         "the-cleanup-block-on-a-clean-path"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0010",
@@ -599,7 +599,7 @@
       "answer": {
         "exemplar": "finally guarantees its block executes during cleanup, even if an exception propagates or return occurs."
       },
-      "explanation": "finally runs on normal, exception, and return paths.",
+      "explanation": "finally is the guaranteed cleanup clause: Python runs it when the try block completes normally, when an exception is caught, when an exception escapes, and when a return, break or continue leaves the block. That makes it the right place for releasing resources.",
       "hint": "Runs on all paths.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -611,7 +611,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -626,7 +626,7 @@
         "unit-2",
         "what-cleanup-guarantees"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0011",
@@ -648,7 +648,7 @@
         "value": 1,
         "tolerance": 0.01
       },
-      "explanation": "finally's exception replaces the original, so one propagates.",
+      "explanation": "When finally raises TypeError while a ValueError is already in flight, the new exception replaces the original and becomes the one that propagates. Only one exception reaches the caller; the ValueError is attached as context but no longer propagates.",
       "hint": "Finally overrides.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -660,7 +660,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -675,7 +675,7 @@
         "unit-2",
         "raise-inside-cleanup"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0012",
@@ -696,12 +696,12 @@
         {
           "id": "A",
           "text": "'x', ''",
-          "misconception": "str empty"
+          "misconception": "Thinks str of an exception is empty"
         },
         {
           "id": "B",
           "text": "'', 'x'",
-          "misconception": "no message"
+          "misconception": "Assumes the constructor message is discarded"
         },
         {
           "id": "C",
@@ -711,13 +711,13 @@
         {
           "id": "D",
           "text": "Error, Error",
-          "misconception": "invalid"
+          "misconception": "Believes the construction raises an error"
         }
       ],
       "answer": {
         "correctId": "C"
       },
-      "explanation": "Message 'x' is stored and str returns 'x'.",
+      "explanation": "Raising E('x') constructs an exception whose args tuple is ('x',), and str(instance) returns the message 'x' because Exception.__str__ joins the args. The message is neither empty nor doubled, and the construction is valid.",
       "hint": "Message preserved.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -729,7 +729,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -744,7 +744,7 @@
         "unit-2",
         "custom-exception-result"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0013",
@@ -779,14 +779,14 @@
         },
         {
           "id": "D",
-          "text": "Yes",
+          "text": "Yes, subclassing Exception is enough.",
           "misconception": ""
         }
       ],
       "answer": {
         "correctId": "D"
       },
-      "explanation": "Subclassing Exception is sufficient.",
+      "explanation": "Any class that inherits from Exception is a usable exception type; no custom __init__ or mandatory message is required. Raising MyError creates an instance of that class, and calling it with no arguments is perfectly legal.",
       "hint": "Subclass Exception.",
       "difficulty": 0.25,
       "discrimination": 0.25,
@@ -798,7 +798,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -813,7 +813,7 @@
         "unit-2",
         "defining-a-custom-exception"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0014",
@@ -829,33 +829,33 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "When does assert cond raise AssertionError?",
+      "stem": "On a college Python programming test, when does assert cond raise AssertionError?",
       "options": [
         {
           "id": "A",
-          "text": "When cond is truthy",
-          "misconception": "reverses"
-        },
-        {
-          "id": "B",
           "text": "When cond is falsy",
           "misconception": ""
         },
         {
+          "id": "B",
+          "text": "When cond is truthy",
+          "misconception": "Reverses the assertion condition"
+        },
+        {
           "id": "C",
-          "text": "Always",
+          "text": "It raises on every check.",
           "misconception": "assert always fires"
         },
         {
           "id": "D",
-          "text": "Never",
+          "text": "It never raises an error.",
           "misconception": "assert never fires"
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
-      "explanation": "assert raises when condition is falsy.",
+      "explanation": "assert condition evaluates its condition and raises AssertionError only when that condition is falsy. A truthy condition passes silently; the statement cannot fire unconditionally and can be removed entirely under the -O flag.",
       "hint": "Falsy triggers assertion.",
       "difficulty": 0.25,
       "discrimination": 0.25,
@@ -867,7 +867,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T12:58:08.158Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -882,7 +882,7 @@
         "unit-2",
         "assertion-that-fires"
       ],
-      "version": 1
+      "version": 4
     },
     {
       "id": "py-2.15-0015",
@@ -902,29 +902,29 @@
       "options": [
         {
           "id": "A",
-          "text": "Yes",
+          "text": "Yes, they still run.",
           "misconception": "assertions always run"
         },
         {
           "id": "B",
-          "text": "Only in functions",
-          "misconception": "scope myth"
-        },
-        {
-          "id": "C",
           "text": "No, removed",
           "misconception": ""
         },
         {
+          "id": "C",
+          "text": "Only in functions",
+          "misconception": "Thinks optimization applies only inside functions"
+        },
+        {
           "id": "D",
           "text": "Only top-level",
-          "misconception": "scope myth"
+          "misconception": "Thinks only module-level asserts are removed"
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
-      "explanation": "-O removes assert statements.",
+      "explanation": "Running Python with -O removes assert statements at compile time, so the condition is never evaluated and no AssertionError is raised. Assertions are debug aids rather than runtime validation, and removal is not limited to functions or top-level code.",
       "hint": "-O strips asserts.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -936,7 +936,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -951,7 +951,7 @@
         "unit-2",
         "running-with-assertions-off"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0016",
@@ -972,7 +972,7 @@
       "answer": {
         "exemplar": "Three exceptions are caught, one per failing iteration, and the loop continues for all five."
       },
-      "explanation": "Each failing iteration triggers one catch.",
+      "explanation": "Each iteration that fails the conversion raises ValueError, which the except clause catches before the loop continues. With three failing items out of five, the counter is incremented three times; the two successful iterations do not enter the handler.",
       "hint": "One per failure.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -984,7 +984,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -999,7 +999,7 @@
         "unit-2",
         "counts-from-a-caught-failure"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0017",
@@ -1021,7 +1021,7 @@
         "value": 1,
         "tolerance": 0.01
       },
-      "explanation": "__exit__ runs once even on clean path.",
+      "explanation": "A context manager's __exit__ method is called exactly once when the with block ends, even on the clean path where no exception occurred. Cleanup is not skipped simply because nothing went wrong.",
       "hint": "Always once.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -1033,7 +1033,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1048,7 +1048,7 @@
         "unit-2",
         "context-manager-clean-path"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0018",
@@ -1069,7 +1069,7 @@
         {
           "id": "A",
           "text": "Error",
-          "misconception": "expects invalid"
+          "misconception": "Thinks the return value is illegal"
         },
         {
           "id": "B",
@@ -1078,19 +1078,19 @@
         },
         {
           "id": "C",
-          "text": "Depends on type",
-          "misconception": "adds condition"
+          "text": "No, suppressed",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "No, suppressed",
-          "misconception": ""
+          "text": "Depends on type",
+          "misconception": "adds condition"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
-      "explanation": "Returning True from __exit__ suppresses the exception.",
+      "explanation": "Returning a truthy value such as True from __exit__ tells Python the exception was handled, so it is suppressed and does not propagate. Returning False or None would let it continue; the return value is not ignored and the exception type is irrelevant.",
       "hint": "True suppresses.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -1102,7 +1102,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1117,7 +1117,7 @@
         "unit-2",
         "context-manager-that-suppresses"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0019",
@@ -1138,7 +1138,7 @@
         {
           "id": "A",
           "text": "Return value",
-          "misconception": "wrong guarantee"
+          "misconception": "Confuses cleanup with a block result"
         },
         {
           "id": "B",
@@ -1147,19 +1147,19 @@
         },
         {
           "id": "C",
-          "text": "__exit__ called",
-          "misconception": ""
+          "text": "Nothing",
+          "misconception": "Denies that with performs any cleanup"
         },
         {
           "id": "D",
-          "text": "Nothing",
-          "misconception": "denies cleanup"
+          "text": "__exit__ called",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
-      "explanation": "with ensures __exit__ runs on exception too.",
+      "explanation": "The with statement calls the context manager's __exit__ method when the block ends, including when an exception escapes. That guarantee is what makes with reliable for cleanup; it says nothing about suppressing the exception or producing a return value.",
       "hint": "Cleanup runs.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -1171,7 +1171,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1186,7 +1186,7 @@
         "unit-2",
         "what-a-with-block-guarantees"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0020",
@@ -1208,7 +1208,7 @@
         "value": 3,
         "tolerance": 0.01
       },
-      "explanation": "Iterating file yields each line once.",
+      "explanation": "Iterating a text file yields one string per line, including the trailing newline, until end-of-file. A five-line file is therefore processed in five iterations, regardless of how long each line is.",
       "hint": "One per line.",
       "difficulty": 0.25,
       "discrimination": 0.2,
@@ -1220,7 +1220,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1235,7 +1235,7 @@
         "unit-2",
         "reading-a-file-line-by-line"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0021",
@@ -1255,8 +1255,8 @@
       "options": [
         {
           "id": "A",
-          "text": "No, No",
-          "misconception": "denies both"
+          "text": "Yes, Yes",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1270,14 +1270,14 @@
         },
         {
           "id": "D",
-          "text": "Yes, Yes",
-          "misconception": ""
+          "text": "No, No",
+          "misconception": "Denies that a bare raise re-raises anything"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
-      "explanation": "bare raise re-raises current exception with traceback.",
+      "explanation": "A bare raise inside an except block re-raises the exception currently being handled, and it preserves the original traceback rather than starting a new one. This is the standard way to log an error and then pass it up the call stack.",
       "hint": "bare raise preserves.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -1289,7 +1289,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1304,7 +1304,7 @@
         "unit-2",
         "raise-and-handler"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0022",
@@ -1324,7 +1324,7 @@
       "options": [
         {
           "id": "A",
-          "text": "Yes",
+          "text": "Yes, both handlers remain reachable.",
           "misconception": "order irrelevant"
         },
         {
@@ -1346,7 +1346,7 @@
       "answer": {
         "correctId": "B"
       },
-      "explanation": "Broader Exception first shadows ValueError handler.",
+      "explanation": "Handlers are tested in source order. except Exception appears first and matches every ValueError, so execution enters that branch and the later except ValueError clause is unreachable. Python accepts the code; the problem is logical shadowing.",
       "hint": "Order matters.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -1358,7 +1358,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1373,7 +1373,7 @@
         "unit-2",
         "what-a-handler-intercepts"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0023",
@@ -1409,13 +1409,13 @@
         {
           "id": "D",
           "text": "Impossible",
-          "misconception": "denies"
+          "misconception": "Denies that multiple handlers can coexist"
         }
       ],
       "answer": {
         "correctId": "C"
       },
-      "explanation": "Multiple except clauses allow distinct handling.",
+      "explanation": "Separate except clauses let you choose different recovery for each exception type, and Python selects the first matching clause. A tuple is useful only when the same response is fine for several types; nesting is unnecessary and such handling is entirely possible.",
       "hint": "Multiple excepts.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -1427,7 +1427,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1442,7 +1442,7 @@
         "unit-2",
         "handler-of-the-wrong-type"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0024",
@@ -1477,14 +1477,14 @@
         },
         {
           "id": "D",
-          "text": "Yes",
+          "text": "Yes, either type matches the tuple.",
           "misconception": ""
         }
       ],
       "answer": {
         "correctId": "D"
       },
-      "explanation": "Tuple of types catches any of them.",
+      "explanation": "A tuple of exception classes in one except clause matches any class in the tuple, so it catches either ValueError or TypeError. The syntax is valid, the first entry does not exclude the second, and both are handled identically.",
       "hint": "Tuple catches any.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -1496,7 +1496,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1511,7 +1511,7 @@
         "unit-2",
         "handler-matching-a-subclass"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0025",
@@ -1532,7 +1532,7 @@
       "answer": {
         "exemplar": "Named handlers catch only expected errors, letting unexpected bugs propagate for diagnosis."
       },
-      "explanation": "Named exceptions avoid hiding unexpected errors.",
+      "explanation": "Naming ValueError makes the handler intercept only the error you anticipated, so unrelated bugs such as a typo or a missing key still surface. A bare except swallows everything, turning real defects into silent failures that are much harder to diagnose.",
       "hint": "Catch only expected.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -1544,7 +1544,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1559,7 +1559,7 @@
         "unit-2",
         "named-type-versus-bare-handler"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0026",
@@ -1581,7 +1581,7 @@
         "value": 2,
         "tolerance": 0.01
       },
-      "explanation": "bare except catches BaseException subclasses including both.",
+      "explanation": "KeyboardInterrupt and SystemExit both derive directly from BaseException rather than Exception. A bare except catches them both, so the count is two; this is precisely why bare except can interfere with Ctrl+C and clean shutdown.",
       "hint": "Bare catches system exits.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -1593,7 +1593,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1608,7 +1608,7 @@
         "unit-2",
         "bare-handler-swallows-a-miss"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0027",
@@ -1628,13 +1628,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Only ValueError, Yes",
-          "misconception": "wrong scope"
+          "text": "All errors, No",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "All errors, No",
-          "misconception": ""
+          "text": "Only ValueError, Yes",
+          "misconception": "Thinks bare except is limited to ValueError"
         },
         {
           "id": "C",
@@ -1648,9 +1648,9 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
-      "explanation": "bare hides all; Exception does not catch BaseException-only system exits.",
+      "explanation": "A bare except matches every exception, hiding all failures, while except Exception stops before KeyboardInterrupt and SystemExit because those inherit from BaseException directly. The correct pair is 'all errors, no'.",
       "hint": "bare hides more.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -1662,7 +1662,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1677,7 +1677,7 @@
         "unit-2",
         "what-a-bare-handler-hides"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0028",
@@ -1693,33 +1693,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "A coach writes try: return 1 except: ... else: print('else'). Does else run?",
+      "stem": "A coach writes the following code:\n\n```python\ndef f():\n    try:\n        return 1\n    except:\n        pass\n    else:\n        print('else')\nf()\n```. Does else run?",
       "options": [
         {
           "id": "A",
           "text": "Error",
-          "misconception": "expects invalid"
+          "misconception": "Thinks try/else/return is a syntax error"
         },
         {
           "id": "B",
-          "text": "Yes",
-          "misconception": "return triggers else"
-        },
-        {
-          "id": "C",
           "text": "No",
           "misconception": ""
         },
         {
+          "id": "C",
+          "text": "Yes",
+          "misconception": "return triggers else"
+        },
+        {
           "id": "D",
           "text": "Depends",
-          "misconception": "vague"
+          "misconception": "Assumes the outcome is unspecified"
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
-      "explanation": "return exits function before else, so else does not run.",
+      "explanation": "A return inside try exits the function immediately, so control never reaches the else clause, which runs only when the try body completes normally without an exception or early exit. The construct is legal and the outcome is deterministic.",
       "hint": "Return exits early.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -1731,7 +1731,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1746,7 +1746,7 @@
         "unit-2",
         "the-else-block-on-a-try"
       ],
-      "version": 1
+      "version": 4
     },
     {
       "id": "py-2.15-0029",
@@ -1767,28 +1767,28 @@
         {
           "id": "A",
           "text": "Only top-level",
-          "misconception": "scope myth"
+          "misconception": "Thinks finally works only at module scope"
         },
         {
           "id": "B",
-          "text": "No",
+          "text": "No, a return skips cleanup.",
           "misconception": "return skips finally"
         },
         {
           "id": "C",
-          "text": "Only if no exception",
-          "misconception": "adds condition"
+          "text": "Yes, cleanup still runs.",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "Yes",
-          "misconception": ""
+          "text": "Only if no exception",
+          "misconception": "adds condition"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
-      "explanation": "finally runs even with return in try.",
+      "explanation": "finally runs on the way out of a try block even when a return statement is executing, so cleanup completes before the function actually returns. It is not limited to module-level code, is not skipped by a return, and does not require an exception.",
       "hint": "finally always runs.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -1800,7 +1800,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1815,7 +1815,7 @@
         "unit-2",
         "the-cleanup-block-on-a-clean-path"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0030",
@@ -1840,8 +1840,8 @@
         },
         {
           "id": "B",
-          "text": "Yes",
-          "misconception": ""
+          "text": "Never runs",
+          "misconception": "denies finally"
         },
         {
           "id": "C",
@@ -1850,14 +1850,14 @@
         },
         {
           "id": "D",
-          "text": "Never runs",
-          "misconception": "denies finally"
+          "text": "Yes, close runs on every exit.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
-      "explanation": "finally ensures close runs on all paths.",
+      "explanation": "try/finally does close the file on normal completion, on caught exceptions, and on uncaught ones, so the close call is robust. A with statement is more concise for the same guarantee, but that does not make the explicit pattern incorrect.",
       "hint": "finally closes.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -1869,7 +1869,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1884,7 +1884,7 @@
         "unit-2",
         "what-cleanup-guarantees"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0031",
@@ -1900,12 +1900,12 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "Why is raising in finally dangerous?",
+      "stem": "During a Python programming placement test, why is raising in finally dangerous?",
       "options": [],
       "answer": {
         "exemplar": "It replaces the original exception, hiding the root cause and making debugging harder."
       },
-      "explanation": "finally exception masks original, losing root cause.",
+      "explanation": "If the finally block raises while another exception is active, the new exception becomes the one that propagates and the original is retained only as __context__. This overwrites the root cause, so a traceback can point at cleanup code instead of the real failure.",
       "hint": "Masks original.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -1917,7 +1917,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T12:58:08.158Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1932,7 +1932,7 @@
         "unit-2",
         "raise-inside-cleanup"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0032",
@@ -1948,13 +1948,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "e=MyError(1,2); how many args in e.args?",
+      "stem": "During a Python programming placement test, e=MyError(1,2); how many args in e.args?",
       "options": [],
       "answer": {
         "value": 2,
         "tolerance": 0.01
       },
-      "explanation": "args tuple stores provided arguments.",
+      "explanation": "Passing two positional arguments to an exception constructor stores them in the args tuple as (1, 2), so len(e.args) is two. Exception.__init__ records every argument it receives rather than keeping only the first.",
       "hint": "Count args.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -1966,7 +1966,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T12:58:08.158Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1981,7 +1981,7 @@
         "unit-2",
         "custom-exception-result"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0033",
@@ -2001,18 +2001,18 @@
       "options": [
         {
           "id": "A",
-          "text": "object",
-          "misconception": "not exception"
+          "text": "Exception",
+          "misconception": ""
         },
         {
           "id": "B",
           "text": "BaseException",
-          "misconception": "too broad"
+          "misconception": "Thinks the root exception class is preferred"
         },
         {
           "id": "C",
-          "text": "Exception",
-          "misconception": ""
+          "text": "object",
+          "misconception": "not exception"
         },
         {
           "id": "D",
@@ -2021,9 +2021,9 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
-      "explanation": "Inherit from Exception for normal app errors.",
+      "explanation": "Ordinary application errors should inherit from Exception, which lets callers catch them with a normal handler while excluding KeyboardInterrupt and SystemExit. Inheriting from object does not create an exception, BaseException is too broad, and ValueError is a specific builtin.",
       "hint": "Use Exception.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -2035,7 +2035,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2050,7 +2050,7 @@
         "unit-2",
         "defining-a-custom-exception"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0034",
@@ -2075,24 +2075,24 @@
         },
         {
           "id": "B",
-          "text": "",
-          "misconception": "no message"
+          "text": "msg",
+          "misconception": ""
         },
         {
           "id": "C",
           "text": "False",
-          "misconception": "prints cond"
+          "misconception": "Confuses the condition with the message"
         },
         {
           "id": "D",
-          "text": "msg",
-          "misconception": ""
+          "text": "An empty message",
+          "misconception": "Assumes the optional message is discarded"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
-      "explanation": "AssertionError carries 'msg'.",
+      "explanation": "The second argument to assert becomes the AssertionError's message, so assert False, 'msg' raises AssertionError with the text 'msg'. The condition itself is not the message, the message is not absent, and the statement is valid syntax.",
       "hint": "Message attached.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -2104,7 +2104,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2119,7 +2119,7 @@
         "unit-2",
         "assertion-that-fires"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0035",
@@ -2140,17 +2140,17 @@
         {
           "id": "A",
           "text": "Yes, runs",
-          "misconception": "not removed"
+          "misconception": "Believes asserts survive optimization"
         },
         {
           "id": "B",
-          "text": "No, lost",
-          "misconception": ""
+          "text": "No, but side effects remain",
+          "misconception": "partial removal"
         },
         {
           "id": "C",
-          "text": "No, but side effects remain",
-          "misconception": "partial removal"
+          "text": "No, lost",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2159,9 +2159,9 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
-      "explanation": "-O removes entire assert statement including side effects.",
+      "explanation": "With -O, the compiler removes assert statements entirely, so assert False never raises. Because the whole statement disappears, any expression inside the assert is also never evaluated and its side effects are lost.",
       "hint": "Fully removed.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -2173,7 +2173,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2188,7 +2188,7 @@
         "unit-2",
         "running-with-assertions-off"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0036",
@@ -2209,28 +2209,28 @@
         {
           "id": "A",
           "text": "3",
-          "misconception": "wrong count"
+          "misconception": "Counts successful items as failures"
         },
         {
           "id": "B",
           "text": "5",
-          "misconception": "counts all"
+          "misconception": "Assumes every item enters the handler"
         },
         {
           "id": "C",
-          "text": "2",
-          "misconception": ""
+          "text": "0",
+          "misconception": "not incremented"
         },
         {
           "id": "D",
-          "text": "0",
-          "misconception": "not incremented"
+          "text": "2",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
-      "explanation": "Counter increments per caught failure => 2.",
+      "explanation": "Each failed conversion enters the except clause and increments the counter once, so two failures produce a count of two. The three successful items do not run the handler and the counter starts at zero.",
       "hint": "Count failures.",
       "difficulty": 0.25,
       "discrimination": 0.25,
@@ -2242,7 +2242,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2257,7 +2257,7 @@
         "unit-2",
         "counts-from-a-caught-failure"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0037",
@@ -2277,8 +2277,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Empty tuple",
-          "misconception": "wrong form"
+          "text": "None, None, None",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2288,18 +2288,18 @@
         {
           "id": "C",
           "text": "True, False, None",
-          "misconception": "wrong types"
+          "misconception": "Confuses return flags with input arguments"
         },
         {
           "id": "D",
-          "text": "None, None, None",
-          "misconception": ""
+          "text": "Empty tuple",
+          "misconception": "Thinks the arguments arrive as an empty tuple"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
-      "explanation": "No exception => all None.",
+      "explanation": "On a clean exit, Python calls __exit__(None, None, None): there is no exception type, value, or traceback to report. Passing an exception instance or a tuple of booleans would describe a different situation that did not occur.",
       "hint": "All None.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -2311,7 +2311,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2326,7 +2326,7 @@
         "unit-2",
         "context-manager-clean-path"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0038",
@@ -2368,7 +2368,7 @@
       "answer": {
         "correctId": "B"
       },
-      "explanation": "False means do not suppress, so exception propagates.",
+      "explanation": "Returning False from __exit__ means the exception was not suppressed, so it continues propagating out of the with statement. A truthy return would silence it; the decision does not depend on the exception's type and is valid at runtime.",
       "hint": "False propagates.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -2380,7 +2380,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2395,7 +2395,7 @@
         "unit-2",
         "context-manager-that-suppresses"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0039",
@@ -2416,7 +2416,7 @@
       "answer": {
         "exemplar": "The with block guarantees __exit__ closes the file even if an exception occurs, avoiding leaked handles."
       },
-      "explanation": "with ensures cleanup on exceptions automatically.",
+      "explanation": "with open(f) as fh calls the file object's __exit__ when the block ends, so the handle is closed even if an exception interrupts the body. Manual close is skipped whenever control leaves early; the context manager makes cleanup automatic and exception-safe.",
       "hint": "Auto cleanup.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -2428,7 +2428,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2443,7 +2443,7 @@
         "unit-2",
         "what-a-with-block-guarantees"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0040",
@@ -2465,7 +2465,7 @@
         "value": 0,
         "tolerance": 0.01
       },
-      "explanation": "At EOF readline returns '' with length 0.",
+      "explanation": "After all lines have been consumed, the file position is at end-of-file. A further readline() returns the empty string, which has length zero; it does not repeat the last line or return None.",
       "hint": "Empty at EOF.",
       "difficulty": 0.25,
       "discrimination": 0.2,
@@ -2477,7 +2477,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2492,7 +2492,7 @@
         "unit-2",
         "reading-a-file-line-by-line"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0041",
@@ -2513,12 +2513,12 @@
         {
           "id": "A",
           "text": "ValueError('x')",
-          "misconception": "self cause"
+          "misconception": "Confuses the raised error with its cause"
         },
         {
           "id": "B",
           "text": "None",
-          "misconception": "no cause"
+          "misconception": "Thinks the from clause is ignored"
         },
         {
           "id": "C",
@@ -2534,7 +2534,7 @@
       "answer": {
         "correctId": "C"
       },
-      "explanation": "from sets __cause__ to the original exception.",
+      "explanation": "The from clause of raise sets __cause__ to the exception supplied on its right, so for ValueError('x') from KeyError('y') the cause is KeyError('y'). The ValueError being raised is not its own cause, and __cause__ is not left unset.",
       "hint": "from sets cause.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -2546,7 +2546,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2561,7 +2561,7 @@
         "unit-2",
         "raise-and-handler"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0042",
@@ -2583,7 +2583,7 @@
         "value": 1,
         "tolerance": 0.01
       },
-      "explanation": "FileNotFoundError is OSError subclass; ValueError not.",
+      "explanation": "FileNotFoundError is a subclass of OSError, so except OSError catches it; ValueError is unrelated and is not caught. Exactly one of the two listed exceptions is handled by that clause.",
       "hint": "Count caught.",
       "difficulty": 0.45,
       "discrimination": 0.3,
@@ -2595,7 +2595,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2610,7 +2610,7 @@
         "unit-2",
         "what-a-handler-intercepts"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0043",
@@ -2631,7 +2631,7 @@
         {
           "id": "A",
           "text": "No, No",
-          "misconception": "denies both"
+          "misconception": "Denies propagation and cleanup"
         },
         {
           "id": "B",
@@ -2652,7 +2652,7 @@
       "answer": {
         "correctId": "D"
       },
-      "explanation": "Uncaught propagates; finally still runs.",
+      "explanation": "An exception with no matching handler propagates up the call stack, but the finally clause of any try it passes through still runs on the way out. Cleanup is guaranteed even on the uncaught path.",
       "hint": "finally always.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -2664,7 +2664,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2679,7 +2679,7 @@
         "unit-2",
         "handler-of-the-wrong-type"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0044",
@@ -2699,13 +2699,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Exception",
-          "misconception": "broad first"
+          "text": "ValueError",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "ValueError",
-          "misconception": ""
+          "text": "Exception",
+          "misconception": "Thinks the broad handler wins regardless of order"
         },
         {
           "id": "C",
@@ -2715,13 +2715,13 @@
         {
           "id": "D",
           "text": "Neither",
-          "misconception": "denies"
+          "misconception": "Denies that either handler matches"
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
-      "explanation": "First matching handler is ValueError.",
+      "explanation": "Handlers are checked in order, so except ValueError comes first and handles a ValueError immediately; the later except Exception never sees it. Reversing the order would let the broad handler win, but Python runs neither both nor neither.",
       "hint": "First match.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -2733,7 +2733,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2748,7 +2748,7 @@
         "unit-2",
         "handler-matching-a-subclass"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0045",
@@ -2764,33 +2764,33 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "When is catching BaseException appropriate?",
+      "stem": "A Python programming assessment item: When is catching BaseException appropriate?",
       "options": [
         {
           "id": "A",
-          "text": "Never",
+          "text": "It is never appropriate.",
           "misconception": "denies valid cases"
         },
         {
           "id": "B",
-          "text": "Always for safety",
-          "misconception": "overcatch"
-        },
-        {
-          "id": "C",
           "text": "Rarely, for cleanup/retry",
           "misconception": ""
         },
         {
+          "id": "C",
+          "text": "Always for safety",
+          "misconception": "Thinks the broadest catch is always safest"
+        },
+        {
           "id": "D",
           "text": "Only in tests",
-          "misconception": "too narrow"
+          "misconception": "Restricts BaseException handling to test code"
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
-      "explanation": "BaseException catch is rare and usually for cleanup/retry then re-raise.",
+      "explanation": "Catching BaseException is appropriate only in rare situations such as top-level cleanup or a retry loop that must also observe KeyboardInterrupt and SystemExit, and even then the exception is usually re-raised. Routine code should catch Exception or narrower types.",
       "hint": "Rarely.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -2802,7 +2802,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T12:58:08.158Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2817,7 +2817,7 @@
         "unit-2",
         "named-type-versus-bare-handler"
       ],
-      "version": 1
+      "version": 4
     },
     {
       "id": "py-2.15-0046",
@@ -2838,28 +2838,28 @@
         {
           "id": "A",
           "text": "Only in functions",
-          "misconception": "scope myth"
+          "misconception": "Thinks the problem applies only inside functions"
         },
         {
           "id": "B",
-          "text": "No",
+          "text": "No, swallowing is harmless.",
           "misconception": "swallowing okay"
         },
         {
           "id": "C",
-          "text": "Only in loops",
-          "misconception": "adds condition"
+          "text": "Yes, it hides a real bug.",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "Yes",
-          "misconception": ""
+          "text": "Only in loops",
+          "misconception": "adds condition"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
-      "explanation": "Swallowing NameError hides programming mistakes.",
+      "explanation": "A bare except followed by pass swallows the NameError caused by a misspelled name, so the program keeps running with a broken variable and the typo is never reported. This is a defect, not something limited to loops or functions.",
       "hint": "Hides bugs.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -2871,7 +2871,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2886,7 +2886,7 @@
         "unit-2",
         "bare-handler-swallows-a-miss"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0047",
@@ -2959,24 +2959,24 @@
         },
         {
           "id": "B",
-          "text": "else clause",
-          "misconception": ""
+          "text": "try clause",
+          "misconception": "runs before check"
         },
         {
           "id": "C",
           "text": "finally clause",
-          "misconception": "runs always"
+          "misconception": "Confuses unconditional cleanup with success-only code"
         },
         {
           "id": "D",
-          "text": "try clause",
-          "misconception": "runs before check"
+          "text": "else clause",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
-      "explanation": "else runs only on success.",
+      "explanation": "The else clause is the place for code that should run only when the try body completed without an exception. except handles failures, finally always runs, and putting the code in try would execute it before success is known.",
       "hint": "Use else.",
       "difficulty": 0.25,
       "discrimination": 0.25,
@@ -2988,7 +2988,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3003,7 +3003,7 @@
         "unit-2",
         "the-else-block-on-a-try"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0049",
@@ -3019,33 +3019,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "A coach runs try: print('ok') finally: print('done'). Output?",
+      "stem": "A coach runs the following code:\n\n```python\ntry:\n    print('ok')\nfinally:\n    print('done')\n```. Output?",
       "options": [
         {
           "id": "A",
-          "text": "done",
-          "misconception": "skips try"
+          "text": "'ok' then 'done' is printed.",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "ok",
+          "text": "Only 'ok' is printed.",
           "misconception": "skips finally"
         },
         {
           "id": "C",
-          "text": "ok done",
-          "misconception": ""
+          "text": "Only 'done' is printed.",
+          "misconception": "Thinks finally replaces the try body"
         },
         {
           "id": "D",
-          "text": "ok done done",
-          "misconception": "doubles"
+          "text": "'ok' then 'done' twice.",
+          "misconception": "Assumes finally executes twice"
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
-      "explanation": "try prints ok then finally prints done.",
+      "explanation": "The try body prints ok first; when it finishes, the finally clause runs and prints done. finally does not skip the try body, is not skipped itself, and runs exactly once.",
       "hint": "Both run.",
       "difficulty": 0.25,
       "discrimination": 0.25,
@@ -3057,7 +3057,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3072,7 +3072,7 @@
         "unit-2",
         "the-cleanup-block-on-a-clean-path"
       ],
-      "version": 1
+      "version": 4
     },
     {
       "id": "py-2.15-0050",
@@ -3094,7 +3094,7 @@
         "value": 1,
         "tolerance": 0.01
       },
-      "explanation": "finally runs once even with exception.",
+      "explanation": "A finally clause is entered once when control leaves the try statement, regardless of whether an exception was raised. It is not run again for the exception itself, so exactly one execution occurs.",
       "hint": "Once.",
       "difficulty": 0.25,
       "discrimination": 0.2,
@@ -3106,7 +3106,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3121,7 +3121,7 @@
         "unit-2",
         "what-cleanup-guarantees"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0051",
@@ -3142,12 +3142,12 @@
         {
           "id": "A",
           "text": "None",
-          "misconception": "suppressed"
+          "misconception": "Thinks all errors were swallowed"
         },
         {
           "id": "B",
-          "text": "ValueError",
-          "misconception": "original remains"
+          "text": "TypeError",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3156,14 +3156,14 @@
         },
         {
           "id": "D",
-          "text": "TypeError",
-          "misconception": ""
+          "text": "ValueError",
+          "misconception": "original remains"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
-      "explanation": "finally's TypeError replaces original.",
+      "explanation": "The finally clause raises TypeError as control leaves the handler, and that new exception replaces the ValueError that was in flight. Only TypeError propagates; nothing is suppressed and the two errors do not propagate together.",
       "hint": "Finally wins.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -3175,7 +3175,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3190,7 +3190,7 @@
         "unit-2",
         "raise-inside-cleanup"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0052",
@@ -3210,18 +3210,18 @@
       "options": [
         {
           "id": "A",
-          "text": "No",
+          "text": "No, inheritance does not apply.",
           "misconception": "denies inheritance"
         },
         {
           "id": "B",
-          "text": "Yes",
-          "misconception": ""
+          "text": "Only if raised",
+          "misconception": "usage condition"
         },
         {
           "id": "C",
-          "text": "Only if raised",
-          "misconception": "usage condition"
+          "text": "Yes, subclassing makes it one.",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3230,9 +3230,9 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
-      "explanation": "Subclass instance is instance of base.",
+      "explanation": "Instances inherit from their class's bases, so MyError() is an instance of Exception whenever MyError subclasses Exception. Raising is not required for the relationship and no constructor message is needed.",
       "hint": "Inheritance holds.",
       "difficulty": 0.25,
       "discrimination": 0.25,
@@ -3244,7 +3244,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3259,7 +3259,7 @@
         "unit-2",
         "custom-exception-result"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0053",
@@ -3275,12 +3275,12 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "How can a custom exception carry extra data?",
+      "stem": "A Python programming practice exam asks: How can a custom exception carry extra data?",
       "options": [],
       "answer": {
         "exemplar": "Override __init__ to store attributes on self, then raise with that data."
       },
-      "explanation": "Custom __init__ stores extra attributes.",
+      "explanation": "Define __init__ on the custom exception, store the extra values on self, and pass them to super().__init__ for a readable message. Callers can then catch the type and read the attributes, which is safer than parsing the exception string.",
       "hint": "Store on self.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -3292,7 +3292,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T12:58:08.158Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3307,7 +3307,7 @@
         "unit-2",
         "defining-a-custom-exception"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0054",
@@ -3327,29 +3327,29 @@
       "options": [
         {
           "id": "A",
-          "text": "Depends on -O",
+          "text": "It depends on the -O flag.",
           "misconception": "-O doesn't change truth"
         },
         {
           "id": "B",
-          "text": "Yes",
+          "text": "Yes, a truthy value raises.",
           "misconception": "truthy raises"
         },
         {
           "id": "C",
-          "text": "No",
-          "misconception": ""
+          "text": "A TypeError is raised.",
+          "misconception": "expects type issue"
         },
         {
           "id": "D",
-          "text": "TypeError",
-          "misconception": "expects type issue"
+          "text": "No, the condition passes.",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
-      "explanation": "Condition true, no assertion error.",
+      "explanation": "assert x > 0 evaluates x > 0 first; with x equal to 5 the condition is truthy, so no AssertionError is raised. The -O flag only removes assertions, it never changes a truthy condition into a failing one, and no type error can occur here.",
       "hint": "True passes.",
       "difficulty": 0.25,
       "discrimination": 0.25,
@@ -3361,7 +3361,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3376,7 +3376,7 @@
         "unit-2",
         "assertion-that-fires"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0055",
@@ -3392,33 +3392,33 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "Why might production use -O?",
+      "stem": "For a Python programming homework set, why might production use -O?",
       "options": [
         {
           "id": "A",
-          "text": "Syntax check only",
-          "misconception": "wrong purpose"
+          "text": "Performance, skip asserts",
+          "misconception": ""
         },
         {
           "id": "B",
           "text": "Enable asserts",
-          "misconception": "reverses"
+          "misconception": "Reverses what the optimization flag does"
         },
         {
           "id": "C",
           "text": "Debug mode",
-          "misconception": "wrong mode"
+          "misconception": "Confuses optimization with debug mode"
         },
         {
           "id": "D",
-          "text": "Performance, skip asserts",
-          "misconception": ""
+          "text": "Syntax check only",
+          "misconception": "wrong purpose"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
-      "explanation": "-O removes asserts for speed.",
+      "explanation": "The -O flag removes assert statements, which saves the cost of evaluating debug conditions in production code. It is not a syntax checker, does not enable assertions, and is not a debug mode; use a normal run when you want assertion checks.",
       "hint": "Performance.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -3430,7 +3430,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T12:58:08.158Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3445,7 +3445,7 @@
         "unit-2",
         "running-with-assertions-off"
       ],
-      "version": 1
+      "version": 4
     },
     {
       "id": "py-2.15-0056",
@@ -3466,7 +3466,7 @@
         {
           "id": "A",
           "text": "5, 5",
-          "misconception": "all succeed"
+          "misconception": "Counting failures as successes"
         },
         {
           "id": "B",
@@ -3487,7 +3487,7 @@
       "answer": {
         "correctId": "B"
       },
-      "explanation": "3 succeed, total 5 processed.",
+      "explanation": "Five items are processed in total; two raise a caught ValueError and are counted as failures, leaving three successes. The loop still visits all five items because the handler lets it continue.",
       "hint": "Succeed = total-failures.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -3499,7 +3499,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3514,7 +3514,7 @@
         "unit-2",
         "counts-from-a-caught-failure"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0057",
@@ -3536,7 +3536,7 @@
         "value": 42,
         "tolerance": 0.01
       },
-      "explanation": "as binds __enter__ return value.",
+      "explanation": "The as clause of a with statement binds the value returned by __enter__, so if __enter__ returns 42 then x is 42 inside and after the block. It does not bind the context manager object or a boolean status.",
       "hint": "Enter return.",
       "difficulty": 0.25,
       "discrimination": 0.2,
@@ -3548,7 +3548,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3563,7 +3563,7 @@
         "unit-2",
         "context-manager-clean-path"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0058",
@@ -3579,12 +3579,12 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "Which exceptions can __exit__ suppress?",
+      "stem": "For a Python programming homework set, which exceptions can __exit__ suppress?",
       "options": [],
       "answer": {
         "exemplar": "__exit__ can suppress the exception currently being handled, if it returns a truthy value."
       },
-      "explanation": "Returning truthy suppresses current exception.",
+      "explanation": "Any exception raised inside the with body is passed to __exit__; returning a truthy value tells Python it has been handled and suppresses it. Returning a falsy value lets it propagate, so __exit__ can choose per exception which ones to silence.",
       "hint": "Truthly return suppresses.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -3596,7 +3596,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T12:58:08.158Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3611,7 +3611,7 @@
         "unit-2",
         "context-manager-that-suppresses"
       ],
-      "version": 1
+      "version": 3
     },
     {
       "id": "py-2.15-0059",
@@ -3632,7 +3632,7 @@
         {
           "id": "A",
           "text": "Depends",
-          "misconception": "vague"
+          "misconception": "Assumes the outcome is unspecified"
         },
         {
           "id": "B",
@@ -3653,7 +3653,7 @@
       "answer": {
         "correctId": "C"
       },
-      "explanation": "__exit__ closes file even on exception.",
+      "explanation": "When an exception escapes the with body, Python still calls the file object's __exit__, which closes the handle. The outcome does not depend on the exception type, is not skipped by the error, and produces no syntax error.",
       "hint": "Closed always.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -3665,7 +3665,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3680,7 +3680,7 @@
         "unit-2",
         "what-a-with-block-guarantees"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-2.15-0060",
@@ -3700,29 +3700,29 @@
       "options": [
         {
           "id": "A",
-          "text": "Yes",
-          "misconception": "auto strip"
+          "text": "Yes, it strips them.",
+          "misconception": "Assumes iteration strips line endings"
         },
         {
           "id": "B",
-          "text": "Depends on mode",
+          "text": "Only in binary mode.",
           "misconception": "adds condition"
         },
         {
           "id": "C",
-          "text": "Only last line",
-          "misconception": "partial"
+          "text": "Only the final line.",
+          "misconception": "Thinks only the final line keeps its newline"
         },
         {
           "id": "D",
-          "text": "No, newline retained",
+          "text": "No, newlines are kept.",
           "misconception": ""
         }
       ],
       "answer": {
         "correctId": "D"
       },
-      "explanation": "Iteration keeps newline; use rstrip to remove.",
+      "explanation": "Iterating a text file yields each line with its trailing newline character still attached, so the claim is false. To remove it, call rstrip on each line; the newline is retained on every line, not just the last.",
       "hint": "Newline retained.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -3734,7 +3734,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3749,7 +3749,7 @@
         "unit-2",
         "reading-a-file-line-by-line"
       ],
-      "version": 1
+      "version": 2
     }
   ]
 }

@@ -11,53 +11,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Mara writes 'café' with utf-8 then reads with utf-8; what is returned?",
+      "stem": "A log writer runs: the following code:\n\n```python\nwith open('t.txt', 'w', encoding='utf-8') as f:\n    f.write('café')\nprint(open('t.txt', encoding='utf-8').read())\n```. What prints?",
       "options": [
         {
           "id": "A",
-          "text": "'café' because encodings match.",
-          "misconception": ""
+          "text": "cafÃ©, because each byte becomes its own character.",
+          "misconception": "Mistakes the default read codec for latin-1"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "café, decoded with the same codec used to write.",
+          "misconception": "Assumes the read side falls back to latin-1"
         },
         {
           "id": "C",
-          "text": "Mojibake because write encoding differs.",
-          "misconception": ""
+          "text": "An empty string, because writes stay buffered until close.",
+          "misconception": "Thinks a later open cannot see buffered data"
         },
         {
-          "misconception": "thinks write encoding differs",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "An error because café has accents.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks accents cause errors",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "'caf' because é is dropped.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks accented chars dropped",
-          "id": "H",
-          "text": ""
+          "text": "UnicodeDecodeError, because accents cannot be written.",
+          "misconception": "Believes UTF-8 cannot represent non-ASCII characters"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
-      "explanation": "When write and read use the same encoding, the text round-trips correctly. The accented character is preserved.",
+      "explanation": "The write encodes 'café' to UTF-8 bytes (c, a, f plus the two-byte é), and read() decodes those same bytes back with UTF-8, restoring the original string. Mojibake such as cafÃ© requires a mismatched read codec; buffering is flushed by the with block; and UTF-8 handles the accented character without error.",
       "hint": "Matching encodings round-trip.",
       "difficulty": 0.25,
       "discrimination": 0.35,
@@ -72,7 +52,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -81,7 +61,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 4,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -97,53 +77,33 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, what happens if write uses utf-8 but read uses latin-1?",
+      "stem": "A CSV written as UTF-8 is opened with latin-1. What is the likely outcome?",
       "options": [
         {
           "id": "A",
-          "text": "The text decodes but may show mojibake.",
-          "misconception": ""
+          "text": "Python silently converts the text to UTF-16 before displaying it.",
+          "misconception": "Assuming a codec argument triggers transcoding"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "Every byte raises UnicodeDecodeError, since latin-1 rejects UTF-8.",
+          "misconception": "Believing latin-1 rejects high bytes"
         },
         {
           "id": "C",
-          "text": "Python raises UnicodeDecodeError always.",
+          "text": "The bytes decode without error but non-ASCII text appears as mojibake.",
           "misconception": ""
         },
         {
-          "misconception": "thinks mismatch always errors",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "The read returns the original bytes unchanged.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks bytes returned",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "The file is automatically re-encoded.",
-          "misconception": ""
-        },
-        {
-          "misconception": "imagines auto re-encode",
-          "id": "H",
-          "text": ""
+          "text": "The file is rewritten in latin-1 on the first read.",
+          "misconception": "Thinking opening a file changes stored bytes"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
-      "explanation": "latin-1 maps every byte to a character, so no error occurs, but multi-byte utf-8 sequences become wrong characters.",
+      "explanation": "latin-1 maps every byte from 0x00 to 0xFF to a character, so decoding never fails, but a two-byte UTF-8 sequence for é becomes two separate characters such as 'Ã©' — classic mojibake. A strict error needs a codec that rejects some bytes, no transcoding happens on read, and the stored bytes are untouched.",
       "hint": "Mojibake possible.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -158,7 +118,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -167,7 +127,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -183,53 +143,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Noor writes with utf-8 and reads with utf-8; why name encoding both times?",
+      "stem": "A team writes sensor data with encoding='utf-8' but reads with no encoding argument. Why is that asymmetry risky?",
       "options": [
         {
           "id": "A",
-          "text": "To guarantee the same byte mapping both sides.",
-          "misconception": ""
+          "text": "Omitting the read codec always raises a TypeError.",
+          "misconception": "Believing an encoding argument is mandatory"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "The write codec is ignored unless the read side also names it.",
+          "misconception": "Thinking a codec only counts if both sides declare it"
         },
         {
           "id": "C",
-          "text": "Because Python requires it for all files.",
-          "misconception": ""
+          "text": "Python remembers the write codec for later reads of the same file.",
+          "misconception": "Assuming the codec is stored in the file"
         },
         {
-          "misconception": "overstates requirement",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "To make the file smaller.",
+          "text": "Only the write codec is fixed; the read side still depends on the platform default.",
           "misconception": ""
-        },
-        {
-          "misconception": "thinks encoding affects size here",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "Because default encoding is always wrong.",
-          "misconception": ""
-        },
-        {
-          "misconception": "overstates default issue",
-          "id": "H",
-          "text": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
-      "explanation": "Naming the encoding on both sides ensures the writer's byte mapping is reversed exactly by the reader.",
+      "explanation": "Each open() call chooses its own codec independently: the write's encoding='utf-8' is not stored in the file. A read with no encoding argument falls back to locale.getpreferredencoding(), which varies by machine, so the same file can decode differently elsewhere. The argument is never ignored, and omitting it is legal.",
       "hint": "Same mapping both sides.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -244,7 +184,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -253,7 +193,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -269,13 +209,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Eli encodes 'café' as utf-8; how many bytes result?",
+      "stem": "Encoding the four-character string 'café' as UTF-8 produces how many bytes?",
       "answer": {
         "value": 5,
         "tolerance": 0.01
       },
-      "explanation": "c, a, f are one byte each and é is two bytes in utf-8, totaling five bytes.",
-      "hint": "é is two bytes.",
+      "explanation": "The letters c, a and f are ASCII and use one byte each. The accented é is outside ASCII and needs two UTF-8 bytes (0xC3 0xA9). Three plus two gives five bytes, so the byte count exceeds the four-character length.",
+      "hint": "Count the accented letter twice.",
       "difficulty": 0.55,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -289,7 +229,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -298,7 +238,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -315,53 +255,33 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, what does open(path, 'a') do?",
+      "stem": "Opening a sensor log with mode 'a' instead of 'w' changes what exactly?",
       "options": [
         {
           "id": "A",
-          "text": "Appends to the end without truncating.",
+          "text": "Existing content is kept and writes land after the last byte.",
           "misconception": ""
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "The file is truncated first, then the new text is written.",
+          "misconception": "Thinking 'a' clears the file before writing"
         },
         {
           "id": "C",
-          "text": "Overwrites the file from the start.",
-          "misconception": ""
+          "text": "Reads become possible even though the mode is write-only.",
+          "misconception": "Believing append mode grants read permission"
         },
         {
-          "misconception": "confuses with w mode",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Reads the file only.",
-          "misconception": ""
-        },
-        {
-          "misconception": "confuses with r mode",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "Creates a binary file always.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks a implies binary",
-          "id": "H",
-          "text": ""
+          "text": "A new file is made only if none exists; otherwise nothing is written.",
+          "misconception": "Confusing append with exclusive create mode"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "Append mode opens for writing at the end of the file, preserving existing content.",
+      "explanation": "Mode 'a' positions the stream at end-of-file, so existing bytes survive and each write extends the log. Mode 'w' truncates on open, 'x' creates exclusively and fails if the path exists, and neither 'a' nor 'w' enables reading.",
       "hint": "Appends, no truncate.",
       "difficulty": 0.65,
       "discrimination": 0.3,
@@ -376,7 +296,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -385,7 +305,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -401,53 +321,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Ria's module has top-level print('loaded'); what happens on import?",
+      "stem": "A module contains just print('loaded') at the top level. What does import show?",
       "options": [
         {
           "id": "A",
-          "text": "It prints 'loaded' once.",
-          "misconception": ""
+          "text": "It prints nothing until a function from the module is called.",
+          "misconception": "Assuming import declares names but skips statements"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "It prints 'loaded' once while the module body executes.",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "It never runs on import.",
-          "misconception": ""
+          "text": "It prints 'loaded' twice, once per import machinery pass.",
+          "misconception": "Thinking the import system runs the body twice"
         },
         {
-          "misconception": "thinks imports skip top-level",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "It runs only if called.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks import is lazy",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "It raises ImportError.",
-          "misconception": ""
-        },
-        {
-          "misconception": "imagines error",
-          "id": "H",
-          "text": ""
+          "text": "It raises NameError because print is undefined at import.",
+          "misconception": "Believing builtins are unavailable during import"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
-      "explanation": "Importing a module executes its top-level code once. The print runs during import.",
+      "explanation": "Import runs the module's top-level statements once to populate its namespace, so print('loaded') executes during the import and the text appears immediately. Python caches the module in sys.modules, so a later import does not rerun it; print is a builtin and is always available.",
       "hint": "Top-level runs on import.",
       "difficulty": 0.75,
       "discrimination": 0.35,
@@ -462,7 +362,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -471,7 +371,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -487,13 +387,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Tom joins 'tank' and 'log.txt' with os.path.join; how many path components?",
+      "stem": "Calling os.path.join('tank', 'log.txt') yields a path made of how many components?",
       "answer": {
         "value": 2,
         "tolerance": 0.01
       },
-      "explanation": "os.path.join combines the two components into one path with two parts. The count of joined components is two.",
-      "hint": "Two components.",
+      "explanation": "Two arguments are supplied, so the result names two components, 'tank' and 'log.txt', separated by one platform separator. Joining does not split or duplicate components, so counting the pieces gives two.",
+      "hint": "Count the arguments.",
       "difficulty": 0.85,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -507,7 +407,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -516,7 +416,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -533,11 +433,11 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, why is os.path.join preferred over string concatenation?",
+      "stem": "Why do build scripts prefer os.path.join over gluing path strings with a literal '/'?",
       "answer": {
         "exemplar": "os.path.join inserts the correct separator for the platform and handles trailing separators, avoiding broken paths across operating systems."
       },
-      "explanation": "Join uses the platform separator and normalizes separators, making paths portable and correct.",
+      "explanation": "os.path.join chooses the separator appropriate to the running platform, so the same code produces backslashes on Windows and slashes elsewhere. Hand-written separators bake in one convention, produce doubled slashes when a part already ends with one, and silently break paths on another OS.",
       "hint": "Correct separator.",
       "difficulty": 0.25,
       "discrimination": 0.35,
@@ -552,7 +452,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -561,7 +461,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -578,53 +478,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Zara uses with open('t.txt','w',encoding='utf-8') as f: f.write('x'); then reads; what is data?",
+      "stem": "This runs: the following code:\n\n```python\nwith open('t.txt', 'w', encoding='utf-8') as f:\n    f.write('x')\nprint(open('t.txt', encoding='utf-8').read())\n```. What is printed?",
       "options": [
         {
           "id": "A",
-          "text": "'x' after reading with utf-8.",
-          "misconception": ""
+          "text": "b'x', because reads return bytes from a text file.",
+          "misconception": "Confusing text-mode reads with binary-mode reads"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "An empty string, because the write is still buffered.",
+          "misconception": "Thinking the with block leaves data unflushed"
         },
         {
           "id": "C",
-          "text": "b'x' bytes.",
+          "text": "x, read back as text with the matching UTF-8 codec.",
           "misconception": ""
         },
         {
-          "misconception": "thinks bytes returned",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "None because write returns None.",
-          "misconception": ""
-        },
-        {
-          "misconception": "confuses write result with read",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "An error because file not closed.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks manual close needed",
-          "id": "H",
-          "text": ""
+          "text": "A UnicodeDecodeError, because 'x' cannot be encoded.",
+          "misconception": "Believing ASCII characters are invalid in UTF-8"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
-      "explanation": "Writing 'x' then reading with the same encoding returns 'x'. The context manager closes the file.",
+      "explanation": "The with statement flushes and closes the file on exit, so the UTF-8 encoded byte for x is on disk before the second open() reads it. Text mode decodes with the same codec and returns the str x. Empty output would require unflushed data, bytes require mode 'rb', and ASCII is valid in UTF-8.",
       "hint": "Reads 'x'.",
       "difficulty": 0.35,
       "discrimination": 0.4,
@@ -639,7 +519,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-25T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -648,7 +528,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 4,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -664,53 +544,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Ivo writes utf-8 text containing é and reads with ascii; what happens?",
+      "stem": "A UTF-8 file containing the character 'é' is read with encoding='ascii'. What error appears?",
       "options": [
         {
           "id": "A",
-          "text": "UnicodeDecodeError because ascii cannot decode é.",
-          "misconception": ""
+          "text": "ValueError, because the encoding name is rejected.",
+          "misconception": "Thinking 'ascii' is not a recognized codec"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "None: ASCII silently maps high bytes to control characters.",
+          "misconception": "Believing ASCII accepts every byte value"
         },
         {
           "id": "C",
-          "text": "It decodes to 'e' with accent stripped.",
-          "misconception": ""
+          "text": "UnicodeEncodeError, because the read tries to write text.",
+          "misconception": "Confusing decoding errors with encoding errors"
         },
         {
-          "misconception": "thinks accent stripped",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "It decodes as mojibake silently.",
+          "text": "UnicodeDecodeError, because 0xC3 is not a valid ASCII byte.",
           "misconception": ""
-        },
-        {
-          "misconception": "thinks ascii is lenient",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "Python auto-switches to utf-8.",
-          "misconception": ""
-        },
-        {
-          "misconception": "imagines auto switch",
-          "id": "H",
-          "text": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
-      "explanation": "ascii only handles bytes 0-127. The utf-8 bytes for é are outside that range, so decoding raises UnicodeDecodeError.",
+      "explanation": "UTF-8 stores é as bytes 0xC3 0xA9, and ASCII only defines bytes 0x00-0x7F, so the strict default handler raises UnicodeDecodeError on the first offending byte. No silent mapping occurs, the failure happens while decoding rather than encoding, and 'ascii' is a valid codec name.",
       "hint": "Ascii cannot decode.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -725,7 +585,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -734,7 +594,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -750,13 +610,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Pia relies on default encoding on two different OS; how many encodings might be used?",
+      "stem": "Code relies on the platform default encoding on two different machines. How many distinct encodings can be applied?",
       "answer": {
         "value": 2,
         "tolerance": 0.01
       },
-      "explanation": "Defaults differ by platform and locale, so two different operating systems may use two different default encodings.",
-      "hint": "Two defaults.",
+      "explanation": "Each machine supplies its own locale-dependent default, so the same open() call can use one codec on the first host and a different codec on the second. That is two possible encodings, which is why relying on defaults makes byte-level results non-portable.",
+      "hint": "One per machine.",
       "difficulty": 0.55,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -770,7 +630,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -779,7 +639,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -796,11 +656,11 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, what does text mode do to bytes?",
+      "stem": "What does reading a file in text mode actually do to the bytes stored on disk?",
       "answer": {
         "exemplar": "Text mode decodes bytes into str using the specified encoding and translates newlines, while binary mode returns raw bytes."
       },
-      "explanation": "Text mode applies decoding and newline translation. Binary mode leaves bytes untouched.",
+      "explanation": "Text mode decodes the stored bytes into str using the chosen encoding and normalizes newline sequences such as CRLF to a plain newline. Binary mode skips both steps and returns the raw bytes. Without an explicit encoding, text mode guesses from the locale, which is why the result varies by machine.",
       "hint": "Decodes bytes to str.",
       "difficulty": 0.65,
       "discrimination": 0.35,
@@ -815,7 +675,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -824,7 +684,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -841,53 +701,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Leo appends 'y' to a file containing 'x' then reads; what is result?",
+      "stem": "A file holds 'x'. After f = open('log','a'); f.write('y'); f.close(); print(open('log').read()), what is printed?",
       "options": [
         {
           "id": "A",
-          "text": "'xy' because append adds at end.",
+          "text": "xy, because append places 'y' after the existing byte.",
           "misconception": ""
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "y, because append truncates the file before writing.",
+          "misconception": "Thinking append mode clears existing content"
         },
         {
           "id": "C",
-          "text": "'y' because append overwrites.",
-          "misconception": ""
+          "text": "yx, because new data is inserted at the start.",
+          "misconception": "Assuming writes prepend to the file"
         },
         {
-          "misconception": "thinks append overwrites",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "'x' because append is ignored.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks append ignored",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "'yx' because append prepends.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks append prepends",
-          "id": "H",
-          "text": ""
+          "text": "An error, because a file opened for append cannot be read.",
+          "misconception": "Believing append-only files are unreadable"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "Append mode adds content at the end. The file becomes 'xy', which is what read returns.",
+      "explanation": "Opening in mode 'a' leaves the single byte x intact and positions the stream at end-of-file, so writing y produces xy. close() flushes the change before the fresh read. Truncation belongs to mode 'w', prepending is not supported, and a separate read handle can read the file normally.",
       "hint": "Appends at end.",
       "difficulty": 0.75,
       "discrimination": 0.4,
@@ -902,7 +742,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -911,7 +751,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -927,53 +767,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Nia wants top-level code to run only as script; which guard?",
+      "stem": "A library must not print its banner when imported. Which construct prevents that?",
       "options": [
         {
           "id": "A",
-          "text": "if __name__ == '__main__':.",
-          "misconception": ""
+          "text": "Move the banner into a function and call it at import.",
+          "misconception": "Thinking a function call is skipped during import"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "Wrap the banner in if __name__ == '__main__':.",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "if __import__ == True:.",
-          "misconception": ""
+          "text": "Guard it with if __debug__:, which checks script mode.",
+          "misconception": "Confusing the debug flag with script execution"
         },
         {
-          "misconception": "imagines wrong guard",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "if __file__ is None:.",
-          "misconception": ""
-        },
-        {
-          "misconception": "misuses __file__",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "if imported is False:.",
-          "misconception": ""
-        },
-        {
-          "misconception": "imagines variable",
-          "id": "H",
-          "text": ""
+          "text": "Place the banner after a return statement at module scope.",
+          "misconception": "Believing return is valid outside a function"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
-      "explanation": "The standard guard checks __name__ equals '__main__', which is true only when run as a script.",
+      "explanation": "During import, __name__ is the module's name, so the __name__ == '__main__' test is false and the guarded banner is skipped. Running the file directly sets __name__ to '__main__' and the banner appears. Calling a function at import still runs it, __debug__ concerns assertions, and module-scope return is a syntax error.",
       "hint": "Use __name__ guard.",
       "difficulty": 0.85,
       "discrimination": 0.35,
@@ -988,7 +808,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -997,7 +817,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1013,53 +833,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Sam calls os.path.join('tank', '/abs/log.txt'); what is result?",
+      "stem": "What does os.path.join('tank', '/abs/log.txt') return?",
       "options": [
         {
           "id": "A",
-          "text": "'\\abs\\log.txt' because absolute resets.",
-          "misconception": ""
+          "text": "'tank//abs/log.txt', because both separators are kept.",
+          "misconception": "Thinking join never normalizes separators"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "'tank/abs/log.txt', because separators always concatenate.",
+          "misconception": "Assuming join ignores absolute paths"
         },
         {
           "id": "C",
-          "text": "'tank/abs/log.txt' because both appended.",
+          "text": "'/abs/log.txt', because an absolute component discards earlier ones.",
           "misconception": ""
         },
         {
-          "misconception": "thinks both kept",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "'tank\\abs\\log.txt' mixed.",
-          "misconception": ""
-        },
-        {
-          "misconception": "imagines mixed",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "An error because absolute not allowed.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks error raised",
-          "id": "H",
-          "text": ""
+          "text": "A ValueError, because absolute paths cannot be joined.",
+          "misconception": "Believing join rejects rooted components"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
-      "explanation": "When a component is absolute, join discards previous components and starts from it. The result is the absolute path.",
+      "explanation": "An argument beginning with a separator is treated as absolute, so join discards everything before it and returns '/abs/log.txt'. Plain concatenation would instead produce a doubled separator, but join normalizes that; no exception is raised for rooted components.",
       "hint": "Absolute resets.",
       "difficulty": 0.25,
       "discrimination": 0.35,
@@ -1074,7 +874,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1083,7 +883,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1099,13 +899,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Uma concatenates 'tank' + '/' + 'log.txt' on Windows; how many separators may be wrong?",
+      "stem": "A script glues three path parts with a hard-coded forward slash. On Windows, how many separators are wrong?",
       "answer": {
         "value": 1,
         "tolerance": 0.01
       },
-      "explanation": "Using a hardcoded '/' on Windows can produce a mixed or incorrect separator. One hardcoded separator is the risk.",
-      "hint": "One hardcoded slash.",
+      "explanation": "Three parts create two gaps, so the literal '/' appears twice and Windows would prefer a backslash in both places. Using os.path.join avoids the mismatch entirely by choosing the platform separator, so the count of wrong separators is two.",
+      "hint": "Count the gaps between parts.",
       "difficulty": 0.35,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -1119,7 +919,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1128,7 +928,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -1145,11 +945,11 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, what condition ensures write then read returns identical text?",
+      "stem": "What must be true for a write-then-read round trip to return the original text?",
       "answer": {
         "exemplar": "The read must use the same encoding as the write so bytes are decoded with the identical mapping used to encode them."
       },
-      "explanation": "Identical encoding on both sides reverses the byte mapping exactly, preserving the text.",
+      "explanation": "The read must decode with the same codec the write used to encode. Encoding maps characters to bytes and decoding applies the inverse table; a different codec maps those bytes to different characters and yields mojibake or an error. Naming the codec explicitly on both open() calls makes the round trip portable.",
       "hint": "Same encoding both sides.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -1164,7 +964,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1173,7 +973,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -1190,53 +990,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Pip writes 'café' utf-8 and reads latin-1; does it raise?",
+      "stem": "Consider open('t','w',encoding='utf-8').write('café') followed by open('t',encoding='latin-1').read(). Does decoding raise?",
       "options": [
         {
           "id": "A",
-          "text": "No, latin-1 decodes every byte.",
-          "misconception": ""
+          "text": "No: Python transcodes the file to latin-1 automatically.",
+          "misconception": "Thinking open() converts stored bytes on read"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "Yes: latin-1 rejects the two-byte sequence for é.",
+          "misconception": "Assuming latin-1 is a strict subset of ASCII"
         },
         {
           "id": "C",
-          "text": "Yes, because utf-8 bytes are invalid latin-1.",
-          "misconception": ""
+          "text": "Yes: UTF-8 bytes cannot be decoded by any other codec.",
+          "misconception": "Believing bytes are bound to one decoder"
         },
         {
-          "misconception": "thinks latin-1 rejects bytes",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Yes, because café is not ascii.",
+          "text": "No: latin-1 maps every byte, so the result is mojibake.",
           "misconception": ""
-        },
-        {
-          "misconception": "thinks non-ascii always errors",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "No, but it returns bytes.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks bytes returned",
-          "id": "H",
-          "text": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
-      "explanation": "latin-1 maps all 256 byte values to characters, so decoding never raises, even for utf-8 bytes.",
+      "explanation": "latin-1 assigns a character to every byte from 0x00 to 0xFF, so decoding never raises. The two UTF-8 bytes for é (0xC3 0xA9) decode instead as 'Ã©', which is mojibake. Bytes carry no codec label and no transcoding occurs — the decoder simply interprets the raw bytes.",
       "hint": "latin-1 never raises.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -1251,7 +1031,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1260,7 +1040,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1276,53 +1056,33 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, best practice when opening files is what?",
+      "stem": "Which habit makes file-handling code portable across operating systems?",
       "options": [
         {
           "id": "A",
-          "text": "Always pass encoding explicitly.",
+          "text": "Pass encoding='utf-8' explicitly on every text open.",
           "misconception": ""
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "Rely on the locale because it is standardized everywhere.",
+          "misconception": "Assuming each machine uses the same default codec"
         },
         {
           "id": "C",
-          "text": "Rely on the default encoding.",
-          "misconception": ""
+          "text": "Use binary mode and decode only when displaying output.",
+          "misconception": "Thinking text mode is inherently non-portable"
         },
         {
-          "misconception": "thinks default is fine",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Use binary mode for text.",
-          "misconception": ""
-        },
-        {
-          "misconception": "confuses modes",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "Omit encoding for portability.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks omitting helps",
-          "id": "H",
-          "text": ""
+          "text": "Call sys.setdefaultencoding once at startup.",
+          "misconception": "Believing a global setting overrides per-call codecs"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "Explicit encoding avoids platform-dependent defaults and ensures consistent round-trips.",
+      "explanation": "An explicit encoding removes the locale from the equation, so the same bytes are produced and consumed everywhere. Defaults differ between machines, binary mode is an option but not required for portable text, and Python has no user-facing sys.setdefaultencoding for this purpose.",
       "hint": "Pass encoding explicitly.",
       "difficulty": 0.65,
       "discrimination": 0.3,
@@ -1337,7 +1097,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1346,7 +1106,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1362,13 +1122,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Ria encodes 'abc' to utf-8 bytes; how many bytes?",
+      "stem": "Three ASCII letters are encoded with UTF-8. How many bytes are written?",
       "answer": {
         "value": 3,
         "tolerance": 0.01
       },
-      "explanation": "Each ascii character is one byte in utf-8. Three characters yield three bytes.",
-      "hint": "One byte per ascii char.",
+      "explanation": "UTF-8 is ASCII-compatible: each character in the ASCII range maps to exactly one byte with the same value. Three ASCII letters therefore produce three bytes, with no multi-byte sequences involved.",
+      "hint": "Each ASCII letter maps to one byte.",
       "difficulty": 0.75,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -1382,7 +1142,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1391,7 +1151,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -1408,11 +1168,11 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, how does append mode differ from write mode?",
+      "stem": "How does opening a file in append mode differ from opening it in write mode?",
       "answer": {
         "exemplar": "Append mode adds data at the end preserving existing content, while write mode truncates the file to empty before writing."
       },
-      "explanation": "'a' preserves and extends; 'w' truncates first. Choose based on whether old content must remain.",
+      "explanation": "Append mode preserves existing content and positions each write at the end of the file, which is what loggers need. Write mode truncates the file to zero length as soon as it opens, discarding prior data. Neither mode permits reading through the same handle.",
       "hint": "Append preserves, write truncates.",
       "difficulty": 0.85,
       "discrimination": 0.35,
@@ -1427,7 +1187,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1436,7 +1196,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -1453,53 +1213,33 @@
       },
       "format": "TWO_STAGE",
       "stimulus": null,
-      "stem": "Marine biologist Ora's module prints at top level; stage one: does import run it?",
+      "stem": "Stage one of a debugging task: a module prints at top level. Does importing it execute that print?",
       "options": [
         {
           "id": "A",
-          "text": "Yes, top-level code runs on import.",
-          "misconception": ""
+          "text": "No, import only records the names defined in the module.",
+          "misconception": "Thinking import parses but never executes"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "Yes, import runs top-level statements once.",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "No, import only loads definitions.",
-          "misconception": ""
+          "text": "Only when the module is brought in with a from-import.",
+          "misconception": "Believing import style controls execution"
         },
         {
-          "misconception": "thinks import skips code",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Only if the module is in sys.path.",
-          "misconception": ""
-        },
-        {
-          "misconception": "adds false condition",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "No, unless __name__ is main.",
-          "misconception": ""
-        },
-        {
-          "misconception": "confuses guard",
-          "id": "H",
-          "text": ""
+          "text": "Yes, but the output is buffered until the process exits.",
+          "misconception": "Confusing print buffering with skipped execution"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
-      "explanation": "Importing executes top-level statements. The print runs regardless of the guard unless guarded.",
+      "explanation": "Import executes the module body once to build its namespace, so a top-level print runs during the import itself. The form of import does not change this, and print output appears immediately rather than being held until exit. sys.modules caching prevents a second run on repeat imports.",
       "hint": "Top-level runs.",
       "difficulty": 0.25,
       "discrimination": 0.3,
@@ -1514,7 +1254,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1523,7 +1263,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1539,53 +1279,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Pia calls os.path.join('a','b','c'); how many separators in result?",
+      "stem": "Evaluate os.path.join('a', 'b', 'c') on a POSIX system. How many separators appear in the result?",
       "options": [
         {
           "id": "A",
-          "text": "2 separators between three parts.",
-          "misconception": ""
+          "text": "One, because only the first gap needs a separator.",
+          "misconception": "Assuming one separator separates all parts"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "Three, one after every component including the last.",
+          "misconception": "Counting a trailing separator join does not add"
         },
         {
           "id": "C",
-          "text": "3 separators, one per arg.",
+          "text": "Two, one between each adjacent pair of parts.",
           "misconception": ""
         },
         {
-          "misconception": "off by one",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "1 separator only.",
-          "misconception": ""
-        },
-        {
-          "misconception": "undercounts",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "0, because join removes separators.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks join removes",
-          "id": "H",
-          "text": ""
+          "text": "Zero, because join concatenates without separators.",
+          "misconception": "Confusing join with plain concatenation"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
-      "explanation": "Three components need two separators. os.path.join inserts the platform separator between each adjacent pair.",
+      "explanation": "Three arguments create two gaps, and os.path.join inserts one separator in each gap, producing 'a/b/c'. It does not add a trailing separator and does not collapse the gaps into one. Plain concatenation would omit separators entirely, which is the problem join exists to solve.",
       "hint": "n-1 separators.",
       "difficulty": 0.35,
       "discrimination": 0.4,
@@ -1600,7 +1320,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1609,7 +1329,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1625,53 +1345,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Qui hardcodes backslashes for Windows; what risk on Linux?",
+      "stem": "A script glues path parts with a hard-coded backslash separator. What fails when it runs on Linux?",
       "options": [
         {
           "id": "A",
-          "text": "Backslashes are treated as filename chars, breaking path.",
-          "misconception": ""
+          "text": "The file is written to the current directory instead.",
+          "misconception": "Thinking separators are ignored outside Windows"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "Python raises SyntaxError on backslashes in string literals.",
+          "misconception": "Confusing path separators with string escapes"
         },
         {
           "id": "C",
-          "text": "Python auto-converts them.",
-          "misconception": ""
+          "text": "The path is automatically converted to a forward slash.",
+          "misconception": "Assuming Python normalizes separators at runtime"
         },
         {
-          "misconception": "imagines auto convert",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "No risk, backslashes work everywhere.",
+          "text": "The backslash is a valid filename character, so one oddly named file is used.",
           "misconception": ""
-        },
-        {
-          "misconception": "thinks universal",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "Linux raises an error.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks error raised",
-          "id": "H",
-          "text": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
-      "explanation": "On Linux, backslash is a valid filename character, not a separator, so the path resolves incorrectly.",
+      "explanation": "On POSIX systems a backslash is an ordinary filename character, not a separator, so the parts become one literal name such as 'data\\report.csv' rather than a nested path. Python accepts the string, performs no automatic conversion, and does not relocate the file. os.path.join would choose '/' on Linux.",
       "hint": "Backslash not separator.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -1686,7 +1386,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1695,7 +1395,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1711,53 +1411,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Rex writes utf-8 and reads utf-8 but file was manually edited as latin-1; result?",
+      "stem": "A file was written as UTF-8, then a tool saved it as latin-1. A reader still requests UTF-8. What follows?",
       "options": [
         {
           "id": "A",
-          "text": "Likely mojibake or decode error depending on bytes.",
+          "text": "The stored bytes no longer match UTF-8, so mojibake or a decode error is likely.",
           "misconception": ""
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "Python detects the edit and converts the file back to UTF-8.",
+          "misconception": "Believing the codec argument can repair bytes"
         },
         {
           "id": "C",
-          "text": "Always identical because encodings named.",
-          "misconception": ""
+          "text": "The original text is restored because encodings are lossless.",
+          "misconception": "Assuming re-encoding preserves the characters"
         },
         {
-          "misconception": "thinks naming guarantees",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Always raises UnicodeDecodeError.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks always errors",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "Always returns original text.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks manual edit ignored",
-          "id": "H",
-          "text": ""
+          "text": "Nothing changes, because encoding applies only at write time.",
+          "misconception": "Thinking the read codec has no effect on bytes"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "If bytes are altered by an external edit, decoding may fail or produce wrong characters. Naming alone cannot fix bad bytes.",
+      "explanation": "The codec argument describes how to interpret whatever bytes are on disk. Once the editor writes latin-1 bytes, a UTF-8 reader applies the wrong mapping and either decodes to garbage or hits an invalid sequence and raises. No automatic detection or repair occurs; read-side codec choice matters as much as write-side.",
       "hint": "Bad bytes break round-trip.",
       "difficulty": 0.55,
       "discrimination": 0.35,
@@ -1772,7 +1452,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1781,7 +1461,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1797,13 +1477,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Sam's utf-8 file 'é' (2 bytes) read as latin-1; how many characters?",
+      "stem": "A file holds two UTF-8 bytes for one accented letter. Reading it with latin-1 yields how many characters?",
       "answer": {
         "value": 2,
         "tolerance": 0.01
       },
-      "explanation": "latin-1 maps each byte to one character. Two utf-8 bytes for é become two latin-1 characters.",
-      "hint": "One char per byte.",
+      "explanation": "latin-1 decodes one byte to one character without exception. The two UTF-8 bytes therefore become two separate characters, producing the familiar two-glyph mojibake instead of the single intended letter.",
+      "hint": "One character per byte.",
       "difficulty": 0.65,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -1817,7 +1497,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1826,7 +1506,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -1843,11 +1523,11 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, why is relying on default encoding risky?",
+      "stem": "Why is relying on the interpreter's default text encoding considered fragile?",
       "answer": {
         "exemplar": "Default encoding varies by platform and locale, so the same code may encode or decode differently, breaking round-trips across machines."
       },
-      "explanation": "Defaults are environment-dependent. Explicit encoding removes that variability.",
+      "explanation": "The default comes from the host locale, so it can be UTF-8 on one machine and a Windows code page on another. Code that omits the encoding argument then writes different bytes or decodes the same bytes to different characters depending on where it runs. Supplying the codec on every text open() removes that machine dependence.",
       "hint": "Defaults vary by platform.",
       "difficulty": 0.75,
       "discrimination": 0.35,
@@ -1862,7 +1542,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1871,7 +1551,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -1888,53 +1568,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Tia opens file in 'rb' and reads; what type is returned?",
+      "stem": "After raw = open('sample.bin', 'rb').read(), what is the type of raw?",
       "options": [
         {
           "id": "A",
-          "text": "bytes.",
-          "misconception": ""
+          "text": "str, because read() always decodes with UTF-8.",
+          "misconception": "Assuming read returns text regardless of mode"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "bytes, because binary mode returns undecoded byte values.",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "str.",
-          "misconception": ""
+          "text": "bytearray, because read() builds a mutable buffer.",
+          "misconception": "Confusing immutable bytes with bytearray"
         },
         {
-          "misconception": "thinks text returned",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "list of ints.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks list returned",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "None.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks None returned",
-          "id": "H",
-          "text": ""
+          "text": "int, because read() returns the first byte's value.",
+          "misconception": "Thinking read yields a single numeric byte"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
-      "explanation": "Binary mode returns bytes. No decoding occurs, so the result is a bytes object.",
+      "explanation": "The 'b' in mode 'rb' keeps the stream binary, so read() returns an immutable bytes object with no decoding step. Text mode would decode to str using a codec, bytearray is a separate mutable type that read() does not produce, and a single integer would require indexing into the result.",
       "hint": "Binary returns bytes.",
       "difficulty": 0.85,
       "discrimination": 0.4,
@@ -1949,7 +1609,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -1958,7 +1618,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -1974,53 +1634,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Ula appends text with encoding utf-8; must read use utf-8?",
+      "stem": "A logger appends UTF-8 text to a file. Must a later reader also specify UTF-8?",
       "options": [
         {
           "id": "A",
-          "text": "Yes, to decode appended bytes correctly.",
-          "misconception": ""
+          "text": "No, because append mode writes only ASCII characters.",
+          "misconception": "Assuming logs are always ASCII-only"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "No, text files store their own encoding in a header.",
+          "misconception": "Believing files carry an encoding label"
         },
         {
           "id": "C",
-          "text": "No, append ignores encoding.",
+          "text": "Yes, the reader must decode with the codec used for the write.",
           "misconception": ""
         },
         {
-          "misconception": "thinks append ignores encoding",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Only if the file is new.",
-          "misconception": ""
-        },
-        {
-          "misconception": "adds false condition",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "No, because append writes characters.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks append writes chars",
-          "id": "H",
-          "text": ""
+          "text": "Only when the file was opened in binary append mode.",
+          "misconception": "Thinking the read codec depends on the mode letter"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
-      "explanation": "Append still writes encoded bytes. Reading must use the same encoding to recover the text.",
+      "explanation": "Append mode only changes where bytes are placed; it does not label them. A reader must use the codec that produced those bytes or it will mis-decode non-ASCII characters. Plain text files have no encoding header, logs commonly contain arbitrary Unicode, and the mode letter says nothing about the codec.",
       "hint": "Same encoding needed.",
       "difficulty": 0.25,
       "discrimination": 0.35,
@@ -2035,7 +1675,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2044,7 +1684,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2060,53 +1700,33 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, what is __name__ when running a file as script?",
+      "stem": "When a file is launched directly as a script, what value does its __name__ variable hold?",
       "options": [
         {
           "id": "A",
-          "text": "'__main__'.",
-          "misconception": ""
+          "text": "It is the interpreter version string.",
+          "misconception": "Believing __name__ reports runtime information"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "It equals the module's filename without the extension.",
+          "misconception": "Confusing the module name with script __name__"
         },
         {
           "id": "C",
-          "text": "The file name.",
-          "misconception": ""
+          "text": "It is None until an import assigns it.",
+          "misconception": "Thinking __name__ is unset for directly run files"
         },
         {
-          "misconception": "thinks filename",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "None.",
+          "text": "It is set to the literal string '__main__'.",
           "misconception": ""
-        },
-        {
-          "misconception": "thinks None",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "'imported'.",
-          "misconception": ""
-        },
-        {
-          "misconception": "imagines imported",
-          "id": "H",
-          "text": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
-      "explanation": "When executed as a script, Python sets __name__ to '__main__'. On import it is the module name.",
+      "explanation": "Running a file directly sets __name__ to '__main__', which is exactly what the if __name__ == '__main__' guard tests. On import the same variable holds the module name instead. It is never None for a loaded module and has nothing to do with the interpreter version.",
       "hint": "'__main__'.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -2121,7 +1741,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2130,7 +1750,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2146,13 +1766,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Vera calls os.path.join('a','','b'); how many non-empty parts effectively?",
+      "stem": "The call os.path.join('a', '', 'b') is made. How many non-empty path components remain?",
       "answer": {
         "value": 2,
         "tolerance": 0.01
       },
-      "explanation": "An empty component contributes no separator change effectively. The result combines 'a' and 'b', two non-empty parts.",
-      "hint": "Empty adds nothing.",
+      "explanation": "The empty middle argument contributes no path segment, so join produces 'a/b' with two non-empty components and one separator. Empty strings are simply skipped rather than creating a doubled separator or a new directory level.",
+      "hint": "Ignore the empty argument.",
       "difficulty": 0.45,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -2166,7 +1786,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2175,7 +1795,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -2192,53 +1812,33 @@
       },
       "format": "TWO_STAGE",
       "stimulus": null,
-      "stem": "Marine biologist Will builds a path; stage one: which function normalizes separators?",
+      "stem": "Stage one of a path-building exercise: which tool inserts the correct separator for the current platform?",
       "options": [
         {
           "id": "A",
-          "text": "os.path.join.",
+          "text": "os.path.join, which selects the platform separator.",
           "misconception": ""
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "String concatenation with '/', which Python normalizes.",
+          "misconception": "Believing literal separators are rewritten at runtime"
         },
         {
           "id": "C",
-          "text": "str + str.",
-          "misconception": ""
+          "text": "os.getcwd(), which reports the current directory.",
+          "misconception": "Confusing a directory query with path construction"
         },
         {
-          "misconception": "thinks concat normalizes",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "print.",
-          "misconception": ""
-        },
-        {
-          "misconception": "irrelevant",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "len.",
-          "misconception": ""
-        },
-        {
-          "misconception": "irrelevant",
-          "id": "H",
-          "text": ""
+          "text": "str.split(), which separates an existing path.",
+          "misconception": "Reversing the operation and using a splitter"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "os.path.join handles separators for the current platform, producing a valid path.",
+      "explanation": "os.path.join places the correct separator between components and normalizes redundant ones, so paths stay valid on Windows and POSIX alike. A literal '/' is never rewritten, os.getcwd() only reports where the process is, and str.split() breaks paths apart rather than assembling them.",
       "hint": "Use os.path.join.",
       "difficulty": 0.55,
       "discrimination": 0.3,
@@ -2253,7 +1853,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2262,7 +1862,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2278,53 +1878,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Xan writes with newline='\\n' on Windows; are newlines translated?",
+      "stem": "Writing a file opened with newline='\\n' on Windows: are newline characters translated?",
       "options": [
         {
           "id": "A",
-          "text": "No, newline='\\n' disables translation on write.",
-          "misconception": ""
+          "text": "Yes, '\\n' is converted to CRLF on Windows.",
+          "misconception": "Assuming translation happens for every setting"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "No, an explicit newline value suppresses translation on write.",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Yes, Windows always translates.",
-          "misconception": ""
+          "text": "Only when the file is opened in binary mode as well.",
+          "misconception": "Thinking text translation requires a binary flag"
         },
         {
-          "misconception": "thinks always translates",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "No, because utf-8 prevents translation.",
-          "misconception": ""
-        },
-        {
-          "misconception": "confuses encoding with newline",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "Yes, unless binary mode.",
-          "misconception": ""
-        },
-        {
-          "misconception": "adds false condition",
-          "id": "H",
-          "text": ""
+          "text": "Yes, because the encoding controls line endings.",
+          "misconception": "Confusing character encoding with newline handling"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
-      "explanation": "Passing newline='\\n' to open in text mode disables newline translation on write, keeping '\\n' as-is.",
+      "explanation": "With newline=None, Python translates a written '\\n' to the platform separator, which is CRLF on Windows. Passing newline='\\n' explicitly disables that translation, so the file receives exactly the characters requested; encoding affects bytes, not line endings, and binary mode has no translation to disable.",
       "hint": "newline controls translation.",
       "difficulty": 0.65,
       "discrimination": 0.35,
@@ -2339,7 +1919,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2348,7 +1928,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2364,11 +1944,11 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, why does reading utf-8 bytes as latin-1 produce mojibake?",
+      "stem": "Why does decoding UTF-8 bytes with latin-1 produce the garbled text called mojibake?",
       "answer": {
         "exemplar": "latin-1 maps each byte to a character, so multi-byte utf-8 sequences become multiple unrelated characters instead of the intended one."
       },
-      "explanation": "Each utf-8 byte becomes a separate latin-1 character, corrupting multi-byte characters.",
+      "explanation": "UTF-8 represents a character outside ASCII with a sequence of two or more bytes, while latin-1 interprets each byte independently as its own character. Decoding the two bytes of é as latin-1 therefore yields two unrelated glyphs instead of one accented letter. The bytes are unchanged; only the mapping chosen at read time creates the garbling.",
       "hint": "One char per byte.",
       "difficulty": 0.75,
       "discrimination": 0.35,
@@ -2383,7 +1963,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2392,7 +1972,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -2409,53 +1989,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Yara writes utf-8 and reads utf-8; text equals original?",
+      "stem": "This round trip runs: p='café'; b=p.encode('utf-8'); q=b.decode('utf-8'). Is q equal to p?",
       "options": [
         {
           "id": "A",
-          "text": "Yes, bytes round-trip exactly.",
-          "misconception": ""
+          "text": "No, because decode() returns bytes rather than text.",
+          "misconception": "Confusing the result type of decode with encode"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "No, the accented letter is lost during encoding.",
+          "misconception": "Assuming non-ASCII cannot survive encoding"
         },
         {
           "id": "C",
-          "text": "No, because read adds a BOM.",
+          "text": "Yes, UTF-8 decoding inverts UTF-8 encoding exactly.",
           "misconception": ""
         },
         {
-          "misconception": "thinks BOM added",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "No, because newline translation changes it.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks newline changes text",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "No, unless flush is called.",
-          "misconception": ""
-        },
-        {
-          "misconception": "adds false condition",
-          "id": "H",
-          "text": ""
+          "text": "Only if the string is pure ASCII.",
+          "misconception": "Thinking the round trip is limited to ASCII"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
-      "explanation": "Same encoding on both sides preserves the text through the byte round-trip.",
+      "explanation": "encode('utf-8') maps each character to a byte sequence and decode('utf-8') applies the inverse mapping, so q is identical to p. The accented character is fully representable, decode() produces a str, and the round trip works for any Unicode string as long as both calls use the same codec.",
       "hint": "Exact round-trip.",
       "difficulty": 0.85,
       "discrimination": 0.4,
@@ -2470,7 +2030,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2479,7 +2039,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2495,13 +2055,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Zed decodes utf-8 bytes for 'café' (5 bytes); how many characters?",
+      "stem": "Five UTF-8 bytes representing 'café' are decoded correctly. How many characters result?",
       "answer": {
         "value": 4,
         "tolerance": 0.01
       },
-      "explanation": "The utf-8 byte sequence decodes to four characters: c, a, f, é. Byte count differs from character count.",
-      "hint": "4 characters.",
+      "explanation": "The three ASCII letters c, a and f decode to three characters, and the two-byte sequence for é decodes to a single character. Three plus one gives four characters, even though the encoded form occupied five bytes.",
+      "hint": "The accented letter uses two bytes.",
       "difficulty": 0.25,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -2515,7 +2075,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2524,7 +2084,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -2541,53 +2101,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Ada opens in 'a' and writes; where does data go?",
+      "stem": "A stream is opened with f = open('events.log', 'a') and f.write('tick') runs. Where do the new bytes land?",
       "options": [
         {
           "id": "A",
-          "text": "At the end of the file.",
-          "misconception": ""
+          "text": "At the current cursor position, which starts at zero.",
+          "misconception": "Assuming append mode begins at offset zero"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "At the start, pushing the old contents to the right.",
+          "misconception": "Thinking writes prepend to a file"
         },
         {
           "id": "C",
-          "text": "At the beginning, shifting content.",
-          "misconception": ""
+          "text": "In a fresh file, replacing whatever was stored before.",
+          "misconception": "Confusing append with truncating write mode"
         },
         {
-          "misconception": "thinks prepend",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Overwrites from start.",
+          "text": "After the existing contents, at the current end of file.",
           "misconception": ""
-        },
-        {
-          "misconception": "confuses with w",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "Into a new file always.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks new file",
-          "id": "H",
-          "text": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
-      "explanation": "Append mode positions the write pointer at EOF, so new data follows existing content.",
+      "explanation": "Mode 'a' positions the stream at end-of-file on every open and forces subsequent writes to the end, so 'tick' follows existing data. It never truncates, never inserts at the front, and ignores any initial cursor position, which is why append is safe for log writers.",
       "hint": "End of file.",
       "difficulty": 0.35,
       "discrimination": 0.4,
@@ -2602,7 +2142,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2611,7 +2151,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2627,53 +2167,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Ben's module opens a file at top level; importing it has what effect?",
+      "stem": "A utility module calls open('cache.txt', 'w') at module scope. What happens when another file imports it?",
       "options": [
         {
           "id": "A",
-          "text": "It opens the file during import.",
+          "text": "The import truncates cache.txt as the statement executes.",
           "misconception": ""
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "Nothing happens until a function from the module is used.",
+          "misconception": "Believing module-level statements are deferred"
         },
         {
           "id": "C",
-          "text": "It does nothing until called.",
-          "misconception": ""
+          "text": "Python rejects module-level I/O with a SyntaxError.",
+          "misconception": "Thinking open() is illegal outside a function"
         },
         {
-          "misconception": "thinks import is lazy",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "It raises SyntaxError.",
-          "misconception": ""
-        },
-        {
-          "misconception": "imagines syntax error",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "It only defines the open call.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks definition only",
-          "id": "H",
-          "text": ""
+          "text": "The file is opened only when the interpreter shuts down.",
+          "misconception": "Confusing import-time execution with cleanup hooks"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "Top-level statements execute on import, so the file is opened immediately during import.",
+      "explanation": "Import runs top-level statements to initialize the module, so the open() call executes immediately and mode 'w' truncates the file as a side effect. This is why resource acquisition belongs inside functions or behind a __main__ guard. Such code is legal, and nothing waits for shutdown.",
       "hint": "Top-level runs.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -2688,7 +2208,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2697,7 +2217,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2713,53 +2233,33 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, what does os.path.join do?",
+      "stem": "Which standard-library call assembles path pieces using the separator of the host OS?",
       "options": [
         {
           "id": "A",
-          "text": "Joins path components with correct separator.",
-          "misconception": ""
+          "text": "os.path.split, which separates a path into its parts.",
+          "misconception": "Reversing the operation and using a splitter"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "os.path.join, which inserts the right separator per platform.",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Concatenates strings without separator.",
-          "misconception": ""
+          "text": "str.join, which always uses a literal forward slash.",
+          "misconception": "Thinking generic string joining is platform-aware"
         },
         {
-          "misconception": "thinks no separator",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Splits a path into parts.",
-          "misconception": ""
-        },
-        {
-          "misconception": "confuses with split",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "Checks if path exists.",
-          "misconception": ""
-        },
-        {
-          "misconception": "confuses with exists",
-          "id": "H",
-          "text": ""
+          "text": "os.path.abspath, which resolves a path to its full form.",
+          "misconception": "Confusing path resolution with path assembly"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
-      "explanation": "os.path.join combines components using the platform-appropriate separator.",
+      "explanation": "os.path.join combines components with the platform's separator and normalizes redundant separators. os.path.split does the opposite, str.join inserts whatever literal separator you supply and is not platform-aware, and os.path.abspath only converts an existing path to an absolute one.",
       "hint": "Joins with separator.",
       "difficulty": 0.55,
       "discrimination": 0.3,
@@ -2774,7 +2274,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2783,7 +2283,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2799,11 +2299,11 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, how does os.path.join handle extra separators?",
+      "stem": "How does os.path.join behave when one component already ends with a separator?",
       "answer": {
         "exemplar": "os.path.join normalizes redundant separators, so multiple slashes collapse and the resulting path stays valid."
       },
-      "explanation": "Join cleans up duplicate separators, avoiding malformed paths from concatenation.",
+      "explanation": "join inserts separators only where they are needed, so a component ending in '/' does not produce a doubled slash in the result. It also discards leading separators on later absolute components, treating them as replacements for the earlier parts. This normalization is why join is safer than concatenation.",
       "hint": "Normalizes separators.",
       "difficulty": 0.65,
       "discrimination": 0.35,
@@ -2818,7 +2318,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2827,7 +2327,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -2844,13 +2344,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Cal writes 'abc' utf-8; how many bytes on disk?",
+      "stem": "The three-character string 'abc' is written to a UTF-8 text file. How many bytes are stored?",
       "answer": {
         "value": 3,
         "tolerance": 0.01
       },
-      "explanation": "Three ascii characters encode to three bytes in utf-8. The byte count equals the character count here.",
-      "hint": "3 bytes.",
+      "explanation": "All three characters are ASCII, and UTF-8 encodes every ASCII character as a single byte with the same value. The file therefore contains three bytes, one per character.",
+      "hint": "ASCII maps one-to-one in UTF-8.",
       "difficulty": 0.75,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -2864,7 +2364,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2873,7 +2373,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -2890,53 +2390,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Dan reads utf-8 file as ascii with errors='replace'; what for é?",
+      "stem": "A UTF-8 file with an accented letter is read via open('t', encoding='ascii', errors='replace').read(). What appears for that letter?",
       "options": [
         {
           "id": "A",
-          "text": "Replacement character U+FFFD.",
-          "misconception": ""
+          "text": "An empty string, because invalid bytes are skipped.",
+          "misconception": "Confusing replace with the ignore handler"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "The original letter, because replace preserves valid text.",
+          "misconception": "Thinking replace keeps undecodable bytes intact"
         },
         {
           "id": "C",
-          "text": "The original é.",
+          "text": "A replacement character such as U+FFFD in place of the bad bytes.",
           "misconception": ""
         },
         {
-          "misconception": "thinks preserved",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "An empty string.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks dropped",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "A UnicodeDecodeError.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks errors ignored",
-          "id": "H",
-          "text": ""
+          "text": "UnicodeDecodeError, because replace still raises.",
+          "misconception": "Believing every error handler raises on bad bytes"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
-      "explanation": "errors='replace' substitutes the replacement character for undecodable bytes. No exception is raised.",
+      "explanation": "errors='replace' substitutes a replacement marker for each undecodable byte sequence instead of raising, so the accented letter becomes U+FFFD in the returned string. The original bytes are not preserved, silent dropping belongs to 'ignore', and no exception escapes with this handler.",
       "hint": "Replacement char.",
       "difficulty": 0.85,
       "discrimination": 0.4,
@@ -2951,7 +2431,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -2960,7 +2440,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -2976,53 +2456,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Eve omits encoding and code works on her machine; is it portable?",
+      "stem": "Code that omits the encoding argument works on a developer's laptop. Can it be trusted elsewhere?",
       "options": [
         {
           "id": "A",
-          "text": "No, because default may differ elsewhere.",
-          "misconception": ""
+          "text": "No, because omitting encoding warns and then fails.",
+          "misconception": "Thinking the default is rejected at runtime"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "Yes, because Python fixes UTF-8 as the default everywhere.",
+          "misconception": "Assuming the default is standardized"
         },
         {
           "id": "C",
-          "text": "Yes, because Python standardizes defaults.",
-          "misconception": ""
+          "text": "Yes, as long as the text is written with ASCII only.",
+          "misconception": "Overgeneralizing ASCII safety to default portability"
         },
         {
-          "misconception": "thinks defaults standard",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Yes, if only ascii is used.",
+          "text": "No, because each locale supplies a different default codec.",
           "misconception": ""
-        },
-        {
-          "misconception": "overgeneralizes ascii safety",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "No, because omitting raises an error.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks omitting errors",
-          "id": "H",
-          "text": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
-      "explanation": "Omitting encoding relies on a platform-dependent default, which can differ across machines and break portability.",
+      "explanation": "With no encoding argument, text I/O uses the value of locale.getpreferredencoding(), which differs between machines and configurations. ASCII-only data may happen to look fine, but non-ASCII content can encode or decode differently. Python does not impose UTF-8 universally, and omitting the argument is legal rather than an error.",
       "hint": "Default varies.",
       "difficulty": 0.25,
       "discrimination": 0.35,
@@ -3037,7 +2497,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3046,7 +2506,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3062,11 +2522,11 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, what is the difference between str and bytes?",
+      "stem": "What distinguishes a str from a bytes object in Python 3?",
       "answer": {
         "exemplar": "str holds decoded text characters, while bytes holds raw byte values; conversion between them requires an encoding."
       },
-      "explanation": "str is text, bytes is raw data. Encoding and decoding convert between the two.",
+      "explanation": "A str is a sequence of Unicode code points, while bytes is a sequence of integers from 0 to 255 representing raw data. They are different types and cannot be concatenated directly. Converting between them requires an encoding for str-to-bytes and the matching codec for bytes-to-str.",
       "hint": "Text vs raw bytes.",
       "difficulty": 0.35,
       "discrimination": 0.35,
@@ -3081,7 +2541,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3090,7 +2550,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -3107,13 +2567,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Fay appends 'log' (3 chars) to a 10-char file; final char count?",
+      "stem": "A text file holds ten characters and three more are appended. What is the final character count?",
       "answer": {
         "value": 13,
         "tolerance": 0.01
       },
-      "explanation": "Append adds three characters to the existing ten, totaling thirteen characters.",
-      "hint": "Add lengths.",
+      "explanation": "Append mode keeps the original ten characters and adds the three new ones at the end, so the file contains thirteen characters. A truncating write would have produced three, but appending never removes existing content.",
+      "hint": "Nothing is erased.",
       "difficulty": 0.45,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -3127,7 +2587,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3136,7 +2596,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -3153,53 +2613,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Gus imports a module defining x = 5; what is module.x?",
+      "stem": "A module body is just x = 5. After import mymod, what does repr(mymod.x) show?",
       "options": [
         {
           "id": "A",
-          "text": "5, because assignment ran on import.",
+          "text": "5, because the assignment executes while the module loads.",
           "misconception": ""
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "None, because imports skip assignment statements.",
+          "misconception": "Thinking import parses but never executes"
         },
         {
           "id": "C",
-          "text": "None, because import skips assignments.",
-          "misconception": ""
+          "text": "An AttributeError, because x is local to the import.",
+          "misconception": "Confusing module attributes with local variables"
         },
         {
-          "misconception": "thinks import skips",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "An error, because x is undefined.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks undefined",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "The module object itself.",
-          "misconception": ""
-        },
-        {
-          "misconception": "confuses attribute",
-          "id": "H",
-          "text": ""
+          "text": "The module object, because x refers to its namespace.",
+          "misconception": "Believing a name binding points to the container"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "Import executes the assignment, so module.x is 5 after import.",
+      "explanation": "Import executes the module body, so x = 5 binds an attribute on the module object and mymod.x is the integer 5. Assignments are not skipped during import, the name becomes a module attribute rather than a local, and its value is the integer rather than the namespace itself.",
       "hint": "Assignment runs.",
       "difficulty": 0.55,
       "discrimination": 0.4,
@@ -3214,7 +2654,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3223,7 +2663,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3239,53 +2679,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Hal calls os.path.join('C:\\\\', 'folder', 'file.txt') on Windows; result?",
+      "stem": "On Windows, os.path.join('C:\\\\', 'folder', 'file.txt') is evaluated. What path results?",
       "options": [
         {
           "id": "A",
-          "text": "'C:\\\\folder\\\\file.txt' normalized.",
-          "misconception": ""
+          "text": "'C:\\\\' alone, because the drive resets the path.",
+          "misconception": "Thinking a drive prefix discards later parts"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "'C:\\\\folder\\\\file.txt', with components separated correctly.",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "'C:\\\\' only, because drive resets.",
-          "misconception": ""
+          "text": "'folder\\\\file.txt', with the drive letter dropped.",
+          "misconception": "Assuming join ignores absolute drive roots"
         },
         {
-          "misconception": "thinks drive resets",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "'folder\\\\file.txt' losing drive.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks drive dropped",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "An error due to backslash.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks error",
-          "id": "H",
-          "text": ""
+          "text": "A ValueError, because backslashes are illegal in paths.",
+          "misconception": "Confusing string escapes with path validation"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
-      "explanation": "os.path.join combines the components, yielding 'C:\\\\folder\\\\file.txt' with proper separators.",
+      "explanation": "On Windows the drive-plus-root 'C:\\' is a complete anchor, and join appends each following component with a backslash, producing 'C:\\folder\\file.txt'. The drive is retained rather than resetting, and backslashes are ordinary path characters that join handles without error.",
       "hint": "Drive retained.",
       "difficulty": 0.65,
       "discrimination": 0.35,
@@ -3300,7 +2720,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3309,7 +2729,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3325,53 +2745,33 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, which constant holds the OS path separator?",
+      "stem": "Which os constant holds the separator used between path components on the current platform?",
       "options": [
         {
           "id": "A",
-          "text": "os.sep.",
-          "misconception": ""
+          "text": "os.linesep, the platform's line-ending sequence.",
+          "misconception": "Mixing up line endings with path separators"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "os.pathsep, the delimiter in environment path lists.",
+          "misconception": "Confusing the path-list delimiter with the separator"
         },
         {
           "id": "C",
-          "text": "os.pathsep.",
+          "text": "os.sep, the platform's path separator character.",
           "misconception": ""
         },
         {
-          "misconception": "confuses with PATH separator",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "os.linesep.",
-          "misconception": ""
-        },
-        {
-          "misconception": "confuses with newline",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "sys.sep.",
-          "misconception": ""
-        },
-        {
-          "misconception": "wrong module",
-          "id": "H",
-          "text": ""
+          "text": "os.curdir, the name for the current directory.",
+          "misconception": "Confusing the current-directory marker with a separator"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
-      "explanation": "os.sep is the path separator for the current platform. os.pathsep is for PATH lists.",
+      "explanation": "os.sep is '/' on POSIX and '\\' on Windows, exactly the character os.path.join inserts between components. os.pathsep separates entries in a search path such as PATH, os.linesep is a newline sequence, and os.curdir is the string '.'.",
       "hint": "os.sep.",
       "difficulty": 0.75,
       "discrimination": 0.3,
@@ -3386,7 +2786,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3395,7 +2795,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3411,11 +2811,11 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, why does a text file store bytes not characters?",
+      "stem": "Why does a text file on disk contain bytes rather than characters?",
       "answer": {
         "exemplar": "Storage is byte-oriented, so text is encoded into bytes using an encoding; reading decodes those bytes back into characters."
       },
-      "explanation": "Files store bytes. Encoding converts text to bytes; decoding reverses it.",
+      "explanation": "Storage media deal in bytes, so a str must be encoded into a byte sequence before it is written. The chosen encoding defines the mapping, and reading applies the inverse mapping to rebuild the characters. Text mode performs both conversions transparently, which is why the codec must match on the two sides.",
       "hint": "Files store bytes.",
       "difficulty": 0.85,
       "discrimination": 0.35,
@@ -3430,7 +2830,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3439,7 +2839,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -3456,13 +2856,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Ivy writes 'é' utf-8 (2 bytes) and reads latin-1; how many chars?",
+      "stem": "Two UTF-8 bytes for one accented letter are decoded with latin-1. How many characters are produced?",
       "answer": {
         "value": 2,
         "tolerance": 0.01
       },
-      "explanation": "latin-1 maps each of the two utf-8 bytes to a separate character, yielding two characters.",
-      "hint": "2 chars.",
+      "explanation": "latin-1 decodes exactly one character per byte, so the two bytes become two separate characters. This is the mechanism behind mojibake: a single UTF-8 encoded letter is misinterpreted as two unrelated latin-1 characters.",
+      "hint": "One character per byte.",
       "difficulty": 0.25,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -3476,7 +2876,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3485,7 +2885,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -3502,53 +2902,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Joe opens with encoding='utf-8'; does Python use that encoding?",
+      "stem": "A file is opened with open('t', 'w', encoding='utf-8'). Is the explicit codec actually used?",
       "options": [
         {
           "id": "A",
-          "text": "Yes, the param overrides default.",
-          "misconception": ""
+          "text": "No, encoding is accepted but ignored in text mode.",
+          "misconception": "Thinking the parameter is decorative for text files"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "No, the locale default always takes precedence.",
+          "misconception": "Believing the locale wins over explicit arguments"
         },
         {
           "id": "C",
-          "text": "No, default always wins.",
-          "misconception": ""
+          "text": "Only when the file already exists on disk.",
+          "misconception": "Adding a false precondition about file existence"
         },
         {
-          "misconception": "thinks default overrides",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Only if the file exists.",
+          "text": "Yes, the argument overrides the platform default for that call.",
           "misconception": ""
-        },
-        {
-          "misconception": "adds false condition",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "No, encoding param is ignored.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks param ignored",
-          "id": "H",
-          "text": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
-      "explanation": "Passing encoding explicitly sets the codec, overriding the platform default.",
+      "explanation": "The encoding argument sets the codec for that open() call and takes precedence over locale.getpreferredencoding(), for both new and existing files. Ignoring it would make portable text handling impossible, and it is meaningful precisely in text mode; binary mode is where no decoding occurs.",
       "hint": "Param overrides default.",
       "difficulty": 0.35,
       "discrimination": 0.4,
@@ -3563,7 +2943,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3572,7 +2952,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3588,53 +2968,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Kay does 'café'.encode('utf-8').decode('utf-8'); result?",
+      "stem": "What is the value of 'café'.encode('utf-8').decode('utf-8')?",
       "options": [
         {
           "id": "A",
-          "text": "'café' because encode then decode inverts.",
+          "text": "The original string 'café', because the two operations invert.",
           "misconception": ""
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "A bytes object, because encode changes the type permanently.",
+          "misconception": "Overlooking that decode restores the str type"
         },
         {
           "id": "C",
-          "text": "Bytes, because encode returns bytes.",
-          "misconception": ""
+          "text": "'caf', because non-ASCII characters are dropped.",
+          "misconception": "Assuming encoding discards unrepresentable characters"
         },
         {
-          "misconception": "thinks final type bytes",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "An error because decode needs ascii.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks ascii required",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "'caf' because é lost.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks é lost",
-          "id": "H",
-          "text": ""
+          "text": "A UnicodeDecodeError, because decode expects ASCII input.",
+          "misconception": "Believing decode only accepts ASCII bytes"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "Encoding then decoding with the same codec returns the original string. The operations are inverses.",
+      "explanation": "encode('utf-8') produces the UTF-8 byte sequence and decode('utf-8') maps it back, so the result is the original string including the accented letter. The final type is str because decode undoes encode, no characters are dropped, and the codec handles the non-ASCII bytes without error.",
       "hint": "Inverse operations.",
       "difficulty": 0.45,
       "discrimination": 0.35,
@@ -3649,7 +3009,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3658,7 +3018,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3674,53 +3034,33 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, which mode string appends text?",
+      "stem": "Which mode letter opens a text file for appending without erasing it?",
       "options": [
         {
           "id": "A",
-          "text": "'a'.",
-          "misconception": ""
+          "text": "'w', which writes at the end of existing content.",
+          "misconception": "Confusing write mode with append behavior"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "'a', which writes at the end of existing content.",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "'w'.",
-          "misconception": ""
+          "text": "'r+', which always appends new text at the end.",
+          "misconception": "Assuming update mode positions writes at the end"
         },
         {
-          "misconception": "confuses with write",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "'r'.",
-          "misconception": ""
-        },
-        {
-          "misconception": "confuses with read",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "'x'.",
-          "misconception": ""
-        },
-        {
-          "misconception": "confuses with exclusive create",
-          "id": "H",
-          "text": ""
+          "text": "'x', which appends only when the file is missing.",
+          "misconception": "Confusing exclusive creation with appending"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
-      "explanation": "'a' opens for appending. 'w' truncates, 'r' reads, 'x' creates exclusively.",
+      "explanation": "Mode 'a' opens for writing at end-of-file and creates the file if absent, leaving prior content unchanged. Mode 'w' truncates immediately, 'r+' opens for updates with the cursor at the start, and 'x' creates exclusively and fails if the path already exists.",
       "hint": "'a' appends.",
       "difficulty": 0.55,
       "discrimination": 0.3,
@@ -3735,7 +3075,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3744,7 +3084,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3760,11 +3100,11 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, why use if __name__ == '__main__'?",
+      "stem": "What purpose does the if __name__ == '__main__' guard serve in a module?",
       "answer": {
         "exemplar": "It ensures top-level code runs only when the file is executed as a script, not when it is imported as a module."
       },
-      "explanation": "The guard distinguishes script execution from import, preventing side effects on import.",
+      "explanation": "The guard separates code that should run only under direct execution from code that should be safe on import. When a file is run as a script, __name__ is '__main__' and the block executes; when imported, __name__ is the module name and the block is skipped. This prevents side effects such as starting servers or opening files in importing code.",
       "hint": "Script-only execution.",
       "difficulty": 0.65,
       "discrimination": 0.35,
@@ -3779,7 +3119,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3788,7 +3128,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -3805,53 +3145,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Lee uses Path('tank') / 'log.txt'; what operator joins?",
+      "stem": "In pathlib, what does the expression Path('tank') / 'log.txt' use to combine the parts?",
       "options": [
         {
           "id": "A",
-          "text": "'/' operator.",
-          "misconception": ""
+          "text": "The & operator, which intersects two path objects.",
+          "misconception": "Inventing a set-like operator for joining"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "The + operator, overloaded to concatenate Paths.",
+          "misconception": "Assuming pathlib overloads addition instead"
         },
         {
           "id": "C",
-          "text": "'+' operator.",
+          "text": "The / operator, overloaded to join Path components.",
           "misconception": ""
         },
         {
-          "misconception": "thinks plus",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "'&' operator.",
-          "misconception": ""
-        },
-        {
-          "misconception": "imagines and",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "os.path.join only.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks only function",
-          "id": "H",
-          "text": ""
+          "text": "os.path.join, which pathlib calls automatically.",
+          "misconception": "Thinking the operator aliases the os function"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
-      "explanation": "pathlib.Path overloads the / operator to join path components, producing a new Path.",
+      "explanation": "pathlib.Path overloads the division operator so Path('tank') / 'log.txt' returns a new Path for 'tank/log.txt', inserting the appropriate separator. Addition is not defined for Paths, intersection is meaningless here, and no explicit os.path.join call is involved.",
       "hint": "'/' joins Paths.",
       "difficulty": 0.75,
       "discrimination": 0.4,
@@ -3866,7 +3186,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3875,7 +3195,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -3891,13 +3211,13 @@
       },
       "format": "NUMERIC",
       "stimulus": null,
-      "stem": "Marine biologist Max joins 4 path components; how many separators inserted?",
+      "stem": "Four path components are passed to os.path.join. How many separators appear in the result?",
       "answer": {
         "value": 3,
         "tolerance": 0.01
       },
-      "explanation": "Four components require three separators. os.path.join inserts one between each adjacent pair.",
-      "hint": "n-1 separators.",
+      "explanation": "A separator is needed only between adjacent components, so four components create three gaps and thus three separators. The count is always one less than the number of non-empty components.",
+      "hint": "One fewer than the parts.",
       "difficulty": 0.85,
       "discrimination": 0.4,
       "responseTimeBaseline": {
@@ -3911,7 +3231,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -3920,7 +3240,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "options": [],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
@@ -3937,53 +3257,33 @@
       },
       "format": "ERROR_ANALYSIS",
       "stimulus": null,
-      "stem": "Marine biologist Nan writes then reads without closing; file empty?",
+      "stem": "A script writes to a file and immediately opens it again for reading without closing or flushing. Could the read see an empty file?",
       "options": [
         {
           "id": "A",
-          "text": "Possibly, because data may be buffered.",
-          "misconception": ""
+          "text": "No, because Python closes handles at the next statement.",
+          "misconception": "Assuming immediate collection closes the writer"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "No, write() always pushes bytes straight to the device.",
+          "misconception": "Ignoring the effect of buffering on writes"
         },
         {
           "id": "C",
-          "text": "No, write is always immediate.",
-          "misconception": ""
+          "text": "Yes, because an open file is unreadable until closed.",
+          "misconception": "Believing a second handle cannot read an open file"
         },
         {
-          "misconception": "thinks immediate",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Yes, because unreadable until close.",
+          "text": "Yes, buffered bytes may not have reached disk yet.",
           "misconception": ""
-        },
-        {
-          "misconception": "thinks close required to read",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "No, because Python auto-closes.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks auto-close",
-          "id": "H",
-          "text": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
-      "explanation": "Writes may be buffered. Without flush or close, data might not reach disk, so reading can see stale or empty content.",
+      "explanation": "Text streams buffer output, so a write may sit in memory until flush(), close(), or a with-block exit pushes it out. A second open() can therefore read stale or empty content. The file itself remains readable while another handle is open, and Python closes objects when they are collected, not at the next statement.",
       "hint": "Buffering matters.",
       "difficulty": 0.25,
       "discrimination": 0.35,
@@ -3998,7 +3298,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -4007,7 +3307,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -4023,53 +3323,33 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "In a marine biologist's tank, which errors value replaces bad bytes?",
+      "stem": "Which value of the errors parameter substitutes a marker for undecodable bytes?",
       "options": [
         {
           "id": "A",
-          "text": "'replace'.",
+          "text": "'replace', which inserts a replacement character.",
           "misconception": ""
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "'strict', which replaces invalid bytes with escapes.",
+          "misconception": "Confusing the default handler with replacement"
         },
         {
           "id": "C",
-          "text": "'strict'.",
-          "misconception": ""
+          "text": "'ignore', which inserts a replacement character.",
+          "misconception": "Thinking ignore substitutes rather than drops"
         },
         {
-          "misconception": "thinks strict replaces",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "'ignore'.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks ignore replaces",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "'backslashreplace' always for text.",
-          "misconception": ""
-        },
-        {
-          "misconception": "overstates",
-          "id": "H",
-          "text": ""
+          "text": "'surrogateescape', which always inserts U+FFFD.",
+          "misconception": "Confusing surrogate escaping with replace"
         }
       ],
       "answer": {
         "correctId": "A"
       },
-      "explanation": "'replace' substitutes the replacement character. 'strict' raises, 'ignore' drops, and 'backslashreplace' uses escapes.",
+      "explanation": "errors='replace' inserts a replacement character for each undecodable sequence. The default 'strict' raises an exception, 'ignore' silently discards the bytes, and 'surrogateescape' maps them to private-use code points so they can round-trip rather than producing U+FFFD.",
       "hint": "'replace' replaces.",
       "difficulty": 0.35,
       "discrimination": 0.3,
@@ -4084,7 +3364,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-23T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -4093,7 +3373,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -4109,53 +3389,33 @@
       },
       "format": "CODE_TRACING",
       "stimulus": null,
-      "stem": "Marine biologist Oli's module has guarded print; importing it, does it print?",
+      "stem": "A module defines if __name__ == '__main__': print('hi'). Does importing it print 'hi'?",
       "options": [
         {
           "id": "A",
-          "text": "No, because __name__ is not '__main__' on import.",
-          "misconception": ""
+          "text": "Yes, because the guard is ignored during import.",
+          "misconception": "Believing conditional guards do not apply on import"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "No, __name__ is the module name, not '__main__', on import.",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Yes, because the guard is ignored.",
-          "misconception": ""
+          "text": "Yes, because import sets __name__ to '__main__'.",
+          "misconception": "Confusing import with direct script execution"
         },
         {
-          "misconception": "thinks guard ignored",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Yes, because import sets __name__ to main.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks import sets main",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "No, because imports never run code.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks import skips code",
-          "id": "H",
-          "text": ""
+          "text": "No, because imports never execute any code at all.",
+          "misconception": "Assuming import only declares names"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
-      "explanation": "On import, __name__ is the module name, not '__main__', so the guarded block does not run.",
+      "explanation": "On import, __name__ is bound to the imported module's name, so the equality test with '__main__' is false and print('hi') is skipped. The guard is an ordinary conditional and is fully enforced; direct execution is the case that sets __name__ to '__main__'. Imports still run the rest of the module body.",
       "hint": "Guard prevents print.",
       "difficulty": 0.45,
       "discrimination": 0.4,
@@ -4170,7 +3430,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -4179,7 +3439,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []
@@ -4195,53 +3455,33 @@
       },
       "format": "TWO_STAGE",
       "stimulus": null,
-      "stem": "Marine biologist Pat writes utf-8 then reads with os.path.join path; stage one: encoding needed?",
+      "stem": "Stage one of a two-part check: a path is built with os.path.join, then text is read from it. Is an encoding still needed?",
       "options": [
         {
           "id": "A",
-          "text": "Yes, to decode bytes correctly.",
-          "misconception": ""
+          "text": "Only when the path contains non-ASCII characters.",
+          "misconception": "Confusing filename characters with file contents"
         },
         {
-          "misconception": "",
           "id": "B",
-          "text": ""
+          "text": "No, joining the path also selects the file's codec.",
+          "misconception": "Believing path assembly carries encoding information"
         },
         {
           "id": "C",
-          "text": "No, path joining handles encoding.",
+          "text": "Yes, decoding bytes into text still requires the codec.",
           "misconception": ""
         },
         {
-          "misconception": "thinks join handles encoding",
           "id": "D",
-          "text": ""
-        },
-        {
-          "id": "E",
-          "text": "Only if path has non-ascii.",
-          "misconception": ""
-        },
-        {
-          "misconception": "adds false condition",
-          "id": "F",
-          "text": ""
-        },
-        {
-          "id": "G",
-          "text": "No, because file is bytes.",
-          "misconception": ""
-        },
-        {
-          "misconception": "thinks text not needed",
-          "id": "H",
-          "text": ""
+          "text": "No, because the file is already bytes on disk.",
+          "misconception": "Thinking raw storage removes the need to decode"
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
-      "explanation": "Path joining does not affect encoding. Reading text still requires the correct encoding to decode bytes.",
+      "explanation": "os.path.join only assembles a string path and has no bearing on how bytes are interpreted. Reading text always decodes the stored bytes with some codec, so an explicit encoding is still required. The characters in the filename and the fact that storage is byte-oriented do not change that.",
       "hint": "Encoding still needed.",
       "difficulty": 0.55,
       "discrimination": 0.3,
@@ -4256,7 +3496,7 @@
       "provenance": {
         "author": "bank-team-python",
         "reviewer": "bank-review-python",
-        "reviewedAt": "2026-09-18T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-fill",
@@ -4265,7 +3505,7 @@
         "fairUseRationale": null,
         "attestation": "authored from first principles; no protected content used"
       },
-      "version": 1,
+      "version": 3,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
       "tags": []

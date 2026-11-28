@@ -18,13 +18,11 @@ const uiMock = vi.hoisted(() => ({
 }));
 
 vi.mock("../stores/useGameStore", () => ({
-    useGameStore: (selector: (s: Record<string, unknown>) => unknown) =>
-        selector(gameMock.state),
+    useGameStore: (selector: (s: Record<string, unknown>) => unknown) => selector(gameMock.state),
 }));
 
 vi.mock("../stores/useUIStore", () => ({
-    useUIStore: (selector: (s: Record<string, unknown>) => unknown) =>
-        selector(uiMock.state),
+    useUIStore: (selector: (s: Record<string, unknown>) => unknown) => selector(uiMock.state),
 }));
 
 vi.mock("../services/AudioEngine", () => ({

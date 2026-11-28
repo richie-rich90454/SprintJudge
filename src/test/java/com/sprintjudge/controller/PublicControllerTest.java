@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
@@ -309,5 +310,53 @@ class PublicControllerTest {
 			assertEquals("quiz.local", info.getHost());
 			assertTrue(info.getUrls().isEmpty());
 		}
+	}
+
+	@Test
+	void pinLookupReturnsHeaderOnlyDto() throws Exception {
+		when(sessionRepository.findByPin("444444")).thenReturn(Optional.of(session("444444", "LOBBY")));
+		when(quizRepository.findById("q1"))
+				.thenReturn(Optional.of(new Quiz("q1", "T", "D", "admin@secret.local", Instant.now(), true)));
+		java.util.List<PublicController.BankDto> found = controller.listQuizzes("444444", http());
+		assertEquals(1, found.size());
+		assertEquals("q1", found.get(0).getId());
+		assertEquals("T", found.get(0).getTitle());
+		assertEquals("D", found.get(0).getDescription());
+		String json = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(found);
+		assertFalse(json.contains("admin@secret.local"), json);
+		assertFalse(json.contains("createdBy"), json);
+		assertFalse(json.contains("template"), json);
+	}
+
+	@Test
+	void concurrentPinLookupsNeverLoseCounts() throws Exception {
+		HttpServletRequest req = http("192.0.2.99");
+		when(sessionRepository.findByPin("555555")).thenReturn(Optional.empty());
+		int calls = 40;
+		java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+		java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(8);
+		java.util.concurrent.atomic.AtomicInteger allowed = new java.util.concurrent.atomic.AtomicInteger();
+		try {
+			java.util.List<java.util.concurrent.Future<?>> futures = new java.util.ArrayList<>();
+			for (int i = 0; i < calls; i++) {
+				futures.add(pool.submit(() -> {
+					start.await();
+					try {
+						controller.listQuizzes("555555", req);
+						allowed.incrementAndGet();
+					} catch (org.springframework.web.server.ResponseStatusException throttled) {
+						// over limit
+					}
+					return null;
+				}));
+			}
+			start.countDown();
+			for (java.util.concurrent.Future<?> f : futures)
+				f.get();
+		} finally {
+			pool.shutdownNow();
+		}
+		// PRACTICE_LIMIT_PER_MIN is 10: no concurrent increment may be lost.
+		assertEquals(10, allowed.get());
 	}
 }

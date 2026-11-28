@@ -32,6 +32,7 @@
         <sqlite.jdbc.version>3.49.1.0</sqlite.jdbc.version>
         <spotless.version>3.11.0</spotless.version>
         <checkstyle.plugin.version>3.6.0</checkstyle.plugin.version>
+        <antrun.plugin.version>3.1.0</antrun.plugin.version>
         <pmd.plugin.version>3.28.0</pmd.plugin.version>
         <errorprone.version>2.52.0</errorprone.version>
         <nullaway.version>0.14.3</nullaway.version>
@@ -132,6 +133,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
+                <version>${antrun.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>bundle-frontend</id>
@@ -169,6 +171,16 @@
                         <arg>-Xlint:all</arg>
                         <arg>-Werror</arg>
                     </compilerArgs>
+                </configuration>
+            </plugin>
+            <!-- Tests drive plain-HTTP flows with a cookie jar; keep dev's insecure cookies for them. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <environmentVariables>
+                        <SPRINTJUDGE_PROFILES_ACTIVE>dev</SPRINTJUDGE_PROFILES_ACTIVE>
+                    </environmentVariables>
                 </configuration>
             </plugin>
             <plugin>
@@ -214,6 +226,8 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>${pmd.plugin.version}</version>
                 <configuration>
+                    <!-- XML reports avoid resolving a Maven site skin during verify. -->
+                    <format>xml</format>
                     <rulesets>
                         <ruleset>${project.basedir}/config/pmd.xml</ruleset>
                     </rulesets>
@@ -301,7 +315,7 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <configuration>
                             <compilerId>eclipse</compilerId>
-                            <compilerArgs combine.self="override">
+                            <compilerArgs>
                                 <arg>-properties</arg>
                                 <arg>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</arg>
                             </compilerArgs>
@@ -333,7 +347,7 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <configuration>
                             <compilerId>eclipse</compilerId>
-                            <compilerArgs combine.self="override">
+                            <compilerArgs>
                                 <arg>-properties</arg>
                                 <arg>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</arg>
                             </compilerArgs>

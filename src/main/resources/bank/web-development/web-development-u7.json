@@ -294,13 +294,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Both pass in either order, because each test pushes exactly one item before asserting",
-          "misconception": "believes the assertion is insulated from whatever ran before it"
+          "text": "Both pass in the declared order, and both fail in the reversed order with lengths 1 and 2",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "Both pass in the declared order, and both fail in the reversed order with lengths 1 and 2",
-          "misconception": ""
+          "text": "Both pass in either order, because each test pushes exactly one item before asserting",
+          "misconception": "believes the assertion is insulated from whatever ran before it"
         },
         {
           "id": "C",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The array is created once when the module loads and lives for the whole file, so the first push leaves length 1 and the second leaves length 2, which is what both assertions expect when they run in order. Reversed, test two runs first, sees length 1 and fails, and test one then sees length 2 and fails. The failure is not about the cart, it is about the runner, and that is what makes this class of failure so expensive: a green suite can be one reorder away from red, and the reorder usually arrives as part of an unrelated change to a different file.",
       "hint": "Work out how many times the module is initialised, then run the two calls in the stated order and in the reverse.",
@@ -328,7 +328,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -341,7 +341,7 @@
         "shared-state",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -368,13 +368,13 @@
         },
         {
           "id": "B",
-          "text": "It fails, because the trailing mark makes the two objects different in shape",
-          "misconception": "believes a wrong value inside an object is enough to fail a deep comparison"
+          "text": "It passes, and it would keep passing with any change made to decorate at all",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "It passes, and it would keep passing with any change made to decorate at all",
-          "misconception": ""
+          "text": "It fails, because the trailing mark makes the two objects different in shape",
+          "misconception": "believes a wrong value inside an object is enough to fail a deep comparison"
         },
         {
           "id": "D",
@@ -383,7 +383,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "Both sides are produced by the same call on the same input, so they are equal whatever the function does, and the run reports a pass while the labels come out as 'a!' and '!'. A comparison is only evidence when the two sides come from different places, one from the implementation and one written by a person or taken from a specification. This is the shape of a test that can never fail, and it is common precisely because it looks thorough: someone derived the expected value programmatically to avoid typing a large fixture, and in doing so removed the only part of the test that could have disagreed with the code.",
       "hint": "Ask where each side of the comparison comes from, and what would have to change for them to differ.",
@@ -397,7 +397,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -410,7 +410,7 @@
         "expected-value",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -442,17 +442,17 @@
         },
         {
           "id": "C",
-          "text": "3 in preview and 300 in production, because the caller is told which environment it is in",
-          "misconception": "believes the environment is passed in even though nothing reads it"
+          "text": "3, because the holder is module level so the substitution outlives the process that made it",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "3, because the holder is module level so the substitution outlives the process that made it",
-          "misconception": ""
+          "text": "3 in preview and 300 in production, because the caller is told which environment it is in",
+          "misconception": "believes the environment is passed in even though nothing reads it"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "The holder lives in the module scope of the pricing module, so the moment useTestDouble runs in the same process, every later call to price reads the substituted object and 3 times a quantity of 1 comes back, in production, with no error and no log line. The fix is not to be careful with the helper, it is to remove the ability to swap the dependency: pass the implementation in as an argument, so a test can supply a double and production cannot. A double that is installed by a code path reachable in production is not a test artefact, it is a latent discount of ninety nine percent.",
       "hint": "Ask how long the mutable holder lives and whether anything in the code path decides which environment it is in.",
@@ -466,7 +466,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -479,7 +479,7 @@
         "production-code",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -506,8 +506,8 @@
         },
         {
           "id": "B",
-          "text": "The first fails the stored snapshot with identical data, and the second fails it with a real change",
-          "misconception": ""
+          "text": "Both pass, because the field names and the values in the output are unchanged",
+          "misconception": "believes adding a field leaves a comparison of the previous fields unaffected"
         },
         {
           "id": "C",
@@ -516,12 +516,12 @@
         },
         {
           "id": "D",
-          "text": "Both pass, because the field names and the values in the output are unchanged",
-          "misconception": "believes adding a field leaves a comparison of the previous fields unaffected"
+          "text": "The first fails the stored snapshot with identical data, and the second fails it with a real change",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A stored snapshot is a string, so it fails on any difference in the characters and only then on any difference in the data. Reordering the keys changes the characters and not the data, so the refactor is reported as a failure the writer has to read and approve for no reason, and that habit of approving without reading is the real cost. Adding a field is a genuine change, but the snapshot cannot say so, which is why a reviewer learns to treat a red snapshot as routine. The narrow fix is a structural comparison or a normaliser that sorts keys and drops fields nobody is asserting on.",
       "hint": "Compare the stored string with each new string, then compare the values the two strings describe once key order is ignored.",
@@ -535,7 +535,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -548,7 +548,7 @@
         "brittleness",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -570,8 +570,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The reversed total is higher, so the case shows the discount being applied twice to one item",
-          "misconception": "believes the counter shows a larger total after reversing the list"
+          "text": "The same list totals 642.6 in order and 635.6 reversed, so the discount depends on position",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -580,8 +580,8 @@
         },
         {
           "id": "C",
-          "text": "The same list totals 642.6 in order and 635.6 reversed, so the discount depends on position",
-          "misconception": ""
+          "text": "The reversed total is higher, so the case shows the discount being applied twice to one item",
+          "misconception": "believes the counter shows a larger total after reversing the list"
         },
         {
           "id": "D",
@@ -590,7 +590,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Discounting the first item of [104, 375, 174] gives 93.6, and 93.6 plus 375 plus 174 is 642.6. Reverse the list and the discount lands on 174, giving 156.6 plus 375 plus 104, which is 635.6. The same basket is therefore worth two different amounts depending on the order the rows arrived in, which is the property that broke: the total after a coupon must not depend on the order of the input. The easier property, that a discount never raises the total, holds across the whole generated run, so a suite built on it alone reports nothing at all.",
       "hint": "Apply the discount to the first item of each ordering and add up the three prices both ways.",
@@ -604,7 +604,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -617,7 +617,7 @@
         "counterexample",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -644,8 +644,8 @@
         },
         {
           "id": "B",
-          "text": "The seed only affects the order cases are reported in, since the same bug is found either way",
-          "misconception": "believes a different seed searches a different set of inputs"
+          "text": "Each seed reproduces its own case exactly, and changing it explores a different part of the input space",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -654,12 +654,12 @@
         },
         {
           "id": "D",
-          "text": "Each seed reproduces its own case exactly, and changing it explores a different part of the input space",
-          "misconception": ""
+          "text": "The seed only affects the order cases are reported in, since the same bug is found either way",
+          "misconception": "believes a different seed searches a different set of inputs"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The seed fixes the whole sequence of generated inputs, so replaying 1234 gives the identical list and replaying 99 gives a different one, which is exactly what makes a recorded seed worth storing. What the seed does not do is make the property true: the run still fails, and the same bug is found through a different input. That is the point of generating inputs rather than writing them, since the hand-written case is the one already in the author's head, and a record of the seed turns an unreproducible red build into a single command.",
       "hint": "Decide what the seed controls, then check whether replaying a seed can change the outcome rather than only the input.",
@@ -673,7 +673,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -686,7 +686,7 @@
         "reproducibility",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -713,13 +713,13 @@
         },
         {
           "id": "B",
-          "text": "Two, and the other three would still be reported as passing if the code they call were deleted",
-          "misconception": ""
+          "text": "Five, because the runner reports a result for every declared test either way",
+          "misconception": "believes a declared test always carries a check of some kind"
         },
         {
           "id": "C",
-          "text": "Five, because the runner reports a result for every declared test either way",
-          "misconception": "believes a declared test always carries a check of some kind"
+          "text": "Two, and the other three would still be reported as passing if the code they call were deleted",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -728,7 +728,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Only the two tests that compare a value with something can fail, and one of those two compares two things that were true before the code under test existed, so in practice the file is guarding very little. The three tests with no assertion pass by construction: a renderer that returned nothing, or returned the wrong element, or threw, changes nothing about the report unless the throw is what fails the run. Counting this way is cheap and catches the most common way a suite grows large and stays empty, which is by adding tests that exercise a path without checking its result.",
       "hint": "Ask test by test what value is compared with what, and treat a call with no comparison as unchecked.",
@@ -742,7 +742,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -755,7 +755,7 @@
         "test-audit",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -787,17 +787,17 @@
         },
         {
           "id": "C",
-          "text": "The test fails and the function still refuses a negative age, because the return value did not change",
-          "misconception": ""
+          "text": "The test fails and the caller now sees true, because the log call replaced the return statement",
+          "misconception": "believes a log call returns the value the function needed to return"
         },
         {
           "id": "D",
-          "text": "The test fails and the caller now sees true, because the log call replaced the return statement",
-          "misconception": "believes a log call returns the value the function needed to return"
+          "text": "The test fails and the function still refuses a negative age, because the return value did not change",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The behaviour under test is the refusal, and that is unchanged: both versions return false for a negative age. The assertion was written on the whole line, so the reword trips it, and a developer now has to decide whether a message change deserves to break a build. The logging case is a special kind of this, because the log line is usually written for a person reading a dashboard rather than for a machine, so pinning it in a test makes the wording load bearing. Assert the return value or the state change, and leave the sentence to the people who read it.",
       "hint": "Separate the return value from the line the test captured, then change only the wording and see which of them moved.",
@@ -811,7 +811,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -824,7 +824,7 @@
         "coupling",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -846,8 +846,8 @@
       "options": [
         {
           "id": "A",
-          "text": "100 percent, because the file as a whole was entered by every test that ran",
-          "misconception": "believes per function marking adds up to whole file marking"
+          "text": "83 percent, and beta is the one to look at, because its unmarked branch is the one nobody called",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -861,12 +861,12 @@
         },
         {
           "id": "D",
-          "text": "83 percent, and beta is the one to look at, because its unmarked branch is the one nobody called",
-          "misconception": ""
+          "text": "100 percent, because the file as a whole was entered by every test that ran",
+          "misconception": "believes per function marking adds up to whole file marking"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "Five of the six statements are marked, which is 83 percent, and the single unmarked statement is b3, the one beta takes when it is given a zero. Alpha is fully covered, so the whole gap in the file sits in one branch of one function, which is exactly the kind of thing a percentage hides. The figure is also a reminder that averaging hides concentration: a file at 83 percent can be one function at 100 and another at 67, and the second is where the untested behaviour is.",
       "hint": "Count the marked statements across both functions, divide by the total, then look at which function holds the unmarked statement.",
@@ -880,7 +880,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -893,7 +893,7 @@
         "arithmetic",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1122,13 +1122,13 @@
       "options": [
         {
           "id": "A",
-          "text": "A2 is genuinely slower than A, because its median is higher by three and a half percent",
-          "misconception": "believes a higher median is a result even when the ranges overlap"
+          "text": "B is genuinely slower, because its median is 45 percent above A while either range spans about 19 percent",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "B is genuinely slower, because its median is 45 percent above A while either range spans about 19 percent",
-          "misconception": ""
+          "text": "A2 is genuinely slower than A, because its median is higher by three and a half percent",
+          "misconception": "believes a higher median is a result even when the ranges overlap"
         },
         {
           "id": "C",
@@ -1142,9 +1142,9 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
-      "explanation": "The spread within each candidate is about 19 percent of its median, so any difference smaller than that cannot be told apart from the jitter. A against A2 is a difference of three and a half percent with heavily overlapping ranges, so the honest reading is that the two are indistinguishable and no conclusion is available. B sits 45 percent above A, which is more than twice the spread, so the difference is larger than the noise and B is genuinely the slower of the two. Reporting a median without the spread is how a three and a half percent wobble gets promoted into a performance regression.",
+      "explanation": "The spread within each candidate is about 19 percent of its median, so any difference smaller than that cannot be told apart from the jitter. A against A2 is a difference of three and a half percent with heavily overlapping ranges, so the honest reading is that the two are indistinguishable and no conclusion is available. B sits 45 percent above A, which is more than twice the spread, so the difference is larger than the noise and A is genuinely the slower of the two. Reporting a median without the spread is how a three and a half percent wobble gets promoted into a performance regression.",
       "hint": "Compare each gap between medians with the width of the ranges around them, and ask which gap is bigger than the noise it has to survive.",
       "difficulty": 0.6,
       "discrimination": 0.44,
@@ -1156,7 +1156,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1169,7 +1169,7 @@
         "variance",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1196,13 +1196,13 @@
         },
         {
           "id": "B",
-          "text": "Three hits and three real uses, so the job is about to succeed for the right reason",
-          "misconception": "believes a bracket after the name is present in every reference to it"
+          "text": "One hit and three real uses, so the job would clear two modules that still call it",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "One hit and three real uses, so the job would clear two modules that still call it",
-          "misconception": ""
+          "text": "Three hits and three real uses, so the job is about to succeed for the right reason",
+          "misconception": "believes a bracket after the name is present in every reference to it"
         },
         {
           "id": "D",
@@ -1211,7 +1211,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The bracket search matches only the first module, so the job reports one hit, while three of the four modules genuinely reach the retired function: the direct call, the bound name and the table entry all end up calling it, and the run time lookup usually does too. The failure mode is the dangerous direction, because a removal job that reports one hit invites the change to go ahead and leave two live paths behind. A scan is a way to find candidates for a person to check, and the number it reports is a lower bound rather than a count.",
       "hint": "Apply the bracket pattern to each of the four modules, then follow each reference to see whether it can still reach the call.",
@@ -1225,7 +1225,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1238,7 +1238,7 @@
         "static-scan",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1270,17 +1270,17 @@
         },
         {
           "id": "C",
-          "text": "Both rules report the same two false positives, because a comment and a string both mention the name",
-          "misconception": "believes the string line matches a bracket pattern it does not contain"
+          "text": "The bracket rule reports one false positive and misses two real uses; the name rule reports two and still misses one",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "The bracket rule reports one false positive and misses two real uses; the name rule reports two and still misses one",
-          "misconception": ""
+          "text": "Both rules report the same two false positives, because a comment and a string both mention the name",
+          "misconception": "believes the string line matches a bracket pattern it does not contain"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "The bracket rule flags the real call and the commented-out call, so one of its two flags is a false positive, and it misses the registration and the aliased call, so two real uses go unreported. The name rule flags the call, the comment, the registration and the string, so two of its four flags are false positives, and it still misses the aliased call because that line never spells the name. Neither shape finds everything, and the difference between them is that the narrower rule under-reports while the broader one over-reports. A rule that is going to block a merge needs an allow list as well, because a name that appears in a comment is not a use.",
       "hint": "Apply each pattern to the five lines, then sort the findings into real calls, real references that are not calls, and text that merely mentions the name.",
@@ -1294,7 +1294,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1307,7 +1307,7 @@
         "false-positive",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1334,8 +1334,8 @@
         },
         {
           "id": "B",
-          "text": "It refuses the third insert with a constraint failure, and the table still holds the two valid rows",
-          "misconception": ""
+          "text": "It rounds the negative quantity to zero and stores three rows, so the test passes for the wrong reason",
+          "misconception": "believes a check constraint coerces a value instead of refusing it"
         },
         {
           "id": "C",
@@ -1344,12 +1344,12 @@
         },
         {
           "id": "D",
-          "text": "It rounds the negative quantity to zero and stores three rows, so the test passes for the wrong reason",
-          "misconception": "believes a check constraint coerces a value instead of refusing it"
+          "text": "It refuses the third insert with a constraint failure, and the table still holds the two valid rows",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The check runs as part of the statement and the third insert fails, while the two rows written by the earlier statements stand, because each statement is its own unit of work and a later failure does not reach back over them. This is the cheapest boundary test there is: the rule lives in the schema, so it holds for every writer rather than only for the code the test happens to call, and no amount of application code can route around it. The zero case is the one worth keeping next to it, because it is the value that distinguishes a boundary from a range.",
       "hint": "Insert the three rows one at a time and see which statement reports the failure and what the row count is afterwards.",
@@ -1363,7 +1363,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1376,7 +1376,7 @@
         "constraint",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1398,8 +1398,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The receipt totals check, because a printed total is the only output a customer ever actually sees",
-          "misconception": "believes the visible output decides the layer rather than the boundary crossed"
+          "text": "The checkout check, because it is the only one that crosses a process boundary and cannot be faked away",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1408,8 +1408,8 @@
         },
         {
           "id": "C",
-          "text": "The checkout check, because it is the only one that crosses a process boundary and cannot be faked away",
-          "misconception": ""
+          "text": "The receipt totals check, because a printed total is the only output a customer ever actually sees",
+          "misconception": "believes the visible output decides the layer rather than the boundary crossed"
         },
         {
           "id": "D",
@@ -1418,7 +1418,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The layers differ in what they can see, not in how important the behaviour is. A unit check sees the discount function and nothing else, so it is fast and cheap but says nothing about whether the request ever reached it. The checkout check is the one that proves the pieces are wired to each other, because a mock cannot manufacture the agreement between two services, only a run through both can. That is also why it is the most expensive: it needs a running provider, a database and a clock, and it fails for reasons that have nothing to do with the code under change.",
       "hint": "Ask which of the four checks could be written at all without something outside the process running.",
@@ -1432,7 +1432,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1445,7 +1445,7 @@
         "scope",
         "test-design"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1472,8 +1472,8 @@
         },
         {
           "id": "B",
-          "text": "More rate table cases, so that the pricing module is covered at the boundary rather than inside itself",
-          "misconception": "believes the boundary needs the same cases again to be sure"
+          "text": "Evidence that the handler passes what pricing expects and stores what pricing returned, across the real seam",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1482,12 +1482,12 @@
         },
         {
           "id": "D",
-          "text": "Evidence that the handler passes what pricing expects and stores what pricing returned, across the real seam",
-          "misconception": ""
+          "text": "More rate table cases, so that the pricing module is covered at the boundary rather than inside itself",
+          "misconception": "believes the boundary needs the same cases again to be sure"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "An integration test is defined by the seam it crosses, and here the seam is between the handler and the two things it depends on. What only this level can show is the agreement: that the arguments the handler builds are the shape pricing expects, that the value pricing returns is the one written to the repository, and that a failure from either side becomes the response the caller sees. Repeating the pricing cases at this level buys nothing, because the stubbed unit test already covered that logic, and it costs a great deal more to run.",
       "hint": "Ask which of the four obligations cannot be observed from inside either module on its own.",
@@ -1501,7 +1501,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1514,7 +1514,7 @@
         "seam",
         "test-design"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1541,13 +1541,13 @@
         },
         {
           "id": "B",
-          "text": "It needs a browser, a server, seeded data and a clock, so a failure often names a symptom rather than a cause",
-          "misconception": ""
+          "text": "It is slower, but each failure is precise because every layer reports its own error separately",
+          "misconception": "believes more layers in a test means a more precise failure report"
         },
         {
           "id": "C",
-          "text": "It is slower, but each failure is precise because every layer reports its own error separately",
-          "misconception": "believes more layers in a test means a more precise failure report"
+          "text": "It needs a browser, a server, seeded data and a clock, so a failure often names a symptom rather than a cause",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1556,7 +1556,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The assertion is trivial; everything around it is not. The test needs a browser, a server, a seeded database and a real clock, so it is slow, it is the first thing to break when an unrelated dependency moves, and when it does break the message names a symptom, because a missing order row is what a payment timeout, a bad selector and a broken migration all look like from the outside. That is the trade the layer exists to make: a small number of tests that prove the pieces are joined, at a price per test of tens of seconds and a diagnosis cost that grows with the number of layers involved.",
       "hint": "Count everything that has to be running before the single assertion can be evaluated, and consider what a failure report contains.",
@@ -1570,7 +1570,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1583,7 +1583,7 @@
         "test-cost",
         "test-design"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1615,17 +1615,17 @@
         },
         {
           "id": "C",
-          "text": "A dummy, a stub, and a mock, in that order, each replacing behaviour further than the last",
-          "misconception": ""
+          "text": "Three stubs of equal standing, differing only in whether the replaced thing was ever constructed",
+          "misconception": "believes a placeholder and a recorded collaborator are the same kind of object"
         },
         {
           "id": "D",
-          "text": "Three stubs of equal standing, differing only in whether the replaced thing was ever constructed",
-          "misconception": "believes a placeholder and a recorded collaborator are the same kind of object"
+          "text": "A dummy, a stub, and a mock, in that order, each replacing behaviour further than the last",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "A dummy exists so the signature is satisfied and is never called, a stub answers with a chosen value so the code under test can proceed, and a mock additionally records how it was used so the test can assert on that. The scale running through all three is how much of the collaborator's behaviour the double supplies, and each step up costs more to maintain, because a mock turns the test's expectations into a description of the implementation. Most tests want a stub, and a test that reaches for a mock has usually decided it wants to know how rather than what.",
       "hint": "Order the three by how much behaviour the double supplies, from none to answers to recorded answers.",
@@ -1639,7 +1639,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1652,7 +1652,7 @@
         "dummy",
         "mock"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1674,8 +1674,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The stub test is stronger, because a fixed answer leaves the caller free to be written any way at all",
-          "misconception": "believes a test that ignores how a value was obtained is the stronger check"
+          "text": "The stub test would still pass if the code asked for the orders once or four times, and the mock test would not",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1689,12 +1689,12 @@
         },
         {
           "id": "D",
-          "text": "The stub test would still pass if the code asked for the orders once or four times, and the mock test would not",
-          "misconception": ""
+          "text": "The stub test is stronger, because a fixed answer leaves the caller free to be written any way at all",
+          "misconception": "believes a test that ignores how a value was obtained is the stronger check"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "What the mock adds is a claim about how the code used the collaborator, and that is exactly what the stub withholds. A stub answers the question and stays quiet, so a caller that fetches the list once and a caller that fetches it in a loop both look identical to it, which is usually what you want because the loop may be a real defect and is not this test's business. The cost of the mock is that its expectations become a second copy of the implementation, so renaming a parameter or reordering two calls turns a behaviour-preserving refactor into a red build.",
       "hint": "Ask what the recorded calls add that the returned value does not, and what a refactor does to each kind of expectation.",
@@ -1708,7 +1708,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1721,7 +1721,7 @@
         "mock",
         "test-double"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1950,13 +1950,13 @@
       "options": [
         {
           "id": "A",
-          "text": "That the report writer has a defect, because it does not run when the reader runs alone",
-          "misconception": "believes the missing file is a fault in the code that writes the file"
+          "text": "That the test is asserting on an arrangement another test produced, so it measures the pair rather than itself",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "That the test is asserting on an arrangement another test produced, so it measures the pair rather than itself",
-          "misconception": ""
+          "text": "That the report writer has a defect, because it does not run when the reader runs alone",
+          "misconception": "believes the missing file is a fault in the code that writes the file"
         },
         {
           "id": "C",
@@ -1970,7 +1970,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The isolated run is the diagnostic, not a nuisance: it separates what the test is actually asserting from what the earlier test left lying around. A test that needs a predecessor has two results instead of one, and which of them appears depends on an execution order that is not written down anywhere in the test. The repair is to give the reader its own input, built the same way the writer built its own, so the assertion is about the reader and nothing else. A test that can only pass inside a particular sequence is a test of the sequence.",
       "hint": "Ask what the reader would have to be given if no other test had ever run in that process.",
@@ -1984,7 +1984,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1997,7 +1997,7 @@
         "order-dependence",
         "test-pollution"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2024,13 +2024,13 @@
         },
         {
           "id": "B",
-          "text": "Branch coverage below line coverage is impossible, so one of the three figures must have been miscounted",
-          "misconception": "believes the two measures cannot disagree because they count the same thing"
+          "text": "Coverage counts execution, not discrimination, so it cannot say whether an assertion would notice a wrong result",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Coverage counts execution, not discrimination, so it cannot say whether an assertion would notice a wrong result",
-          "misconception": ""
+          "text": "Branch coverage below line coverage is impossible, so one of the three figures must have been miscounted",
+          "misconception": "believes the two measures cannot disagree because they count the same thing"
         },
         {
           "id": "D",
@@ -2039,7 +2039,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "All three figures describe how much code ran, and none of them describes whether running it told anyone anything. A test can execute a branch, compare the result with the same expression the code computed, and pass; the line is covered and the assertion is worthless. That is why the third figure is the most misleading of the three, because it adds a condition that sounds like evidence and is not one. The question a percentage cannot answer is what would fail if the code were wrong in a way nobody thought of, and only mutation testing or a written list of expected failures speaks to it.",
       "hint": "Ask what each of the three numbers would report if every assertion in the file were replaced with a comparison of a value against itself.",
@@ -2053,7 +2053,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2066,7 +2066,7 @@
         "adequacy",
         "test-metric"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2098,17 +2098,17 @@
         },
         {
           "id": "C",
-          "text": "Mutants are built from the current code, so a suite and an implementation that are wrong together score well",
-          "misconception": "believes killing a mutant proves the original behaviour was correct"
+          "text": "A mutant the tool cannot build, in code it cannot parse or in behaviour that depends on timing, is never counted",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "A mutant the tool cannot build, in code it cannot parse or in behaviour that depends on timing, is never counted",
-          "misconception": ""
+          "text": "Mutants are built from the current code, so a suite and an implementation that are wrong together score well",
+          "misconception": "believes killing a mutant proves the original behaviour was correct"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "A mutation score is a ratio over the mutants that were built, and the set that could be built is a property of the tool and the code, not of the tests. Code reached through reflection, generated at run time, or spread across a callback that only fires under a particular timing will produce few or no mutants, and the score stays high while the risk sits untouched in exactly those places. So the number is worth reading as a measure of how much the suite discriminates over the lines the tool could reach, and the report of which mutants were not built is more informative than the score itself.",
       "hint": "Ask what the denominator of the score contains, and what happens to code from which no mutant can be produced.",
@@ -2122,7 +2122,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2135,7 +2135,7 @@
         "test-metric",
         "adequacy"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2162,8 +2162,8 @@
         },
         {
           "id": "B",
-          "text": "The first, because it checks what the caller receives, and the second fails when the rounding is done differently",
-          "misconception": ""
+          "text": "Both, because a behaviour preserving change cannot alter either the return value or the call sequence",
+          "misconception": "believes a refactor cannot change how a function is implemented"
         },
         {
           "id": "C",
@@ -2172,12 +2172,12 @@
         },
         {
           "id": "D",
-          "text": "Both, because a behaviour preserving change cannot alter either the return value or the call sequence",
-          "misconception": "believes a refactor cannot change how a function is implemented"
+          "text": "The first, because it checks what the caller receives, and the second fails when the rounding is done differently",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The first test asks the question the caller cares about and is indifferent to how the answer is produced, so replacing a helper with an arithmetic expression, or moving the rounding into the caller, leaves it green. The second test has taken the implementation and written it down a second time, so any change to that structure has to be copied into the test, and a developer who does that without thinking has lost the check. The useful discipline is to ask what a caller could observe, and to assert only that, however tempting it is to pin the mechanism that produced it.",
       "hint": "Write down the two questions the tests ask, then apply a refactor that keeps the answers the same and see which test notices.",
@@ -2191,7 +2191,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2204,7 +2204,7 @@
         "behaviour",
         "coupling"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2226,8 +2226,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Coverage of the billing service's own parsing, which the unit tests cannot reach at all",
-          "misconception": "believes a consumer cannot test its own parsing without a producer"
+          "text": "A failing build when a released payload stops matching, so the break is found by the side that will suffer it",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2236,8 +2236,8 @@
         },
         {
           "id": "C",
-          "text": "A failing build when a released payload stops matching, so the break is found by the side that will suffer it",
-          "misconception": ""
+          "text": "Coverage of the billing service's own parsing, which the unit tests cannot reach at all",
+          "misconception": "believes a consumer cannot test its own parsing without a producer"
         },
         {
           "id": "D",
@@ -2246,7 +2246,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A shared document records an intention; a contract test records an observation, and only the observation fails a build. The billing side writes down the payloads it can actually handle, keeps those examples, and replays them against every checkout build, so a rename of a field or a new required property is caught by the consumer that would have broken rather than by a user. The limit is worth stating: the test pins the examples the consumer knows about, so a payload shape nobody has written down is still unguarded, which is why the examples have to grow as real traffic is seen.",
       "hint": "Ask which side is able to fail its own build, and what a document does when reality diverges from it.",
@@ -2260,7 +2260,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2273,7 +2273,7 @@
         "service-boundary",
         "test-design"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2300,8 +2300,8 @@
         },
         {
           "id": "B",
-          "text": "It is too generous, because five percent of 180 ms is a difference no user could ever notice",
-          "misconception": "believes a small percentage change is always too small to matter"
+          "text": "It is far inside the run to run spread, so ordinary variation will fail builds and real regressions will hide in it",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2310,12 +2310,12 @@
         },
         {
           "id": "D",
-          "text": "It is far inside the run to run spread, so ordinary variation will fail builds and real regressions will hide in it",
-          "misconception": ""
+          "text": "It is too generous, because five percent of 180 ms is a difference no user could ever notice",
+          "misconception": "believes a small percentage change is always too small to matter"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The spread of 150 to 240 is about 60 percent of the median, so a five percent threshold sits far inside the noise: a build with nothing wrong will trip it often enough that the team learns to re-run, and once re-running is normal, a real twenty percent regression is treated the same way as a flake. A budget has to be set against the variation, and it is usually set with a comparison to a baseline measured the same way in the same conditions, repeated enough times to know its own spread. Failing on the median of a quiet run is easier to defend than failing on a percentile of a noisy one.",
       "hint": "Compare the proposed threshold with the range the same measurement has already taken across thirty builds.",
@@ -2329,7 +2329,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2342,7 +2342,7 @@
         "threshold",
         "benchmark"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2369,13 +2369,13 @@
         },
         {
           "id": "B",
-          "text": "The changed default, because it only alters the shape of a value that crosses the whole request and back",
-          "misconception": ""
+          "text": "The removed function, because nothing in the project calls it and only a full build notices",
+          "misconception": "believes an unused function is detected only by running everything together"
         },
         {
           "id": "C",
-          "text": "The removed function, because nothing in the project calls it and only a full build notices",
-          "misconception": "believes an unused function is detected only by running everything together"
+          "text": "The changed default, because it only alters the shape of a value that crosses the whole request and back",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2384,7 +2384,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A change to a default is the kind that hides. A unit test that passes options explicitly never sees it, and a test that calls the parser directly is looking at one side of the boundary, so a value that comes out slightly different is not obviously wrong until it has travelled through a handler, been stored, and come back in a response. That is the argument for keeping at least a few tests that cross the whole path, not because they are better tests but because they are the only ones positioned to notice a change whose signature is the same and whose values are not.",
       "hint": "Ask which of the three changes alters a value without altering the call that produced it.",
@@ -2398,7 +2398,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2411,7 +2411,7 @@
         "test-layers",
         "regression"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2443,17 +2443,17 @@
         },
         {
           "id": "C",
-          "text": "The third, because a suite that has not failed has not yet been shown to detect anything it did not already expect",
-          "misconception": ""
+          "text": "None, because a duration figure and a pass history say nothing about what was executed",
+          "misconception": "believes timing and pass history are unrelated to the assurance question"
         },
         {
           "id": "D",
-          "text": "None, because a duration figure and a pass history say nothing about what was executed",
-          "misconception": "believes timing and pass history are unrelated to the assurance question"
+          "text": "The third, because a suite that has not failed has not yet been shown to detect anything it did not already expect",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The three statements sit at three different levels and the evidence only reaches the first one. Having a test per endpoint is a count of tests against a count of endpoints, and says nothing about whether the test would fail. Running under four minutes is a fact about the runner. Never having been red is a fact about the history of the branch, and it is compatible with a suite in which every assertion compares a value against itself. What would support the assurance is a set of deliberately broken versions that the suite is shown to catch, which is the one piece of evidence none of the three statements provides.",
       "hint": "For each sentence, ask what would have to be false for the sentence to be a reliable signal.",
@@ -2467,7 +2467,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2480,7 +2480,7 @@
         "test-metric",
         "assurance"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2502,8 +2502,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Because the cheap object is slower in production, so preview and real runs would see different timings",
-          "misconception": "believes a substituted dependency is a performance problem in production"
+          "text": "Because the substitution is reachable in production and no assertion anywhere in the product would notice the wrong result",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2517,12 +2517,12 @@
         },
         {
           "id": "D",
-          "text": "Because the substitution is reachable in production and no assertion anywhere in the product would notice the wrong result",
-          "misconception": ""
+          "text": "Because the cheap object is slower in production, so preview and real runs would see different timings",
+          "misconception": "believes a substituted dependency is a performance problem in production"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "A test artefact is one whose reach is decided by something that is false in production, such as a flag the deployment sets differently or a file the build excludes. Here nothing decides anything, so the code path is live in every environment, and the result is a product that quietly reports a different number from the one it computed. The absence of a complaint is what makes it dangerous: there is no log line, no exception and no failing test, because the test suite is where the double belongs and it is the only place anyone looks. The repair is structural, by passing the dependency in rather than by remembering not to call the switch.",
       "hint": "Ask what, in a production run, is different about the call path that installs the cheap object.",
@@ -2536,7 +2536,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2549,7 +2549,7 @@
         "production-code",
         "defect"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2593,7 +2593,7 @@
       "answer": {
         "correctId": "B"
       },
-      "explanation": "When the expected value is computed by the same code path as the actual one, an inversion cannot be seen: the wrong answer and the expectation move together, and the comparison succeeds. The suite has one assertion and no independent statement of what the",
+      "explanation": "When the expected value is computed by the same code path as the actual one, an inversion cannot be seen: the wrong answer and the expectation move together, and the comparison succeeds. The suite has one assertion and no independent statement of what the correct count should be.",
       "hint": "Find where the expected number came from and ask whether it came from the same function that produced the result.",
       "difficulty": 0.49,
       "discrimination": 0.42,
@@ -2605,7 +2605,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-22T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2618,7 +2618,7 @@
         "expected-value",
         "test-quality"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2778,13 +2778,13 @@
       "options": [
         {
           "id": "A",
-          "text": "The real table is slow, so returning a fixed value is the only way to keep the test under a second",
-          "misconception": "believes a substitute answer is required to meet a runtime budget"
+          "text": "The stub answered a question the test should have asked the real table, so the missing key was never a possibility",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "The stub answered a question the test should have asked the real table, so the missing key was never a possibility",
-          "misconception": ""
+          "text": "The real table is slow, so returning a fixed value is the only way to keep the test under a second",
+          "misconception": "believes a substitute answer is required to meet a runtime budget"
         },
         {
           "id": "C",
@@ -2798,7 +2798,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The stub made the missing key unrepresentable: any key returns 10, so the situation that exists in production cannot arise in the test, and the assertion is aimed at the total rather than at the lookup that produces it. This is the deep problem with a double that answers more than it should, and it is not visible from the test alone, because the test reads as a reasonable statement about totals. The repair is a case that asks the real table what it does with a key it does not have, and a test that asserts the service's behaviour for that case rather than asserting the number it happened to get.",
       "hint": "Ask which question the substituted object answered, and whether the situation that occurs in production can occur in the test.",
@@ -2812,7 +2812,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2825,7 +2825,7 @@
         "test-double",
         "error-analysis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2852,13 +2852,13 @@
         },
         {
           "id": "B",
-          "text": "A correct guard that caught an unintended change; the repair is to keep the stored text and pin the order in the code",
-          "misconception": "believes a text snapshot is the only way to detect a reordering"
+          "text": "A ritual whose signal has decayed; compare structurally, or normalise key order and drop unasserted fields",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "A ritual whose signal has decayed; compare structurally, or normalise key order and drop unasserted fields",
-          "misconception": ""
+          "text": "A correct guard that caught an unintended change; the repair is to keep the stored text and pin the order in the code",
+          "misconception": "believes a text snapshot is the only way to detect a reordering"
         },
         {
           "id": "D",
@@ -2867,7 +2867,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "Each approval teaches the reviewer that a red snapshot is noise, and once that has been learned a real change to a rendered value is approved in the same breath, so the cost of the text comparison is paid back as a missed defect. The narrow repair is not to stop taking snapshots, which is genuinely useful for large outputs, but to make the comparison structural or to normalise what nobody is asserting on: sort the keys, fix the order of any list whose order is not part of the contract, and drop fields the test does not claim to check. A snapshot that changes for a stated reason is evidence, and one that changes for an unstated one is noise.",
       "hint": "Ask what the reviewer learned from six consecutive red builds that described no change in behaviour.",
@@ -2881,7 +2881,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2894,7 +2894,7 @@
         "brittleness",
         "error-analysis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2926,17 +2926,17 @@
         },
         {
           "id": "C",
-          "text": "The rule is too narrow because it matches by name, so the fix is to match on the calling convention instead",
-          "misconception": "believes the problem is which lines match rather than what matching means"
+          "text": "Two of the five are not uses and one real use is invisible, so the rule needs to read syntax and an allow list",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "Two of the five are not uses and one real use is invisible, so the rule needs to read syntax and an allow list",
-          "misconception": ""
+          "text": "The rule is too narrow because it matches by name, so the fix is to match on the calling convention instead",
+          "misconception": "believes the problem is which lines match rather than what matching means"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "A rule that blocks a merge has to be right in both directions, and this one is wrong in both: a commented-out call and a string constant are not uses, so a developer learns to dismiss the finding or to disable the rule for the file, and either response removes the check for the real calls too. Meanwhile the aliased call is never seen, so the one thing the migration needs to find is the thing it cannot. The change is to match the syntax rather than the characters, to skip comments and strings, and to allow the identifier where it is a plain reference rather than a call, with each exemption written down so a reviewer can see what the rule now misses.",
       "hint": "Sort the five findings into calls, references and mentions, then check what each category costs the rule.",
@@ -2950,7 +2950,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2963,7 +2963,7 @@
         "false-positive",
         "error-analysis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -2990,8 +2990,8 @@
         },
         {
           "id": "B",
-          "text": "It passes, because the call still returns; the missing check is on the response body the caller receives",
-          "misconception": ""
+          "text": "It fails, because the runner compares the handler's output against the previous run's output by default",
+          "misconception": "believes a runner keeps a record of return values between builds"
         },
         {
           "id": "C",
@@ -3000,12 +3000,12 @@
         },
         {
           "id": "D",
-          "text": "It fails, because the runner compares the handler's output against the previous run's output by default",
-          "misconception": "believes a runner keeps a record of return values between builds"
+          "text": "It passes, because the call still returns; the missing check is on the response body the caller receives",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The suite reports a pass because the handler still returns without throwing, and the caller receives an empty list where it expected two items, which is a defect no assertion in the file can see. The missing assertion is on the thing the caller actually consumes: the status, the body, and the count of items in it. A test that only checks the absence of an exception is a smoke test, which has a place in a suite as a cheap canary, but it is not a check of behaviour and should not be counted as one when someone asks how much of the handler is tested.",
       "hint": "Ask what the caller can observe that this test never looks at.",
@@ -3019,7 +3019,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3032,7 +3032,7 @@
         "test-quality",
         "error-analysis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3054,8 +3054,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Change the preview environment variable so the start-up file stops calling the hook at all",
-          "misconception": "believes one environment can be configured to avoid a code path it cannot see"
+          "text": "Make the dependency an argument so no substitution is possible without a caller, then check what price now returns",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3064,8 +3064,8 @@
         },
         {
           "id": "C",
-          "text": "Make the dependency an argument so no substitution is possible without a caller, then check what price now returns",
-          "misconception": ""
+          "text": "Change the preview environment variable so the start-up file stops calling the hook at all",
+          "misconception": "believes one environment can be configured to avoid a code path it cannot see"
         },
         {
           "id": "D",
@@ -3074,7 +3074,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The useful step is the one that removes the possibility, not the one that describes it. The holder is module state, the hook is reachable from a start-up path that runs in every environment, and nothing in the product distinguishes the two cases, so the wrong number is a live code path rather than a misconfiguration. Making the dependency an argument means a test can still pass a double while production has no line that swaps the value, and checking the result afterwards is how you confirm the repair rather than assume it. Logging and output checks are worth having, but they leave a wrong number in place and only tell someone after the fact.",
       "hint": "Ask which change makes the wrong result impossible rather than merely visible.",
@@ -3088,7 +3088,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3101,7 +3101,7 @@
         "production-code",
         "error-analysis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3128,8 +3128,8 @@
         },
         {
           "id": "B",
-          "text": "More coverage, because a test that calls a function has demonstrated that the function runs without failing",
-          "misconception": "believes executing a line is evidence about what it computed"
+          "text": "More lines executed and no more behaviour checked, because a test with no assertion cannot fail on a wrong result",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3138,12 +3138,12 @@
         },
         {
           "id": "D",
-          "text": "More lines executed and no more behaviour checked, because a test with no assertion cannot fail on a wrong result",
-          "misconception": ""
+          "text": "More coverage, because a test that calls a function has demonstrated that the function runs without failing",
+          "misconception": "believes executing a line is evidence about what it computed"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The eight point rise is real and it measures nothing useful, because the nine tests exercise lines without comparing anything, so each of them would pass with the function returning nonsense or with its internals deleted. The figure now describes how much of the file has been walked rather than how much of it has been checked, and a reader who trusts the number will draw the wrong conclusion about where to look next. The honest response is to report the assertions rather than the lines, and to make the runner fail a test with no assertion so the number cannot be raised this way again.",
       "hint": "Ask what each of the nine new tests would do if the function it calls returned a wrong value.",
@@ -3157,7 +3157,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3170,7 +3170,7 @@
         "false-pass",
         "error-analysis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3197,13 +3197,13 @@
         },
         {
           "id": "B",
-          "text": "82 percent, and a test that calls beta with the input its suite never uses, because it alone can add a statement",
-          "misconception": ""
+          "text": "82 percent, and a test that calls alpha again, because the most used function is the safest place to add",
+          "misconception": "believes a repeated call marks statements that were already marked"
         },
         {
           "id": "C",
-          "text": "82 percent, and a test that calls alpha again, because the most used function is the safest place to add",
-          "misconception": "believes a repeated call marks statements that were already marked"
+          "text": "82 percent, and a test that calls beta with the input its suite never uses, because it alone can add a statement",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3212,7 +3212,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Nine of the eleven statements are marked, which is 81.8 percent and reads as 82 when rounded. Only beta has an unmarked statement, so only a test that takes beta's other branch can add anything, and a new case in alpha or gamma adds execution of lines that are already counted and no coverage at all. The second half is the part worth carrying away: once a function is fully covered, more tests in it buy redundancy rather than coverage, and a figure that is dragged upward is not the same as a suite that checks more behaviour.",
       "hint": "Add the marked statements across the three functions, divide by the total, then look for the only function with a statement nobody reached.",
@@ -3226,7 +3226,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3239,7 +3239,7 @@
         "two-stage",
         "test-gap"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3271,17 +3271,17 @@
         },
         {
           "id": "C",
-          "text": "2, 2, 2, 3, 3, 10, and 255, where the uncapped value would first round to 26",
-          "misconception": ""
+          "text": "2, 2, 2, 2, 3, 10, and 255, where a value of exactly 25 is rounded down before the cap applies",
+          "misconception": "believes an exact half rounds down rather than up"
         },
         {
           "id": "D",
-          "text": "2, 2, 2, 2, 3, 10, and 255, where a value of exactly 25 is rounded down before the cap applies",
-          "misconception": "believes an exact half rounds down rather than up"
+          "text": "2, 2, 2, 3, 3, 10, and 255, where the uncapped value would first round to 26",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "Ten percent of the six subtotals is 1.999, 2, 2.499, 2.5, 2.501 and 10, and rounding to nearest gives the six values in the keyed answer, with the tie at 25 rounding up to 3. The cap starts to reduce an answer when the rounded percentage would exceed 25, and the first whole cent where that happens is 255, where the percentage rounds to 26 and the cap holds it at 25. At 245 the two are equal rather than the cap winning, which is the distinction the third distractor misses, and it is exactly the kind of off-by-one a boundary pair of tests exists to catch.",
       "hint": "Round ten percent of each subtotal, then find the first subtotal whose rounded percentage is greater than 25.",
@@ -3295,7 +3295,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3308,7 +3308,7 @@
         "two-stage",
         "rounding"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -3330,8 +3330,8 @@
       "options": [
         {
           "id": "A",
-          "text": "33.3 percent, and a verified 16 year old, because the survivor rejects an adult who is verified",
-          "misconception": "believes the survivor rejects adults rather than ignoring the flag"
+          "text": "66.7 percent, and a 20 year old who is not verified, because the survivor ignores the flag entirely",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3345,12 +3345,12 @@
         },
         {
           "id": "D",
-          "text": "66.7 percent, and a 20 year old who is not verified, because the survivor ignores the flag entirely",
-          "misconception": ""
+          "text": "33.3 percent, and a verified 16 year old, because the survivor rejects an adult who is verified",
+          "misconception": "believes the survivor rejects adults rather than ignoring the flag"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "Both existing cases supply verified as true, so the disjunction and the lowered constant are each caught by the seventeen year old case, giving two of three killed and a score of 66.7 percent. The surviving mutant ignores the flag, so it is killed by the one case the suite lacks: a twenty year old who is not verified, which the original rejects and the mutant accepts. That new case also kills the disjunction, since a disjunction returns true whenever the age test alone is true, and it leaves the lowered constant alive, which needs a sixteen or seventeen year old to distinguish.",
       "hint": "Divide the killed mutants by the total, then find an input where the dropped term changes the answer.",
@@ -3364,7 +3364,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3377,7 +3377,7 @@
         "two-stage",
         "test-gap"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },

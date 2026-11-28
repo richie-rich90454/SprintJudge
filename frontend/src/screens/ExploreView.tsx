@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +10,7 @@ import { EmptyState, Skeleton } from "../ui/Primitives";
 import { adminApi } from "../services/AdminApiService";
 
 export function ExploreView() {
+    const { t } = useI18n();
     const [query, setQuery] = useState("");
     const [limit, setLimit] = useState(24);
     const { data, isPending, isError, refetch } = useQuery({
@@ -28,13 +30,12 @@ export function ExploreView() {
         <Shell>
             <div className="page-shell py-10 md:py-14 flex flex-col gap-6">
                 <div className="max-w-2xl">
-                    <p className="label-caps mb-3">Quiz library</p>
+                    <p className="label-caps mb-3">{t("ui.quizLibrary")}</p>
                     <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-                        Browse quizzes
+                        {t("ui.browseQuizzes")}
                     </h1>
                     <p className="text-[var(--oq-ink-soft)] mt-3 leading-relaxed">
-                        Drill any bank solo at your own pace, or join a live game with a PIN
-                        from your host.
+                        {t("ui.drillAnyBankSoloAtYourOwnPaceOrJoinALiveGameWithAPINFromYourHost")}
                     </p>
                 </div>
                 <div className="max-w-md">
@@ -44,12 +45,12 @@ export function ExploreView() {
                             setQuery(e.target.value);
                             setLimit(24);
                         }}
-                        placeholder="Search quizzes…"
-                        aria-label="Search quizzes"
+                        placeholder={t("ui.searchQuizzesEllipsis")}
+                        aria-label={t("ui.searchQuizzes")}
                     />
                 </div>
                 {isPending && (
-                    <div className="grid gap-4 md:grid-cols-2" aria-label="Loading quizzes">
+                    <div className="grid gap-4 md:grid-cols-2" aria-label={t("ui.loadingQuizzes")}>
                         <Skeleton className="h-36" />
                         <Skeleton className="h-36" />
                         <Skeleton className="h-36" />
@@ -58,11 +59,11 @@ export function ExploreView() {
                 {isError && (
                     <Card className="p-4">
                         <EmptyState
-                            title="Could not load the library"
-                            hint="Check your connection and try again."
+                            title={t("ui.couldNotLoadTheLibrary")}
+                            hint={t("ui.checkYourConnectionAndTryAgain")}
                             action={
                                 <Button variant="secondary" onClick={() => refetch()}>
-                                    Retry
+                                    {t("ui.retry")}
                                 </Button>
                             }
                         />
@@ -71,23 +72,23 @@ export function ExploreView() {
                 {data && data.length === 0 && (
                     <Card className="p-4">
                         <EmptyState
-                            title="No quizzes yet"
-                            hint="Ask your teacher to publish one."
+                            title={t("ui.noQuizzesYet")}
+                            hint={t("ui.askYourTeacherToPublishOne")}
                         />
                     </Card>
                 )}
                 {data && data.length > 0 && visible.length === 0 && (
                     <Card className="p-4">
                         <EmptyState
-                            title="No matches"
-                            hint={`Nothing in the library matches "${query.trim()}".`}
+                            title={t("ui.noMatches")}
+                            hint={t("ui.noMatchesHint", { query: query.trim() })}
                         />
                     </Card>
                 )}
                 {visible.length > 0 && (
                     <div>
                         <p className="label-caps mb-3" aria-live="polite">
-                            {visible.length} of {data?.length ?? 0} quizzes
+                            {visible.length} of {data!.length} quizzes
                         </p>
                         <div className="grid gap-4 md:grid-cols-2">
                             {visible.slice(0, limit).map((quiz) => (
@@ -104,13 +105,13 @@ export function ExploreView() {
                                             search={{ bank: quiz.id }}
                                             className="btn btn-primary btn-sm font-bold"
                                         >
-                                            Practice solo
+                                            {t("ui.practiceSolo")}
                                         </Link>
                                         <Link
                                             to="/join"
                                             className="btn btn-secondary btn-sm font-bold"
                                         >
-                                            Join with PIN
+                                            {t("ui.joinWithPIN")}
                                         </Link>
                                     </div>
                                 </Card>
@@ -119,7 +120,7 @@ export function ExploreView() {
                         {visible.length > limit && (
                             <div className="mt-6 flex justify-center">
                                 <Button variant="secondary" onClick={() => setLimit((n) => n + 24)}>
-                                    Show more ({visible.length - limit} remaining)
+                                    {t("ui.showMore", { count: visible.length - limit })}
                                 </Button>
                             </div>
                         )}

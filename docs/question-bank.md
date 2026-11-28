@@ -28,6 +28,19 @@ response-time baseline, provenance, tags, relations, and version.
 - Reading load fits the subject; free of bias and idioms.
 - Reviewer differs from author. Originality and license are 5/5 gates.
 
+## Exam-style craft
+
+Every question must work as a rigorous course-framework-style exam item:
+
+- The stem supplies a real problem, scenario, source excerpt, data display, or code — not bare-recall trivia or a decorative persona that adds no information.
+- Multiple-choice items carry four parallel, plausible options; each distractor names the specific wrong belief that makes it tempting.
+- The explanation teaches the governing principle, why the key holds, and why each alternative fails.
+- Cognitive demand matches the task: reasoning and analysis for data-bearing or source-based items, recall only for genuine definitions.
+- Stimuli are original and licensed in provenance; no protected framework text is copied.
+- Reading load fits the subject, and language courses keep target-language content where the subject expects it.
+
+Six parallel audits scored the full bank against this rubric and drove the enrichment passes recorded in `verification/ap-style-audit/`. The final verification ledgers live in `verification/final-verification/`, `verification/merged-bank-verification/`, and `verification/new-course-audit/`.
+
 ## Verification convention
 
 Every numeric answer, code trace, and pseudocode trace is **executed,
@@ -60,6 +73,11 @@ item cannot merge even if a human reviewer misses it:
 | each option length within 0.3x-3.5x of the median | a short giveaway or a sentence among numerals breaks the item |
 | stems at least 20 characters, no exact or 12-word-opening repeats | no padding, no number-swapped twins |
 | exactly one correct option unless multi-select | no ambiguity |
+| format matches the answer shape the runtime builder consumes | a record counted in volume but skipped at import is a defect |
+| no exact duplicate option text | a duplicated distractor cannot be answered |
+| no author scratch (`Wait compute`, `Let me keep`, anchored `Use `<n>`.`) | self-corrections must not ship |
+| explanation ends with terminal punctuation and is not a fragment | teaching text must be complete |
+| keyed verdict agrees with its explanation | no "claim is wrong" + "matches" contradictions |
 | reviewer differs from author, stimulus licensed, attestation present | legal and provenance gates |
 
 ## Pipeline
@@ -71,6 +89,15 @@ timing) to versioned bank record. Old versions stay; past analytics
 stay valid.
 
 ## Coverage
+
+The shipping catalog holds 82 course-framework subjects: 42 original, 4 fill,
+and 36 new. Each stands at or above the 4,000-question floor (329,652 total).
+Six platform feature tracks are implemented: analytics, assignments/LMS,
+player profiles, localization, accessibility, and authoring/rich-stem tooling.
+All bank content gates are green; the full gate matrix is recorded in
+`verification/final-verification/integration.md`. Question content was
+generator-authored and corrected through the audited fix passes, not bespoke
+hand-authoring.
 
 Every unit ships every applicable format, both scopes where frameworks
 changed, balanced demand, and calibrated difficulty. Reports per

@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Card } from "../ui/Card";
@@ -8,6 +9,9 @@ import { formatAnswer } from "../game/reviewFormat";
 import { SoundToggle } from "../components/SoundToggle";
 import { MotionToggle } from "../components/MotionToggle";
 import { AboutDialog } from "../components/AboutDialog";
+import { ShareResultCard } from "../components/ShareResultCard";
+import { QuizActions } from "../components/QuizActions";
+import { CollectionsMenu } from "../components/CollectionsMenu";
 import { useCountUp } from "../motion/useStageMotion";
 import { GameReview } from "../types";
 import { adminApi } from "../services/AdminApiService";
@@ -23,6 +27,7 @@ function pct(ratio: unknown): number {
 }
 
 export function ResultView() {
+    const { t } = useI18n();
     const [isAdmin, setIsAdmin] = useState(false);
     const [reviewTimedOut, setReviewTimedOut] = useState(false);
     useEffect(() => {
@@ -44,6 +49,7 @@ export function ResultView() {
         };
     }, []);
     const leaderboard = useGameStore((s) => s.leaderboard);
+    const quizId = useGameStore((s) => s.quizId);
     const review = useGameStore((s) => s.review) as GameReview | null;
     const wsError = useGameStore((s) => s.error);
     // One stable ordering for anonymous "Player N" labels in every tab.
@@ -61,7 +67,10 @@ export function ResultView() {
             if (!raw) return;
             const data = JSON.parse(raw) as { review?: GameReview; leaderboard?: unknown[] };
             if (data.review)
-                useGameStore.setState({ review: data.review, leaderboard: data.leaderboard ?? [] } as never);
+                useGameStore.setState({
+                    review: data.review,
+                    leaderboard: data.leaderboard ?? [],
+                } as never);
         } catch {
             /* ignore malformed cache */
         }
@@ -82,20 +91,21 @@ export function ResultView() {
         setExporting(true);
         setExportError(null);
         try {
-            const response = await fetch(
-                `/api/admin/export/room/${review.sessionId}?format=csv`,
-                { credentials: "include" },
-            );
-            if (!response.ok) throw new Error("export failed");
+            const response = await fetch(`/api/admin/export/room/${review.sessionId}?format=csv`, {
+                credentials: "include",
+            });
+            if (!response.ok) throw new Error(t("ui.exportFailed"));
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
             const anchor = document.createElement("a");
             anchor.href = url;
             anchor.download = `sprintjudge-${review.sessionId}.csv`;
+            document.body.appendChild(anchor);
             anchor.click();
-            URL.revokeObjectURL(url);
+            anchor.remove();
+            window.setTimeout(() => URL.revokeObjectURL(url), 0);
         } catch {
-            setExportError("Could not export the room. Sign in again and retry.");
+            setExportError(t("ui.couldNotExportTheRoomSignInAgainAndRetry"));
         } finally {
             setExporting(false);
         }
@@ -111,12 +121,15 @@ export function ResultView() {
                 `/api/admin/bank/teach-next?sessionId=${encodeURIComponent(review.sessionId)}`,
                 { credentials: "include" },
             );
-            if (!recRes.ok) throw new Error("recommendation failed");
+            if (!recRes.ok) throw new Error(t("ui.recommendationFailed"));
             const rec = (await recRes.json()) as {
-                subject: string; unit: string; topic: string; count: number;
+                subject: string;
+                unit: string;
+                topic: string;
+                count: number;
             };
             if (!rec.subject || !rec.unit || rec.count <= 0) {
-                throw new Error("no bank match");
+                throw new Error(t("ui.noBankMatch"));
             }
             const built = await adminApi.buildBankQuiz({
                 subject: rec.subject,
@@ -126,7 +139,7 @@ export function ResultView() {
             });
             setPracticeQuizId(built.quizId);
         } catch {
-            setPracticeError("Could not build a practice quiz. Sign in as admin and retry.");
+            setPracticeError(t("ui.couldNotBuildAPracticeQuizSignInAsAdminAndRetry"));
         } finally {
             setPracticing(false);
         }
@@ -139,10 +152,10 @@ export function ResultView() {
 
     const tabs: { id: ReviewTab; label: string }[] = [
         { id: "podium", label: "Podium" },
-        { id: "answers", label: "Answer Key" },
-        { id: "students", label: "Students" },
+        { id: "answers", label: t("ui.answerKey") },
+        { id: "students", label: t("ui.students") },
         ...(review?.teams && review.teams.length > 0
-            ? [{ id: "teams" as ReviewTab, label: "Teams" }]
+            ? [{ id: "teams" as ReviewTab, label: t("ui.teams") }]
             : []),
         { id: "analysis", label: "Analysis" },
     ];
@@ -151,18 +164,22 @@ export function ResultView() {
             <div className="page-shell max-w-5xl">
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <p className="label-caps mb-2">Final</p>
+                        <p className="label-caps mb-2">{t("ui.final")}</p>
                         <h1 className="text-4xl font-black tracking-[-0.03em] md:text-5xl">
-                            Results
+                            {t("ui.results")}
                         </h1>
                         <p className="mt-2 text-[var(--oq-ink-soft)]">
                             {review?.classStats
                                 ? `${review.classStats.totalPlayers} ${
-                                      review.classStats.totalPlayers === 1 ? "student" : "students"
+                                      review.classStats.totalPlayers === 1
+                                          ? t("ui.studentSingular")
+                                          : t("ui.studentsPlural")
                                   }, ${review.classStats.totalQuestions} ${
-                                      review.classStats.totalQuestions === 1 ? "question" : "questions"
+                                      review.classStats.totalQuestions === 1
+                                          ? t("ui.questionSingular")
+                                          : t("ui.questionsPlural")
                                   }`
-                                : "Class summary"}
+                                : t("ui.classSummary")}
                         </p>
                     </div>
                     <div className="flex gap-1">
@@ -177,24 +194,44 @@ export function ResultView() {
                     value={tab}
                     onValueChange={(v) => setTab(v as ReviewTab)}
                     tabs={tabs}
-                    label="Result views"
+                    label={t("ui.resultViews")}
                 >
                     <TabPanel value="podium">
                         <Card className="p-6 md:p-10">
+                            {podium.length > 0 && (
+                                <div className="mb-6">
+                                    <ShareResultCard
+                                        top={podium.map((p) => ({
+                                            name: p.name,
+                                            score: p.score,
+                                            rank: p.rank,
+                                        }))}
+                                        players={review?.classStats?.totalPlayers}
+                                        questions={review?.classStats?.totalQuestions}
+                                        accuracy={
+                                            review?.classStats
+                                                ? pct(
+                                                      review.classStats.totalAttempts > 0
+                                                          ? review.classStats.totalCorrect /
+                                                                review.classStats.totalAttempts
+                                                          : 0,
+                                                  )
+                                                : undefined
+                                        }
+                                    />
+                                </div>
+                            )}
                             <div ref={podiumRef} className="flex flex-col gap-8">
                                 <div className="flex min-h-[240px] items-end justify-center gap-4 overflow-x-auto pb-2 md:gap-8">
                                     {podium.length === 0 && (
-                                        <p className="text-[var(--oq-ink-soft)]">No results yet.</p>
+                                        <p className="text-[var(--oq-ink-soft)]">
+                                            {t("ui.noResultsYet")}
+                                        </p>
                                     )}
                                     {order.map((idx) => {
-                                        if (idx >= podium.length) return null;
                                         const p = podium[idx];
                                         const height =
-                                            p.rank === 1
-                                                ? "h-40"
-                                                : p.rank === 2
-                                                  ? "h-32"
-                                                  : "h-24";
+                                            p.rank === 1 ? "h-40" : p.rank === 2 ? "h-32" : "h-24";
                                         return (
                                             <div
                                                 key={p.uuid}
@@ -259,29 +296,45 @@ export function ResultView() {
                                                     onClick={exportCsv}
                                                     disabled={!review?.sessionId || exporting}
                                                 >
-                                                    {exporting ? "Exporting" : "Export CSV"}
+                                                    {exporting
+                                                        ? t("ui.exporting")
+                                                        : t("ui.exportCSV")}
                                                 </Button>
                                                 <Button
                                                     variant="secondary"
                                                     onClick={practiceNext}
                                                     disabled={!review?.sessionId || practicing}
                                                 >
-                                                    {practicing ? "Building" : "Practice next"}
+                                                    {practicing
+                                                        ? t("ui.buildingLabel")
+                                                        : t("ui.practiceNext")}
                                                 </Button>
+                                            </>
+                                        )}
+                                        {isAdmin && (
+                                            <>
+                                                <QuizActions
+                                                    quizId={quizId}
+                                                    title={t("ui.playedQuiz")}
+                                                />
+                                                <CollectionsMenu
+                                                    quizId={quizId ?? review?.sessionId ?? "result"}
+                                                    title={t("ui.thisGame")}
+                                                />
                                             </>
                                         )}
                                         <Button
                                             variant="secondary"
                                             onClick={() => navigate({ to: "/" })}
                                         >
-                                            Leave results
+                                            {t("ui.leaveResults")}
                                         </Button>
                                         {isAdmin && (
                                             <Button
                                                 variant="primary"
                                                 onClick={() => navigate({ to: "/admin" })}
                                             >
-                                                New game
+                                                {t("ui.newGame")}
                                             </Button>
                                         )}
                                     </div>
@@ -302,7 +355,7 @@ export function ResultView() {
                                                 to="/admin"
                                                 className="underline underline-offset-4"
                                             >
-                                                Open it in the dashboard
+                                                {t("ui.openItInTheDashboard")}
                                             </Link>
                                         </p>
                                     )}
@@ -314,7 +367,7 @@ export function ResultView() {
                     <TabPanel value="answers">
                         <Card>
                             <div className="p-6">
-                                <h3 className="font-extrabold text-lg mb-4">Answer Key</h3>
+                                <h3 className="font-extrabold text-lg mb-4">{t("ui.answerKey")}</h3>
                                 {wsError && (
                                     <p
                                         role="alert"
@@ -335,13 +388,13 @@ export function ResultView() {
                                         </div>
                                         <p className="text-[var(--oq-ink-soft)] text-sm mt-4">
                                             {reviewTimedOut
-                                                ? "Review unavailable. Reload to try again."
-                                                : "Loading review…"}
+                                                ? t("ui.reviewUnavailableReloadToTryAgain")
+                                                : t("ui.loadingReview")}
                                         </p>
                                     </div>
                                 ) : !review.questions || review.questions.length === 0 ? (
                                     <p className="text-[var(--oq-ink-soft)]">
-                                        No answers to show yet.
+                                        {t("ui.noAnswersToShowYet")}
                                     </p>
                                 ) : (
                                     <div className="flex flex-col gap-4">
@@ -421,7 +474,9 @@ export function ResultView() {
                                                                         {a.correct ? "✓" : "✗"}{" "}
                                                                         {namesRevealed
                                                                             ? p.playerName
-                                                                            : `Player ${pi + 1}`}
+                                                                            : t("ui.playerN", {
+                                                                                  n: pi + 1,
+                                                                              })}
                                                                     </span>
                                                                     <span className="mono text-[var(--oq-ink-soft)]">
                                                                         +{a.scoreEarned} points{" "}
@@ -447,13 +502,15 @@ export function ResultView() {
                         <Card>
                             <div className="p-6">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-extrabold text-lg">Student Results</h3>
+                                    <h3 className="font-extrabold text-lg">
+                                        {t("ui.studentResults")}
+                                    </h3>
                                     <Button
                                         variant="secondary"
                                         size="sm"
                                         onClick={() => setNamesRevealed(!namesRevealed)}
                                     >
-                                        {namesRevealed ? "Hide names" : "Reveal names"}
+                                        {namesRevealed ? t("ui.hideNames") : t("ui.revealNames")}
                                     </Button>
                                 </div>
                                 {wsError && (
@@ -476,68 +533,68 @@ export function ResultView() {
                                         </div>
                                         <p className="text-[var(--oq-ink-soft)] text-sm mt-4">
                                             {reviewTimedOut
-                                                ? "Review unavailable. Reload to try again."
-                                                : "Loading review…"}
+                                                ? t("ui.reviewUnavailableReloadToTryAgain")
+                                                : t("ui.loadingReview")}
                                         </p>
                                     </div>
                                 ) : !review.players || review.players.length === 0 ? (
                                     <p className="text-[var(--oq-ink-soft)]">
-                                        No student results yet.
+                                        {t("ui.noStudentResultsYet")}
                                     </p>
                                 ) : (
                                     <div className="flex flex-col gap-4">
                                         {sortedPlayers.map((p, i) => (
-                                                <button
-                                                    key={p.playerUuid}
-                                                    type="button"
-                                                    aria-expanded={selectedStudent === p.playerUuid}
-                                                    className="border border-[var(--oq-border)] rounded-[8px] p-6 hover:bg-[var(--oq-row-alt)] transition-colors min-h-[44px] w-full text-left"
-                                                    onClick={() =>
-                                                        setSelectedStudent(
-                                                            selectedStudent === p.playerUuid
-                                                                ? null
-                                                                : p.playerUuid,
-                                                        )
-                                                    }
-                                                >
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="font-bold">
-                                                            {i + 1}.{" "}
-                                                            {namesRevealed
-                                                                ? p.playerName
-                                                                : `Player ${i + 1}`}
-                                                        </span>
-                                                        <span className="mono font-semibold">
-                                                            {p.totalScore} pts
-                                                        </span>
-                                                    </div>
-                                                    {selectedStudent === p.playerUuid &&
-                                                        namesRevealed && (
-                                                            <div className="mt-3 flex flex-col gap-4">
-                                                                {p.answers.map((a) => (
-                                                                    <div
-                                                                        key={a.questionId}
-                                                                        className="flex items-center justify-between text-sm"
+                                            <button
+                                                key={p.playerUuid}
+                                                type="button"
+                                                aria-expanded={selectedStudent === p.playerUuid}
+                                                className="border border-[var(--oq-border)] rounded-[8px] p-6 hover:bg-[var(--oq-row-alt)] transition-colors min-h-[44px] w-full text-left"
+                                                onClick={() =>
+                                                    setSelectedStudent(
+                                                        selectedStudent === p.playerUuid
+                                                            ? null
+                                                            : p.playerUuid,
+                                                    )
+                                                }
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-bold">
+                                                        {i + 1}.{" "}
+                                                        {namesRevealed
+                                                            ? p.playerName
+                                                            : t("ui.playerN", { n: i + 1 })}
+                                                    </span>
+                                                    <span className="mono font-semibold">
+                                                        {p.totalScore} pts
+                                                    </span>
+                                                </div>
+                                                {selectedStudent === p.playerUuid &&
+                                                    namesRevealed && (
+                                                        <div className="mt-3 flex flex-col gap-4">
+                                                            {p.answers.map((a) => (
+                                                                <div
+                                                                    key={a.questionId}
+                                                                    className="flex items-center justify-between text-sm"
+                                                                >
+                                                                    <span
+                                                                        className={
+                                                                            a.correct
+                                                                                ? "text-[var(--oq-success)]"
+                                                                                : "text-[var(--oq-danger)]"
+                                                                        }
                                                                     >
-                                                                        <span
-                                                                            className={
-                                                                                a.correct
-                                                                                    ? "text-[var(--oq-success)]"
-                                                                                    : "text-[var(--oq-danger)]"
-                                                                            }
-                                                                        >
-                                                                            {a.correct ? "✓" : "✗"}{" "}
-                                                                            {a.questionId}
-                                                                        </span>
-                                                                        <span className="mono text-[var(--oq-ink-soft)]">
-                                                                            +{a.scoreEarned}
-                                                                        </span>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                </button>
-                                            ))}
+                                                                        {a.correct ? "✓" : "✗"}{" "}
+                                                                        {a.questionId}
+                                                                    </span>
+                                                                    <span className="mono text-[var(--oq-ink-soft)]">
+                                                                        +{a.scoreEarned}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                            </button>
+                                        ))}
                                     </div>
                                 )}
                             </div>
@@ -546,16 +603,16 @@ export function ResultView() {
 
                     <TabPanel value="teams">
                         <Card className="p-6">
-                            <h3 className="font-extrabold text-lg mb-4">Team standings</h3>
+                            <h3 className="font-extrabold text-lg mb-4">{t("ui.teamStandings")}</h3>
                             {!review || !review.teams || review.teams.length === 0 ? (
                                 <p className="text-[var(--oq-ink-soft)]">
-                                    This game was not played in team mode.
+                                    {t("ui.thisGameWasNotPlayedInTeamMode")}
                                 </p>
                             ) : (
                                 <ol className="flex flex-col gap-2">
-                                    {review.teams.map((t, i) => (
+                                    {review.teams.map((team, i) => (
                                         <li
-                                            key={t.id}
+                                            key={team.id}
                                             className="flex min-h-[44px] items-center justify-between gap-4 border border-[var(--oq-border)] bg-[var(--oq-row-alt)] px-4 py-3"
                                         >
                                             <span className="flex min-w-0 items-center gap-4">
@@ -564,18 +621,18 @@ export function ResultView() {
                                                 </span>
                                                 <span className="min-w-0">
                                                     <span className="block truncate font-semibold">
-                                                        {t.name}
+                                                        {team.name}
                                                     </span>
                                                     <span className="text-xs text-[var(--oq-ink-soft)]">
-                                                        {t.memberUuids.length}{" "}
-                                                        {t.memberUuids.length === 1
-                                                            ? "member"
-                                                            : "members"}
+                                                        {team.memberUuids.length}{" "}
+                                                        {team.memberUuids.length === 1
+                                                            ? t("ui.memberSingular")
+                                                            : t("ui.membersPlural")}
                                                     </span>
                                                 </span>
                                             </span>
                                             <span className="font-mono font-semibold tabular-nums">
-                                                {t.score}
+                                                {team.score}
                                             </span>
                                         </li>
                                     ))}
@@ -587,7 +644,9 @@ export function ResultView() {
                     <TabPanel value="analysis">
                         <Card>
                             <div className="p-6">
-                                <h3 className="font-extrabold text-lg mb-4">Class Analysis</h3>
+                                <h3 className="font-extrabold text-lg mb-4">
+                                    {t("ui.classAnalysis")}
+                                </h3>
                                 {wsError && (
                                     <p
                                         role="alert"
@@ -611,36 +670,40 @@ export function ResultView() {
                                         </div>
                                         <p className="text-[var(--oq-ink-soft)] text-sm">
                                             {reviewTimedOut
-                                                ? "Analysis unavailable. Reload to try again."
-                                                : "Loading analysis…"}
+                                                ? t("ui.analysisUnavailableReloadToTryAgain")
+                                                : t("ui.loadingAnalysis")}
                                         </p>
                                     </div>
                                 ) : review.questions.length === 0 ? (
                                     <p className="text-[var(--oq-ink-soft)]">
-                                        No analysis to show yet.
+                                        {t("ui.noAnalysisToShowYet")}
                                     </p>
                                 ) : (
                                     <>
                                         <div className="grid sm:grid-cols-3 gap-4 mb-6">
                                             <div className="stat-block border border-[var(--oq-border)] rounded-[8px] p-6 text-center">
-                                                <p className="label-caps mb-1">Players</p>
+                                                <p className="label-caps mb-1">{t("ui.players")}</p>
                                                 <p className="stat-value">
                                                     {review.classStats.totalPlayers}
                                                 </p>
                                             </div>
                                             <div className="stat-block border border-[var(--oq-border)] rounded-[8px] p-6 text-center">
-                                                <p className="label-caps mb-1">Avg Score</p>
+                                                <p className="label-caps mb-1">
+                                                    {t("ui.avgScoreCaps")}
+                                                </p>
                                                 <p className="stat-value">
                                                     {whole(review.classStats.avgScore)}
                                                 </p>
                                             </div>
                                             <div className="stat-block border border-[var(--oq-border)] rounded-[8px] p-6 text-center">
-                                                <p className="label-caps mb-1">Correct Rate</p>
+                                                <p className="label-caps mb-1">
+                                                    {t("ui.correctRate")}
+                                                </p>
                                                 <p className="stat-value">
                                                     {pct(
                                                         review.classStats.totalAttempts > 0
                                                             ? review.classStats.totalCorrect /
-                                                                review.classStats.totalAttempts
+                                                                  review.classStats.totalAttempts
                                                             : 0,
                                                     )}
                                                     %
@@ -648,7 +711,9 @@ export function ResultView() {
                                             </div>
                                         </div>
 
-                                        <h4 className="font-bold mb-2">Question Difficulty</h4>
+                                        <h4 className="font-bold mb-2">
+                                            {t("ui.questionDifficulty")}
+                                        </h4>
                                         <div className="flex flex-col gap-4">
                                             {[...review.questions]
                                                 .sort((a, b) => a.correctRate - b.correctRate)

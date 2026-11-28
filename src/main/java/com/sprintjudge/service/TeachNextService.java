@@ -7,7 +7,6 @@ import com.sprintjudge.domain.models.Submission;
 import com.sprintjudge.repository.GameSessionRepository;
 import com.sprintjudge.repository.QuestionRepository;
 import com.sprintjudge.repository.SubmissionRepository;
-import com.sprintjudge.util.Json;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,7 +14,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -97,8 +95,8 @@ public class TeachNextService {
 		String bestUnit = "";
 		int bestMatches = 0;
 		for (String candidateSubject : bankRecords.subjects()) {
-			for (String candidateUnit : unitsOf(candidateSubject)) {
-				int matches = topicMatches(candidateSubject, candidateUnit, topic);
+			for (String candidateUnit : bankRecords.unitsOf(candidateSubject)) {
+				int matches = bankRecords.topicMatches(candidateSubject, candidateUnit, topic);
 				boolean better = matches > bestMatches || (matches == bestMatches && matches > 0
 						&& "JAVA_PROGRAMMING".equals(candidateSubject) && !"JAVA_PROGRAMMING".equals(bestSubject));
 				if (better) {
@@ -169,58 +167,8 @@ public class TeachNextService {
 		return weakest;
 	}
 
-	private List<String> unitsOf(String subject) {
-		// distinct units present in the bank for this subject
-		List<String> out = new ArrayList<>();
-		java.util.Set<String> seen = new java.util.TreeSet<>();
-		for (Map<String, Object> record : bankRecords.records(subject, null)) {
-			String u = text(record, "unit");
-			if (!u.isBlank() && seen.add(u))
-				out.add(u);
-		}
-		if (out.isEmpty())
-			out.add("");
-		return out;
-	}
-
-	private int topicMatches(String subject, String unit, String topic) {
-		if (topic == null || topic.isBlank())
-			return 0;
-		int count = 0;
-		for (Map<String, Object> record : bankRecords.records(subject, unit.isBlank() ? null : unit)) {
-			String recTopic = text(record, "topic");
-			if (containsIgnoreCase(recTopic, topic) || containsIgnoreCase(topic, recTopic)) {
-				count++;
-			}
-		}
-		return count;
-	}
-
 	private static String topicOf(Question q) {
-		if (q.getConfig() != null && !q.getConfig().isBlank()) {
-			try {
-				com.fasterxml.jackson.databind.JsonNode node = Json.readTree(q.getConfig());
-				if (node.has("topic")) {
-					String t = node.get("topic").asText("");
-					if (!t.isBlank())
-						return t;
-				}
-			} catch (RuntimeException ignored) {
-			}
-		}
-		return q.getTitle() == null ? "" : q.getTitle();
-	}
-
-	private static boolean containsIgnoreCase(String haystack, String needle) {
-		if (needle == null || needle.isBlank())
-			return false;
-		if (haystack == null)
-			return false;
-		return haystack.toLowerCase(Locale.ROOT).contains(needle.toLowerCase(Locale.ROOT));
-	}
-
-	private static String text(Map<String, Object> record, String key) {
-		Object value = record.get(key);
-		return value == null ? "" : String.valueOf(value);
+		String topic = BankRecordSource.configMeta(q.getConfig())[0];
+		return topic.isBlank() ? (q.getTitle() == null ? "" : q.getTitle()) : topic;
 	}
 }

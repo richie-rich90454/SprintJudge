@@ -22,6 +22,8 @@ export class FillBlankRenderer extends BaseQuestionRenderer {
             this.emit({ text: this.value });
         });
         this.container.append(snippet, input);
+        // An untouched blank must still carry an answer on timer expiry.
+        this.emit({ text: this.value });
     }
 
     getResponse(): unknown {

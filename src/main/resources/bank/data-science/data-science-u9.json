@@ -18,8 +18,8 @@
       "options": [
         {
           "id": "A",
-          "text": "1 9.6, then 2 7.68, then 3 6.144, then 4 4.9152, then final 4.9152 and objective 12.079596, because each update keeps eighty per cent of the value the step began with",
-          "misconception": ""
+          "text": "1 14.4, then 2 17.28, then 3 20.736, then 4 24.8832, then final 24.8832 and objective 309.586821, because the step is added to the parameter instead of taken from it",
+          "misconception": "adds the step to the parameter, so the descent climbs away from the minimum"
         },
         {
           "id": "B",
@@ -28,8 +28,8 @@
         },
         {
           "id": "C",
-          "text": "1 14.4, then 2 17.28, then 3 20.736, then 4 24.8832, then final 24.8832 and objective 309.586821, because the step is added to the parameter instead of taken from it",
-          "misconception": "adds the step to the parameter, so the descent climbs away from the minimum"
+          "text": "1 9.6, then 2 7.68, then 3 6.144, then 4 4.9152, then final 4.9152 and objective 12.079596, because each update keeps eighty per cent of the value the step began with",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -38,7 +38,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The derivative of one half of w squared is w, not 2w, so the program is descending on w squared rather than on half of it, and the exact recurrence is w after the step equals w before the step times one minus 0.1 times 2, which is 0.8. Starting from 12.0 that gives 9.6, then 7.68, then 6.144, then 4.9152, and the objective at the end is one half of 4.9152 squared, which is 12.079596. The recorded step numbers are one-based because the loop counts from 1, so the first line is the value after the first update and not the starting value. The two failures worth naming are the sign, which turns a descent into a climb and leaves the objective at 309.586821, and the missing factor of two, which looks like a working descent but converges at half the intended rate and finishes at 7.8732 with the objective still at 30.993639. Every figure here was produced by running the program.",
       "hint": "Write the update as a single multiplier on w before running it four times.",
@@ -55,7 +55,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -67,7 +67,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0002",
@@ -156,8 +156,8 @@
       "options": [
         {
           "id": "A",
-          "text": "[1, 3, 5], then [1, 2, 4], then 3, because the condition drops the even sizes rather than the odd ones",
-          "misconception": "inverts the parity test, so the surviving list is the complement of the intended one"
+          "text": "[2, 4], then [1, 3, 5], then 3, because removing an element pulls the next one back into the slot just read",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -166,8 +166,8 @@
         },
         {
           "id": "C",
-          "text": "[2, 4], then [1, 3, 5], then 3, because removing an element pulls the next one back into the slot just read",
-          "misconception": ""
+          "text": "[1, 3, 5], then [1, 2, 4], then 3, because the condition drops the even sizes rather than the odd ones",
+          "misconception": "inverts the parity test, so the surviving list is the complement of the intended one"
         },
         {
           "id": "D",
@@ -176,7 +176,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Python's for loop over a list keeps a live position, not a copy, and after each step it advances the position by one. Start at position 0 with 1, remove it, and the 2 that was at position 1 slides into position 0 while the position advances to 1, so 3 is read next. Removing 3 repeats the trick, and 5 is read last, leaving seen equal to [1, 3, 5] and the list equal to [2, 4]. That is three visits, not five, and the two even sizes are the only ones the loop ever had a chance to look at. This matters in a real training loop because the skipped examples are not the ones the rule was meant to skip, and the epoch quietly trains on a different subset each pass. Iterating over list(batch) first gives five visits and the same surviving list, which is why that is the fix and why the difference between the two outputs is exactly the two skipped sizes.",
       "hint": "Ask whether the loop holds a copy of the list or a position inside it.",
@@ -193,7 +193,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -205,7 +205,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0004",
@@ -294,8 +294,8 @@
       "options": [
         {
           "id": "A",
-          "text": "loss = sse / rows, which reports 0.05 because 16.0 divided by 320 is the mean over every row the epoch saw",
-          "misconception": ""
+          "text": "loss = sse / len(batches), which reports 5.333333 because the total error is being spread over the number of batches rather than the rows",
+          "misconception": "divides a sum of squared errors by a count of batches, mixing a row-level total with a batch-level count"
         },
         {
           "id": "B",
@@ -304,8 +304,8 @@
         },
         {
           "id": "C",
-          "text": "loss = sse / len(batches), which reports 5.333333 because the total error is being spread over the number of batches rather than the rows",
-          "misconception": "divides a sum of squared errors by a count of batches, mixing a row-level total with a batch-level count"
+          "text": "loss = sse / rows, which reports 0.05 because 16.0 divided by 320 is the mean over every row the epoch saw",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "A mean squared error is a sum of squared errors divided by the number of terms in the sum, and the terms here are rows, so the divisor has to be the accumulated row count of 320. That gives 16.0 divided by 320, which is 0.05. Dividing by the last batch size instead gives 0.25, five times too large, and it agrees with the right answer only in the special case where every batch is the same size, which is exactly why the bug survives a smoke test. Dividing by the number of batches gives 5.333333, a quantity with no units of error per row at all, and multiplying the row mean by the batch count gives 0.15, the same factor-of-three error in the other direction. The version that would also be defensible divides by rows minus one, as an unbiased estimate of the variance would, but that reports 0.050157 and is a different quantity from the mean squared error. All five values were produced by running the candidates.",
       "hint": "Ask how many terms are in the sum you are dividing, not how many groups produced it.",
@@ -331,7 +331,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -343,7 +343,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0006",
@@ -432,8 +432,8 @@
       "options": [
         {
           "id": "A",
-          "text": "eta = int(base / step), which prints the integers 0, 0, 0 and 0 for a total of 0 because truncation drops the fraction as well",
-          "misconception": "truncates instead of dividing, which produces an integer zero rather than a float zero and removes the schedule"
+          "text": "eta = base / step, which prints 0.1, 0.05, 0.0333333 and 0.025 for a total of 0.2083333 because true division keeps the fraction",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -442,8 +442,8 @@
         },
         {
           "id": "C",
-          "text": "eta = base / step, which prints 0.1, 0.05, 0.0333333 and 0.025 for a total of 0.2083333 because true division keeps the fraction",
-          "misconception": ""
+          "text": "eta = int(base / step), which prints the integers 0, 0, 0 and 0 for a total of 0 because truncation drops the fraction as well",
+          "misconception": "truncates instead of dividing, which produces an integer zero rather than a float zero and removes the schedule"
         },
         {
           "id": "D",
@@ -452,7 +452,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The two slashes mean floor division, so 0.1 divided by any positive step number lands between zero and one and floors to 0.0. The schedule that was meant to shrink the step does the opposite of what it says: it removes it, and the printed total of 0.0 is the honest report of a run in which nothing moved. True division gives 0.1, 0.05, 0.0333333 and 0.025, a total of 0.2083333, and each of those is a strictly positive float, so the any-positive test at the end is the check that would have caught this. Truncation with int looks like a fix and is not one, because it discards the fraction and yields the integers 0, 0, 0 and 0 for a total of 0. Multiplication produces a rising schedule instead, totalling 1.0, which trains fast at first and diverges later. Every figure here was produced by running the candidates.",
       "hint": "Check whether the two slashes keep the fractional part, and then check the sign of the change.",
@@ -469,7 +469,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -481,7 +481,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0008",
@@ -570,8 +570,8 @@
       "options": [
         {
           "id": "A",
-          "text": "clipped 0.999999 1e-06, then terms 0.105361, 13.815511, 13.815511 and 0.287682, then sum 28.024064, then mean 7.006016",
-          "misconception": ""
+          "text": "clipped 0.999999 1e-06, then terms 0.105361, 0.287682, 13.815511 and 13.815511, then sum 28.024064, then mean 7.006016, because the second and third rows are paired in the other order",
+          "misconception": "pairs the outcomes with the wrong probabilities, which moves the large terms without changing the total"
         },
         {
           "id": "B",
@@ -580,8 +580,8 @@
         },
         {
           "id": "C",
-          "text": "clipped 0.999999 1e-06, then terms 0.105361, 0.287682, 13.815511 and 13.815511, then sum 28.024064, then mean 7.006016, because the second and third rows are paired in the other order",
-          "misconception": "pairs the outcomes with the wrong probabilities, which moves the large terms without changing the total"
+          "text": "clipped 0.999999 1e-06, then terms 0.105361, 13.815511, 13.815511 and 0.287682, then sum 28.024064, then mean 7.006016",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -590,7 +590,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "Clipping is what makes the logarithms legal: the probability of 1.0 becomes 0.999999 and the probability of 0.0 becomes one millionth, so the two rows that disagree with their outcome each contribute a finite 13.815511, which is the negative natural logarithm of one millionth. The two rows that agree contribute 0.105361 and 0.287682, the logarithms of 0.9 and of 0.75. The four terms add to 28.024064 and the mean over four rows is 7.006016. The average is large because a single confidently wrong row is expensive, and it is the reason a training run that reports a mean log loss has to be read alongside how many rows carry it. Without clipping the same program raises a ValueError on the logarithm of zero, which is the failure the clip is there to prevent. Every figure here was produced by running the program.",
       "hint": "Clip first, then take the logarithm of the probability the outcome actually needs.",
@@ -607,7 +607,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -619,7 +619,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0010",
@@ -1076,8 +1076,8 @@
         },
         {
           "id": "B",
-          "text": "The absolute-value penalty is applied once per row and the squared penalty once per fit, so at five rows the two penalties are not being compared on the same scale",
-          "misconception": "invents a row-count difference in how the penalty is applied, which is not part of either definition"
+          "text": "The absolute-value penalty has a constant gradient of one on each side of zero, so a large enough penalty can outweigh the data gradient over the whole interval between zero and the unpenalised fit",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1086,12 +1086,12 @@
         },
         {
           "id": "D",
-          "text": "The absolute-value penalty has a constant gradient of one on each side of zero, so a large enough penalty can outweigh the data gradient over the whole interval between zero and the unpenalised fit",
-          "misconception": ""
+          "text": "The absolute-value penalty is applied once per row and the squared penalty once per fit, so at five rows the two penalties are not being compared on the same scale",
+          "misconception": "invents a row-count difference in how the penalty is applied, which is not part of either definition"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The gradient of the absolute value is one above zero and minus one below it, so it is a constant push toward zero that does not weaken as the coefficient approaches zero, while the gradient of a square is twice the coefficient and vanishes exactly at zero. A constant push of size 4.44 against a data gradient that never exceeds half of 11.1 over 5, which is 1.11, wins outright, and the optimum sits at the kink. The squared penalty's push shrinks in proportion to the coefficient, so it balances against the data gradient at a positive value instead, which on this data is 0.34472 at a penalty of 4.44. Both penalties are convex, so the difference is not about the shape of either objective; it is that one has a subgradient that stays non-zero at its own minimum. That is also why a fit can select features under one penalty and merely shrink them under the other, and why the count of exactly zero coefficients is a meaningful diagnostic rather than a rounding artefact.",
       "hint": "Compare what each penalty's gradient does as the coefficient approaches zero.",
@@ -1108,7 +1108,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1120,7 +1120,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0019",
@@ -1214,8 +1214,8 @@
         },
         {
           "id": "B",
-          "text": "Keep the checkpoint from the third pass, because the passes after the validation minimum bought a 0.27 fall in training loss and a 0.09 rise in validation loss",
-          "misconception": ""
+          "text": "Add hidden units, because a validation loss that rises after the third pass means the model has found all the signal the data contains",
+          "misconception": "claims a rising validation curve proves the signal is exhausted rather than overfitted"
         },
         {
           "id": "C",
@@ -1224,12 +1224,12 @@
         },
         {
           "id": "D",
-          "text": "Add hidden units, because a validation loss that rises after the third pass means the model has found all the signal the data contains",
-          "misconception": "claims a rising validation curve proves the signal is exhausted rather than overfitted"
+          "text": "Keep the checkpoint from the third pass, because the passes after the validation minimum bought a 0.27 fall in training loss and a 0.09 rise in validation loss",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The diagnosis has to come before the remedy, and here the diagnosis is a fit with too much freedom for the amount of data behind it: training error keeps falling while validation error turns up. The change that follows is to take the freedom away or to stop using it, and keeping the third-pass checkpoint does that at no cost and with no refitting. The two capacity arguments both run backwards. A training loss of 0.09 is low, not high, and a model that cannot fit its own rows is the definition of the other fault; and a rising validation curve after the minimum is the ordinary evidence of overfitting, not proof that the signal has been exhausted, which would show up as a validation loss that stopped improving and stayed flat. The batch argument confuses two things: changing the batch changes the noise in each update, not the fit's freedom to memorise, and a full-table batch makes the descent noisier still rather than quieter.",
       "hint": "Name the fault first, then ask which change removes the freedom that caused it.",
@@ -1246,7 +1246,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1258,7 +1258,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0021",
@@ -1352,8 +1352,8 @@
         },
         {
           "id": "B",
-          "text": "steps = round(n / batch), which prints 39 updates and a final batch of 128 rows because the nearest whole number to 39.0078125 is 39",
-          "misconception": "rounds to the nearest batch count, which drops the remainder whenever it is below half a batch"
+          "text": "steps = -(-n // batch), which prints 40 updates and a final batch of 1 row because the ceiling of 39.0078125 is 40",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1362,12 +1362,12 @@
         },
         {
           "id": "D",
-          "text": "steps = -(-n // batch), which prints 40 updates and a final batch of 1 row because the ceiling of 39.0078125 is 40",
-          "misconception": ""
+          "text": "steps = round(n / batch), which prints 39 updates and a final batch of 128 rows because the nearest whole number to 39.0078125 is 39",
+          "misconception": "rounds to the nearest batch count, which drops the remainder whenever it is below half a batch"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "A pass has to account for every row, so the count of batches is the row count divided by the batch size and then rounded up. On this table 4,993 over 128 is 39.0078125, whose ceiling is 40, and the arithmetic confirms it: 39 full batches cover 4,992 rows and the fortieth carries the single remaining row, which is why the program reports a final batch size of 1. The two wrong roundings both land on 39 and therefore leave that last row out of every pass, which is a silent exclusion rather than a rounding detail. The last candidate keeps the fraction, and a count of 39.0078125 updates is not a thing a loop can perform. The single-row final batch is worth naming in its own right: it is a real update whose gradient comes from one observation, so it moves the parameters in a direction one row supports. All four values were produced by running the candidates.",
       "hint": "The leftover rows are still trained on, so the count has to be rounded away from zero.",
@@ -1384,7 +1384,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1396,7 +1396,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0023",
@@ -1490,8 +1490,8 @@
         },
         {
           "id": "B",
-          "text": "eta = eta0 * math.exp(-rate * epoch), which prints 0.1, 0.0606531, 0.0367879, 0.022313 and 0.0135335 as a steady proportional fall",
-          "misconception": ""
+          "text": "eta = eta0 * (1 - rate) ** epoch, which prints 0.1, 0.05, 0.025, 0.0125 and 0.00625 by halving rather than by the stated rate",
+          "misconception": "confuses a fixed proportional fall of one half with the rate parameter the schedule was given"
         },
         {
           "id": "C",
@@ -1500,12 +1500,12 @@
         },
         {
           "id": "D",
-          "text": "eta = eta0 * (1 - rate) ** epoch, which prints 0.1, 0.05, 0.025, 0.0125 and 0.00625 by halving rather than by the stated rate",
-          "misconception": "confuses a fixed proportional fall of one half with the rate parameter the schedule was given"
+          "text": "eta = eta0 * math.exp(-rate * epoch), which prints 0.1, 0.0606531, 0.0367879, 0.022313 and 0.0135335 as a steady proportional fall",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "Raising the exponential to a negative multiple of the pass number makes the rate fall by the same proportion every pass rather than by the same amount, and with a starting rate of 0.1 and a rate parameter of 0.5 that gives 0.1, 0.0606531, 0.0367879, 0.022313 and 0.0135335 across the five printed passes, with 0.0135335 at the fourth. The minus sign is what does the work: dropping it gives a rate that grows to 0.7389056, so a schedule meant to settle the descent instead makes it increasingly violent. The geometric form with one minus the rate parameter also falls proportionally, but by one half rather than by 0.5 per pass in the exponential sense, and it reaches 0.00625 at the fourth pass, well below the stated target. The linear form is the dangerous one: it is 0.05 at the first pass, exactly zero at the second, and negative from the third, so a schedule that looks reasonable at the start silently hands the descent a step in the wrong direction. All values were produced by running the candidates.",
       "hint": "A constant proportion means the rate is multiplied by the same factor every pass.",
@@ -1522,7 +1522,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1534,7 +1534,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0025",
@@ -1628,8 +1628,8 @@
         },
         {
           "id": "B",
-          "text": "mask [0, 0, 0, 0, 0, 0, 0, 0], kept 0 and dropped 8, masked all zero, sums 0.0 and 0.0, plain 6.9, expected kept 2.0",
-          "misconception": "reads the stride of four as a keep rate, so every unit is dropped and nothing trains"
+          "text": "mask [0, 1, 1, 1, 0, 1, 1, 1], kept 6 and dropped 2, masked [0.0, -1.2, 2.0, 0.8, 0.0, -0.6, 1.1, 0.9], sums 3.0 and 12.0, plain 6.9, expected kept 2.0",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1638,12 +1638,12 @@
         },
         {
           "id": "D",
-          "text": "mask [0, 1, 1, 1, 0, 1, 1, 1], kept 6 and dropped 2, masked [0.0, -1.2, 2.0, 0.8, 0.0, -0.6, 1.1, 0.9], sums 3.0 and 12.0, plain 6.9, expected kept 2.0",
-          "misconception": ""
+          "text": "mask [0, 0, 0, 0, 0, 0, 0, 0], kept 0 and dropped 8, masked all zero, sums 0.0 and 0.0, plain 6.9, expected kept 2.0",
+          "misconception": "reads the stride of four as a keep rate, so every unit is dropped and nothing trains"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The loop zeroes index 0 and index 4, so the mask is [0, 1, 1, 1, 0, 1, 1, 1]: six units kept and two dropped, where a keep rate of 0.25 over eight units would keep two. Multiplying gives [0.0, -1.2, 2.0, 0.8, 0.0, -0.6, 1.1, 0.9], which sums to 3.0 against a plain sum of 6.9, and dividing the survivors by the keep rate of 0.25 multiplies that total by four to 12.0. The defect is not arithmetic but randomness: a fixed stride drops the same two units on every pass, so those two units never contribute a gradient and the other six are never thinned, which is a permanently crippled network rather than a regularised one. The expected-kept line is the check that exposes it, printing 2.0 where the mask keeps 6. The last distractor is the division applied twice, which leaves the same mask but inflates the total to 48.0, and the second distractor is the stride started at index 1 instead of 0. Every figure here was produced by running the program.",
       "hint": "A fixed stride decides in advance which units go; compare that with what a rate of 0.25 implies.",
@@ -1660,7 +1660,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1672,7 +1672,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0027",
@@ -1766,8 +1766,8 @@
         },
         {
           "id": "B",
-          "text": "down = [1.0 if x > 0.0 else 0.0 for x in xs], which prints down [0.0, 0.0, 1.0] and a sum of 1.0 because only the third unit was active",
-          "misconception": ""
+          "text": "down = [0.0 if x > 0.0 else 1.0 for x in xs], which prints down [1.0, 1.0, 0.0] and a sum of 2.0 because the two closed units pass and the open one does not",
+          "misconception": "inverts the test, so gradient flows through closed units and stops at the active one"
         },
         {
           "id": "C",
@@ -1776,12 +1776,12 @@
         },
         {
           "id": "D",
-          "text": "down = [0.0 if x > 0.0 else 1.0 for x in xs], which prints down [1.0, 1.0, 0.0] and a sum of 2.0 because the two closed units pass and the open one does not",
-          "misconception": "inverts the test, so gradient flows through closed units and stops at the active one"
+          "text": "down = [1.0 if x > 0.0 else 0.0 for x in xs], which prints down [0.0, 0.0, 1.0] and a sum of 1.0 because only the third unit was active",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The forward pass maps -2.0 and 0.0 to 0.0 and 3.0 to 3.0, so only the third unit was active and only the third unit has anything to pass upstream. The matching backward pass is 1 where the input was strictly positive and 0 elsewhere, which gives [0.0, 0.0, 1.0] and a sum of 1.0. The line as written passes 1.0 everywhere, so a unit that emitted zero is credited with influencing the loss, and the whole network above it receives gradient that does not correspond to any effect it had. Testing for any nonzero input gives [1.0, 0.0, 1.0] and a sum of 2.0, which is wrong for the negative input as well as the zero; inverting the test gives [1.0, 1.0, 0.0] and a sum of 2.0, which is the mirror image of the truth; and returning the bare comparison gives [False, False, True], which happens to multiply out correctly in a chain of products but is one arithmetic change away from silently vanishing, since False is zero. Every figure here was produced by running the candidates.",
       "hint": "Ask which units the forward pass actually opened, and pass gradient only there.",
@@ -1798,7 +1798,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1810,7 +1810,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0029",
@@ -1904,8 +1904,8 @@
         },
         {
           "id": "B",
-          "text": "grad = [g[i] + lam * w[i] for i in range(3)], which reports 0.85, -1.4 and 0.25 because the penalty contributes its strength times the coefficient once",
-          "misconception": "drops the factor of two from the derivative of a square"
+          "text": "grad = [g[i] + 2 * lam * w[i] for i in range(3)], which reports 1.3, -2.0 and 0.4 because a squared penalty differentiates to twice its strength times the coefficient",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1914,12 +1914,12 @@
         },
         {
           "id": "D",
-          "text": "grad = [g[i] + 2 * lam * w[i] for i in range(3)], which reports 1.3, -2.0 and 0.4 because a squared penalty differentiates to twice its strength times the coefficient",
-          "misconception": ""
+          "text": "grad = [g[i] + lam * w[i] for i in range(3)], which reports 0.85, -1.4 and 0.25 because the penalty contributes its strength times the coefficient once",
+          "misconception": "drops the factor of two from the derivative of a square"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The objective being reported and the objective being descended have to be the same one, and the derivative of 0.3 times the sum of the squared coefficients is 0.6 times each coefficient. Adding that to the data gradient gives 0.4 plus 0.9, which is 1.3; -0.8 plus -1.2, which is -2.0; and 0.1 plus 0.3, which is 0.4. The line as written descends the data term alone, so the reported loss rises under shrinkage while the coefficients grow, which is the signature of this bug: the objective goes up and the fit does not care. Adding the penalty once instead of twice gives 0.85, -1.4 and 0.25, which is the error of differentiating a product as though the square were linear. Adding a flat 0.3 to every component gives 0.7, -0.5 and 0.4, which shrinks the largest coefficient least and the smallest most, the opposite of what a squared penalty is for. All four values were produced by running the candidates.",
       "hint": "Differentiate the penalty term, then add what it contributes to the data gradient.",
@@ -1936,7 +1936,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1948,7 +1948,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0031",
@@ -2414,13 +2414,13 @@
         },
         {
           "id": "B",
-          "text": "Each row was used in the loss about 40 times, once per epoch, and the 40 epochs performed 1,600 parameter updates because each epoch took 40 batches",
-          "misconception": ""
+          "text": "Each row was used about 1,600 times, because an epoch is measured in batches rather than in passes over the rows",
+          "misconception": "counts batches as passes, so a row appears forty times more often than an epoch allows"
         },
         {
           "id": "C",
-          "text": "Each row was used about 1,600 times, because an epoch is measured in batches rather than in passes over the rows",
-          "misconception": "counts batches as passes, so a row appears forty times more often than an epoch allows"
+          "text": "Each row was used in the loss about 40 times, once per epoch, and the 40 epochs performed 1,600 parameter updates because each epoch took 40 batches",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2429,7 +2429,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "An epoch is one complete pass over the rows, so after 40 epochs every row has contributed to the loss about 40 times regardless of how the rows were ordered within a pass or how many batches the pass was split into. What an epoch does not fix is the number of updates: 4,993 rows in batches of 128 take 40 batches, because 39 full batches cover 4,992 rows and the fortieth carries the last one, so 40 epochs perform 1,600 updates. The reading that turns batches into passes is the commonest confusion here and overstates each row's exposure fortyfold, and the reading that floors the batch count at 39 quietly drops the leftover row from every pass. Shuffling changes the order in which rows are seen and therefore which rows share a batch, but it does not change how often a row appears in a pass, so its absence from the report is not a reason the count is unknowable.",
       "hint": "Separate the number of passes from the number of batches inside a pass.",
@@ -2446,7 +2446,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2458,7 +2458,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0041",
@@ -2478,8 +2478,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Reordering changes which rows share a batch and therefore how much each individual update varies, while leaving the number of times each row is used in a pass unchanged",
-          "misconception": ""
+          "text": "Reordering is unsafe on a table sorted by time, because the gradient of a batch must see its rows in the order they were created",
+          "misconception": "believes a gradient depends on the order in which its rows are presented"
         },
         {
           "id": "B",
@@ -2493,12 +2493,12 @@
         },
         {
           "id": "D",
-          "text": "Reordering is unsafe on a table sorted by time, because the gradient of a batch must see its rows in the order they were created",
-          "misconception": "believes a gradient depends on the order in which its rows are presented"
+          "text": "Reordering changes which rows share a batch and therefore how much each individual update varies, while leaving the number of times each row is used in a pass unchanged",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A pass visits every row once whether the rows come in date order or in a shuffled order, so the frequency of use is fixed by the pass count and not by the arrangement. What the arrangement controls is the composition of each update: batches drawn from a table sorted by date contain rows from the same narrow period, so consecutive updates all point the same way and the descent moves in a near-straight line with no correction from the rest of the table, while shuffled batches mix periods and each update carries a more representative but noisier direction. The belief that a row late in a pass is skipped is wrong because the batch count is rounded up, so the final short batch is still trained on. The belief that order stops mattering on a large table reverses the logic: a large table sorted by date gives batches that are even more narrowly concentrated, not less. And a gradient is a sum over a batch, which does not care about the order its rows arrived in, so reordering a time-sorted table is safe and is one of the cheapest regularisers available.",
       "hint": "Ask what a pass fixes and what the composition of a single update depends on.",
@@ -2515,7 +2515,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2527,7 +2527,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0042",
@@ -2547,8 +2547,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The model has begun to overfit, because a loss that rises on one pass and falls on the next is the pattern a validation curve shows once memorisation starts",
-          "misconception": "reads alternating training losses as the signature of overfitting"
+          "text": "The step size is near the limit the objective allows, because the loss rises on three of the seven transitions while still trending down overall and never falls below the smoother run's final 0.90",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2562,12 +2562,12 @@
         },
         {
           "id": "D",
-          "text": "The step size is near the limit the objective allows, because the loss rises on three of the seven transitions while still trending down overall and never falls below the smoother run's final 0.90",
-          "misconception": ""
+          "text": "The model has begun to overfit, because a loss that rises on one pass and falls on the next is the pattern a validation curve shows once memorisation starts",
+          "misconception": "reads alternating training losses as the signature of overfitting"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "A descent on a smooth bowl-shaped objective is stable when the step size times the local curvature stays below two, and near that boundary each update overshoots the minimum and the next one has to come back, which is exactly what an alternating trace is. The second run rises on three of its seven transitions and reaches 3.02, a range of 1.68, and still ends at 1.34, which is worse than the first run's 0.90 at the same pass. On a single parameter with curvature two the boundary is a step size of 1.0: at 0.9 the sequence alternates in sign, giving -9.6, 7.68, -6.144, 4.9152 and then 3.145728, and still converges; at 1.0 the parameter flips between 12 and minus 12 without shrinking at all; at 1.5 it doubles every pass, giving -24, 48, -96, 192, so the second trace is the neighbourhood of that boundary. The overfitting reading is wrong because overfitting is a comparison between two datasets, and only one is present here. A net fall is not convergence: convergence is about the step size, not the direction of the trend.",
       "hint": "Compare the two traces pass by pass and ask how close the updates are to overshooting.",
@@ -2584,7 +2584,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2596,7 +2596,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0043",
@@ -2621,13 +2621,13 @@
         },
         {
           "id": "B",
-          "text": "That the run stopped because the loss stopped improving, since a vanishing gradient is what a plateau in the loss produces",
-          "misconception": "equates a small gradient with a flat loss curve"
+          "text": "That the search has stopped moving, which is consistent with a minimum, a saddle or a maximum, and the log alone cannot say which",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "That the search has stopped moving, which is consistent with a minimum, a saddle or a maximum, and the log alone cannot say which",
-          "misconception": ""
+          "text": "That the run stopped because the loss stopped improving, since a vanishing gradient is what a plateau in the loss produces",
+          "misconception": "equates a small gradient with a flat loss curve"
         },
         {
           "id": "D",
@@ -2636,7 +2636,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A vanishing gradient says the update rule has nowhere to go: every parameter's change is proportional to its own gradient, so if all of them are tiny, the parameters barely move. That is a statement about the search, not about the objective's shape, and on a non-convex objective the places where it stops include minima, saddle points and maxima alike. A saddle is the interesting one: the objective rises in some directions and falls in others, so a point can have no first-order improvement available while still sitting on a slope that a different step, a perturbation or a different starting point would have carried past, which is the ordinary reason two runs with different seeds end in different places. The gradient norm being small is also unrelated to the loss being flat, because a steep direction with a small gradient component is still a steep direction, and it is unrelated to the loss curve having flattened, because a plateau in the loss is a statement about the second derivative. What the log can support is that the optimiser stopped, and the next question is which of the three places it stopped at, which needs either a second-order check or a comparison against a restart.",
       "hint": "Ask whether the criterion is about the parameters or about the place in the objective they occupy.",
@@ -2653,7 +2653,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2665,7 +2665,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0044",
@@ -2681,7 +2681,7 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "A run keeps the checkpoint from the pass with the lowest validation loss, and the report quotes that validation loss as the run's expected performance. Which statement about this arrangement is correct?",
+      "stem": "In a the bias that stopping on validation data introduces review, the logged values are 47 and 49. A run keeps the checkpoint from the pass with the lowest validation loss, and the report quotes that validation loss as the run's expected performance. Which statement about this arrangement is correct?",
       "options": [
         {
           "id": "A",
@@ -2690,13 +2690,13 @@
         },
         {
           "id": "B",
-          "text": "Stopping early holds the model back from memorising, which regularises it, and the quoted figure is optimistic because the pass was chosen by looking at those same validation rows",
-          "misconception": ""
+          "text": "Stopping early is free, because the model is only prevented from improving further and the best pass is by definition the best the run could do",
+          "misconception": "treats a validation loss chosen from several passes as an unbiased estimate"
         },
         {
           "id": "C",
-          "text": "Stopping early is free, because the model is only prevented from improving further and the best pass is by definition the best the run could do",
-          "misconception": "treats a validation loss chosen from several passes as an unbiased estimate"
+          "text": "Stopping early holds the model back from memorising, which regularises it, and the quoted figure is optimistic because the pass was chosen by looking at those same validation rows",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2705,7 +2705,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Early stopping works because the passes after the validation minimum are the ones in which the model is fitting noise, so refusing to take them is a constraint of the same kind as a penalty: the fit is deliberately not allowed to reach the end of its own capacity. The cost is on the reporting side. The quoted loss is the minimum of several validation figures, and a minimum over many candidates is smaller than any single one of them, so it understates what the model will do on rows it has never influenced. The honest figure needs data that took no part in choosing the pass, which is the same reason a holdout is read once. The word leakage in the third option is doing the wrong work: the validation rows influenced a choice, not the parameters of the fit on the training rows, so the training set is untouched and the procedure is standard. What the arrangement cannot do is choose the pass well on its own, since a single validation set's minimum is itself noisy, which is why a run with a small validation set tends to stop at a pass that happens to suit it rather than one that suits the problem.",
       "hint": "Ask what the stopping rule prevents, and then ask which rows chose the stop.",
@@ -2722,7 +2722,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.971Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2734,7 +2734,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-9.2-0045",
@@ -2750,12 +2750,12 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "A dropout layer is configured to keep three quarters of its units, and an implementation builds the mask once at the start of training and reuses it for every batch and every pass. What does that cost the layer?",
+      "stem": "The case below gives the figures. 25. A dropout layer is configured to keep three quarters of its units, and an implementation builds the mask once at the start of training and reuses it for every batch and every pass. What does that cost the layer?",
       "options": [
         {
           "id": "A",
-          "text": "Two particular units never contribute a gradient and the rest are never thinned, so the same units are relied on throughout and the layer is weaker rather than regularised",
-          "misconception": ""
+          "text": "Only the randomness of the mask is lost, and a deterministic mask still averages out over many passes because the weights keep changing",
+          "misconception": "assumes changing weights substitute for a changing mask"
         },
         {
           "id": "B",
@@ -2769,12 +2769,12 @@
         },
         {
           "id": "D",
-          "text": "Only the randomness of the mask is lost, and a deterministic mask still averages out over many passes because the weights keep changing",
-          "misconception": "assumes changing weights substitute for a changing mask"
+          "text": "Two particular units never contribute a gradient and the rest are never thinned, so the same units are relied on throughout and the layer is weaker rather than regularised",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "Dropout works by making the network unable to rely on any particular unit: each pass presents a different thinned network, so a unit that would have carried a feature alone has to see that feature survive elsewhere, and the surviving set averages out over passes. A mask built once does the opposite of averaging. The units it drops never contribute a gradient at all, so two quarters of the capacity of that layer simply never trains, and the units it keeps are never thinned, so they come to carry the whole load. Over a 400-unit layer with a keep rate of 0.25, a random mask leaves 100 units active on average with a standard deviation of 8.66, so the count itself varies from pass to pass; a fixed mask gives the same count every time and therefore none of that variation. The belief that a fixed mask gives a comparable output across batches is a real property and exactly the wrong property: it is what you want from a bias, not from a throttling device. And changing weights do not compensate, because the excluded units receive no update at all, so they cannot become useful later.",
       "hint": "Ask which units ever see a gradient, and whether that set changes from pass to pass.",
@@ -2791,7 +2791,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:34:05.847Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2803,7 +2803,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 5
     },
     {
       "id": "datasci-9.2-0046",
@@ -2823,8 +2823,8 @@
       "options": [
         {
           "id": "A",
-          "text": "A fresh random mask is drawn and the survivors divided by the keep rate again, so that every prediction also sees a thinned network",
-          "misconception": "keeps dropping units at prediction time, so the same input gives a different answer each time"
+          "text": "The whole network is used with no mask and no further rescaling, because the division by the keep rate already compensated for the three quarters that were removed",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2838,12 +2838,12 @@
         },
         {
           "id": "D",
-          "text": "The whole network is used with no mask and no further rescaling, because the division by the keep rate already compensated for the three quarters that were removed",
-          "misconception": ""
+          "text": "A fresh random mask is drawn and the survivors divided by the keep rate again, so that every prediction also sees a thinned network",
+          "misconception": "keeps dropping units at prediction time, so the same input gives a different answer each time"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The division by the keep rate is the whole mechanism. Keeping a quarter of the activations would cut their expected sum to a quarter of what it was, and dividing the survivors by 0.25 multiplies them by four, so each activation that was kept arrives at the next layer with the size it would have had if nothing had been dropped. That compensation is applied to the values during training, so at prediction time the network can simply be used whole: on a layer of eight units with values summing to 6.9, a stride mask keeping six of them gives 3.0, and the scaled figure is 12.0 rather than 6.9, which is the arithmetic showing why the factor belongs in the training path. Drawing a fresh mask at prediction time would make every answer to the same input different, which is unacceptable for a system that has to return a stable score. Multiplying by 0.25 as well would shrink the output fourfold on top of the compensation, and moving the factor to the weights would change what is being fitted rather than restoring a scale.",
       "hint": "Ask which side of the training run already contains the correction for the dropped units.",
@@ -2860,7 +2860,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2872,7 +2872,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0047",
@@ -2897,13 +2897,13 @@
         },
         {
           "id": "B",
-          "text": "The larger step size has diverged, because a loss that rises between passes 6 and 8 cannot be the behaviour of a stable descent",
-          "misconception": "calls a rise above the best value a divergence"
+          "text": "The larger step size is worth keeping only if a pass budget is the binding constraint, because it is ahead at pass 5 at 0.585 against 0.60, reaches its best of 0.585 at pass 6, then turns up and ends 0.07 worse than the smaller step size",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "The larger step size is worth keeping only if a pass budget is the binding constraint, because it is ahead at pass 5 at 0.585 against 0.60, reaches its best of 0.585 at pass 6, then turns up and ends 0.07 worse than the smaller step size",
-          "misconception": ""
+          "text": "The larger step size has diverged, because a loss that rises between passes 6 and 8 cannot be the behaviour of a stable descent",
+          "misconception": "calls a rise above the best value a divergence"
         },
         {
           "id": "D",
@@ -2912,7 +2912,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The two traces have to be read at the horizon they will actually be used at. The larger step size is genuinely faster early: it is below the smaller one at every pass from 2 to 5 and reaches 0.59 at pass 5 where the smaller one is at 0.60, so on a budget of six passes it is the right choice. It then reaches its best value of 0.585 at pass 6 and rises to 0.592 and 0.618, ending 0.07 above the smaller step size's 0.548, so on a budget of eight passes it is the wrong choice. Neither reading that says strictly better nor the one that says diverged survives: a rise from the best value is a descent that has passed its stable point, while a divergence is a rise without a floor, and on a single parameter with curvature two the boundary is a step size of 1.0, where the parameter flips between 12 and minus 12 without shrinking, and beyond which it doubles every pass. The choice is therefore a statement about the budget, and it should be written down as one.",
       "hint": "Find where each trace reaches its best value, then compare them at the pass the run will stop at.",
@@ -2929,7 +2929,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2941,7 +2941,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0048",
@@ -2966,13 +2966,13 @@
         },
         {
           "id": "B",
-          "text": "0.379167 and 0.393396, so the batch-average dashboard understates the row-average by 0.01423 because the two short batches at 0.30 and 0.25 carry only 300 of the 5,300 rows",
-          "misconception": ""
+          "text": "0.379167 and 0.393396, so the row-average dashboard is the wrong one because a row has no business outvoting a batch",
+          "misconception": "insists on averaging per batch regardless of how many rows each batch held"
         },
         {
           "id": "C",
-          "text": "0.379167 and 0.393396, so the row-average dashboard is the wrong one because a row has no business outvoting a batch",
-          "misconception": "insists on averaging per batch regardless of how many rows each batch held"
+          "text": "0.379167 and 0.393396, so the batch-average dashboard understates the row-average by 0.01423 because the two short batches at 0.30 and 0.25 carry only 300 of the 5,300 rows",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2981,7 +2981,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The average of the twelve batch figures is 4.55 over 12, which is 0.379167, and the average over rows is 2,085 over 5,300, which is 0.393396, so the batch-average dashboard is 0.01423 lower. The reason is visible in the batch list: the last two batches, at 0.30 and 0.25, are the two worst figures in the pass, and they are also the two smallest batches, holding 200 and 100 rows out of 5,300, which is 5.66 per cent of the pass between them. Giving a 100-row batch the same vote as a 500-row batch therefore overstates how well the run is doing on the rows that matter. The two definitions coincide only when every batch holds the same number of rows, and that is exactly the condition a fixed-size batcher destroys whenever the table's row count is not a multiple of the batch size, which is the everyday case. The useful habit is to report the row average and, alongside it, the count of batches, because a pair of figures that differ tells you the batches were uneven.",
       "hint": "Weight each batch's loss by its row count, then compare the two totals against the row count.",
@@ -2998,7 +2998,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3010,7 +3010,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0049",
@@ -3030,8 +3030,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The test set chose the model as well as scoring it, because 0.503 is the smallest of the four test figures, and the honest estimate is the 0.510 that the validation-chosen model of 0.5 actually earns",
-          "misconception": ""
+          "text": "The validation set is the wrong set to have used, because validation figures are computed before the test set and so cannot be used to choose between models",
+          "misconception": "reverses the roles of the validation and test sets"
         },
         {
           "id": "B",
@@ -3045,12 +3045,12 @@
         },
         {
           "id": "D",
-          "text": "The validation set is the wrong set to have used, because validation figures are computed before the test set and so cannot be used to choose between models",
-          "misconception": "reverses the roles of the validation and test sets"
+          "text": "The test set chose the model as well as scoring it, because 0.503 is the smallest of the four test figures, and the honest estimate is the 0.510 that the validation-chosen model of 0.5 actually earns",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "A test figure is an estimate of performance only if the test rows had no part in deciding anything, and here they decided which of four models is the one being reported. The minimum of four test figures is smaller than any single one of them, so quoting the minimum reports the best of four draws rather than what the chosen model will do. The concrete cost is legible here: the validation set picks a penalty of 0.5, and that model's test figure is 0.510, while the test set's own favourite is a penalty of 2.0 at 0.503, whose validation figure is 0.505. The two sets therefore chose different models, and the reported 0.503 is 0.007 better than the honest figure because it was selected rather than measured. The claim that the two sets agree is false, since they picked different models; the claim that the gap is noise is beside the point, because the gap is not sampling variation at all but the selection effect. The remedy is procedural rather than statistical: choose on validation, quote the test once, and if the two disagree about which model is best, that disagreement is information about how noisy four figures are, not a reason to keep reading the test set.",
       "hint": "Ask which of the four candidates the quoted figure was chosen from, and what the chosen model scores without that choice.",
@@ -3067,7 +3067,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3079,7 +3079,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0050",
@@ -3099,8 +3099,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The model is well calibrated, because every gap is small and the worst of them, 0.25, is inside the range a bin of a tenth of the rows can produce by chance",
-          "misconception": "dismisses a systematic gap as the sampling noise of a small bin"
+          "text": "The model is overconfident in every bin, with the gap widening from 0.03 to 0.25 as confidence rises, so its mean predicted rate of 0.405 stands against an observed 0.3125 and the worst bin is the one holding a tenth of the rows",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3114,12 +3114,12 @@
         },
         {
           "id": "D",
-          "text": "The model is overconfident in every bin, with the gap widening from 0.03 to 0.25 as confidence rises, so its mean predicted rate of 0.405 stands against an observed 0.3125 and the worst bin is the one holding a tenth of the rows",
-          "misconception": ""
+          "text": "The model is well calibrated, because every gap is small and the worst of them, 0.25, is inside the range a bin of a tenth of the rows can produce by chance",
+          "misconception": "dismisses a systematic gap as the sampling noise of a small bin"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The direction is consistent and the size is not: the observed rate is below the predicted rate in all five bins, with gaps of 0.03, 0.06, 0.04, 0.15 and 0.25, so the model overstates how often the positive class occurs and does so more the more confident it is. Aggregated over the table, the mean predicted rate is 0.405 against an observed 0.3125, a shortfall of 0.0925, and the expected calibration error on the same table is also 0.0925 because every gap has the same sign and so the absolute values add to the same total. That equality is a fact about this table and not a general identity: on a table where the model is overconfident in some bins and underconfident in others, the expected calibration error exceeds the overall shortfall, since it counts the two kinds of error in opposite directions as the same size. The worst bin holds a tenth of the rows and contributes 0.025 of the 0.0925, so the bin that is easiest to overlook is also the one where the model is most wrong. The sampling-noise defence fails because the noise argument would have to explain five gaps of the same sign, which is the opposite of what independent noise does. And a pattern present in four bins is not a feature of the top bin.",
       "hint": "Check the sign of the gap in every bin, then see which bin the weighting puts the most weight on.",
@@ -3136,7 +3136,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3148,7 +3148,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0051",
@@ -3173,13 +3173,13 @@
         },
         {
           "id": "B",
-          "text": "Stop the run, because neither trace reaches zero and a loss of 0.90 is still far from a converged fit",
-          "misconception": "treats a loss above zero as evidence that the run has failed"
+          "text": "Lower the step size, because the second run rises on three of its seven transitions and peaks at 3.02 while the first falls at every one",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Lower the step size, because the second run rises on three of its seven transitions and peaks at 3.02 while the first falls at every one",
-          "misconception": ""
+          "text": "Stop the run, because neither trace reaches zero and a loss of 0.90 is still far from a converged fit",
+          "misconception": "treats a loss above zero as evidence that the run has failed"
         },
         {
           "id": "D",
@@ -3188,7 +3188,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "An alternating trace is a step-size diagnosis and the change that follows is a smaller step, because the first run falls at every one of its seven transitions while the second rises three times and reaches 3.02, a range of 1.68 against the first run's 1.50 over a comparable span. The single-parameter arithmetic shows what that means: a step of 0.1 on a curvature of two multiplies the parameter by 0.8 and converges monotonically, a step of 0.9 multiplies it by minus 0.8 and alternates in sign while still settling, a step of 1.0 multiplies it by minus 1 and flips the parameter between plus and minus its starting value without shrinking at all, and 1.5 doubles it every pass, giving -24, 48, -96, 192. Raising the step size, which the second option recommends, moves further along exactly that sequence. Adding capacity has nothing to do with the stability of an update, and refusing to stop because the loss is not zero confuses a loss value with a convergence criterion: on a problem with irreducible noise the best attainable loss is not zero, and 0.90 may already be close to it.",
       "hint": "Compare the transitions rather than the endpoints, and ask which parameter of the run the pattern implicates.",
@@ -3205,7 +3205,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3217,7 +3217,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0052",
@@ -3242,13 +3242,13 @@
         },
         {
           "id": "B",
-          "text": "Fit a correction between predicted and observed rates on rows held back from the model, because the fault is a consistent overstatement that the held-back rows can measure without the correction being tuned on the rows it will be judged by",
-          "misconception": ""
+          "text": "Raise the classification threshold, because a model that overstates the positive rate can be made honest by moving the point at which it says yes",
+          "misconception": "believes a threshold change repairs the probabilities themselves"
         },
         {
           "id": "C",
-          "text": "Raise the classification threshold, because a model that overstates the positive rate can be made honest by moving the point at which it says yes",
-          "misconception": "believes a threshold change repairs the probabilities themselves"
+          "text": "Fit a correction between predicted and observed rates on rows held back from the model, because the fault is a consistent overstatement that the held-back rows can measure without the correction being tuned on the rows it will be judged by",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3257,7 +3257,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Miscalibration in the same direction in every bin is a systematic property of what the model learned, not a property of any one row, so the natural remedy is a correction fitted to the relationship between what the model said and what happened, which means holding rows back from the model itself. The data requirement is the substance of the item: if the correction is fitted on the training rows, it inherits the training rows' optimism and there is nothing left to measure it against, which is the same trap as choosing a penalty on the test set and quoting the test figure. A threshold change is not a repair because it acts on the decision, not the probability: it can trade false positives against false negatives, but a model that says 0.80 and means 0.55 has a false number whether the threshold sits at 0.5 or at 0.9. And capacity is not the lever, since a deeper model that overstates the positive rate will do so more confidently, and the useful question is whether the overstatement comes from the fit, from the loss it was trained on, or from the binning itself.",
       "hint": "Ask what data the remedy needs in order to be judged, and whether it fixes a number or a decision.",
@@ -3274,7 +3274,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3286,7 +3286,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0053",
@@ -3306,8 +3306,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Rank them separately until the second is recomputed over all 320 rows, because 0.25 is a per-row figure for 64 rows and the two numbers describe different sets of rows",
-          "misconception": ""
+          "text": "Rank neither until both are recomputed, because a leaderboard entry computed on a subset of the rows cannot be repaired by any later arithmetic",
+          "misconception": "claims the second figure is beyond repair when only its denominator is wrong"
         },
         {
           "id": "B",
@@ -3321,12 +3321,12 @@
         },
         {
           "id": "D",
-          "text": "Rank neither until both are recomputed, because a leaderboard entry computed on a subset of the rows cannot be repaired by any later arithmetic",
-          "misconception": "claims the second figure is beyond repair when only its denominator is wrong"
+          "text": "Rank them separately until the second is recomputed over all 320 rows, because 0.25 is a per-row figure for 64 rows and the two numbers describe different sets of rows",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The denominator is part of the measurement, and the two entries do not share one. The first entry divides a total of 16.0 by every row the run saw, which is 320, giving 0.05 per row. The second divides a total of the same kind by 64, the rows in its last batch, giving 0.25 per row, and its last batch is not even a random slice of the table because the final batch of an epoch is whatever is left over. So the second number is five times the first while describing a fifth of the rows, and no amount of comparing the two tells you anything. The fix is arithmetic rather than a redesign: the run has the per-batch sums already, so dividing the accumulated total by the accumulated row count recovers the figure the leaderboard wants, and that is the 0.05. Refusing to rank either entry goes too far, because the second figure is wrong in a way that is both identifiable and correctable, and treating the larger number as the honest one is not a rule: a loss is not more truthful for being bigger, it is only bigger.",
       "hint": "Ask what each figure divides, and over how many rows.",
@@ -3343,7 +3343,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3355,7 +3355,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0054",
@@ -3371,7 +3371,7 @@
       },
       "format": "ORDERING",
       "stimulus": null,
-      "stem": "A run's loss has not fallen for six passes and the team cannot tell why. Put these four checks in the order that rules causes out soonest.",
+      "stem": "A worked an investigation order for a run that will not improve example uses the figures 57 and 6. A run's loss has not fallen for six passes and the team cannot tell why. Put these four checks in the order that rules causes out soonest. Which answer is correct for this case?",
       "options": [
         {
           "id": "A",
@@ -3381,17 +3381,17 @@
         {
           "id": "B",
           "text": "Recompute the loss by hand on a single batch, since a reported loss that cannot be reproduced is a reporting fault and every other check assumes the number is real",
-          "misconception": ""
+          "misconception": "puts recompute the loss by hand ahead of its prerequisite"
         },
         {
           "id": "C",
           "text": "Only then look at the data, because a data fault shows up as a loss that will not fall however the step size is set",
-          "misconception": ""
+          "misconception": "puts only then look at the data ahead of its prerequisite"
         },
         {
           "id": "D",
           "text": "Read the loss per pass and check whether it alternates, since an alternating trace is a step size problem and needs no data investigation at all",
-          "misconception": ""
+          "misconception": "puts loss per pass after only then look at the data, reversing the order"
         }
       ],
       "answer": {
@@ -3417,7 +3417,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.971Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3429,7 +3429,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-9.2-0055",
@@ -3599,17 +3599,17 @@
         {
           "id": "B",
           "text": "Add a penalty and re-run, since a constraint on the coefficients is the cheapest way to buy back the variance the later passes spent",
-          "misconception": ""
+          "misconception": "puts penalty ahead of its prerequisite"
         },
         {
           "id": "C",
           "text": "Report the held-out figure from data that took no part in choosing the pass, since a minimum over six validation figures is smaller than any one of them",
-          "misconception": ""
+          "misconception": "puts held-out figure from data that took ahead of its prerequisite"
         },
         {
           "id": "D",
           "text": "Keep the checkpoint from the third pass, since it is free and the passes after it made the model worse on the only data that was held out",
-          "misconception": ""
+          "misconception": "puts checkpoint from the third pass after held-out figure from data that took, reversing the"
         }
       ],
       "answer": {
@@ -3635,7 +3635,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T20:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3647,7 +3647,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0059",
@@ -3667,8 +3667,8 @@
       "options": [
         {
           "id": "A",
-          "text": "The fit is short of capacity, and the response is to double the hidden width, since a training loss that has reached 0.09 must have run out of parameters",
-          "misconception": "reads a low training loss as a shortage of capacity rather than as freedom being spent"
+          "text": "The fit has too much freedom for its data, and the response is a constraint of some kind: a penalty, fewer units, or a stop at the third pass, with the reported figure taken from rows that chose nothing",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3677,8 +3677,8 @@
         },
         {
           "id": "C",
-          "text": "The fit has too much freedom for its data, and the response is a constraint of some kind: a penalty, fewer units, or a stop at the third pass, with the reported figure taken from rows that chose nothing",
-          "misconception": ""
+          "text": "The fit is short of capacity, and the response is to double the hidden width, since a training loss that has reached 0.09 must have run out of parameters",
+          "misconception": "reads a low training loss as a shortage of capacity rather than as freedom being spent"
         },
         {
           "id": "D",
@@ -3687,7 +3687,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The gap between the two curves is the diagnosis and the sign of the change follows from it. Validation minus training runs from minus 0.02 at the first pass to 0.53 at the sixth, the validation loss reaches its low of 0.53 at the third pass and then rises by 0.09 while the training loss falls by 0.27 over the same three passes, which is the ordinary signature of a fit absorbing noise. The remedies are all constraints of the same kind, differing in where they are applied: a penalty constrains the coefficients, fewer units constrain the architecture, and stopping at the third pass constrains how long the fit is allowed to run. Adding units is the one move that makes the fault worse, because it grants the fit more freedom at the moment the evidence says it already has too much. The capacity reading is a direct inversion, since a training loss of 0.09 is low rather than high and a model unable to fit its own rows is the opposite condition. The data reading is a reasonable worry in general, since a validation table built from a different population would produce exactly this picture, and it is worth a check, but it is a different diagnosis with a different fix and it should be raised as its own question rather than folded into this one.",
       "hint": "Read the gap between the curves and ask whether the fit needs more room or less.",
@@ -3704,7 +3704,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3716,7 +3716,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-9.2-0060",

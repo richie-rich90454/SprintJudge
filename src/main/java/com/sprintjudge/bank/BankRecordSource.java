@@ -2,6 +2,7 @@ package com.sprintjudge.bank;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sprintjudge.util.Json;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -20,6 +23,10 @@ import org.springframework.stereotype.Component;
  * Full bank records for the quiz builder. Headers stay in {@link BankStore};
  * this source reads the selected subject/unit on demand and caches only that
  * slice, so a 200MB library never becomes a 200MB heap residency.
+ *
+ * A separate lightweight subject -> unit -> topic index is built in one pass on
+ * first use. Recommendation logic reads that index instead of re-parsing the
+ * bank for every subject/unit pair.
  */
 @Component
 public class BankRecordSource {
@@ -28,6 +35,15 @@ public class BankRecordSource {
 	private static final String BANK_GLOB = "classpath*:bank/**/*.json";
 
 	private static final int MAX_CACHED_SLICES = 2;
+	private static final int MAX_CACHED_META = 512;
+	private static final String[] EMPTY_META = {"", ""};
+
+	private static final Map<String, String[]> metaCache = new LinkedHashMap<>(16, 0.75f, true) {
+		@Override
+		protected boolean removeEldestEntry(Map.Entry<String, String[]> eldest) {
+			return size() > MAX_CACHED_META;
+		}
+	};
 
 	private final Resource[] resources;
 	private final ObjectMapper mapper;
@@ -40,6 +56,7 @@ public class BankRecordSource {
 		}
 	};
 	private volatile Set<String> subjectsCache;
+	private volatile Map<String, Map<String, List<String>>> index;
 
 	public BankRecordSource() throws IOException {
 		this(new PathMatchingResourcePatternResolver().getResources(BANK_GLOB), new ObjectMapper());
@@ -84,28 +101,110 @@ public class BankRecordSource {
 	}
 
 	/**
-	 * Distinct subject names present in the bank. Scans every classpath bank
-	 * resource once and caches the result.
+	 * Distinct subject names present in the bank, backed by the one-pass index.
 	 */
 	public Set<String> subjects() {
 		Set<String> cached = subjectsCache;
 		if (cached != null)
 			return cached;
-		Set<String> out = new java.util.TreeSet<>();
+		Set<String> copy = Set.copyOf(index().keySet());
+		subjectsCache = copy;
+		return copy;
+	}
+
+	/** Distinct non-blank units for a subject, sorted; blank unit if none exist. */
+	public List<String> unitsOf(String subject) {
+		Map<String, List<String>> units = index().get(subject);
+		if (units == null)
+			return List.of("");
+		List<String> out = new ArrayList<>();
+		for (String unit : new TreeSet<>(units.keySet())) {
+			if (!unit.isBlank())
+				out.add(unit);
+		}
+		return out.isEmpty() ? List.of("") : List.copyOf(out);
+	}
+
+	/** Topic matches for a subject/unit, including reversed substring matches. */
+	public int topicMatches(String subject, String unit, String topic) {
+		if (topic == null || topic.isBlank())
+			return 0;
+		Map<String, List<String>> units = index().get(subject);
+		if (units == null)
+			return 0;
+		int count = 0;
+		if (unit == null || unit.isBlank()) {
+			for (List<String> topics : units.values()) {
+				count += countMatches(topics, topic);
+			}
+		} else {
+			List<String> topics = units.get(unit);
+			if (topics != null)
+				count = countMatches(topics, topic);
+		}
+		return count;
+	}
+
+	private static int countMatches(List<String> topics, String topic) {
+		int count = 0;
+		for (String candidate : topics) {
+			if (containsIgnoreCase(candidate, topic) || containsIgnoreCase(topic, candidate))
+				count++;
+		}
+		return count;
+	}
+
+	private static boolean containsIgnoreCase(String haystack, String needle) {
+		if (needle.isBlank())
+			return false;
+		return haystack.toLowerCase(Locale.ROOT).contains(needle.toLowerCase(Locale.ROOT));
+	}
+
+	/**
+	 * Parsed topic/unit for an authored question config. Configs are immutable
+	 * strings, so a bounded cache removes repeat parsing without going stale.
+	 */
+	public static synchronized String[] configMeta(String config) {
+		if (config == null || config.isBlank())
+			return EMPTY_META;
+		String[] hit = metaCache.get(config);
+		if (hit != null)
+			return hit;
+		String topic = "";
+		String unit = "";
+		try {
+			JsonNode node = Json.readTree(config);
+			topic = node.path("topic").asText("");
+			unit = node.path("unit").asText("");
+		} catch (RuntimeException ignored) {
+			// An unreadable config simply contributes no bank metadata.
+		}
+		String[] meta = {topic, unit};
+		metaCache.put(config, meta);
+		return meta;
+	}
+
+	private synchronized Map<String, Map<String, List<String>>> index() {
+		Map<String, Map<String, List<String>>> found = index;
+		if (found != null)
+			return found;
+		Map<String, Map<String, List<String>>> built = new TreeMap<>();
 		for (Resource resource : resources) {
 			try (InputStream in = resource.getInputStream()) {
 				for (Map<String, Object> record : fullRecords(mapper.readTree(in))) {
 					String subject = text(record, "subject");
-					if (!subject.isBlank())
-						out.add(subject);
+					if (subject.isBlank())
+						continue;
+					built.computeIfAbsent(subject, key -> new LinkedHashMap<>())
+							.computeIfAbsent(text(record, "unit"), key -> new ArrayList<>()).add(text(record, "topic"));
 				}
 			} catch (IOException | RuntimeException e) {
 				log.error("Skipping unreadable bank resource: {}", resource.getFilename(), e);
 			}
 		}
-		Set<String> copy = Set.copyOf(out);
-		subjectsCache = copy;
-		return copy;
+		found = built;
+		index = found;
+		return found;
 	}
 
 	/** Playable records for a unit, filtered to the mapped question formats. */

@@ -1,21 +1,39 @@
-import { useState } from "react";
+import { useI18n } from "../i18n";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAdminStore, WizardStep } from "../stores/useAdminStore";
-import { ALL_QUESTION_TYPES, QuestionType } from "../types";
+import { QuestionType } from "../types";
 import { QuestionRendererHost } from "../components/QuestionRendererHost";
 import { ErrorBoundary } from "../components/ErrorBoundary";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Dialog } from "../ui/Dialog";
 import { QuestionDto } from "../types";
+import {
+    ExtraQuestionType,
+    extraDefaultConfig,
+    isExtraQuestionType,
+    WIZARD_QUESTION_TYPES,
+} from "../components/authoring/authoringTypes";
+import { ExtraTypeConfigForm, ExtraTypePreview } from "../components/authoring/ExtraTypeConfigForm";
+import { RichStemEditor, RichStemPreview } from "../components/authoring/RichStemFields";
+import { readRichStem, RichStem } from "../components/authoring/richStem";
+import { ItemQualityPanel } from "../components/authoring/ItemQualityPanel";
 
 const STEPS: WizardStep[] = ["type", "statement", "config", "preview"];
 
 function ConfigForm() {
+    const { t } = useI18n();
     const draft = useAdminStore((s) => s.draft);
     const setDraft = useAdminStore((s) => s.setDraft);
     const type = draft.questionType as QuestionType;
     const config = (draft.config as Record<string, unknown>) ?? {};
     const set = (patch: Record<string, unknown>) => setDraft({ config: { ...config, ...patch } });
+
+    if (isExtraQuestionType(type as string)) {
+        return (
+            <ExtraTypeConfigForm type={type as ExtraQuestionType} config={config} onChange={set} />
+        );
+    }
 
     switch (type) {
         case "MCQ":
@@ -26,7 +44,8 @@ function ConfigForm() {
                 <div className="flex flex-col gap-4">
                     {type === "OUTPUT_PRED" && (
                         <textarea
-                            placeholder="Code snippet"
+                            aria-label={t("ui.codeSnippet")}
+                            placeholder={t("ui.codeSnippet")}
                             value={(config["code"] as string) ?? ""}
                             onChange={(e) => set({ code: e.target.value })}
                             className="mono w-full min-h-[100px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
@@ -35,8 +54,13 @@ function ConfigForm() {
                     {options.map((o, i) => (
                         <input
                             key={i}
+                            aria-label={t("ui.optionLabel", {
+                                letter: String.fromCharCode(65 + i),
+                            })}
                             value={o}
-                            placeholder={`Option ${String.fromCharCode(65 + i)}`}
+                            placeholder={t("ui.optionLabel", {
+                                letter: String.fromCharCode(65 + i),
+                            })}
                             onChange={(e) => {
                                 const n = [...options];
                                 n[i] = e.target.value;
@@ -45,10 +69,14 @@ function ConfigForm() {
                             className="input-underline"
                         />
                     ))}
-                    <label className="text-sm text-[var(--oq-ink-soft)] mt-2">
-                        Correct option index
+                    <label
+                        htmlFor="oq-correct-index"
+                        className="text-sm text-[var(--oq-ink-soft)] mt-2"
+                    >
+                        {t("ui.correctOptionIndex")}
                     </label>
                     <input
+                        id="oq-correct-index"
                         type="number"
                         min={0}
                         value={(config["correctIndex"] as number) ?? 0}
@@ -61,14 +89,14 @@ function ConfigForm() {
         case "TRUE_FALSE":
             return (
                 <label className="text-sm text-[var(--oq-ink-soft)]">
-                    Correct answer
+                    {t("ui.correctAnswer")}
                     <select
                         value={String(config["correct"] ?? "true")}
                         onChange={(e) => set({ correct: e.target.value === "true" })}
                         className="input-underline ml-2 w-32"
                     >
-                        <option value="true">True</option>
-                        <option value="false">False</option>
+                        <option value="true">{t("ui.true")}</option>
+                        <option value="false">{t("ui.false")}</option>
                     </select>
                 </label>
             );
@@ -79,8 +107,13 @@ function ConfigForm() {
                     {options.map((o, i) => (
                         <input
                             key={i}
+                            aria-label={t("ui.optionLabel", {
+                                letter: String.fromCharCode(65 + i),
+                            })}
                             value={o}
-                            placeholder={`Option ${String.fromCharCode(65 + i)}`}
+                            placeholder={t("ui.optionLabel", {
+                                letter: String.fromCharCode(65 + i),
+                            })}
                             onChange={(e) => {
                                 const n = [...options];
                                 n[i] = e.target.value;
@@ -89,10 +122,14 @@ function ConfigForm() {
                             className="input-underline"
                         />
                     ))}
-                    <label className="text-sm text-[var(--oq-ink-soft)] mt-2">
-                        Correct indices (comma sep)
+                    <label
+                        htmlFor="oq-correct-indices"
+                        className="text-sm text-[var(--oq-ink-soft)] mt-2"
+                    >
+                        {t("ui.correctIndicesCommaSep")}
                     </label>
                     <input
+                        id="oq-correct-indices"
                         value={((config["correctIndices"] as number[]) ?? []).join(",")}
                         onChange={(e) =>
                             set({
@@ -111,7 +148,7 @@ function ConfigForm() {
             return (
                 <div className="flex gap-4 flex-wrap">
                     <label className="text-sm">
-                        Answer
+                        {t("ui.answer")}
                         <input
                             type="number"
                             value={(config["answer"] as number) ?? 0}
@@ -120,7 +157,7 @@ function ConfigForm() {
                         />
                     </label>
                     <label className="text-sm">
-                        Tolerance
+                        {t("ui.tolerance")}
                         <input
                             type="number"
                             step="0.01"
@@ -135,13 +172,15 @@ function ConfigForm() {
             return (
                 <div className="flex flex-col gap-4">
                     <textarea
-                        placeholder="Snippet (use ___ for the blank)"
+                        aria-label={t("ui.snippetUseForTheBlank")}
+                        placeholder={t("ui.snippetUseForTheBlank")}
                         value={(config["snippet"] as string) ?? ""}
                         onChange={(e) => set({ snippet: e.target.value })}
                         className="mono w-full min-h-[100px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
                     />
                     <input
-                        placeholder="Correct answer"
+                        aria-label={t("ui.correctAnswer")}
+                        placeholder={t("ui.correctAnswer")}
                         value={(config["answer"] as string) ?? ""}
                         onChange={(e) => set({ answer: e.target.value })}
                         className="input-underline"
@@ -154,14 +193,15 @@ function ConfigForm() {
                 <div className="flex flex-col gap-4">
                     {lines.length === 0 && (
                         <p className="text-[var(--oq-ink-soft)] text-sm">
-                            No lines yet - add the first line below.
+                            {t("ui.noLinesYetAddTheFirstLineBelow")}
                         </p>
                     )}
                     {lines.map((l, i) => (
                         <input
                             key={i}
+                            aria-label={t("ui.lineLabel", { n: i + 1 })}
                             value={l.text}
-                            placeholder={`Line ${i + 1}`}
+                            placeholder={t("ui.lineLabel", { n: i + 1 })}
                             onChange={(e) => {
                                 const n = [...lines];
                                 n[i] = { ...l, text: e.target.value };
@@ -176,14 +216,17 @@ function ConfigForm() {
                         }
                         className="text-[var(--oq-accent)] text-sm self-start min-h-[44px] px-2 inline-flex items-center font-bold"
                     >
-                        Add line
+                        {t("ui.addLine")}
                     </button>
-                    <label className="text-sm text-[var(--oq-ink-soft)]">
-                        Correct order (line numbers, comma separated)
+                    <label htmlFor="oq-correct-order" className="text-sm text-[var(--oq-ink-soft)]">
+                        {t("ui.correctOrderLineNumbersCommaSeparated")}
                     </label>
                     <input
-                        placeholder="e.g. 2,0,1"
-                        value={(config["correctOrder"] as string) ?? lines.map((_, i) => i).join(",")}
+                        id="oq-correct-order"
+                        placeholder={t("ui.eg201")}
+                        value={
+                            (config["correctOrder"] as string) ?? lines.map((_, i) => i).join(",")
+                        }
                         onChange={(e) => set({ correctOrder: e.target.value })}
                         className="input-underline"
                     />
@@ -197,19 +240,21 @@ function ConfigForm() {
                 <div className="flex flex-col gap-4">
                     {empty && (
                         <p className="text-[var(--oq-ink-soft)] text-sm">
-                            No code lines yet - add one buggy line per row below.
+                            {t("ui.noCodeLinesYetAddOneBuggyLinePerRowBelow")}
                         </p>
                     )}
                     <textarea
-                        placeholder="One buggy line per row"
+                        aria-label={t("ui.oneBuggyLinePerRow")}
+                        placeholder={t("ui.oneBuggyLinePerRow")}
                         value={codeLines.join("\n")}
                         onChange={(e) => set({ codeLines: e.target.value.split("\n") })}
                         className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
                     />
-                    <label className="text-sm text-[var(--oq-ink-soft)]">
-                        Bug line index (0-based)
+                    <label htmlFor="oq-bug-line" className="text-sm text-[var(--oq-ink-soft)]">
+                        {t("ui.bugLineIndex0based")}
                     </label>
                     <input
+                        id="oq-bug-line"
                         type="number"
                         value={(config["bugLine"] as number) ?? 0}
                         onChange={(e) => set({ bugLine: Number(e.target.value) })}
@@ -222,14 +267,16 @@ function ConfigForm() {
             return (
                 <div className="flex flex-col gap-4">
                     <textarea
-                        placeholder="Skeleton / starter code (editable region)"
+                        aria-label={t("ui.skeletonStarterCodeEditableRegion")}
+                        placeholder={t("ui.skeletonStarterCodeEditableRegion")}
                         value={(config["skeleton"] as string) ?? ""}
                         onChange={(e) => set({ skeleton: e.target.value })}
                         className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
                     />
                     <textarea
-                        placeholder="Expected completed code (used to grade)"
-                        value={(config["expected"] as string) ?? ""}
+                        aria-label={t("ui.expectedCompletedCodeUsedToGrade")}
+                        placeholder={t("ui.expectedCompletedCodeUsedToGrade")}
+                        value={(config[t("ui.expected")] as string) ?? ""}
                         onChange={(e) => set({ expected: e.target.value })}
                         className="mono w-full min-h-[140px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
                     />
@@ -247,7 +294,8 @@ function ConfigForm() {
                 <div className="flex flex-col gap-4">
                     {type === "OJ_PATCH" && (
                         <textarea
-                            placeholder="Buggy function"
+                            aria-label={t("ui.buggyFunction")}
+                            placeholder={t("ui.buggyFunction")}
                             value={(config["buggyFunction"] as string) ?? ""}
                             onChange={(e) => set({ buggyFunction: e.target.value })}
                             className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
@@ -255,17 +303,19 @@ function ConfigForm() {
                     )}
                     {type === "OJ_FULL" && (
                         <textarea
-                            placeholder="Starter code"
+                            aria-label={t("ui.starterCode")}
+                            placeholder={t("ui.starterCode")}
                             value={(config["starter"] as string) ?? ""}
                             onChange={(e) => set({ starter: e.target.value })}
                             className="mono w-full min-h-[120px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] text-sm rounded-[2px]"
                         />
                     )}
-                    <p className="text-sm text-[var(--oq-ink-soft)] mt-1">Test cases</p>
+                    <p className="text-sm text-[var(--oq-ink-soft)] mt-1">{t("ui.testCases")}</p>
                     {tc.map((c, i) => (
                         <div key={i} className="tc-row flex gap-4">
                             <input
-                                placeholder="input"
+                                aria-label={t("ui.input")}
+                                placeholder={t("ui.input")}
                                 value={c.input}
                                 onChange={(e) => {
                                     const n = [...tc];
@@ -275,7 +325,8 @@ function ConfigForm() {
                                 className="input-underline flex-1 text-sm"
                             />
                             <input
-                                placeholder="expected"
+                                aria-label={t("ui.expected")}
+                                placeholder={t("ui.expected")}
                                 value={c.expectedOutput}
                                 onChange={(e) => {
                                     const n = [...tc];
@@ -297,25 +348,45 @@ function ConfigForm() {
                         }
                         className="text-[var(--oq-accent)] text-sm self-start min-h-[44px] px-2 inline-flex items-center font-bold"
                     >
-                        Add test case
+                        {t("ui.addTestCase")}
                     </button>
                 </div>
             );
         }
         default:
-            return <p className="text-[var(--oq-ink-soft)]">No config editor for this type.</p>;
+            return <p className="text-[var(--oq-ink-soft)]">{t("ui.noConfigEditorForThisType")}</p>;
     }
 }
 
 export function QuestionWizard() {
+    const { t } = useI18n();
     const { wizardStep, wizardType, draft, setStep, setType, setDraft, saveQuestion, closeWizard } =
         useAdminStore();
     const [validationError, setValidationError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
+    const stepButtons = useRef<Partial<Record<WizardStep, HTMLButtonElement | null>>>({});
+    const errorRef = useRef<HTMLParagraphElement | null>(null);
+    // Focus on mount as well as on message change: an async save error can
+    // mount a fresh alert with an unchanged message text.
+    const attachError = useCallback((node: HTMLParagraphElement | null) => {
+        errorRef.current = node;
+        if (node) node.focus();
+    }, []);
+    useEffect(() => {
+        stepButtons.current[wizardStep]?.focus();
+    }, [wizardStep]);
+    // Runs after the step effect so an error raised together with a step change keeps focus.
+    useEffect(() => {
+        if (validationError) errorRef.current?.focus();
+    }, [validationError]);
+    const config = (draft.config as Record<string, unknown>) ?? {};
+    const rich = readRichStem(config);
+    const setRich = (next: RichStem) => setDraft({ config: { ...config, rich: next } });
+    const previewExtra = isExtraQuestionType(draft.questionType ?? "");
     const previewQuestion: QuestionDto = {
         id: "preview",
         type: (draft.questionType as QuestionType) ?? "MCQ",
-        title: draft.title ?? "Preview question",
+        title: draft.title ?? t("ui.previewQuestion"),
         description: draft.description ?? "",
         timeLimitSec: draft.timeLimitSec ?? 30,
         pointsBase: draft.pointsBase ?? 100,
@@ -325,7 +396,7 @@ export function QuestionWizard() {
 
     const doSave = async () => {
         if (!(draft.title ?? "").trim()) {
-            setValidationError("Title is required - add a title before saving.");
+            setValidationError(t("ui.titleIsRequiredAddATitleBeforeSaving"));
             setStep("statement");
             return;
         }
@@ -334,8 +405,9 @@ export function QuestionWizard() {
         try {
             await saveQuestion();
         } catch (error) {
-            const detail = (error as { response?: { data?: { error?: string } } })?.response?.data?.error;
-            setValidationError(detail ? `Save failed: ${detail}` : "Save failed. Check the fields and your sign-in, then retry.");
+            const detail = (error as { response?: { data?: { error?: string } } })?.response?.data
+                ?.error;
+            setValidationError(detail ? t("ui.saveFailedDetail", { detail }) : t("ui.saveFailed"));
         } finally {
             setSaving(false);
         }
@@ -347,7 +419,7 @@ export function QuestionWizard() {
             onOpenChange={(open) => {
                 if (!open) closeWizard();
             }}
-            title="Question wizard"
+            title={t("ui.questionWizard")}
             size="lg"
         >
             <div>
@@ -355,8 +427,12 @@ export function QuestionWizard() {
                     {STEPS.map((s) => (
                         <Button
                             key={s}
+                            ref={(el) => {
+                                stepButtons.current[s] = el;
+                            }}
                             variant={wizardStep === s ? "primary" : "secondary"}
                             size="sm"
+                            aria-current={wizardStep === s ? "step" : undefined}
                             onClick={() => setStep(s)}
                         >
                             {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -366,17 +442,22 @@ export function QuestionWizard() {
 
                 {wizardStep === "type" && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {ALL_QUESTION_TYPES.map((t) => (
+                        {WIZARD_QUESTION_TYPES.map((type) => (
                             <Button
-                                key={t}
-                                variant={wizardType === t ? "primary" : "secondary"}
+                                key={type}
+                                variant={wizardType === type ? "primary" : "secondary"}
                                 size="sm"
                                 onClick={() => {
-                                    setType(t);
+                                    setType(type as QuestionType);
+                                    if (isExtraQuestionType(type as string)) {
+                                        setDraft({
+                                            config: extraDefaultConfig(type as ExtraQuestionType),
+                                        });
+                                    }
                                     setStep("statement");
                                 }}
                             >
-                                {t.replace("_", " ")}
+                                {type.replace(/_/g, " ")}
                             </Button>
                         ))}
                     </div>
@@ -385,7 +466,8 @@ export function QuestionWizard() {
                 {wizardStep === "statement" && (
                     <div className="flex flex-col gap-4">
                         <input
-                            placeholder="Title"
+                            aria-label={t("ui.title")}
+                            placeholder={t("ui.title")}
                             value={draft.title ?? ""}
                             onChange={(e) => setDraft({ title: e.target.value })}
                             aria-required="true"
@@ -393,19 +475,32 @@ export function QuestionWizard() {
                             className="input-underline"
                         />
                         {validationError && (
-                            <p role="alert" className="text-[var(--oq-danger)] text-sm">
+                            <p
+                                ref={attachError}
+                                role="alert"
+                                tabIndex={-1}
+                                className="text-[var(--oq-danger)] text-sm"
+                            >
                                 {validationError}
                             </p>
                         )}
                         <textarea
-                            placeholder="Description (Markdown)"
+                            aria-label={t("ui.descriptionMarkdown")}
+                            placeholder={t("ui.descriptionMarkdown")}
                             value={draft.description ?? ""}
                             onChange={(e) => setDraft({ description: e.target.value })}
                             className="min-h-[80px] p-3 border border-[var(--oq-border)] bg-[var(--oq-surface)] rounded-[2px]"
                         />
+                        <RichStemEditor value={rich} onChange={setRich} />
+                        <div className="border border-[var(--oq-border)] p-3 rounded-[2px]">
+                            <p className="text-xs text-[var(--oq-ink-soft)] mb-2">
+                                {t("ui.liveStemPreview")}
+                            </p>
+                            <RichStemPreview value={rich} description={draft.description} />
+                        </div>
                         <div className="flex gap-4">
                             <label className="text-sm flex-1">
-                                Time limit (s)
+                                {t("ui.timeLimitS")}
                                 <input
                                     type="number"
                                     value={draft.timeLimitSec ?? 30}
@@ -416,7 +511,7 @@ export function QuestionWizard() {
                                 />
                             </label>
                             <label className="text-sm flex-1">
-                                Base points
+                                {t("ui.basePoints")}
                                 <input
                                     type="number"
                                     value={draft.pointsBase ?? 100}
@@ -428,7 +523,7 @@ export function QuestionWizard() {
                             </label>
                         </div>
                         <Button variant="primary" onClick={() => setStep("config")}>
-                            Next: configure
+                            {t("ui.nextConfigure")}
                         </Button>
                     </div>
                 )}
@@ -436,12 +531,18 @@ export function QuestionWizard() {
                 {wizardStep === "config" && (
                     <div>
                         <ConfigForm />
+                        <ItemQualityPanel
+                            type={draft.questionType ?? ""}
+                            title={draft.title ?? ""}
+                            description={draft.description ?? ""}
+                            config={config}
+                        />
                         <Button
                             variant="primary"
                             className="mt-4"
                             onClick={() => setStep("preview")}
                         >
-                            Preview
+                            {t("ui.preview")}
                         </Button>
                     </div>
                 )}
@@ -450,46 +551,84 @@ export function QuestionWizard() {
                     <div>
                         <Card>
                             <div className="p-6">
-                                {/* Key on content: the host only remounts on
+                                {previewExtra ? (
+                                    <div className="flex flex-col gap-4">
+                                        <RichStemPreview
+                                            value={rich}
+                                            description={draft.description}
+                                        />
+                                        <ExtraTypePreview
+                                            type={draft.questionType as ExtraQuestionType}
+                                            config={config}
+                                        />
+                                        <p className="text-xs text-[var(--oq-ink-soft)]">
+                                            {t(
+                                                "ui.authoringPreviewOnlyRuntimeAndServerValidationForThisTypeAreOwnedByTheEngineTrack",
+                                            )}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Key on content: the host only remounts on
                                             type/id, so statement/config edits need
                                             an explicit remount signal. */}
-                                <ErrorBoundary
-                                    fallback={
-                                        <p className="text-[var(--oq-ink-soft)] text-sm">
-                                            Preview unavailable for this configuration. Check the fields above.
-                                        </p>
-                                    }
-                                >
-                                    <QuestionRendererHost
-                                        key={JSON.stringify([
-                                            previewQuestion.type,
-                                            previewQuestion.title,
-                                            previewQuestion.description,
-                                            previewQuestion.config,
-                                        ])}
-                                        question={previewQuestion}
-                                        onResponse={() => {}}
-                                    />
-                                </ErrorBoundary>
+                                        <ErrorBoundary
+                                            fallback={
+                                                <p className="text-[var(--oq-ink-soft)] text-sm">
+                                                    {t(
+                                                        "ui.previewUnavailableForThisConfigurationCheckTheFieldsAbove",
+                                                    )}
+                                                </p>
+                                            }
+                                        >
+                                            <QuestionRendererHost
+                                                key={JSON.stringify([
+                                                    previewQuestion.type,
+                                                    previewQuestion.title,
+                                                    previewQuestion.description,
+                                                    previewQuestion.config,
+                                                ])}
+                                                question={previewQuestion}
+                                                onResponse={() => {}}
+                                            />
+                                        </ErrorBoundary>
+                                        {(rich.imageUrl ||
+                                            rich.audioUrl ||
+                                            rich.latex ||
+                                            rich.code) && (
+                                            <div className="mt-4 border-t border-[var(--oq-border)] pt-4">
+                                                <p className="text-xs text-[var(--oq-ink-soft)] mb-2">
+                                                    {t("ui.richStemMediaAuthorPreview")}
+                                                </p>
+                                                <RichStemPreview value={rich} />
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                             </div>
                         </Card>
                         {validationError && (
-                            <p role="alert" className="text-[var(--oq-danger)] text-sm mt-4">
+                            <p
+                                ref={attachError}
+                                role="alert"
+                                tabIndex={-1}
+                                className="text-[var(--oq-danger)] text-sm mt-4"
+                            >
                                 {validationError}
                             </p>
                         )}
                         <div className="flex gap-4 mt-4">
                             <Button variant="secondary" onClick={() => setStep("config")}>
-                                Back
+                                {t("ui.back")}
                             </Button>
                             <Button variant="primary" disabled={saving} onClick={doSave}>
                                 {saving ? (
                                     <span className="inline-flex items-center gap-2">
                                         <span className="oq-spin" aria-hidden="true" />
-                                        Saving…
+                                        {t("ui.savingEllipsis")}
                                     </span>
                                 ) : (
-                                    "Save question"
+                                    t("ui.saveQuestion")
                                 )}
                             </Button>
                         </div>

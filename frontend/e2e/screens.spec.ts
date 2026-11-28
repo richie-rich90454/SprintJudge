@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
+test.use({ serviceWorkers: "block" });
+
 // Form login is served by the backend, not the Vite dev server. The admin a11y
 // tests authenticate directly against it, then scan the backend-served SPA.
 const BACKEND = process.env.SPRINTJUDGE_BACKEND_URL ?? "http://127.0.0.1:8080";

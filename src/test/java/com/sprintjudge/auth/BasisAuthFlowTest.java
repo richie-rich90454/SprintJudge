@@ -1,5 +1,6 @@
 package com.sprintjudge.auth;
 
+import java.util.List;
 import java.util.Map;
 
 import com.nimbusds.jose.jwk.RSAKey;
@@ -11,6 +12,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -39,6 +41,11 @@ class BasisAuthFlowTest {
 		return new BasisBackchannelController(verifier, sessions, revocations, internal, env);
 	}
 
+	private static void authenticateAdmin() {
+		SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("admin", "p",
+				List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+	}
+
 	@Test
 	void webhookTestRespondsAcceptedAndDeliversProof() throws Exception {
 		BasisBackchannelController controller = controller(verifier(BasisTestJwt.key()), new BasisSessionService(),
@@ -57,12 +64,14 @@ class BasisAuthFlowTest {
 		request.setRemoteAddr("198.51.100.77");
 		org.springframework.web.context.request.RequestContextHolder
 				.setRequestAttributes(new org.springframework.web.context.request.ServletRequestAttributes(request));
+		authenticateAdmin();
 		try {
 			for (int i = 0; i < 10; i++)
 				assertEquals(202, controller.receive(Map.of("action", "test")).getStatusCode().value());
 			assertEquals(429, controller.receive(Map.of("action", "test")).getStatusCode().value());
 		} finally {
 			org.springframework.web.context.request.RequestContextHolder.resetRequestAttributes();
+			SecurityContextHolder.clearContext();
 		}
 	}
 
@@ -79,10 +88,86 @@ class BasisAuthFlowTest {
 				new long[]{System.currentTimeMillis() - 120_000L, 99});
 		org.springframework.web.context.request.RequestContextHolder
 				.setRequestAttributes(new org.springframework.web.context.request.ServletRequestAttributes(request));
+		authenticateAdmin();
 		try {
 			assertEquals(202, controller.receive(Map.of("action", "test")).getStatusCode().value());
 		} finally {
 			org.springframework.web.context.request.RequestContextHolder.resetRequestAttributes();
+			SecurityContextHolder.clearContext();
+		}
+	}
+
+	@Test
+	void webhookTestRequiresAdminOrSignedToken() throws Exception {
+		RSAKey key = BasisTestJwt.key();
+		BasisBackchannelController controller = controller(verifier(key), new BasisSessionService(),
+				new BasisRevocationStore());
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRemoteAddr("198.51.100.90");
+		org.springframework.web.context.request.RequestContextHolder
+				.setRequestAttributes(new org.springframework.web.context.request.ServletRequestAttributes(request));
+		Map<String, String> form = Map.of("action", "test", "nonce", "n", "challenge", "c");
+		try {
+			assertEquals(401, controller.receive(form).getStatusCode().value());
+			UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken("u", "p",
+					List.of(new SimpleGrantedAuthority("ROLE_USER")));
+			SecurityContextHolder.getContext().setAuthentication(user);
+			assertEquals(401, controller.receive(form).getStatusCode().value());
+			user.setAuthenticated(false);
+			assertEquals(401, controller.receive(form).getStatusCode().value());
+			SecurityContextHolder.getContext()
+					.setAuthentication(new org.springframework.security.authentication.AnonymousAuthenticationToken("k",
+							"anon", List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))));
+			assertEquals(401, controller.receive(form).getStatusCode().value());
+			SecurityContextHolder.clearContext();
+
+			String token = BasisTestJwt.sign(key, "at+jwt", ISSUER, AUDIENCE, null,
+					Map.of("nonce", "n", "challenge", "c"));
+			assertEquals(202,
+					controller.receive(Map.of("action", "test", "nonce", "n", "challenge", "c", "token", token))
+							.getStatusCode().value());
+			String wrongNonce = BasisTestJwt.sign(key, "at+jwt", ISSUER, AUDIENCE, null,
+					Map.of("nonce", "other", "challenge", "c"));
+			assertEquals(401,
+					controller.receive(Map.of("action", "test", "nonce", "n", "challenge", "c", "token", wrongNonce))
+							.getStatusCode().value());
+			String wrongChallenge = BasisTestJwt.sign(key, "at+jwt", ISSUER, AUDIENCE, null,
+					Map.of("nonce", "n", "challenge", "other"));
+			assertEquals(401,
+					controller
+							.receive(Map.of("action", "test", "nonce", "n", "challenge", "c", "token", wrongChallenge))
+							.getStatusCode().value());
+		} finally {
+			org.springframework.web.context.request.RequestContextHolder.resetRequestAttributes();
+			SecurityContextHolder.clearContext();
+		}
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void webhookTestWindowEvictsOnlyExpiredBuckets() throws Exception {
+		BasisBackchannelController controller = controller(verifier(BasisTestJwt.key()), new BasisSessionService(),
+				new BasisRevocationStore());
+		java.lang.reflect.Field f = BasisBackchannelController.class.getDeclaredField("TEST_WINDOW");
+		f.setAccessible(true);
+		Map<String, long[]> window = (Map<String, long[]>) f.get(null);
+		window.clear();
+		long now = System.currentTimeMillis();
+		for (int i = 0; i < 1_001; i++)
+			window.put("stale-" + i, new long[]{now - 120_000L, 1});
+		window.put("198.51.100.91", new long[]{now, 10});
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRemoteAddr("198.51.100.91");
+		org.springframework.web.context.request.RequestContextHolder
+				.setRequestAttributes(new org.springframework.web.context.request.ServletRequestAttributes(request));
+		authenticateAdmin();
+		try {
+			assertEquals(429, controller.receive(Map.of("action", "test")).getStatusCode().value());
+			assertTrue(window.containsKey("198.51.100.91"));
+			assertFalse(window.containsKey("stale-0"));
+		} finally {
+			org.springframework.web.context.request.RequestContextHolder.resetRequestAttributes();
+			SecurityContextHolder.clearContext();
 		}
 	}
 

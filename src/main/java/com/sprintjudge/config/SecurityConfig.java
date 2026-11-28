@@ -75,9 +75,13 @@ public class SecurityConfig {
 					public void customize(
 							org.springframework.security.config.annotation.web.configurers.CsrfConfigurer<HttpSecurity> csrf) {
 						csrf
-								// Public endpoints and the WebSocket handshake carry no session
-								// state; every admin API is CSRF-protected (the Axios client
-								// echoes XSRF-TOKEN in X-XSRF-TOKEN).
+								// Public POSTs are anonymous and rate-limited (runner, practice)
+								// or act only on the caller's own student progress; the WS
+								// handshake carries no session state. No admin authority is
+								// reachable there. E2E/public callers POST with raw
+								// fetch/request and no XSRF token, so narrowing the ignore
+								// would break them. Every admin API stays CSRF-protected
+								// (Axios echoes XSRF-TOKEN).
 								.ignoringRequestMatchers("/api/public/**", "/ws", "/admin/login",
 										"/api/auth/basis/backchannel", "/api/auth/backchannel")
 								.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -90,15 +94,18 @@ public class SecurityConfig {
 				})
 				// Materialize the deferred token on every request so the SPA gets
 				// the XSRF-TOKEN cookie before its first POST, not after a 403.
-				// CsrfFilter always sets this attribute, so the cast is safe.
+				// CsrfFilter skips ignored matchers (public endpoints, WS handshake,
+				// login), leaving no attribute, so guard against its absence.
 				.addFilterAfter(new jakarta.servlet.Filter() {
 					@Override
 					public void doFilter(jakarta.servlet.ServletRequest request,
 							jakarta.servlet.ServletResponse response, jakarta.servlet.FilterChain chain)
 							throws java.io.IOException, jakarta.servlet.ServletException {
-						((org.springframework.security.web.csrf.CsrfToken) request
-								.getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName()))
-								.getToken();
+						Object csrfToken = request
+								.getAttribute(org.springframework.security.web.csrf.CsrfToken.class.getName());
+						if (csrfToken instanceof org.springframework.security.web.csrf.CsrfToken token) {
+							token.getToken();
+						}
 						chain.doFilter(request, response);
 					}
 				}, org.springframework.security.web.csrf.CsrfFilter.class).headers(
@@ -157,7 +164,7 @@ public class SecurityConfig {
 										// Public SPA deep links (mirrors SpaWebConfig forward + router.tsx):
 										// join QR codes point at /j/<pin> on this origin.
 										.requestMatchers("/j/**", "/join", "/play", "/host", "/results", "/solo",
-												"/practice", "/explore", "/watch/**")
+												"/practice", "/explore", "/watch/**", "/profile")
 										.permitAll().requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
 										// Ops endpoints stay admin-gated (health alone is public).
 										.requestMatchers("/actuator/prometheus", "/actuator/metrics", "/actuator/info")
@@ -238,6 +245,13 @@ public class SecurityConfig {
 		// site ride the admin session cookie. Refuse to boot instead. Trim each
 		// entry so "http://a, http://b" does not create a leading-space origin.
 		List<String> origins = new java.util.ArrayList<>();
+		if (allowedOrigins.isBlank()) {
+			// No explicit origins configured: keep local development usable while
+			// staying fail-closed for everything else (loopback only, never a
+			// wildcard that could ride the admin session cookie).
+			origins.add("http://localhost:*");
+			origins.add("http://127.0.0.1:*");
+		}
 		for (String origin : allowedOrigins.split(",")) {
 			String trimmed = origin.trim();
 			if (trimmed.contains("*")) {
@@ -249,7 +263,7 @@ public class SecurityConfig {
 		}
 		CorsConfiguration cfg = new CorsConfiguration();
 		cfg.setAllowedOriginPatterns(origins);
-		cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 		cfg.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "X-XSRF-TOKEN"));
 		cfg.setAllowCredentials(true);
 		UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();

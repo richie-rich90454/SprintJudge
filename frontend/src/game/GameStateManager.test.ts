@@ -456,6 +456,68 @@ describe("GameStateManager leaderboard deltas", () => {
         gameStateManager.requestLeaderboardResync();
         expect(fakeWs.send).toHaveBeenCalledWith({ type: "RESYNC_LEADERBOARD" });
     });
+
+    test("resync with a multi-seq jump is applied, not dropped as a gap", () => {
+        delta(
+            2,
+            [
+                { uuid: "a", name: "Ada", score: 0, rank: 1 },
+                { uuid: "b", name: "Grace", score: 0, rank: 2 },
+            ],
+            true,
+        );
+        // Two score mutations coalesce into one batch stamped seq 4.
+        delta(4, [{ uuid: "a", name: "Ada", score: 100, rank: 1 }]);
+        expect(fakeWs.send).toHaveBeenCalledWith({ type: "RESYNC_LEADERBOARD" });
+        vi.clearAllMocks();
+        // The requested full snapshot carries the same current seq, still >1 ahead.
+        delta(
+            4,
+            [
+                { uuid: "a", name: "Ada", score: 100, rank: 1 },
+                { uuid: "b", name: "Grace", score: 0, rank: 2 },
+            ],
+            true,
+        );
+        expect(gameStateManager.state.leaderboard.find((e) => e.uuid === "a")?.score).toBe(100);
+        expect(fakeWs.send).not.toHaveBeenCalledWith({ type: "RESYNC_LEADERBOARD" });
+    });
+
+    test("first resync is applied without a seq baseline", () => {
+        delta(7, [{ uuid: "a", name: "Ada", score: 30, rank: 1 }], true);
+        expect(gameStateManager.state.leaderboard).toEqual([
+            { uuid: "a", name: "Ada", score: 30, rank: 1 },
+        ]);
+    });
+
+    test("stale resync older than the applied seq is ignored", () => {
+        delta(3, [{ uuid: "a", name: "Ada", score: 30, rank: 1 }]);
+        delta(2, [{ uuid: "a", name: "Ada", score: 10, rank: 1 }], true);
+        expect(gameStateManager.state.leaderboard[0].score).toBe(30);
+    });
+
+    test("gap after an unanswered JOINED resync still repairs the board", () => {
+        joined();
+        // Empty board: the server sends no resync reply, so the flag would stick.
+        delta(1, [{ uuid: "ada", name: "Ada", score: 0, rank: 1 }]);
+        delta(2, [{ uuid: "grace", name: "Grace", score: 0, rank: 2 }]);
+        vi.clearAllMocks();
+        // Review publishes both students in one batch stamped seq 4.
+        delta(4, [
+            { uuid: "ada", name: "Ada", score: 100, rank: 1 },
+            { uuid: "grace", name: "Grace", score: 0, rank: 2 },
+        ]);
+        expect(fakeWs.send).toHaveBeenCalledWith({ type: "RESYNC_LEADERBOARD" });
+        delta(
+            4,
+            [
+                { uuid: "ada", name: "Ada", score: 100, rank: 1 },
+                { uuid: "grace", name: "Grace", score: 0, rank: 2 },
+            ],
+            true,
+        );
+        expect(gameStateManager.state.leaderboard.find((e) => e.uuid === "ada")?.score).toBe(100);
+    });
 });
 
 describe("GameStateManager results and game end", () => {
@@ -632,7 +694,13 @@ describe("GameStateManager timer and errors", () => {
         const bracket = { type: "BRACKET", rounds: [], championUuid: null, championName: null };
         msg(bracket);
         expect(gameStateManager.state.bracket).toEqual(bracket);
-        msg({ type: "BATTLE_OPPONENT", round: 1, opponentUuid: "u2", opponentName: "Bo", bye: false });
+        msg({
+            type: "BATTLE_OPPONENT",
+            round: 1,
+            opponentUuid: "u2",
+            opponentName: "Bo",
+            bye: false,
+        });
         expect(gameStateManager.state.battleOpponent?.opponentName).toBe("Bo");
         msg({ type: "BATTLE_CHAMPION", championUuid: "u1", championName: "Al" });
         expect(gameStateManager.state.champion?.championName).toBe("Al");
@@ -813,20 +881,20 @@ describe("GameStateManager session resume", () => {
     });
 });
 
-    test("resume uses wss when the page is https", () => {
-        sessionStorage.setItem(
-            "sprintjudge_player_session",
-            JSON.stringify({ pin: "1", name: "Ada", token: "t" }),
-        );
-        const original = window.location;
-        Object.defineProperty(window, "location", {
-            configurable: true,
-            value: { protocol: "https:", host: "quiz.test" },
-        });
-        try {
-            expect(gameStateManager.resume()).toBe(true);
-            expect(fakeWs.connect).toHaveBeenCalledWith("wss://quiz.test/ws");
-        } finally {
-            Object.defineProperty(window, "location", { configurable: true, value: original });
-        }
+test("resume uses wss when the page is https", () => {
+    sessionStorage.setItem(
+        "sprintjudge_player_session",
+        JSON.stringify({ pin: "1", name: "Ada", token: "t" }),
+    );
+    const original = window.location;
+    Object.defineProperty(window, "location", {
+        configurable: true,
+        value: { protocol: "https:", host: "quiz.test" },
     });
+    try {
+        expect(gameStateManager.resume()).toBe(true);
+        expect(fakeWs.connect).toHaveBeenCalledWith("wss://quiz.test/ws");
+    } finally {
+        Object.defineProperty(window, "location", { configurable: true, value: original });
+    }
+});

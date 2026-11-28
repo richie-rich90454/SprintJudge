@@ -18,13 +18,13 @@
       "options": [
         {
           "id": "A",
-          "text": "5 and 3, and the two left out are the comment node and the loose text node",
-          "misconception": ""
+          "text": "3 and 3, and the two left out are counted on both sides because only elements count",
+          "misconception": "counts the element children in both places and ignores the text and comment nodes"
         },
         {
           "id": "B",
-          "text": "3 and 3, and the two left out are counted on both sides because only elements count",
-          "misconception": "counts the element children in both places and ignores the text and comment nodes"
+          "text": "5 and 3, and the two left out are the comment node and the loose text node",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -38,7 +38,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "The two properties differ in what they filter on, not in what they count as a child. Every node that appears between the start and end tags of the list is a child node, so the list holds the three items, the comment, and the run of text, which is five. The element child list answers the narrower question of how many of those children are elements, and a comment and a text node are not elements, so it holds three. The parser is not making a mess here: whitespace and comments between items are ordinary content of the parent as far as the tree is concerned, and they are what makes a selector that counts children disagree with a selector that counts items. The rule to carry away is that childNodes is every node of any kind and children is the subset whose type code marks them as elements, so the first number is never smaller than the second, and a count of five against three is not a bug but the two lists answering two different questions.",
       "hint": "Write out the child list in source order first, then mark which of those five entries are elements.",
@@ -52,7 +52,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -65,7 +65,7 @@
         "traversal",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -92,13 +92,13 @@
         },
         {
           "id": "B",
-          "text": "b#q, i#r, and u#t, and the walk steps over the text and the comment to reach them",
-          "misconception": ""
+          "text": "#text, #comment, and u#t, and the walk reports whatever node stands next in the list",
+          "misconception": "reads the next sibling node without filtering the result to elements"
         },
         {
           "id": "C",
-          "text": "#text, #comment, and u#t, and the walk reports whatever node stands next in the list",
-          "misconception": "reads the next sibling node without filtering the result to elements"
+          "text": "b#q, i#r, and u#t, and the walk steps over the text and the comment to reach them",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -107,7 +107,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The element sibling property answers a narrower question than the sibling node property, and the difference shows up exactly at the gaps the template left behind. After the element with identifier p comes a run of text, then the element with identifier q, so the next element sibling is that element and the text in between is passed without being reported. After q comes a comment and then r, and the comment is passed in the same way. After r there is nothing at all, so the walk runs out and the property answers with nothing, which the script has to be ready for because there is no element to name. The two questions in the stem are therefore answered by two different pairs of names: the first names the next element each time, the second names the node that happens to sit in between, and the disagreement is the whole point of having both properties. The rule to carry away is that a node sibling can be a text node or a comment while an element sibling has to be an element, which is why code that indexes children or counts items must use the element form and code that measures text or walks raw nodes must not.",
       "hint": "List the child nodes of the wrapper in order and mark which of them are elements before answering.",
@@ -121,7 +121,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -134,7 +134,7 @@
         "traversal",
         "siblings"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -166,17 +166,17 @@
         },
         {
           "id": "C",
-          "text": "span#t, div, and null, and the walk tests the element itself before it tests any ancestor",
-          "misconception": ""
+          "text": "null, div, and null, and the walk begins at the parent and never tests the element itself",
+          "misconception": "believes the walk starts at the parent and never matches the element itself"
         },
         {
           "id": "D",
-          "text": "null, div, and null, and the walk begins at the parent and never tests the element itself",
-          "misconception": "believes the walk starts at the parent and never matches the element itself"
+          "text": "span#t, div, and null, and the walk tests the element itself before it tests any ancestor",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The walk is anchored on the element that asked, and it moves outwards one parent at a time, testing each node in turn and stopping at the first that matches. Because the element itself is one of the nodes tested, the first selector matches the span and the answer is the element rather than its parent, which is the behaviour that lets a handler ask for the control the user is actually on. The second selector is not on the span, so the walk moves to the parent, the div, and stops there, returning the nearest match rather than the outermost one. The third selector matches nothing on that chain: the section has no article ancestor, the ancestors above it are the body and the document, and the walk ends. The article that does exist in the document is a sibling subtree, not an ancestor, and the walk never leaves the chain upward, so it is not a candidate. That is the distinction worth keeping: this search asks what is above the element, while a document-wide query asks what is anywhere, and the two give the same answer only when the element happens to sit inside the matching subtree.",
       "hint": "Write the ancestor chain from the span upward and mark which links satisfy each selector.",
@@ -190,7 +190,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -203,7 +203,7 @@
         "traversal",
         "closest"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -225,8 +225,8 @@
       "options": [
         {
           "id": "A",
-          "text": "2 and 2, and both collections are tied to the tree and see the new item at once",
-          "misconception": "believes the list a query selector call returns updates itself when the tree changes"
+          "text": "1 and 2, and only the collection from the element query keeps reporting the tree as it stands",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -240,12 +240,12 @@
         },
         {
           "id": "D",
-          "text": "1 and 2, and only the collection from the element query keeps reporting the tree as it stands",
-          "misconception": ""
+          "text": "2 and 2, and both collections are tied to the tree and see the new item at once",
+          "misconception": "believes the list a query selector call returns updates itself when the tree changes"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The two calls differ in what they return and that difference decides whether later edits are visible. The element query returns a list of the matches it found, fixed at the moment the call ran, so appending a second item afterwards leaves it still reporting the single item it found and it will keep reporting one no matter what happens to the tree. The call that asks an element for the elements of a given tag returns a collection that is tied to the tree, so the same append makes it report two. That is not an optimisation, it is the difference between two objects with two jobs: the frozen list is a stable thing to iterate over while the tree is being edited, and the live collection is a standing question about the tree that is re-evaluated whenever it is read. The trap is that a live collection also changes length underneath a loop, which is why code that removes nodes while iterating a live collection skips entries, whereas the frozen list keeps its original entries and simply becomes out of date.",
       "hint": "Ask which of the two results is a set of values taken once and which is a standing query over the element.",
@@ -259,7 +259,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -272,7 +272,7 @@
         "collections",
         "liveness"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -294,13 +294,13 @@
       "options": [
         {
           "id": "A",
-          "text": "1, 3, 8, and 9, and the comment keeps a code of its own separate from the text node",
-          "misconception": ""
+          "text": "1, 3, 3, and 9, and a comment is held in the tree as a kind of text node",
+          "misconception": "believes a comment node reports the same code as a text node"
         },
         {
           "id": "B",
-          "text": "1, 3, 3, and 9, and a comment is held in the tree as a kind of text node",
-          "misconception": "believes a comment node reports the same code as a text node"
+          "text": "1, 3, 8, and 9, and the comment keeps a code of its own separate from the text node",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "Each node carries a small integer that names its kind and nothing else, and the four in this program are the four that a small piece of markup produces. The paragraph is an element and reports one, the run of text inside it is a text node and reports three, the comment that follows it reports eight, and the document that owns the element reports nine. The comment has a separate code from the text node because the two are different things to the tree and every piece of script that walks it has to be able to tell them apart: a script collecting the visible text of an element wants the text nodes and not the comments, and one counting items in a list wants neither. A code that reported the number of children would be useless for either job, since a text node that holds characters is not counted as a child of itself and an element can hold any number of them.",
       "hint": "Each code names a kind of node; name the kind before you read off the number.",
@@ -328,7 +328,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -340,7 +340,7 @@
         "dom",
         "node-types"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -367,13 +367,13 @@
         },
         {
           "id": "B",
-          "text": "s, 0, 1, and p2, and the span left the first element and the call handed it back",
-          "misconception": ""
+          "text": "s, 2, 0, and p1, and the span was copied so both elements still hold one and the second is empty",
+          "misconception": "believes appendChild copies the node and leaves the original parent untouched"
         },
         {
           "id": "C",
-          "text": "s, 2, 0, and p1, and the span was copied so both elements still hold one and the second is empty",
-          "misconception": "believes appendChild copies the node and leaves the original parent untouched"
+          "text": "s, 0, 1, and p2, and the span left the first element and the call handed it back",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -382,7 +382,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A node lives in exactly one place in a tree, so appending it somewhere that already has a parent is a move rather than a copy, and every one of the four printed values follows from that single fact. The call hands back the node it was given, which is why the first value names the span and not one of the two elements. The first element no longer has the span among its children, so its count falls to nothing, and the second gains one, so its count rises. The parent of the span is now the second element, so a later read of that property follows the move instead of the stale history. The fourth option is the one that looks most like a plausible reading and is the trap: a reference captured before the move still says the first element, but that is a value the program chose to remember, not the tree's current answer, and re-reading the property after the move is what tells the truth.",
       "hint": "Decide first whether a node can be in two parents at once, then read the counts off that decision.",
@@ -396,7 +396,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -409,7 +409,7 @@
         "insertion",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -441,17 +441,17 @@
         },
         {
           "id": "C",
-          "text": "c and a, c, b, and the node went in front of b and the call reports the node inserted",
-          "misconception": ""
+          "text": "b and a, c, b, and the node went in front of b and the call reports the reference child",
+          "misconception": "believes the call hands back the reference child the new node was placed in front of"
         },
         {
           "id": "D",
-          "text": "b and a, c, b, and the node went in front of b and the call reports the reference child",
-          "misconception": "believes the call hands back the reference child the new node was placed in front of"
+          "text": "c and a, c, b, and the node went in front of b and the call reports the node inserted",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The call takes two arguments and answers two questions: where the new node goes, and what the call itself reports. The reference child is the position marker, so the new node lands immediately in front of the item with identifier b, which turns the pair a, b into a, c, b without disturbing anything else in the list. The return value is the node that was inserted, not the node it was inserted in front of, so the first printed value names the new item. Those are separate claims and the second option is the natural confusion between them, since the reference child is the argument that appears in the call and is easier to remember than the node the call created. A third possibility is to read the operation as an insertion after the marker, which is what a caller who thinks of the argument as a predecessor's successor would expect, and the fourth is to ignore the marker altogether and put the node at the front, which happens when the code passes the first child instead of the item it meant.",
       "hint": "Write down the two arguments and ask, for each, what it controls and whether the result mentions it.",
@@ -465,7 +465,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -478,7 +478,7 @@
         "insertion",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -500,8 +500,8 @@
       "options": [
         {
           "id": "A",
-          "text": "undefined, null, 1, and 0, and the call reports nothing and empties the subtree",
-          "misconception": "believes removeChild hands back nothing while the detached node still has a parent"
+          "text": "b, null, 1, and 1, and the detached item kept the span it was carrying",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -515,12 +515,12 @@
         },
         {
           "id": "D",
-          "text": "b, null, 1, and 1, and the detached item kept the span it was carrying",
-          "misconception": ""
+          "text": "undefined, null, 1, and 0, and the call reports nothing and empties the subtree",
+          "misconception": "believes removeChild hands back nothing while the detached node still has a parent"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "Removal unlinks the node from its parent and stops there. The call hands back the node it removed, so the first value names the item that was taken out, and the second value shows that it now has no parent at all, which is what distinguishes a detached node from one still sitting in a list. The list is left holding the one item that was not removed, so the third value counts that single remaining child rather than the two that were there before. The fourth value is the one that separates this operation from clearing an element: the removed item still contains the span that was inside it, because the tree link was between the list and the item and nothing was done to the item's own children. A node is therefore a usable thing to keep after a removal, which is exactly what makes it safe to move rather than to rebuild, and the third option is the trap that a value remembered before the call will still say the list after the list has let go.",
       "hint": "The removal breaks one link; ask which link that is and what it leaves untouched.",
@@ -534,7 +534,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -547,7 +547,7 @@
         "removal",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -569,13 +569,13 @@
       "options": [
         {
           "id": "A",
-          "text": "b, null, a, c, and 1, and the old item came back and is now detached with its text",
-          "misconception": ""
+          "text": "c, l, a, c, and 0, and the call hands back the replacement that went into the list",
+          "misconception": "believes the call hands back the node that went in rather than the node that came out"
         },
         {
           "id": "B",
-          "text": "c, l, a, c, and 0, and the call hands back the replacement that went into the list",
-          "misconception": "believes the call hands back the node that went in rather than the node that came out"
+          "text": "b, null, a, c, and 1, and the old item came back and is now detached with its text",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -589,7 +589,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A replacement takes the new node into the position the old one held and hands the old one back, which is why the first printed value names the item that was in the list already. The old item is no longer in the list, so the third value shows the pair a, c with b gone rather than a list of three, and the second value shows that the returned item now has no parent, because the link that held it was the one just broken. The last value is the removal behaviour again: the item that came back keeps the text it was carrying, so a caller who wants to reuse it can, and a caller who wants its contents has not lost them. The fourth option is the natural picture of the operation as an insertion, and it is worth naming that picture as the mistake rather than merely rejecting it, because an insertion in front of the old node is a different call with a different result and a different return value.",
       "hint": "Two nodes are involved; decide which one the call is defined to return and which keeps its children.",
@@ -603,7 +603,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -616,7 +616,7 @@
         "replacement",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -643,13 +643,13 @@
         },
         {
           "id": "B",
-          "text": "2, 0, and k, m, n, and the fragment was emptied while the items went to the end",
-          "misconception": ""
+          "text": "2, 2, and k, m, n, and the fragment kept its items so a second append would repeat them",
+          "misconception": "believes a fragment is copied rather than emptied, so the nodes stay in the fragment as well"
         },
         {
           "id": "C",
-          "text": "2, 2, and k, m, n, and the fragment kept its items so a second append would repeat them",
-          "misconception": "believes a fragment is copied rather than emptied, so the nodes stay in the fragment as well"
+          "text": "2, 0, and k, m, n, and the fragment was emptied while the items went to the end",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -658,7 +658,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A fragment is a holding area that is not itself part of the document, and the point of it is that the nodes inside it are real nodes with no parent until the fragment is placed. Building the batch into one holder means one insertion into the list rather than several, so the list is touched once and the browser has one piece of work to do. The first value is what the batch held before the handover and the second is what it holds afterwards, and the difference between them is the whole behaviour: the nodes have been moved into the list and the holder is empty, so appending the same fragment again would add nothing. The third value shows the order the list is left in, and the new items follow the item that was already there because an append puts its argument's children at the end. That is what makes a fragment the right tool for inserting many nodes at one position, and it is why the fourth option, which has the same final set of items in a different order, would need a different call to achieve.",
       "hint": "Ask whether the nodes can still be in the fragment after they are in the list, then read the order off the call.",
@@ -672,7 +672,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -685,7 +685,7 @@
         "fragment",
         "tracing"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -717,17 +717,17 @@
         },
         {
           "id": "C",
-          "text": "8, 1, 2, and 0, and the argument decides depth while the extra child is a text node",
-          "misconception": ""
+          "text": "0, 0, 0, and 0, and the argument only governs attributes so nothing inside is copied",
+          "misconception": "believes the true argument only copies attributes and never recurses into the subtree"
         },
         {
           "id": "D",
-          "text": "0, 0, 0, and 0, and the argument only governs attributes so nothing inside is copied",
-          "misconception": "believes the true argument only copies attributes and never recurses into the subtree"
+          "text": "8, 1, 2, and 0, and the argument decides depth while the extra child is a text node",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The argument is a depth switch, not a filter. Without it the copy reproduces the element and its attributes and nothing else, so the fourth value is zero and the copy is an empty shell of the right shape. With it the copy walks the subtree and reproduces every node beneath, so the deep copy holds the bold element and the run of text that follows it, and the first value counts the eight characters of visible text those nodes carry. The second and third values together are the reminder that children and element children are different lists: the deep copy has one element child and two children in total, because the plain run of text is a child that is not an element. A copy is a new set of nodes, so changing anything inside the deep copy leaves the original alone, which is the reason to take one at all when a template is reused more than once.",
       "hint": "Count the nodes under the element, then separate the ones that are elements from the ones that are not.",
@@ -741,7 +741,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -754,7 +754,7 @@
         "clone",
         "concept"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -776,8 +776,8 @@
       "options": [
         {
           "id": "A",
-          "text": "abcd, 0, 0, and 0, and the assignment removes everything including the text it wrote",
-          "misconception": "believes assigning text leaves nothing behind, not even the text node just written"
+          "text": "abcd, 0, 1, and 1, and reading concatenates the subtree while writing replaces it",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -791,12 +791,12 @@
         },
         {
           "id": "D",
-          "text": "abcd, 0, 1, and 1, and reading concatenates the subtree while writing replaces it",
-          "misconception": ""
+          "text": "abcd, 0, 0, and 0, and the assignment removes everything including the text it wrote",
+          "misconception": "believes assigning text leaves nothing behind, not even the text node just written"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The same property behaves in two different ways on the two sides of the assignment, and the four values separate them. Reading concatenates the text of every node beneath the element in tree order, which is why the first value has the letters from before the nested element, the letters inside it, and the letter after it, all in order. Writing replaces the whole set of children with a single new run of text, so the element children count falls to nothing and the total child count falls to one, which is the one text node just written. The last value confirms that node carries exactly the one character that was assigned. This asymmetry is why assigning text is the blunt instrument it is: it is a complete and irreversible replacement of the contents, and any structure inside the element is gone. The third option is the mistake of expecting the assignment to behave like editing the first text node, which is what makes it feel like the wrong call destroyed more than it should have; the fourth is the mirror image, expecting the read to be as shallow as the write is narrow.",
       "hint": "Treat the read as a walk over the subtree and the write as a replacement of every child.",
@@ -810,7 +810,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -823,7 +823,7 @@
         "text",
         "concept"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -845,13 +845,13 @@
       "options": [
         {
           "id": "A",
-          "text": "15, 160, and one ampersand character, and every reference collapses to a single character",
-          "misconception": ""
+          "text": "34, 59, and the six characters &amp;, and a named reference is left in the text as written",
+          "misconception": "believes a named character reference is left in the text exactly as it was written"
         },
         {
           "id": "B",
-          "text": "34, 59, and the six characters &amp;, and a named reference is left in the text as written",
-          "misconception": "believes a named character reference is left in the text exactly as it was written"
+          "text": "15, 160, and one ampersand character, and every reference collapses to a single character",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -865,7 +865,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A character reference is the parser's way of letting one character be written in a form that survives being embedded in text, and by the time the tree exists every reference has already become a character. Counting the source by hand gives the check: the paragraph holds a, a space, the ampersand, a space, b, a space, the less-than sign, the three letters, the greater-than sign, a space, the letter A, a space, and the non-breaking space, which is fifteen characters. The named ampersand reference is six characters written for one character stored, the two bracket references are four each for one, the numeric reference is five for one, and the non-breaking reference is six for one, so a paragraph written with references is much longer on disk than it is in the tree. The last value confirms it: the parser produced a single ampersand character and not the six characters that were written, and its code point is 160, which is what makes that space a non-breaking one rather than an ordinary gap.",
       "hint": "Write out the text the parser produced, one character per position, and count the positions.",
@@ -879,7 +879,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -892,7 +892,7 @@
         "parsing",
         "encoding"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -919,13 +919,13 @@
         },
         {
           "id": "B",
-          "text": "7, a b, 7, and 2, and a hyphen becomes a capital while the value stays a string",
-          "misconception": ""
+          "text": "7, a b, null, and 2, and the attribute is written under the same camel-cased name",
+          "misconception": "believes the attribute is written in the markup under the camel-cased name the property uses"
         },
         {
           "id": "C",
-          "text": "7, a b, null, and 2, and the attribute is written under the same camel-cased name",
-          "misconception": "believes the attribute is written in the markup under the camel-cased name the property uses"
+          "text": "7, a b, 7, and 2, and a hyphen becomes a capital while the value stays a string",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -934,7 +934,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The property name is derived from the attribute name by a mechanical rule: the attribute is written with hyphens because that is the convention for custom attributes, and reading it through the property replaces each hyphen followed by a letter with a capital, so the two words become one camel-cased name. The attribute itself is unchanged in the markup and the lookup by attribute name still uses the hyphenated form, which is why the third value is the same seven the first value reported rather than nothing. The two attributes are two separate entries on the element, so the count of attributes is two and neither is folded into the other. The second value is a string with a space in it, not two items, because the property is a plain string of whatever the author wrote; a list is only produced when the code asks for one, which is a different decision and is what the fourth option mistakes the value for.",
       "hint": "Write the attribute name with hyphens, then apply the hyphen-to-capital rule one hyphen at a time.",
@@ -948,7 +948,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -961,7 +961,7 @@
         "dataset",
         "attributes"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -993,17 +993,17 @@
         },
         {
           "id": "C",
-          "text": "data-foo, 4, a b, and 2, and both the stored name and the lookup are folded to lower case",
-          "misconception": ""
+          "text": "data-Foo, 4, a b, and 2, and the stored name keeps exactly the case the program wrote",
+          "misconception": "believes a mixed-case attribute name is stored on an element in an HTML document as it was written"
         },
         {
           "id": "D",
-          "text": "data-Foo, 4, a b, and 2, and the stored name keeps exactly the case the program wrote",
-          "misconception": "believes a mixed-case attribute name is stored on an element in an HTML document as it was written"
+          "text": "data-foo, 4, a b, and 2, and both the stored name and the lookup are folded to lower case",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "Attribute names on an element in a document parsed as HTML are matched without regard to case, and the name is stored in the folded form. The parser follows HTML's rule that tag and attribute names are case insensitive, so a name written with capitals is normalised to lower case on the way in, and the same folding is applied to a name the program writes later, which is why the last name on the element comes back in lower case. A lookup by name is folded the same way before it is compared, so asking for the class attribute in upper case finds the same attribute as asking for it in lower case, and the value comes back exactly as it was written. The element now carries four attributes in total, and the class value still holds two whitespace-separated tokens, which is what makes the token list report two. This folding is specific to documents parsed as HTML, which is why the answer changes for an element in a document parsed under a language that treats names as written.",
       "hint": "Decide first whether the folding happens on the way in, on the way out, or on both.",
@@ -1017,7 +1017,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1030,7 +1030,7 @@
         "attributes",
         "case"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1052,8 +1052,8 @@
       "options": [
         {
           "id": "A",
-          "text": "typed and typed, and typed, because setting the property also rewrites the attribute behind it",
-          "misconception": "believes setting the value property also rewrites the value attribute behind it"
+          "text": "typed and start, and start, because the two halves read the current value and the markup value",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1067,12 +1067,12 @@
         },
         {
           "id": "D",
-          "text": "typed and start, and start, because the two halves read the current value and the markup value",
-          "misconception": ""
+          "text": "typed and typed, and typed, because setting the property also rewrites the attribute behind it",
+          "misconception": "believes setting the value property also rewrites the value attribute behind it"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "A field holds two related things and the reset is defined in terms of the second of them. The current value is what the program sets and what a user types, and it lives on the element. The default value is what the markup carried, it lives in the attribute of the same name, and it is the thing a reset restores. So after the assignment the current value is the typed text while the attribute still says the original word, which is what the first half of the output records, and the reset then puts the field back to the original word because that is the rule rather than an accident. The distinction matters for two reasons: a form that is reset has to return to a state the server can reason about, and code that wants to know what a user has entered must read the current value, because after a reset the attribute and the property agree again only by coincidence of the reset having just happened.",
       "hint": "Ask of each read whether it is asking what is in the field now or what the markup said.",
@@ -1086,7 +1086,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1099,7 +1099,7 @@
         "forms",
         "analysis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1121,13 +1121,13 @@
       "options": [
         {
           "id": "A",
-          "text": "SECTION, #text, #document, and #comment, and the node name is defined for every kind of node",
-          "misconception": ""
+          "text": "section, #text, #document, and #comment, and the node name keeps the case written in the source",
+          "misconception": "believes the node name keeps the lower-case spelling used in the source"
         },
         {
           "id": "B",
-          "text": "section, #text, #document, and #comment, and the node name keeps the case written in the source",
-          "misconception": "believes the node name keeps the lower-case spelling used in the source"
+          "text": "SECTION, #text, #document, and #comment, and the node name is defined for every kind of node",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1141,7 +1141,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "B"
       },
       "explanation": "A tree walk cannot assume it is holding elements, so the property chosen for printing has to be defined for every node it might meet. The node name is: an element answers with its tag in the upper-case form HTML uses, and the nodes that are not elements answer with the short names the platform reserves for them, a text node, a comment, and the document itself. That is why the debug routine can walk a child list and print something for every entry, and why the tag property is the wrong choice: it belongs to elements, and a node that is not an element has nothing to report. The upper-case form in the first position is not an accident of the source either, because the source wrote the tag in capitals, but the property normalises to the upper-case convention whatever the document said, so a lower-case spelling would be a guess about the source rather than a reading of the tree.",
       "hint": "Ask which of the two properties is defined for a node that is not an element.",
@@ -1155,7 +1155,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1168,7 +1168,7 @@
         "node-types",
         "analysis"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1195,13 +1195,13 @@
         },
         {
           "id": "B",
-          "text": "BODY, BODY, null, and #document-fragment, so the element-parent property reports nothing here",
-          "misconception": ""
+          "text": "BODY, BODY, undefined, and #document-fragment, so a missing element parent is not a value at all",
+          "misconception": "believes a node with no element parent comes back as undefined rather than as null"
         },
         {
           "id": "C",
-          "text": "BODY, BODY, undefined, and #document-fragment, so a missing element parent is not a value at all",
-          "misconception": "believes a node with no element parent comes back as undefined rather than as null"
+          "text": "BODY, BODY, null, and #document-fragment, so the element-parent property reports nothing here",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1210,7 +1210,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "The two properties answer different questions and the choice between them depends on what the code does next. The node parent is whatever the node is attached to, whatever kind of thing that is, so the text run in a holder reports the holder and a comment directly in the body reports the body. The element parent is that same chain narrowed to elements only, and when the node in the chain is not an element there is no such parent and the answer is nothing, which the program prints as the word null rather than as a missing value. That distinction is exactly why the element-parent property is the right one in a loop that is about to call element methods: the guarantee that what comes back is an element is the guarantee the loop needs, and taking the node parent instead would let a text node or a fragment into code that is about to read attributes. The third value is not a failure but the correct answer, and a caller that forgets to test for it will throw on the next line.",
       "hint": "Decide which question each property answers, then read the third value as an answer rather than an error.",
@@ -1224,7 +1224,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1237,7 +1237,7 @@
         "traversal",
         "concept"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },
@@ -1269,17 +1269,17 @@
         },
         {
           "id": "C",
-          "text": "false, 1, and 3, and the scope word on the element under test points at that element",
-          "misconception": ""
+          "text": "false, 2, and 3, and the scope word is decorative so every descendant paragraph is counted",
+          "misconception": "believes the scope keyword is decorative and the child combinator is tested against every descendant"
         },
         {
           "id": "D",
-          "text": "false, 2, and 3, and the scope word is decorative so every descendant paragraph is counted",
-          "misconception": "believes the scope keyword is decorative and the child combinator is tested against every descendant"
+          "text": "false, 1, and 3, and the scope word on the element under test points at that element",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The first value is the subtle one and it is decided by what the scope word means when it appears in a match test rather than in a query. In a match test there is no search: the selector is tested against one element, and the scope word stands for that element, so the child combinator asks whether the element is a child of itself, which it is not, and the answer is false. The second value is a real search rooted at the wrapper, and the scope word stands for the wrapper there, so only the paragraph that is a direct child of the wrapper is counted and the one inside the section is not, giving one. The third value is a search over the whole document with no scope word, so all three paragraphs carrying the class are found, including the one outside the wrapper. The second option is what happens when the scope word is treated as decoration in the second call, and it is the error that makes a nested paragraph look like a direct child.",
       "hint": "Read the scope word as standing for the element the call is made on, and treat the match test as having no search.",
@@ -1293,7 +1293,7 @@
       "provenance": {
         "author": "bank-team-web",
         "reviewer": "bank-review-web",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1306,7 +1306,7 @@
         "selectors",
         "two-stage"
       ],
-      "version": 1,
+      "version": 2,
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": []
     },

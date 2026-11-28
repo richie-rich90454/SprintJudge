@@ -33,12 +33,18 @@ public class GameWebSocket {
 	private static final String AUTHED_KEY = SecureHandshakeConfigurator.AUTHENTICATED;
 	private static final String ADMIN_KEY = SecureHandshakeConfigurator.ADMIN;
 	private static final String IP_KEY = SecureHandshakeConfigurator.REMOTE_ADDR;
+	private static final String HTTP_SESSION_KEY = SecureHandshakeConfigurator.HTTP_SESSION;
 
 	/**
 	 * Whitelist - also prevents script-path traversal via a crafted language value.
 	 */
 	private static final Set<String> LANGUAGES = Set.of("c", "cpp", "java", "node", "python");
 	private static final int MAX_SOURCE_CHARS = 65_536;
+	// Fixed client-facing codes: roomManager exception text may carry SQL or ids.
+	private static final String ERR_JOIN = "JOIN_FAILED";
+	private static final String ERR_SUBMIT = "SUBMIT_FAILED";
+	private static final String ERR_TEAM = "TEAM_ACTION_FAILED";
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GameWebSocket.class);
 
 	public GameWebSocket(GameRoomManager roomManager, JoinRateLimiter rateLimiter, WebSocketSessionManager sessions) {
 		this.roomManager = roomManager;
@@ -53,12 +59,14 @@ public class GameWebSocket {
 		boolean authed;
 		boolean admin = false;
 		String addr;
+		Object httpSession = null;
 		if (config instanceof jakarta.websocket.server.ServerEndpointConfig) {
 			jakarta.websocket.server.ServerEndpointConfig sec = (jakarta.websocket.server.ServerEndpointConfig) config;
 			SecureHandshakeConfigurator.StagedConnection staged = SecureHandshakeConfigurator.consumeStaged(sec);
 			addr = staged.getIp();
 			authed = staged.isAuthed() || session.getUserPrincipal() != null;
 			admin = staged.isAdmin();
+			httpSession = staged.getHttpSession();
 		} else {
 			authed = session.getUserPrincipal() != null;
 			addr = "unresolved";
@@ -66,6 +74,10 @@ public class GameWebSocket {
 		session.getUserProperties().put(AUTHED_KEY, authed);
 		session.getUserProperties().put(ADMIN_KEY, admin);
 		session.getUserProperties().put(IP_KEY, addr);
+		// Retain the servlet session so every control message can re-read the
+		// live SecurityContext; a logout there must immediately revoke host powers.
+		if (httpSession != null)
+			session.getUserProperties().put(HTTP_SESSION_KEY, httpSession);
 		// Without registration the fan-out map stays empty and every broadcast
 		// (QUESTION_START, ROOM_STATE, LEADERBOARD_DELTA) is silently dropped.
 		sessions.register(session.getId(), session);
@@ -142,7 +154,8 @@ public class GameWebSocket {
 						if (team != null)
 							send(session, Map.of("type", "TEAM_JOINED", "teamId", team.getId()));
 					} catch (IllegalArgumentException | IllegalStateException e) {
-						send(session, new ErrorMessage("ERROR", e.getMessage()));
+						log.warn("JOIN_TEAM rejected", e);
+						send(session, new ErrorMessage("ERROR", ERR_TEAM));
 					}
 				}
 			} else if ("LEAVE_TEAM".equals(type)) {
@@ -151,7 +164,8 @@ public class GameWebSocket {
 					try {
 						roomManager.leaveTeam(pinOf(session), uuid);
 					} catch (IllegalArgumentException | IllegalStateException e) {
-						send(session, new ErrorMessage("ERROR", e.getMessage()));
+						log.warn("LEAVE_TEAM rejected", e);
+						send(session, new ErrorMessage("ERROR", ERR_TEAM));
 					}
 				}
 			} else if ("GET_TEAMS".equals(type)) {
@@ -205,8 +219,8 @@ public class GameWebSocket {
 			send(session, new ErrorMessage("ERROR", "Invalid PIN"));
 			return;
 		}
-		boolean authenticated = Boolean.TRUE.equals(session.getUserProperties().get(AUTHED_KEY));
-		boolean admin = Boolean.TRUE.equals(session.getUserProperties().get(ADMIN_KEY));
+		boolean authenticated = isAuthenticated(session);
+		boolean admin = isAdmin(session);
 		if ("host".equalsIgnoreCase(role) && !(authenticated && admin)) {
 			send(session, new ErrorMessage("ERROR", "Host role requires admin authentication"));
 			return;
@@ -239,7 +253,8 @@ public class GameWebSocket {
 			roomManager.sendCurrentQuestion(pin, session.getId());
 		} catch (IllegalArgumentException | IllegalStateException e) {
 			rateLimiter.recordFailure(ip);
-			send(session, new ErrorMessage("ERROR", e.getMessage()));
+			log.warn("JOIN rejected for pin {}", pin, e);
+			send(session, new ErrorMessage("ERROR", ERR_JOIN));
 		}
 	}
 
@@ -273,23 +288,75 @@ public class GameWebSocket {
 		try {
 			roomManager.submit(pin, questionId, uuid, language, response);
 		} catch (IllegalArgumentException e) {
-			send(session, new ErrorMessage("ERROR", e.getMessage()));
+			log.warn("SUBMIT rejected for question {}", questionId, e);
+			send(session, new ErrorMessage("ERROR", ERR_SUBMIT));
 		}
 	}
 
 	/**
-	 * Host-only guard: the connection must have joined as host AND be
-	 * authenticated.
+	 * Host-only guard: the connection must have joined as host AND still be an
+	 * authenticated admin. Handshake flags are a snapshot, so the live principal is
+	 * re-read on every control message.
 	 */
 	private void asHost(Session session, Runnable action) {
 		String role = (String) session.getUserProperties().get(ROLE_KEY);
-		boolean authenticated = Boolean.TRUE.equals(session.getUserProperties().get(AUTHED_KEY));
-		boolean admin = Boolean.TRUE.equals(session.getUserProperties().get(ADMIN_KEY));
+		boolean authenticated = isAuthenticated(session);
+		boolean admin = isAdmin(session);
 		if (!"host".equals(role) || !authenticated || !admin) {
 			send(session, new ErrorMessage("ERROR", "Forbidden: host authentication required"));
 			return;
 		}
 		action.run();
+	}
+
+	/**
+	 * Reads the live security context from the HttpSession captured at handshake. A
+	 * logout clears that context, so host powers are revoked mid-game. Only
+	 * containers without a captured HttpSession fall back to the principal.
+	 */
+	private org.springframework.security.core.Authentication liveAuth(Session session) {
+		Object raw = session.getUserProperties().get(HTTP_SESSION_KEY);
+		if (raw instanceof jakarta.servlet.http.HttpSession) {
+			Object ctx = ((jakarta.servlet.http.HttpSession) raw).getAttribute("SPRING_SECURITY_CONTEXT");
+			if (ctx instanceof org.springframework.security.core.context.SecurityContext)
+				return ((org.springframework.security.core.context.SecurityContext) ctx).getAuthentication();
+			return null;
+		}
+		try {
+			java.security.Principal principal = session.getUserPrincipal();
+			return principal instanceof org.springframework.security.core.Authentication
+					? (org.springframework.security.core.Authentication) principal
+					: null;
+		} catch (RuntimeException e) {
+			return null;
+		}
+	}
+
+	private boolean hasLiveSession(Session session) {
+		return session.getUserProperties().get(HTTP_SESSION_KEY) instanceof jakarta.servlet.http.HttpSession;
+	}
+
+	private boolean isAuthenticated(Session session) {
+		org.springframework.security.core.Authentication auth = liveAuth(session);
+		if (auth != null)
+			return auth.isAuthenticated()
+					&& !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken);
+		// A captured session with no context means logged out: never fall back
+		// to the handshake snapshot in that case.
+		if (hasLiveSession(session))
+			return false;
+		// shortcut: containers without a servlet session keep the handshake flags.
+		return Boolean.TRUE.equals(session.getUserProperties().get(AUTHED_KEY));
+	}
+
+	private boolean isAdmin(Session session) {
+		org.springframework.security.core.Authentication auth = liveAuth(session);
+		if (auth != null)
+			return auth.isAuthenticated()
+					&& auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+		if (hasLiveSession(session))
+			return false;
+		return Boolean.TRUE.equals(session.getUserProperties().get(ADMIN_KEY));
 	}
 
 	private int clampSeconds(int seconds) {

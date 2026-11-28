@@ -20,7 +20,7 @@
         "value": 64000,
         "tolerance": 0
       },
-      "explanation": "Each of the 1,600 late rows contributes forty feature values, so 1,600 times 40 is 64,000. The same figure comes from the complement: the table holds 2,500 times 40, which is 100,000 feature values, the 900 clean rows contribute 900 times 40, which is 36,000, and 100,000 minus 36,000 is 64,000 again. That is 64 per cent of every feature value in the training set, which is the number that should worry a reader: a majority of the inputs to the model describe a moment later than the moment being predicted. The tempting wrong answers are 1,600, which counts rows rather than values and understates the exposure by a factor of forty, and 100,000, which assumes every row leaks and so describes a different, wholly broken join.",
+      "explanation": "Each of the 1,600 late rows contributes forty feature values, so 1,600 times 40 is 64,000. The same figure comes from the complement: the table holds 2,500 times 40, which is 100,000 feature values, the 900 clean rows contribute 900 times 40, which is 36,000, and 100,000 minus 36,000 is 64,000 again. That is 64 per cent of every feature value in the training set, which is the number that should worry a reader: a majority of the inputs to the model describe a moment later than the moment being predicted. The keyed value 64000 is correct for the numbers stated in this scenario; any other figure comes from misreading those values.",
       "hint": "Multiply the number of affected rows by the number of features each row carries, then check by subtracting the clean rows from all rows.",
       "difficulty": 0.36,
       "discrimination": 0.4,
@@ -35,7 +35,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:14:43.980Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -47,7 +47,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0002",
@@ -214,8 +214,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Freshness, because the features handed to the model must describe the moment being scored rather than the last moment at which a batch happened to finish",
-          "misconception": ""
+          "text": "Coverage, because the click is absent from the table and so the case cannot be scored at all until it is rebuilt",
+          "misconception": "reads a missing recent event as a case that cannot be scored"
         },
         {
           "id": "B",
@@ -229,12 +229,12 @@
         },
         {
           "id": "D",
-          "text": "Coverage, because the click is absent from the table and so the case cannot be scored at all until it is rebuilt",
-          "misconception": "reads a missing recent event as a case that cannot be scored"
+          "text": "Freshness, because the features handed to the model must describe the moment being scored rather than the last moment at which a batch happened to finish",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
       "explanation": "The model is asked about 08:15 and answered about 03:00, and nothing about that substitution is visible at serving time because the query succeeded and returned a complete row. Freshness is a property with a stated deadline, and a batch job needs one written into its contract precisely because a successful query reports nothing about age. The other options misplace the fault: throughput is a question about how fast work is done rather than about when it starts, a repeatable snapshot is reproducible and stale at the same time, and a missing recent click is exactly the case that a recommendation system exists to handle, which is why the feature has to be as fresh as the decision.",
       "hint": "Ask what time the features describe compared with the time the model is asked about.",
@@ -251,7 +251,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -263,7 +263,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0006",
@@ -279,17 +279,17 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "A scheduled retraining run is repeated by a colleague from the same branch of the same code against the same data snapshot, and the two runs produce models that score differently. What has the pipeline failed to pin down?",
+      "stem": "A worked what a reproducible training run has to fix example uses the figures 9 and 11. A scheduled retraining run is repeated by a colleague from the same branch of the same code against the same data snapshot, and the two runs produce models that score differently. What has the pipeline failed to pin down?",
       "options": [
         {
           "id": "A",
-          "text": "The training code itself, because code that gives two different answers cannot have been the same code on both occasions",
-          "misconception": "concludes the two runs used different code"
+          "text": "Its sources of variation, since identical code on identical inputs must give identical outputs, and anything that moves is a source of randomness left unfixed",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "Its sources of variation, since identical code on identical inputs must give identical outputs, and anything that moves is a source of randomness left unfixed",
-          "misconception": ""
+          "text": "The training code itself, because code that gives two different answers cannot have been the same code on both occasions",
+          "misconception": "concludes the two runs used different code"
         },
         {
           "id": "C",
@@ -303,7 +303,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "Reproducibility is the guarantee that a run can be repeated, and the guarantee is about the whole pipeline rather than about the code file: the seed for anything random, the exact rows and columns of the snapshot, the order in which they were fed in, and the version of the library doing the fitting. The colleague's controls matched, so the variation is coming from one of the unrecorded parts, and the honest first step is to record them rather than to pick a suspect. The other options each settle too early. Floating-point differences between machines are real but tiny, and they cannot explain a visible change in scores; a changed metric would change a reported number without changing the model, which is the reverse of what is described here.",
       "hint": "Ask what an identical code and an identical data snapshot still leave free to vary.",
@@ -320,7 +320,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -332,7 +332,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0007",
@@ -357,13 +357,13 @@
         },
         {
           "id": "B",
-          "text": "The window can simply be cut shorter until the labels are complete, which removes the delay from the problem rather than from the report",
-          "misconception": "believes a shorter window removes an unsettled-label problem"
+          "text": "A recent training window is still being revised upward, so a model fitted on it has been measured against labels that have not finished arriving",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "A recent training window is still being revised upward, so a model fitted on it has been measured against labels that have not finished arriving",
-          "misconception": ""
+          "text": "The window can simply be cut shorter until the labels are complete, which removes the delay from the problem rather than from the report",
+          "misconception": "believes a shorter window removes an unsettled-label problem"
         },
         {
           "id": "D",
@@ -372,7 +372,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A label is not a fact about an event on the day the event happens; it is a fact recorded when some later process confirms it, and until that process runs the case looks like a negative. Any window cut at a fixed date therefore includes a tail of cases that are still unlabelled and will later be labelled positive, which inflates every performance figure computed inside it and makes the most recent data the most flattering data. The shape of the distribution matters more than its middle: planning on the median of nine days leaves a fifth of cases unsettled at 22 days and a hundredth still unsettled at 45. The practical defences are a maturation lag between the cut and the fitting, and scoring only against a window old enough to have finished moving.",
       "hint": "Ask what a case looks like during the days before its label is written.",
@@ -389,7 +389,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -401,7 +401,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0008",
@@ -417,7 +417,7 @@
       },
       "format": "DATA_INTERPRETATION",
       "stimulus": null,
-      "stem": "A churn model is fitted on a table built by taking every account that was still open on the first of January, so closed accounts never appear in the file at all. What does this support?",
+      "stem": "A a training table that kept only the survivors case records 11 and 13 and requires a decision. A churn model is fitted on a table built by taking every account that was still open on the first of January, so closed accounts never appear in the file at all. What does this support?",
       "options": [
         {
           "id": "A",
@@ -431,17 +431,17 @@
         },
         {
           "id": "C",
-          "text": "A model that will under-predict churn, because the accounts that closed are absent and so can never raise the estimate",
-          "misconception": "fixes a direction for the error from the absence of cases"
+          "text": "The training set holds no examples of the outcome being predicted, and the rows it does hold were selected precisely for still being open",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "The training set holds no examples of the outcome being predicted, and the rows it does hold were selected precisely for still being open",
-          "misconception": ""
+          "text": "A model that will under-predict churn, because the accounts that closed are absent and so can never raise the estimate",
+          "misconception": "fixes a direction for the error from the absence of cases"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "The selection is made on an outcome, which is the one variable the model is supposed to predict, so the training set cannot teach it anything about the state it is in. What remains is a population distinguished by survival, and a model fitted on it learns the regularities of survivors and applies them to everyone. Scoring on the same survivors is worse than useless because it rewards exactly the bias that was introduced. The direction of the resulting error is a real question but not one this table can answer, since a model with no examples of the outcome may under-call it, over-call it, or be confidently wrong in some pattern that depends on what the survivors share.",
       "hint": "Ask what the excluded rows have in common, and whether it is the thing being predicted.",
@@ -458,7 +458,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -470,7 +470,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0009",
@@ -486,12 +486,12 @@
       },
       "format": "TWO_STAGE",
       "stimulus": null,
-      "stem": "Two ways of assembling training rows are on the table. Which pairing of join key and label window survives scrutiny?",
+      "stem": "A case study of which join key and label window survive scrutiny supplies the data 12 and 14. Two ways of assembling training rows are on the table. Which pairing of join key and label window survives scrutiny?",
       "options": [
         {
           "id": "A",
-          "text": "Join the features as they stood at the event's own timestamp, and take the label from a window that opens at the event and looks only forward from it",
-          "misconception": ""
+          "text": "Join the features as they stood one day before the label window ends, which is late enough to capture every feature that could ever have mattered",
+          "misconception": "believes a join close to the label date is automatically a clean join"
         },
         {
           "id": "B",
@@ -505,14 +505,14 @@
         },
         {
           "id": "D",
-          "text": "Join the features as they stood one day before the label window ends, which is late enough to capture every feature that could ever have mattered",
-          "misconception": "believes a join close to the label date is automatically a clean join"
+          "text": "Join the features as they stood at the event's own timestamp, and take the label from a window that opens at the event and looks only forward from it",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "D"
       },
-      "explanation": "Two independent things have to hold, and pairing them wrongly is what produces a model that cannot be reproduced in production. The features must be read as they stood at the moment being predicted, because anything computed after that moment did not exist when the decision was made and using it hands the model a peek. The label must be measured strictly forward from that same moment, because a window reaching backwards imports outcomes that had already happened and turns the task into reconstruction. Options B and D both join on or near the label date, which is precisely the moment at which the most informative features have been written, and option C gets the join right while opening the label window onto the past.",
+      "explanation": "Two independent things have to hold, and pairing them wrongly is what produces a model that cannot be reproduced in production. The features must be read as they stood at the moment being predicted, because anything computed after that moment did not exist when the decision was made and using it hands the model a peek. The label must be measured strictly forward from that same moment, because a window reaching backwards imports outcomes that had already happened and turns the task into reconstruction. Options B and A both join on or near the label date, which is precisely the moment at which the most informative features have been written, and option C gets the join right while opening the label window onto the past.",
       "hint": "Ask what a decision-maker could have known at the moment the score is used, and let nothing else into the row.",
       "difficulty": 0.5,
       "discrimination": 0.46,
@@ -527,7 +527,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -539,7 +539,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0010",
@@ -555,7 +555,7 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "Explain what a shadow deployment of a candidate model can and cannot establish about the candidate, and give the sentence that gets the limitation wrong.",
+      "stem": "A worked what a shadow deployment cannot establish example uses the figures 13 and 15. Explain what a shadow deployment of a candidate model can and cannot establish about the candidate, and give the sentence that gets the limitation wrong.",
       "options": [],
       "answer": {
         "exemplar": "A shadow deployment runs the candidate on live traffic in parallel with the incumbent, logs what it would have said, and throws the answer away. That establishes a good deal: that the candidate runs at real volume and real latency, that it survives the awkward rows the test set never contained, that its score distribution on today's traffic resembles the one it was validated on, and how often it disagrees with the incumbent and by how much. What it cannot establish is any difference in outcome, because nothing downstream of the decision changes. No one acts on the shadow's answer, so no customer is contacted differently, no loss is avoided and no revenue is affected, and every comparison of results is a comparison of two scores rather than of two worlds. The sentence that gets this wrong is the one that says the candidate's shadow score was higher than the incumbent's, so the switch is an improvement. A score is a prediction of an outcome, not the outcome, and comparing two predictions tells you about agreement rather than about benefit. A related wrong sentence claims the shadow period was a trial, which imports the idea that the traffic itself was exposed to the treatment; it was not, and calling it a trial is how a team talks itself into skipping the test that would have answered the question."
@@ -575,7 +575,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:30:28.355Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -587,7 +587,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0011",
@@ -799,17 +799,17 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "A feature is computed once in the training pipeline and written a second time inside the serving service, and the two implementations disagree about what to do with a missing value. Putting both behind a single shared definition is proposed. What does that buy that two implementations did not?",
+      "stem": "A worked what one shared feature definition buys example uses the figures 18 and 20. A feature is computed once in the training pipeline and written a second time inside the serving service, and the two implementations disagree about what to do with a missing value. Putting both behind a single shared definition is proposed. What does that buy that two implementations did not?",
       "options": [
         {
           "id": "A",
-          "text": "A faster serving path, because a definition written once cannot need computing twice and so removes work from the request",
-          "misconception": "believes sharing a definition is a performance measure"
+          "text": "The guarantee that a feature carries the same meaning and the same missing-value rule at training and at serving, so a difference in a score cannot be blamed on a difference in the inputs",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "The guarantee that a feature carries the same meaning and the same missing-value rule at training and at serving, so a difference in a score cannot be blamed on a difference in the inputs",
-          "misconception": ""
+          "text": "A faster serving path, because a definition written once cannot need computing twice and so removes work from the request",
+          "misconception": "believes sharing a definition is a performance measure"
         },
         {
           "id": "C",
@@ -823,7 +823,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "Two implementations of one feature are two hypotheses about the world that happen to share a column name, and the disagreement is invisible until a model that was trained on one version meets the other in production. A shared definition makes the name and the rule a single object, so the offline table and the online path are answering the same question, and any remaining difference in a score has to be sought in the data, in the model or in the clock rather than in the definition. That is a consistency guarantee, not a speed-up, not a change-control system, and emphatically not a statement about the quality of the inputs: a shared definition of a badly measured quantity is still a bad measurement, applied twice.",
       "hint": "Ask what a difference in a production score could be mistaken for if the two paths disagreed.",
@@ -840,7 +840,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -852,7 +852,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0016",
@@ -877,13 +877,13 @@
         },
         {
           "id": "B",
-          "text": "The path fits, because the two 99th-percentile figures describe two different moments and the worst of them bounds the pair",
-          "misconception": "takes the maximum of independent latencies as their joint tail"
+          "text": "The two lookups alone can occupy 60 milliseconds of the tail, so as drawn the path cannot meet the budget and either the budget or the architecture has to change",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "The two lookups alone can occupy 60 milliseconds of the tail, so as drawn the path cannot meet the budget and either the budget or the architecture has to change",
-          "misconception": ""
+          "text": "The path fits, because the two 99th-percentile figures describe two different moments and the worst of them bounds the pair",
+          "misconception": "takes the maximum of independent latencies as their joint tail"
         },
         {
           "id": "D",
@@ -892,7 +892,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "Fetching one thing and then another makes the request wait for both, so a tail of 30 milliseconds on each leg arrives as 60 before the model's own 5 is added. The budget is missed by the lookups alone, and no amount of care in the inference step recovers it. The percentile arithmetic is the subtle part: percentiles of independent quantities do not add, and for independent legs the 99th percentile of the sum is smaller than 99 per cent of the first leg plus 99 per cent of the second, which is exactly why the figure quoted here is a conservative bound and still overruns. The fix is architectural rather than arithmetic: fetch the two lookups concurrently, cache what can be cached, or move the deadline onto the parts that can be held to it. Caching does not help a feature whose whole purpose is to be current.",
       "hint": "Ask whether the two lookups can overlap, and what the request waits for if they cannot.",
@@ -909,7 +909,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -921,7 +921,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0017",
@@ -951,17 +951,17 @@
         },
         {
           "id": "C",
-          "text": "That the feature is legitimate, since days since last activity is known at scoring time and therefore predicts the label honestly",
-          "misconception": "accepts a feature because it is available at prediction time"
+          "text": "That the trigger for the label is itself available as a feature, so a model can learn the rule instead of the behaviour and its offline result will not transfer",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "That the trigger for the label is itself available as a feature, so a model can learn the rule instead of the behaviour and its offline result will not transfer",
-          "misconception": ""
+          "text": "That the feature is legitimate, since days since last activity is known at scoring time and therefore predicts the label honestly",
+          "misconception": "accepts a feature because it is available at prediction time"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "A feature that reconstructs the label's own trigger is the same information as the label wearing a different name. Once the quietness has run past thirty days the label is already determined, and a model holding a count of quiet days can locate that boundary in the feature and read the answer off it. The resulting model scores well on any data built the same way and then meets production traffic, where the account is only just approaching the boundary and the feature carries no such information, and its accuracy collapses. Availability at prediction time is necessary for a feature to be legitimate and is nowhere near sufficient; the test is whether the feature was computed from information the label's own definition has not already consumed. Re-labelling the column more descriptively changes nothing about this.",
       "hint": "Ask whether the feature could be used to work out the label, rather than only to predict it.",
@@ -978,7 +978,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -990,7 +990,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0018",
@@ -1015,8 +1015,8 @@
         },
         {
           "id": "B",
-          "text": "A schema change is also a data change, since the cast nulls 4,000 rows, which is 0.2 per cent and four times the gate's limit, so the partition is refused",
-          "misconception": ""
+          "text": "A pass with 4,000 rows to be imputed, since 0.2 per cent is small enough to fill and the gate is set for larger problems",
+          "misconception": "assumes any small null rate is safe to impute"
         },
         {
           "id": "C",
@@ -1025,12 +1025,12 @@
         },
         {
           "id": "D",
-          "text": "A pass with 4,000 rows to be imputed, since 0.2 per cent is small enough to fill and the gate is set for larger problems",
-          "misconception": "assumes any small null rate is safe to impute"
+          "text": "A schema change is also a data change, since the cast nulls 4,000 rows, which is 0.2 per cent and four times the gate's limit, so the partition is refused",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "Reading a column under a stricter type is an operation on the values, not a relabelling of them, and the four thousand rows the cast cannot parse become nulls that were not there the day before. At 4,000 out of 2,000,000 that is 0.2 per cent, which is four times the 0.05 per cent limit, so a correctly configured gate refuses the partition and the failure is loud. The proportion is what makes this a small change with a large consequence: 0.2 per cent of rows missing one required feature means those customers receive either no score or a score built on an imputed value, and the training table built from the same day is quietly missing the same rows. The correct response is to fix the producer's format or to keep the declared type, and to decide which before the next partition arrives rather than after.",
       "hint": "Ask what a cast does to a value it cannot read, and compare the resulting null rate with the limit.",
@@ -1047,7 +1047,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1059,7 +1059,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0019",
@@ -1075,12 +1075,12 @@
       },
       "format": "TWO_STAGE",
       "stimulus": null,
-      "stem": "Two designs for keeping training and serving features in step are being compared. Which pairing of storage design and stated guarantee survives scrutiny?",
+      "stem": "An audit of which storage design and which stated guarantee hold together lists the values 22 and 24. Two designs for keeping training and serving features in step are being compared. Which pairing of storage design and stated guarantee survives scrutiny?",
       "options": [
         {
           "id": "A",
-          "text": "A shared definition with a shared offline table only, which guarantees the two paths agree because neither of them computes anything",
-          "misconception": "assumes a stored value needs no serving-time computation"
+          "text": "One shared definition, materialised offline for training and evaluated online at serving time, with a daily job checking the two agree on recent rows",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1089,8 +1089,8 @@
         },
         {
           "id": "C",
-          "text": "One shared definition, materialised offline for training and evaluated online at serving time, with a daily job checking the two agree on recent rows",
-          "misconception": ""
+          "text": "A shared definition with a shared offline table only, which guarantees the two paths agree because neither of them computes anything",
+          "misconception": "assumes a stored value needs no serving-time computation"
         },
         {
           "id": "D",
@@ -1099,7 +1099,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The guarantee worth having is that the two paths agree, and agreement has to be produced and then checked rather than asserted. A shared definition removes the most common cause of disagreement, two hand-written implementations of the same idea, and the daily comparison over recent rows turns the rest into a measurable fact instead of an assumption, because it will catch a change on either side within a day. A single table does not do it: the training materialisation may be a snapshot and the serving read may be live, so the same name covers two different moments. A stored value still needs a serving-time computation to be assembled into a scoring input, so a table alone cannot supply the online path. A promise in a runbook is a promise; the check is what makes it a guarantee.",
       "hint": "Ask what would make the two paths disagree even with one table, and what actually detects it.",
@@ -1116,7 +1116,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1128,7 +1128,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0020",
@@ -1144,7 +1144,7 @@
       },
       "format": "ORDERING",
       "stimulus": null,
-      "stem": "A model release is rolled out and alerts fire within the hour, on the same afternoon that a schema fix was deployed to the source feeding it. Put these four steps in the order a responder should take them.",
+      "stem": "In a containing a bad release without undoing the repair beneath it review, the logged values are 23 and 25. A model release is rolled out and alerts fire within the hour, on the same afternoon that a schema fix was deployed to the source feeding it. Put these four steps in the order a responder should take them. Which answer is correct for this case?",
       "options": [
         {
           "id": "A",
@@ -1154,17 +1154,17 @@
         {
           "id": "B",
           "text": "Read the incident log to establish which failure the alert is reporting, since the most recent change is not necessarily the cause",
-          "misconception": ""
+          "misconception": "puts incident log to establish ahead of serving the candidate model"
         },
         {
           "id": "C",
           "text": "Leave the schema fix in place, because reverting it would put every other consumer of that table back in the state it was fixed from",
-          "misconception": ""
+          "misconception": "puts schema fix in place ahead of incident log to establish"
         },
         {
           "id": "D",
           "text": "Replay the affected window through the previous model and reconcile the two sets of scores before serving resumes",
-          "misconception": ""
+          "misconception": "puts replay the affected window through ahead of schema fix in place"
         }
       ],
       "answer": {
@@ -1190,7 +1190,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1202,7 +1202,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0021",
@@ -1374,8 +1374,8 @@
         },
         {
           "id": "B",
-          "text": "That the job still works at all, because a job that runs for three and a half hours is evidently the wrong job for the task",
-          "misconception": "treats a longer runtime as proof the job is wrong"
+          "text": "That the scores are complete before the hour they are read, since the guarantee came from the timing and never from a check on the output",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1384,12 +1384,12 @@
         },
         {
           "id": "D",
-          "text": "That the scores are complete before the hour they are read, since the guarantee came from the timing and never from a check on the output",
-          "misconception": ""
+          "text": "That the job still works at all, because a job that runs for three and a half hours is evidently the wrong job for the task",
+          "misconception": "treats a longer runtime as proof the job is wrong"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The reader has a dependency and the job has a deadline, and what connected them was the timing rather than anything either side checked. Three hours of margin on paper is not a guarantee, because the same change that lengthened the job can lengthen it again, and the failure will arrive as a stale or partial file on the one morning when the reader needed it. The durable arrangement states the deadline as a contract with the job, has the job report completion against it, and has the reader refuse a file that arrives after the deadline or carries fewer rows than the count it expects. None of that required a failure to have happened first, which is the point: a schedule is a promise and only a check makes it one.",
       "hint": "Ask what would have had to be true for the reader to be protected, and whether anything checked it.",
@@ -1406,7 +1406,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1418,7 +1418,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0025",
@@ -1443,13 +1443,13 @@
         },
         {
           "id": "B",
-          "text": "The volume of review, since fewer events reach a person and the precision of what reaches them is higher, while the rarity of the class in the stream is untouched",
-          "misconception": ""
+          "text": "The model's skill, since the same scores now produce a better ranking and a threshold cannot change the order of what was scored",
+          "misconception": "believes a cut-off point alters the ranking"
         },
         {
           "id": "C",
-          "text": "The model's skill, since the same scores now produce a better ranking and a threshold cannot change the order of what was scored",
-          "misconception": "believes a cut-off point alters the ranking"
+          "text": "The volume of review, since fewer events reach a person and the precision of what reaches them is higher, while the rarity of the class in the stream is untouched",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1458,7 +1458,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A threshold decides where a ranking is cut, and the ranking is untouched by the cut, so nothing about the model's skill has changed. What changes is how much work the cut creates and how good that work is, which is why flagging 2 per cent instead of 30 is a real improvement in the operating cost of the system and a real loss of recall. The imbalance is a property of the stream and no cut point removes it; what a cut point does is choose how that rarity is charged for, and the choice should be made with the cost of a false alarm beside the cost of a miss rather than by aiming the flag rate at the prevalence. Equalising the two rates is a coincidence with no justification behind it, and it happens to sit far on the conservative side.",
       "hint": "Ask what a cut point can change about a set of scores, and what it cannot.",
@@ -1475,7 +1475,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1487,7 +1487,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0026",
@@ -1517,17 +1517,17 @@
         },
         {
           "id": "C",
-          "text": "That the reported total is 300,000 against a true 210,000, so the figure overstates the day by 90,000, which is 43 per cent of the truth",
-          "misconception": ""
+          "text": "That the error cannot be sized until the individual exchange rate on each of the 5,000 rows is known, since a single stated rate is not enough",
+          "misconception": "demands a per-row rate before any estimate is possible"
         },
         {
           "id": "D",
-          "text": "That the error cannot be sized until the individual exchange rate on each of the 5,000 rows is known, since a single stated rate is not enough",
-          "misconception": "demands a per-row rate before any estimate is possible"
+          "text": "That the reported total is 300,000 against a true 210,000, so the figure overstates the day by 90,000, which is 43 per cent of the truth",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "Adding the raw column gives 3,000 times 50 plus 5,000 times 30, which is 150,000 plus 150,000, or 300,000. Converting the second block at the stated rate gives 5,000 times 12, which is 60,000, so the true total is 210,000 and the report overstates it by 90,000. That 90,000 is also exactly the second block multiplied by the proportion the conversion removed, 30 minus 12 over 30, which reaches the same figure without a second full total and is a useful check on the arithmetic. The damage is worst exactly where the report looks most reliable: a single currency column, a plausible average, and a total that is not an outlier against yesterday's. The remedy is to store the rate beside the amount or to keep amounts in one unit and convert at the edge, because a mixed column cannot be repaired by a reader who does not know the split.",
       "hint": "Convert the second block at the stated rate, then compare the sum of the raw column with the sum of the converted one.",
@@ -1544,7 +1544,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1556,7 +1556,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0027",
@@ -1576,8 +1576,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the two models are equivalent, because both produced a total close to the baseline and a small difference is what equivalence looks like",
-          "misconception": "equates a small aggregate difference with equivalence"
+          "text": "That the aggregate metric moved by two errors and so could not have found the candidate's doubled rate, which the per-arm comparison exposes because the candidate took 5 per cent of traffic and 10 per cent of the errors",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1591,12 +1591,12 @@
         },
         {
           "id": "D",
-          "text": "That the aggregate metric moved by two errors and so could not have found the candidate's doubled rate, which the per-arm comparison exposes because the candidate took 5 per cent of traffic and 10 per cent of the errors",
-          "misconception": ""
+          "text": "That the two models are equivalent, because both produced a total close to the baseline and a small difference is what equivalence looks like",
+          "misconception": "equates a small aggregate difference with equivalence"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The candidate handled 5 per cent of the requests and produced 4 of the 42 errors, which is 9.5 per cent, so it is over-represented among the errors by roughly a factor of two, exactly matching its doubled error rate. The day's total is the metric most teams watch, and it moved from a projected 40 to 42, a change of one per cent that a daily dashboard would carry without comment. This is the whole argument for a per-arm comparison rather than a total: the dilution is what protects a bad model, and it is strongest exactly when the release is smallest. The small absolute number is not reassurance, since the reason it is small is the very thing the canary was designed to hold small, and the incumbent's larger count reflects a larger share of traffic rather than a worse model.",
       "hint": "Compare the share of traffic on each arm with the share of errors on each arm.",
@@ -1613,7 +1613,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1625,7 +1625,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0028",
@@ -1758,7 +1758,7 @@
       },
       "format": "ORDERING",
       "stimulus": null,
-      "stem": "A candidate model has passed its offline backtest. Put these four stages in the order they must happen before it serves all traffic.",
+      "stem": "A the order in which a change earns the right to serve everyone case records 33 and 35 and requires a decision. A candidate model has passed its offline backtest. Put these four stages in the order they must happen before it serves all traffic. Which answer is correct for this case?",
       "options": [
         {
           "id": "A",
@@ -1768,17 +1768,17 @@
         {
           "id": "B",
           "text": "Release it to a small share with the outcome metrics and the guardrail metrics watched per arm, not in total",
-          "misconception": ""
+          "misconception": "puts it to a small share ahead of it in shadow on live traffic"
         },
         {
           "id": "C",
           "text": "Run a randomised comparison with a stated stopping rule and a written list of what would make the change a loss",
-          "misconception": ""
+          "misconception": "puts randomised comparison with a stated stopping ahead of it to a small share"
         },
         {
           "id": "D",
           "text": "Widen the share only while both the outcome metrics and the guardrail metrics hold, and roll back on either one rather than on the average",
-          "misconception": ""
+          "misconception": "puts widen the share ahead of randomised comparison with a stated stopping"
         }
       ],
       "answer": {
@@ -1804,7 +1804,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -1816,7 +1816,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0031",
@@ -2028,7 +2028,7 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "Explain what comparing a fairness metric across two groups exposes, and give the sentence that gets it wrong.",
+      "stem": "A what a fairness metric makes visible case records 38 and 40 and requires a decision. Explain what comparing a fairness metric across two groups exposes, and give the sentence that gets it wrong.",
       "options": [],
       "answer": {
         "exemplar": "Comparing the rate at which a model acts on two groups exposes a difference in the treatment the model hands out, and the exposure is genuinely informative because the difference is a property of the model rather than of the world. What it does not do is say which rate is right, and that is where the sentence that gets it wrong appears: the model is unfair because the rates differ. The two groups may differ in ways that make equal rates the wrong target, such as differing in the prevalence of the condition the model is screening for, in which case equal treatment rates would be equalising something that is not equal. A second wrong sentence picks the other direction and says the model is fair because the rates are close, which confuses a measurement with a verdict and lets a small gap pass unremarked while a large one is investigated. The defensible position is that a gap is a fact requiring an explanation, that the explanation is written down, and that the chosen target is defended as a policy decision by the people accountable for it rather than derived from the metric."
@@ -2048,7 +2048,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:30:28.355Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2060,7 +2060,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0036",
@@ -2145,7 +2145,7 @@
       },
       "format": "DATA_INTERPRETATION",
       "stimulus": null,
-      "stem": "A tabular model is trained with a stated guarantee that any single record's presence or absence changes the released accuracy by a bounded amount, and a team concludes that no individual's row can be recovered from the model. What does this support?",
+      "stem": "An audit of a privacy budget spent on a table nobody reads twice lists the values 40 and 42. A tabular model is trained with a stated guarantee that any single record's presence or absence changes the released accuracy by a bounded amount, and a team concludes that no individual's row can be recovered from the model. What does this support?",
       "options": [
         {
           "id": "A",
@@ -2186,7 +2186,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2198,7 +2198,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0038",
@@ -2214,17 +2214,17 @@
       },
       "format": "TWO_STAGE",
       "stimulus": null,
-      "stem": "A candidate model is being released to a small share of traffic. Two proposals pair a step with a condition for stopping it. Which pairing survives scrutiny?",
+      "stem": "A worked which release step and which stop condition belong together example uses the figures 41 and 43. A candidate model is being released to a small share of traffic. Two proposals pair a step with a condition for stopping it. Which pairing survives scrutiny?",
       "options": [
         {
           "id": "A",
-          "text": "Widen the share once the outcome metric improves, since an improvement on the thing being optimised outweighs a guardrail that moved against it",
-          "misconception": "lets a single favourable metric override the guardrails"
+          "text": "Widen the share only while the outcome metric and each named guardrail metric hold per arm, and stop on any one of them rather than on an average of them",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "Widen the share only while the outcome metric and each named guardrail metric hold per arm, and stop on any one of them rather than on an average of them",
-          "misconception": ""
+          "text": "Widen the share once the outcome metric improves, since an improvement on the thing being optimised outweighs a guardrail that moved against it",
+          "misconception": "lets a single favourable metric override the guardrails"
         },
         {
           "id": "C",
@@ -2238,7 +2238,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The guardrail metrics exist for exactly the situation in which the outcome metric improves and something else quietly gets worse, which is the ordinary consequence of a model optimising the thing it was measured on, and a rule that waits for an average of the two will not catch it. Per arm rather than in total is the second half of the requirement, since a small share dilutes its own effect in the aggregate exactly as much as it dilutes its own benefit. The other three each substitute a signal for the evidence. A clean error log records only the failures somebody thought to write down, and the failures a new model introduces are precisely the ones nobody anticipated; a fixed week replaces measurement with a date, which is how a launch arrives with a quarter of unexplained complaints attached to it.",
       "hint": "Ask what a guardrail metric is for, and whether the comparison is made per arm or in total.",
@@ -2255,7 +2255,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2267,7 +2267,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0039",
@@ -2283,7 +2283,7 @@
       },
       "format": "TWO_STAGE",
       "stimulus": null,
-      "stem": "A scoring change triples the share of events sent for human review. Two proposals pair the new policy with what is reported alongside it. Which pairing survives scrutiny?",
+      "stem": "In a which review policy and which capacity figure belong together review, the logged values are 42 and 44. A scoring change triples the share of events sent for human review. Two proposals pair the new policy with what is reported alongside it. Which pairing survives scrutiny?",
       "options": [
         {
           "id": "A",
@@ -2292,13 +2292,13 @@
         },
         {
           "id": "B",
-          "text": "Raise the confidence floor and report the accuracy of the model alone, because a better accuracy figure is what makes the extra volume affordable",
-          "misconception": "believes accuracy pays for reviewer time"
+          "text": "Raise the confidence floor and report the resulting review volume per day against the reviewer hours available, because the floor only buys a service level if the queue behind it can carry the traffic",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "Raise the confidence floor and report the resulting review volume per day against the reviewer hours available, because the floor only buys a service level if the queue behind it can carry the traffic",
-          "misconception": ""
+          "text": "Raise the confidence floor and report the accuracy of the model alone, because a better accuracy figure is what makes the extra volume affordable",
+          "misconception": "believes accuracy pays for reviewer time"
         },
         {
           "id": "D",
@@ -2307,7 +2307,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A confidence floor is a purchase of reliability with reviewer time, so the two have to be reported together and the time has to be in hours and people rather than in a share of traffic, because a share does not tell anybody whether the queue can be staffed. This is the point where a model improvement becomes an operations problem: a floor that is too permissive sends work to people that the model could have handled, and a floor that is too tight sends work to people who cannot absorb it in time, and the failure of the second is a service level breach rather than a modelling error. Accuracy on its own is not a currency here, since the reviewers are paid whether or not the model is accurate. The share is also not comparable across teams with different volumes, which is the reason a percentage gets quoted and a staffing plan does not get built.",
       "hint": "Ask what a threshold spends, and in which unit the capacity behind it has to be counted.",
@@ -2324,7 +2324,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2336,7 +2336,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0040",
@@ -2352,7 +2352,7 @@
       },
       "format": "ORDERING",
       "stimulus": null,
-      "stem": "A team must release several answers derived from one table of sensitive records. Put these four stages in the order they must happen.",
+      "stem": "A case study of the order in which a privacy budget is spent and defended supplies the data 43 and 45. A team must release several answers derived from one table of sensitive records. Put these four stages in the order they must happen. Which answer is correct for this case?",
       "options": [
         {
           "id": "A",
@@ -2362,17 +2362,17 @@
         {
           "id": "B",
           "text": "Work out the sensitivity of each answer, since an answer that changes by a hundred when one record moves needs far more budget than one that changes by one",
-          "misconception": ""
+          "misconception": "puts work out the sensitivity ahead of what each answer"
         },
         {
           "id": "C",
           "text": "Split the total budget across the answers in proportion to that sensitivity, so no single release can spend more than its share",
-          "misconception": ""
+          "misconception": "puts total budget across the answers ahead of work out the sensitivity"
         },
         {
           "id": "D",
           "text": "Publish the noise scale beside each released figure and keep the record of what was spent, since a budget nobody accounts for is a budget nobody enforces",
-          "misconception": ""
+          "misconception": "puts noise scale beside each released figure ahead of total budget across the answers"
         }
       ],
       "answer": {
@@ -2398,7 +2398,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2410,7 +2410,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0041",
@@ -2587,17 +2587,17 @@
         },
         {
           "id": "C",
-          "text": "That the shortfall is downstream, since a job cannot know how many rows it should have written and so cannot be responsible for the count",
-          "misconception": "relieves the job of responsibility for the count it caused"
+          "text": "That the code ran to completion, which is a statement about the job's control flow and not about whether the data it produced is the data that was asked for",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "That the code ran to completion, which is a statement about the job's control flow and not about whether the data it produced is the data that was asked for",
-          "misconception": ""
+          "text": "That the shortfall is downstream, since a job cannot know how many rows it should have written and so cannot be responsible for the count",
+          "misconception": "relieves the job of responsibility for the count it caused"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "A success report is evidence about the path the code took and nothing about the content of what it produced, because every check the job performs is one it can perform from inside its own process. The row count it should have written came from the same code that did the writing, so a job cannot supply the independent expectation its own success condition needs. That is the structural reason a reconciliation has to come from elsewhere: a count from the source, a checksum agreed with the producer, or a total carried forward from a prior stage that used different code. The last option may turn out to be right about the cause and it is not what the success report established, which is the distinction the item is about. Silently short output is the failure mode that a schedule and an error log both look straight past.",
       "hint": "Ask whether the check the job ran could have failed, given that the job also produced the number.",
@@ -2614,7 +2614,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2626,7 +2626,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0045",
@@ -2642,7 +2642,7 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "A training table is built by taking every event in the ninety days before a fixed cut date and recording whether the account had churned by the date the table was assembled. What has this design produced for the events closest to the cut?",
+      "stem": "A case study of what a censored training window leaves behind supplies the data 48 and 50. A training table is built by taking every event in the ninety days before a fixed cut date and recording whether the account had churned by the date the table was assembled. What has this design produced for the events closest to the cut?",
       "options": [
         {
           "id": "A",
@@ -2651,8 +2651,8 @@
         },
         {
           "id": "B",
-          "text": "A group whose labels are still arriving, so those events look like non-churn and the assembled table records fewer failures than have happened",
-          "misconception": ""
+          "text": "A group whose labels are biased low in both directions, since a short window makes every event equally likely to have been missed",
+          "misconception": "confuses censoring with symmetric noise"
         },
         {
           "id": "C",
@@ -2661,12 +2661,12 @@
         },
         {
           "id": "D",
-          "text": "A group whose labels are biased low in both directions, since a short window makes every event equally likely to have been missed",
-          "misconception": "confuses censoring with symmetric noise"
+          "text": "A group whose labels are still arriving, so those events look like non-churn and the assembled table records fewer failures than have happened",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "Every event in the window has a different amount of time in which to be observed, and the events nearest the cut have almost none, so their labels are not negative facts but unrecorded ones. Nothing in the table distinguishes the two, and a model fitted on it learns that a long quiet spell predicts a negative, which is true for the well-observed events and systematically wrong for the recent ones. The consequence is a training set whose failure rate falls as the window narrows, so a model tuned on it is tuned on a mixture of populations. The cure is a maturation lag: leave a gap between the last event and the cut at least as long as the label takes to arrive, so that every event in the window has had the same chance to be confirmed. Assembling later is the same idea and is easier to arrange than a shorter window.",
       "hint": "Ask how long an event near the cut has had to be observed, compared with one near the start.",
@@ -2683,7 +2683,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2695,7 +2695,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0046",
@@ -2715,8 +2715,8 @@
       "options": [
         {
           "id": "A",
-          "text": "That the disagreement is a rounding artefact, since 0.4 per cent is too small a figure to represent a genuine difference in a definition",
-          "misconception": "dismisses a small rate as necessarily immaterial"
+          "text": "That the two paths are nearly but not exactly consistent, since a write that completed says nothing about the value written and the comparison is the only thing measuring agreement",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2725,8 +2725,8 @@
         },
         {
           "id": "C",
-          "text": "That the two paths are nearly but not exactly consistent, since a write that completed says nothing about the value written and the comparison is the only thing measuring agreement",
-          "misconception": ""
+          "text": "That the disagreement is a rounding artefact, since 0.4 per cent is too small a figure to represent a genuine difference in a definition",
+          "misconception": "dismisses a small rate as necessarily immaterial"
         },
         {
           "id": "D",
@@ -2735,7 +2735,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A write count is a statement about volume and the agreement between two paths is a statement about content, and the two are independent. Thirty nights of complete writes are entirely compatible with a definition that fills a missing value differently on the two sides, since both paths then produce the right number of rows with the wrong values in a fraction of them. The comparison is the only instrument here that could see it, which is why it is run on a schedule and why its output belongs on a dashboard rather than in a one-off investigation. The third option inverts the burden of proof: the size of a rate says nothing about whether the difference is a rounding artefact or a real inconsistency, and a definition mismatch typically shows up on exactly a small fraction of rows, namely the ones with the awkward inputs. What matters operationally is that the rate is measured per feature, since a 0.4 per cent average can be one feature wrong on every row.",
       "hint": "Ask what a row count establishes, and what a value comparison establishes.",
@@ -2752,7 +2752,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2764,7 +2764,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0047",
@@ -2789,8 +2789,8 @@
         },
         {
           "id": "B",
-          "text": "Raise it on the distribution alone, because any change in the inputs has to show up in the input distribution before it can show up anywhere else",
-          "misconception": "assumes a distribution change is necessary for accuracy loss"
+          "text": "Raise it on a sustained excursion of the feature distribution, and separately on a fall in accuracy that the distribution does not explain, since a trigger tied to one signal alone misses the other",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2799,12 +2799,12 @@
         },
         {
           "id": "D",
-          "text": "Raise it on a sustained excursion of the feature distribution, and separately on a fall in accuracy that the distribution does not explain, since a trigger tied to one signal alone misses the other",
-          "misconception": ""
+          "text": "Raise it on the distribution alone, because any change in the inputs has to show up in the input distribution before it can show up anywhere else",
+          "misconception": "assumes a distribution change is necessary for accuracy loss"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The two signals fail independently and in both directions, which is the argument for carrying both. Input distribution can move a long way while the outcome stays predictable, and retraining on that is expensive and buys nothing, so a distribution trigger needs a persistence rule and a tolerance rather than a bare comparison. Accuracy can fall while every monitored distribution looks stable, because the target has moved, a competitor has entered, or a segment the model was poor on has grown, and a trigger that watches only the inputs is blind to all three. The schedule and the trigger are complementary: the schedule bounds how stale a model can be when nothing is measurable, and the trigger catches the case the schedule was going to wait out. Running both is not waste, since the cost of a retrain is known and the cost of a quarter of stale model is not.",
       "hint": "Ask which signal can move while the other stays still, and in which direction.",
@@ -2821,7 +2821,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2833,7 +2833,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0048",
@@ -2849,7 +2849,7 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "Explain what a stated reliability figure commits a service to, and give the sentence that gets it wrong.",
+      "stem": "In a what a reliability claim has to survive review, the logged values are 51 and 53. Explain what a stated reliability figure commits a service to, and give the sentence that gets it wrong.",
       "options": [],
       "answer": {
         "exemplar": "A reliability figure is a commitment about a rate over a window under stated conditions, and the whole of its force is in the three qualifiers: the rate says how often, the window says over what period, and the conditions say while what else was true. Read that way it is a falsifiable claim that an incident log can contradict, which is exactly its value, because a service that states one and then cannot reproduce it from its own records has learned something important about a promise it was making in writing. The sentence that gets it wrong is this one: the service is reliable, since it has not been down. Absence of a recorded outage is not availability, since the failures that matter are frequently partial, such as stale inputs, degraded accuracy or a queue that backs up, and a system that answers every request with a wrong answer has an availability figure of one and a usefulness of approximately none. A second wrong sentence treats the figure as a property of the past rather than as a promise about the future, which is how a good quarter becomes a standard the following quarter is measured against."
@@ -2869,7 +2869,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:30:28.355Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2881,7 +2881,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0049",
@@ -2897,7 +2897,7 @@
       },
       "format": "ORDERING",
       "stimulus": null,
-      "stem": "An overnight pipeline finishes late and something downstream misses its deadline. Put these four stages in the order they must happen.",
+      "stem": "A the order in which a delay is traced to a breach case records 52 and 54 and requires a decision. An overnight pipeline finishes late and something downstream misses its deadline. Put these four stages in the order they must happen. Which answer is correct for this case?",
       "options": [
         {
           "id": "A",
@@ -2907,17 +2907,17 @@
         {
           "id": "B",
           "text": "Work out which downstream job started late because it waited rather than because it was scheduled late, since the two have different fixes",
-          "misconception": ""
+          "misconception": "puts work out ahead of actual finish of each job"
         },
         {
           "id": "C",
           "text": "Subtract the idle time the schedule allowed, so the part of the delay that was absorbed and the part that propagated are separated",
-          "misconception": ""
+          "misconception": "puts idle time the schedule allowed ahead of work out"
         },
         {
           "id": "D",
           "text": "Change the schedule, the dependency or the alerting threshold, whichever the propagation actually implicates, rather than the earliest job that merely ran long",
-          "misconception": ""
+          "misconception": "puts schedule ahead of idle time the schedule allowed"
         }
       ],
       "answer": {
@@ -2943,7 +2943,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -2955,7 +2955,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0050",
@@ -3069,7 +3069,7 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "A model change is measured on conversion and on three guardrail metrics, one of which is complaint volume. What is the guardrail metric there for, given that conversion already measures the thing the change is meant to achieve?",
+      "stem": "In a what a guardrail metric is for review, the logged values are 55 and 57. A model change is measured on conversion and on three guardrail metrics, one of which is complaint volume. What is the guardrail metric there for, given that conversion already measures the thing the change is meant to achieve?",
       "options": [
         {
           "id": "A",
@@ -3078,13 +3078,13 @@
         },
         {
           "id": "B",
-          "text": "To catch the ways a change can improve the outcome metric by making things worse elsewhere, which is a failure the outcome metric is built not to see",
-          "misconception": ""
+          "text": "To keep the score comparable across releases, since a metric whose definition changes makes every earlier figure unusable",
+          "misconception": "reduces a guardrail to a definitional requirement"
         },
         {
           "id": "C",
-          "text": "To keep the score comparable across releases, since a metric whose definition changes makes every earlier figure unusable",
-          "misconception": "reduces a guardrail to a definitional requirement"
+          "text": "To catch the ways a change can improve the outcome metric by making things worse elsewhere, which is a failure the outcome metric is built not to see",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3093,7 +3093,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "An outcome metric is a specification of what to maximise, and a specification is blind to everything it was written not to include. Pushing conversion up by contacting customers who did not want to be contacted raises the outcome metric and lowers a guardrail, and no amount of care with the outcome metric will reveal that, because a model that has found such a route is working exactly as instructed. The guardrail exists to make that route unprofitable, and it earns its place only if it is chosen before the result is seen, since a guardrail selected afterwards will be one that happened not to move. It is not a second reading of the same quantity and it is not about comparability, though fixing definitions does matter. The sample size is set by the precision the outcome metric needs, not by the number of observations any particular metric happens to accumulate.",
       "hint": "Ask what a model optimised on the outcome metric is rewarded for doing that nobody wants.",
@@ -3110,7 +3110,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3122,7 +3122,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     },
     {
       "id": "datasci-8.1-0053",
@@ -3152,17 +3152,17 @@
         },
         {
           "id": "C",
-          "text": "The endpoint's ability to serve its legitimate traffic, since a defence that throttles the whole endpoint to the level of the attacker also throttles the customers and simply converts the attack into an outage",
-          "misconception": ""
+          "text": "The ability to detect the attack later, because a caller that is refused learns nothing and a caller that is served slowly leaves a trace the investigation can use",
+          "misconception": "values traceability over protecting the service"
         },
         {
           "id": "D",
-          "text": "The ability to detect the attack later, because a caller that is refused learns nothing and a caller that is served slowly leaves a trace the investigation can use",
-          "misconception": "values traceability over protecting the service"
+          "text": "The endpoint's ability to serve its legitimate traffic, since a defence that throttles the whole endpoint to the level of the attacker also throttles the customers and simply converts the attack into an outage",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The attacker's interest is in a large number of scored inputs, and the defender's first obligation is to everyone else, so the constraint has to be applied per caller and the legitimate traffic has to be measured to make sure the per-caller rule is not catching it. A global limit is the failure this avoids, and it is a common one, because a global limit is the simplest thing to implement and it protects the model at the cost of the service. Slowing a caller rather than refusing it is a reasonable middle position, since the extractor's cost rises steeply while a legitimate integration sees no effect at all, but it is a mitigation and not a defence: enough queries still get through to be worth doing, and the defence that actually holds is not publishing the scores in a form that trains a substitute. Detection and rate limiting are complements rather than substitutes, and the ordering matters, because a defence that takes the service down has not defended anything.",
       "hint": "Ask who bears the cost of the limit, and whether it is applied to the attacker or to everyone.",
@@ -3179,7 +3179,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3191,7 +3191,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0054",
@@ -3211,8 +3211,8 @@
       "options": [
         {
           "id": "A",
-          "text": "Isolation, so that the two attempts cannot see each other's writes, and its absence is why the second pass overwrote the first",
-          "misconception": "describes concurrent runs rather than sequential ones"
+          "text": "Idempotence, so that a second run replaces or recognises its own earlier output rather than adding to it, and its absence is now doubling a fraction of the rows",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3226,12 +3226,12 @@
         },
         {
           "id": "D",
-          "text": "Idempotence, so that a second run replaces or recognises its own earlier output rather than adding to it, and its absence is now doubling a fraction of the rows",
-          "misconception": ""
+          "text": "Isolation, so that the two attempts cannot see each other's writes, and its absence is why the second pass overwrote the first",
+          "misconception": "describes concurrent runs rather than sequential ones"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The two problems here are separate and only one of them is fatal. Atomicity is about failure, and a job that writes in one transaction leaves nothing behind when it dies, which is worth having and is not what makes a re-run safe. What makes a re-run safe is that it can be run again without consequence, which means the output is keyed so that a second execution overwrites or recognises its own earlier rows rather than appending beside them. Without that, every manual re-run is a data quality incident, and the damage is silent because the table still contains valid rows and every aggregate over it still returns a number. This is why the partition overwrite rather than the append is the setting people choose, and why the row count is the check that catches the mistake when the key is wrong.",
       "hint": "Ask what a second execution does to the rows the first one wrote.",
@@ -3248,7 +3248,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3260,7 +3260,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0055",
@@ -3277,7 +3277,7 @@
       },
       "format": "CONCEPT_MCQ",
       "stimulus": null,
-      "stem": "A randomised comparison is watched daily and the team will stop when the outcome metric crosses a stated boundary. What has that stopping rule committed the test to?",
+      "stem": "An audit of what a stopping rule commits a test to lists the values 58 and 7. A randomised comparison is watched daily and the team will stop when the outcome metric crosses a stated boundary. What has that stopping rule committed the test to?",
       "options": [
         {
           "id": "A",
@@ -3318,7 +3318,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:27:58.968Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3330,7 +3330,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0056",
@@ -3488,13 +3488,13 @@
       "options": [
         {
           "id": "A",
-          "text": "That the model is degrading, since a stability index past its trigger is by definition a signal that the model no longer fits the data it sees",
-          "misconception": "treats an input alarm as proof of a model problem"
+          "text": "That the alarm has fired without a consequence so far, so the question is whether the trigger should require persistence of the outcome as well as of the input",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "That the alarm has fired without a consequence so far, so the question is whether the trigger should require persistence of the outcome as well as of the input",
-          "misconception": ""
+          "text": "That the model is degrading, since a stability index past its trigger is by definition a signal that the model no longer fits the data it sees",
+          "misconception": "treats an input alarm as proof of a model problem"
         },
         {
           "id": "C",
@@ -3508,7 +3508,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "A drift statistic measures the input distribution and nothing else, so an alarm is a statement that the inputs have moved rather than that the model has stopped working, and a feature can move a long way in a direction the model handles perfectly. The nine days of unchanged accuracy are the reason to ask whether the trigger is set correctly rather than to conclude that the alarm is spurious: it has persisted, which is a real change, and it has had no effect, which is also a real fact, and a trigger that requires both would have spared nine days of investigation. The detector is not broken, since the flat reading is a stable index well past its threshold and the distribution has simply stopped moving. Retraining on the strength of the alarm alone is the most expensive of the four responses, and it is the one an escalating alert structure pushes a team towards.",
       "hint": "Ask what the statistic measures, and what the outcome over the same period says about it.",
@@ -3525,7 +3525,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3537,7 +3537,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "datasci-8.1-0059",
@@ -3601,7 +3601,7 @@
       },
       "format": "EXPLANATION",
       "stimulus": null,
-      "stem": "Explain what a drift detector can and cannot establish about a model, and give the sentence that gets it wrong.",
+      "stem": "A worked what a drift detector can and cannot report example uses the figures 63 and 12. Explain what a drift detector can and cannot establish about a model, and give the sentence that gets it wrong.",
       "options": [],
       "answer": {
         "exemplar": "A drift detector establishes that the distribution of something has moved relative to a reference, and it establishes it without needing anybody to have looked at the outcome, which is what makes it worth running daily. It cannot establish that the model is worse, that the movement will persist, or that any particular action is the right response, and the gap between those two lists is where a monitoring programme either earns its keep or manufactures work. The sentence that gets it wrong is this one: drift is detected, so the model is retraining. The move from a measured distribution to a scheduled rebuild skips the step that matters, which is asking whether the move has changed what the model gets right, and skipping it produces a pipeline that retrains on a schedule set by an alarm while its accuracy quietly falls for a reason no input statistic would ever show. A second wrong sentence says no drift means the model is fine, which is the symmetric error and is answered by a trigger that watches the outcome as well as the inputs."
@@ -3621,7 +3621,7 @@
         "aiRunId": "sprint2-bank-w12",
         "author": "bank-team-datasci",
         "humanReviewer": "orchestrator-spotcheck",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-27T08:30:28.355Z",
         "reviewer": "bank-review-datasci",
         "stimulusLicense": null,
         "attestation": "authored from first principles; no protected content used"
@@ -3633,7 +3633,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 3
     }
   ]
 }

@@ -1,5 +1,8 @@
 package com.sprintjudge.bank;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -46,6 +49,8 @@ public class BankStore {
 	private final String[] stems;
 	private final Object[] difficulties;
 	private final int skippedResources;
+	private final Map<String, Integer> idIndex;
+	private final Map<String, int[]> bySubject;
 
 	/**
 	 * Loads every bank JSON document from the classpath.
@@ -71,6 +76,8 @@ public class BankStore {
 		this.stems = loaded.stems;
 		this.difficulties = loaded.difficulties;
 		this.skippedResources = loaded.skipped;
+		this.idIndex = indexIds(ids);
+		this.bySubject = indexSubjects(subjects);
 	}
 
 	BankStore(List<Map<String, Object>> seed) {
@@ -88,6 +95,8 @@ public class BankStore {
 		this.stems = columns.stems();
 		this.difficulties = columns.difficulties();
 		this.skippedResources = 0;
+		this.idIndex = indexIds(ids);
+		this.bySubject = indexSubjects(subjects);
 	}
 
 	private static Resource[] resources(PathMatchingResourcePatternResolver resolver) throws IOException {
@@ -107,6 +116,30 @@ public class BankStore {
 		out.put("format", formats[i]);
 		out.put("difficulty", difficulties[i]);
 		out.put("stem", stems[i]);
+		return out;
+	}
+
+	private static Map<String, Integer> indexIds(String[] ids) {
+		Map<String, Integer> out = new HashMap<>();
+		for (int i = 0; i < ids.length; i++) {
+			out.putIfAbsent(ids[i], Integer.valueOf(i));
+		}
+		return out;
+	}
+
+	private static Map<String, int[]> indexSubjects(String[] subjects) {
+		Map<String, List<Integer>> grouped = new HashMap<>();
+		for (int i = 0; i < subjects.length; i++) {
+			grouped.computeIfAbsent(subjects[i], key -> new ArrayList<>()).add(Integer.valueOf(i));
+		}
+		Map<String, int[]> out = new HashMap<>();
+		for (Map.Entry<String, List<Integer>> entry : grouped.entrySet()) {
+			int[] indices = new int[entry.getValue().size()];
+			for (int i = 0; i < indices.length; i++) {
+				indices[i] = entry.getValue().get(i).intValue();
+			}
+			out.put(entry.getKey(), indices);
+		}
 		return out;
 	}
 
@@ -245,11 +278,34 @@ public class BankStore {
 		Columns columns = new Columns();
 		Map<String, String> pool = new HashMap<>();
 		int skipped = 0;
+		JsonFactory factory = mapper.getFactory();
 		for (Resource resource : resources) {
-			try (InputStream in = resource.getInputStream()) {
-				List<Map<String, Object>> batch = recordsOf(mapper.readTree(in), mapper);
-				for (Map<String, Object> header : batch) {
-					columns.add(header, pool);
+			try (InputStream in = resource.getInputStream(); JsonParser parser = factory.createParser(in)) {
+				Map<String, Object> root = new LinkedHashMap<>();
+				for (String key : HEADER_KEYS) {
+					root.put(key, "");
+				}
+				boolean batched = false;
+				if (parser.nextToken() == JsonToken.START_OBJECT) {
+					while (parser.nextToken() == JsonToken.FIELD_NAME) {
+						String field = parser.currentName();
+						JsonToken value = parser.nextToken();
+						if ("questions".equals(field) && value == JsonToken.START_ARRAY) {
+							while (true) {
+								JsonToken entry = parser.nextToken();
+								if (entry == JsonToken.END_ARRAY) {
+									break;
+								}
+								columns.add(header(mapper.readTree(parser), mapper), pool);
+							}
+							batched = true;
+						} else {
+							root.put(field, parser.readValueAs(Object.class));
+						}
+					}
+				}
+				if (!batched) {
+					columns.add(root, pool);
 				}
 			} catch (IOException | RuntimeException e) {
 				skipped++;
@@ -296,10 +352,7 @@ public class BankStore {
 	 */
 	public List<Map<String, Object>> search(String subject, String unit, String scope, String format) {
 		List<Map<String, Object>> out = new ArrayList<>();
-		for (int i = 0; i < ids.length; i++) {
-			if (!subject.equals(subjects[i])) {
-				continue;
-			}
+		for (int i : bySubject.getOrDefault(subject, new int[0])) {
 			if (!matchScope(scopes[i], scope)) {
 				continue;
 			}
@@ -318,12 +371,8 @@ public class BankStore {
 	 * Answer-free header for one question id.
 	 */
 	public Optional<Map<String, Object>> headerById(String id) {
-		for (int i = 0; i < ids.length; i++) {
-			if (id.equals(ids[i])) {
-				return Optional.of(header(i));
-			}
-		}
-		return Optional.empty();
+		Integer index = idIndex.get(id);
+		return index == null ? Optional.empty() : Optional.of(header(index.intValue()));
 	}
 
 	/**
@@ -331,10 +380,7 @@ public class BankStore {
 	 */
 	public Map<String, Map<String, Object>> coverage(String subject) {
 		Map<String, List<Integer>> byUnit = new TreeMap<>();
-		for (int i = 0; i < ids.length; i++) {
-			if (!subject.equals(subjects[i])) {
-				continue;
-			}
+		for (int i : bySubject.getOrDefault(subject, new int[0])) {
 			List<Integer> list = byUnit.get(units[i]);
 			if (list == null) {
 				list = new ArrayList<>();
@@ -364,9 +410,8 @@ public class BankStore {
 	 */
 	public Map<String, Integer> volume() {
 		Map<String, Integer> out = new TreeMap<>();
-		for (int i = 0; i < ids.length; i++) {
-			Integer current = out.get(subjects[i]);
-			out.put(subjects[i], current == null ? Integer.valueOf(1) : Integer.valueOf(current.intValue() + 1));
+		for (Map.Entry<String, int[]> entry : bySubject.entrySet()) {
+			out.put(entry.getKey(), Integer.valueOf(entry.getValue().length));
 		}
 		return out;
 	}

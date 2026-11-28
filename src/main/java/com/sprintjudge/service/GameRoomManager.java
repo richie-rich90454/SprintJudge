@@ -195,6 +195,10 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 			safeName = "Player";
 		boolean isHost = "host".equalsIgnoreCase(role);
 		synchronized (room) {
+			// endGame evicts under this lock; a join that captured the old room
+			// must not seat a player in a room that is no longer registered.
+			if (registry.get(key) != room || "ENDED".equals(room.getStatus()))
+				throw new IllegalStateException("This game has ended");
 			if (isHost) {
 				if (room.getHostUuid() != null)
 					throw new IllegalStateException("A host is already connected");
@@ -305,51 +309,61 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		List<Question> questions = questionRepository.findByQuiz(room.getQuizId());
 		if (questions == null || questions.isEmpty())
 			throw new IllegalStateException("Quiz has no questions");
+		Question q = null;
+		long now = 0;
+		long end = 0;
+		boolean noMoreQuestions = false;
 		synchronized (room) {
 			// Atomic LOBBY/REVIEW -> ACTIVE flip: a racing timer expiry must
 			// not double-fire QUESTION_START for the same round.
 			if (!"LOBBY".equals(room.getStatus()) && !"REVIEW".equals(room.getStatus()))
 				return;
-			room.setStatus("ACTIVE");
+			noMoreQuestions = room.getCurrentQuestionIndex() >= questions.size();
+			if (!noMoreQuestions) {
+				q = questions.get(room.getCurrentQuestionIndex());
+				now = Instant.now().toEpochMilli();
+				// Assign the question and every deadline BEFORE status, all under
+				// this lock: an observer that sees ACTIVE sees a started round.
+				room.setCurrentQuestionId(q.getId());
+				room.clearRounds();
+				room.setCurrentQuestionStartEpochMs(now);
+				if (GameRoom.GameMode.PRACTICE.equals(room.getGameMode())) {
+					end = Long.MAX_VALUE;
+				} else if (GameRoom.GameMode.EXAM.equals(room.getGameMode())) {
+					// Exam: fix the total budget once on the first question.
+					end = room.getTotalEndEpochMs();
+					if (end <= 0) {
+						long totalSec = 0;
+						for (Question examQuestion : questions)
+							totalSec += examQuestion.getTimeLimitSec();
+						end = now + totalSec * 1000;
+						room.setTotalEndEpochMs(end);
+					}
+				} else {
+					end = now + (long) q.getTimeLimitSec() * 1000;
+				}
+				room.setCurrentQuestionEndEpochMs(end);
+				room.setQuestionEndBaseEpochMs(end);
+				room.setStatus("ACTIVE");
+			}
 		}
-		if (room.getCurrentQuestionIndex() >= questions.size()) {
+		if (noMoreQuestions) {
 			endGame(pin);
 			return;
 		}
-		Question q = questions.get(room.getCurrentQuestionIndex());
-		room.setCurrentQuestionId(q.getId());
-		room.clearRounds();
 		sessionRepository.updateStatus(room.getSessionId(), "ACTIVE");
 		eventPublisher.publishEvent(new com.sprintjudge.service.event.GameEvent.QuestionStarted(pin, q.getId(),
 				room.getCurrentQuestionIndex()));
 		QuestionDto dto = toDto(q);
-		long now = Instant.now().toEpochMilli();
 
 		if (GameRoom.GameMode.PRACTICE.equals(room.getGameMode())) {
 			// Practice: no timer, unlimited time.
-			room.setCurrentQuestionStartEpochMs(now);
-			room.setCurrentQuestionEndEpochMs(Long.MAX_VALUE);
-			room.setQuestionEndBaseEpochMs(Long.MAX_VALUE);
 			broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, -1, now, now));
 			broadcastRoomState(pin);
 			return;
 		}
 
 		if (GameRoom.GameMode.EXAM.equals(room.getGameMode())) {
-			// Exam: fix the total budget once on the first question. Recomputing
-			// "now + sum(limits)" each round pushed the deadline forward every
-			// question and extended the exam indefinitely.
-			room.setCurrentQuestionStartEpochMs(now);
-			long end = room.getTotalEndEpochMs();
-			if (end <= 0) {
-				long totalSec = 0;
-				for (Question examQuestion : questions)
-					totalSec += examQuestion.getTimeLimitSec();
-				end = now + totalSec * 1000;
-				room.setTotalEndEpochMs(end);
-			}
-			room.setCurrentQuestionEndEpochMs(end);
-			room.setQuestionEndBaseEpochMs(end);
 			broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, (int) ((end - now) / 1000), now, now));
 			broadcastRoomState(pin);
 			// Schedule exam total timer.
@@ -363,10 +377,6 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 		}
 
 		// STANDARD, AUTO_PILOT, TEAM, BATTLE: per-question timer.
-		room.setCurrentQuestionStartEpochMs(now);
-		long end = now + (long) q.getTimeLimitSec() * 1000;
-		room.setCurrentQuestionEndEpochMs(end);
-		room.setQuestionEndBaseEpochMs(end);
 		broadcastToRoom(pin, new QuestionStart("QUESTION_START", dto, q.getTimeLimitSec(), now, now));
 		broadcastRoomState(pin);
 		roundTimer.schedule(Integer.parseInt(pin), end, new Runnable() {
@@ -426,6 +436,15 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
 	public void submit(String pin, String questionId, String playerUuid, String language, JsonNode response) {
 		GameRoom room = require(pin);
+		// Hold the room lock from the gate through the score commit: a racing
+		// skip or timer must never let this submission score a stale round.
+		synchronized (room) {
+			submitLocked(room, pin, questionId, playerUuid, language, response);
+		}
+	}
+
+	private void submitLocked(GameRoom room, String pin, String questionId, String playerUuid, String language,
+			JsonNode response) {
 		if (playerUuid != null && playerUuid.equals(room.getHostUuid())) {
 			ws.send(sessionIdOf(room, playerUuid), new ErrorMessage("ERROR", "Hosts can't submit answers"));
 			return;
@@ -960,7 +979,7 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 				@Override
 				public void run() {
 					try {
-						endGame(pin);
+						expireExam(pin);
 					} catch (RuntimeException e) {
 						log.warn("Async exam expiry failed for room {}", pin, e);
 					}
@@ -973,12 +992,43 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 			@Override
 			public void run() {
 				try {
-					transitionToReview(pin, firedQuestionId);
+					expireRound(pin, firedQuestionId);
 				} catch (RuntimeException e) {
 					log.warn("Async round expiry failed for room {}", pin, e);
 				}
 			}
 		});
+	}
+
+	/**
+	 * A +time applied after the timer thread's fast check must not reveal early.
+	 */
+	private void expireRound(String pin, String expectedQuestionId) {
+		GameRoom room = registry.get(Integer.parseInt(pin));
+		if (room == null)
+			return;
+		synchronized (room) {
+			if (!"ACTIVE".equals(room.getStatus()))
+				return;
+			if (Instant.now().toEpochMilli() < room.getCurrentQuestionEndEpochMs())
+				return;
+			// Re-entrant lock: the deadline check and the ACTIVE->REVIEW flip
+			// are a single atomic step.
+			transitionToReview(pin, expectedQuestionId);
+		}
+	}
+
+	private void expireExam(String pin) {
+		GameRoom room = registry.get(Integer.parseInt(pin));
+		if (room == null)
+			return;
+		synchronized (room) {
+			if (!"ACTIVE".equals(room.getStatus()))
+				return;
+			if (Instant.now().toEpochMilli() < room.getCurrentQuestionEndEpochMs())
+				return;
+			endGame(pin);
+		}
 	}
 
 	private void transitionToReview(String pin) {
@@ -1058,7 +1108,11 @@ public class GameRoomManager implements LeaderboardBroadcaster {
 
 		eventPublisher
 				.publishEvent(new com.sprintjudge.service.event.GameEvent.GameEnded(pin, playerCount, questionCount));
-		registry.remove(Integer.parseInt(pin));
+		synchronized (room) {
+			// Drop the entry under the room lock so a join holding this room
+			// cannot resurrect it as a ghost after the status flip.
+			registry.remove(Integer.parseInt(pin));
+		}
 	}
 
 	/**

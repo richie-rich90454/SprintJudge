@@ -36,6 +36,14 @@ class NsJailExecutorTest {
 	}
 
 	@Test
+	void nsjailModeIsNotExcludedInDevProfile() {
+		assertTrue(java.util.Arrays.stream(NsJailExecutor.class.getAnnotations())
+				.noneMatch(a -> a.annotationType() == org.springframework.context.annotation.Profile.class));
+		assertTrue(NsJailExecutor.class
+				.isAnnotationPresent(org.springframework.boot.autoconfigure.condition.ConditionalOnProperty.class));
+	}
+
+	@Test
 	void presentBinaryPasses(@TempDir Path tmp) throws Exception {
 		Path fake = tmp.resolve("nsjail");
 		Files.writeString(fake, "#!/bin/sh");

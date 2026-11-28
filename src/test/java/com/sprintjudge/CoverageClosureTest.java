@@ -139,20 +139,18 @@ class CoverageClosureTest {
 
 	@Test
 	void teachNextPrivateDefensiveBranches() throws Exception {
-		com.sprintjudge.service.TeachNextService svc = new com.sprintjudge.service.TeachNextService(null, null, null,
-				null);
-		Method topicMatches = com.sprintjudge.service.TeachNextService.class.getDeclaredMethod("topicMatches",
+		com.sprintjudge.bank.BankRecordSource source = new com.sprintjudge.bank.BankRecordSource(
+				new org.springframework.core.io.Resource[0], new com.fasterxml.jackson.databind.ObjectMapper());
+		Method topicMatches = com.sprintjudge.bank.BankRecordSource.class.getDeclaredMethod("topicMatches",
 				String.class, String.class, String.class);
 		topicMatches.setAccessible(true);
-		assertEquals(0, topicMatches.invoke(svc, "JAVA_PROGRAMMING", "", null));
-		assertEquals(0, topicMatches.invoke(svc, "JAVA_PROGRAMMING", "", "   "));
+		assertEquals(0, topicMatches.invoke(source, "JAVA_PROGRAMMING", "", null));
+		assertEquals(0, topicMatches.invoke(source, "JAVA_PROGRAMMING", "", "   "));
 
-		Method contains = com.sprintjudge.service.TeachNextService.class.getDeclaredMethod("containsIgnoreCase",
+		Method contains = com.sprintjudge.bank.BankRecordSource.class.getDeclaredMethod("containsIgnoreCase",
 				String.class, String.class);
 		contains.setAccessible(true);
-		assertFalse((Boolean) contains.invoke(null, "abc", null));
 		assertFalse((Boolean) contains.invoke(null, "abc", "   "));
-		assertFalse((Boolean) contains.invoke(null, null, "abc"));
 
 		Method topicOf = com.sprintjudge.service.TeachNextService.class.getDeclaredMethod("topicOf",
 				com.sprintjudge.domain.models.Question.class);

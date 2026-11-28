@@ -18,8 +18,8 @@
       "options": [
         {
           "id": "A",
-          "text": "True True",
-          "misconception": ""
+          "text": "True False",
+          "misconception": "believes a shared object means the two names cannot also compare equal"
         },
         {
           "id": "B",
@@ -28,8 +28,8 @@
         },
         {
           "id": "C",
-          "text": "True False",
-          "misconception": "believes a shared object means the two names cannot also compare equal"
+          "text": "True True",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -38,7 +38,7 @@
         }
       ],
       "answer": {
-        "correctId": "A"
+        "correctId": "C"
       },
       "explanation": "The interpreter keeps one shared object for every small integer, so both names reach that one object and the identity test succeeds. The tempting answer assumes each literal is a separate allocation, which is what happens for values outside that small range and not for the short ones written out in full. Equality succeeds either way, because the two names hold the same value no matter how many objects happen to back it.",
       "hint": "Ask whether writing the same short literal twice really allocates twice.",
@@ -52,7 +52,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -67,7 +67,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0002",
@@ -92,8 +92,8 @@
         },
         {
           "id": "B",
-          "text": "is, which asks whether both names reach one shared object",
-          "misconception": ""
+          "text": "is, which asks whether both values carry exactly the same type",
+          "misconception": "believes the identity operator additionally verifies that types match"
         },
         {
           "id": "C",
@@ -102,12 +102,12 @@
         },
         {
           "id": "D",
-          "text": "is, which asks whether both values carry exactly the same type",
-          "misconception": "believes the identity operator additionally verifies that types match"
+          "text": "is, which asks whether both names reach one shared object",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The identity operator compares whether two references land on the very same object without inspecting the contents. The equality operator asks whether the values are indistinguishable, which two separately built lists of matching contents can be while occupying different storage. The tempting pairing swaps the two, and that swap causes most identity bugs: asking for identity with equality reports a shared object as distinct, and asking for equality with identity reports two equal values as different.",
       "hint": "One operator compares storage, the other compares what is stored. Decide which the question needs.",
@@ -121,7 +121,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -136,7 +136,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0003",
@@ -156,8 +156,8 @@
       "options": [
         {
           "id": "A",
-          "text": "False False",
-          "misconception": "believes a run-time join cannot reproduce the characters of a literal"
+          "text": "True False",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -166,8 +166,8 @@
         },
         {
           "id": "C",
-          "text": "True False",
-          "misconception": ""
+          "text": "False False",
+          "misconception": "believes a run-time join cannot reproduce the characters of a literal"
         },
         {
           "id": "D",
@@ -176,7 +176,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "Joining builds a fresh string object at run time, so the two names hold equal contents in different storage. Equality compares contents and therefore succeeds, while identity fails because nothing is shared. The tempting answer assumes the interpreter searches for an existing object whenever a string is produced, which would make identity testing useless for exactly the run-time values a program most needs to tell apart.",
       "hint": "Trace where each name's storage came from, then ask whether the two names share it.",
@@ -190,7 +190,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -205,7 +205,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0004",
@@ -230,8 +230,8 @@
         },
         {
           "id": "B",
-          "text": "[1, 2] [1, 2, 3]",
-          "misconception": "believes binding a second name snapshots the list at that moment"
+          "text": "[1, 2, 3] [1, 2, 3]",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -240,12 +240,12 @@
         },
         {
           "id": "D",
-          "text": "[1, 2, 3] [1, 2, 3]",
-          "misconception": ""
+          "text": "[1, 2] [1, 2, 3]",
+          "misconception": "believes binding a second name snapshots the list at that moment"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "A list is a mutable object, and binding a second name to it attaches that name to the same object rather than to a copy of its contents, so any change made through either name shows through the other. The tempting answer imagines a snapshot taken at binding time, but a plain assignment never inspects or duplicates the object, which is also why a function handed a list can change the caller's list without being asked to.",
       "hint": "Ask whether the assignment duplicated the object or only attached another name to it.",
@@ -259,7 +259,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -274,7 +274,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0005",
@@ -299,13 +299,13 @@
         },
         {
           "id": "B",
-          "text": "it prints the word no",
-          "misconception": ""
+          "text": "it prints the absent marker",
+          "misconception": "believes the condition prints the tested name rather than either branch"
         },
         {
           "id": "C",
-          "text": "it prints the absent marker",
-          "misconception": "believes the condition prints the tested name rather than either branch"
+          "text": "it prints the word no",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -314,7 +314,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A condition does not require a boolean; it requires a value the interpreter can rate as true or false, and the absent marker rates as false, so the second branch runs. The tempting answer treats assignment as a promise of truth, but a condition asks what the name holds now, and a name that has been set and a name that holds something usable are different things.",
       "hint": "A condition asks how the value rates, not whether the name was ever assigned.",
@@ -328,7 +328,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -343,7 +343,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0006",
@@ -373,17 +373,17 @@
         },
         {
           "id": "C",
-          "text": "the non-empty string holding the character zero",
-          "misconception": ""
+          "text": "the empty list that contains no elements",
+          "misconception": "believes a container is truthy for its type regardless of contents"
         },
         {
           "id": "D",
-          "text": "the empty list that contains no elements",
-          "misconception": "believes a container is truthy for its type regardless of contents"
+          "text": "the non-empty string holding the character zero",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "Strings rate by length, so the empty string is false and a string holding even one character is true, and the character zero counts as a character like any other. Numbers rate by whether they are zero and containers rate by whether they hold anything, so the bare zero and the empty list are both false. The misconception behind the wrong answers is that a value's type settles the question, when it is the value inside the type that counts, which is also why a digit inside a string never becomes a number on its own.",
       "hint": "For strings and containers ask whether anything is inside; for numbers ask whether it is zero.",
@@ -397,7 +397,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -412,7 +412,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0007",
@@ -432,8 +432,8 @@
       "options": [
         {
           "id": "A",
-          "text": "False True False True",
-          "misconception": "believes an empty string still rates as true because it holds a type"
+          "text": "False False False True",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -447,12 +447,12 @@
         },
         {
           "id": "D",
-          "text": "False False False True",
-          "misconception": ""
+          "text": "False True False True",
+          "misconception": "believes an empty string still rates as true because it holds a type"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "Conversion asks the value whether it is empty rather than asking its type, so the bare zero and the empty string and the empty list all convert to false while the string holding one character converts to true. The tempting answer with the digit string as false is the important trap: quoting the zero changes what the value is, because a string is rated by length and never by whether its text looks like a number.",
       "hint": "Rate each value by what it holds, not by how its text is written.",
@@ -466,7 +466,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -481,7 +481,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0008",
@@ -708,13 +708,13 @@
       "options": [
         {
           "id": "A",
-          "text": "the word even",
-          "misconception": "believes the value written after the if is what the conditional supplies"
+          "text": "the word odd",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "the word odd",
-          "misconception": ""
+          "text": "the word even",
+          "misconception": "believes the value written after the if is what the conditional supplies"
         },
         {
           "id": "C",
@@ -728,7 +728,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The tested remainder is one, which does not equal zero, so the condition is false and the value after the else is chosen. The tempting answer takes the first listed value on sight, but a conditional expression hands back one of two values depending on the test, and the order of those two values is part of what the expression means rather than an incidental detail of how it reads.",
       "hint": "Evaluate the test first, then read off the value that the test selects.",
@@ -742,7 +742,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -757,7 +757,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0012",
@@ -782,13 +782,13 @@
         },
         {
           "id": "B",
-          "text": "It prints odd, because a nonzero remainder is truthy so the first value is chosen",
-          "misconception": "confuses which of the two values sits on the true side of the conditional"
+          "text": "It prints even, because a nonzero remainder is truthy so the first value is skipped",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "It prints even, because a nonzero remainder is truthy so the first value is skipped",
-          "misconception": ""
+          "text": "It prints odd, because a nonzero remainder is truthy so the first value is chosen",
+          "misconception": "confuses which of the two values sits on the true side of the conditional"
         },
         {
           "id": "D",
@@ -797,7 +797,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A conditional expression is written as the value to use when the test holds, then the test, then the value to use when it fails. A remainder of one is a real value and therefore rates as true, so the first value is used and the second is never reached. The tempting answer reads the test as a question about the remainder being zero, which reverses it, and a second trap is treating the first listed value as the fallback rather than the preferred one.",
       "hint": "Decide first what the test asks, then decide which of the two values answers true.",
@@ -811,7 +811,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -826,7 +826,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0013",
@@ -856,17 +856,17 @@
         },
         {
           "id": "C",
-          "text": "F",
-          "misconception": "believes the final branch runs whenever any earlier test fails"
+          "text": "C",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "C",
-          "misconception": ""
+          "text": "F",
+          "misconception": "believes the final branch runs whenever any earlier test fails"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "The chain is examined from the top and stops at the first test that holds, so the ninety test and the eighty test both fail while the seventy test succeeds, and its branch is the one that runs. The tempting answers come from two habits: reading the chain as a set of independent statements rather than a first-match search, and assuming the final branch is a default that any failure reaches, when it is reached only when every test fails.",
       "hint": "The chain stops at the first test that holds, so check the tests in written order.",
@@ -880,7 +880,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -895,7 +895,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0014",
@@ -969,8 +969,8 @@
         },
         {
           "id": "B",
-          "text": "1, 3, 5, 7, and 9",
-          "misconception": ""
+          "text": "1, 2, 3, 4, 5, 6, 7, 8, and 9",
+          "misconception": "believes the step is ignored because it is a third argument"
         },
         {
           "id": "C",
@@ -979,12 +979,12 @@
         },
         {
           "id": "D",
-          "text": "1, 2, 3, 4, 5, 6, 7, 8, and 9",
-          "misconception": "believes the step is ignored because it is a third argument"
+          "text": "1, 3, 5, 7, and 9",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A range includes its start and keeps adding the step while the value stays below the stop, so the step of two yields the odd values up to nine, and the stop value itself is never produced. The tempting answer that includes ten comes from thinking a range is inclusive at both ends like some other language's counting forms, and the answer that includes two comes from treating the start as exclusive, which would make it impossible to ask for a range of one value from that number.",
       "hint": "Count upward from the start and stop as soon as you reach the stop value.",
@@ -998,7 +998,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1013,7 +1013,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0016",
@@ -1033,8 +1033,8 @@
       "options": [
         {
           "id": "A",
-          "text": "1 3",
-          "misconception": "believes the last pass is skipped once the measure nears the guard"
+          "text": "-1 4",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1043,8 +1043,8 @@
         },
         {
           "id": "C",
-          "text": "-1 4",
-          "misconception": ""
+          "text": "1 3",
+          "misconception": "believes the last pass is skipped once the measure nears the guard"
         },
         {
           "id": "D",
@@ -1053,7 +1053,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The guard is checked before each pass, and the measure goes seven, five, three, one, then minus one, so the fourth pass still began with a positive value and ran, and only then did the test fail. The tempting answer stops the measure at zero, which would require the step to land there exactly, and a step that does not divide the starting value will always overshoot, so any program relying on a clean landing must test the arithmetic rather than assume it.",
       "hint": "Check the guard before each pass, not after the subtraction has been applied.",
@@ -1067,7 +1067,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1082,7 +1082,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0017",
@@ -1107,8 +1107,8 @@
         },
         {
           "id": "B",
-          "text": "45",
-          "misconception": "believes the break still lets the remaining values be added"
+          "text": "10",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -1117,12 +1117,12 @@
         },
         {
           "id": "D",
-          "text": "10",
-          "misconception": ""
+          "text": "45",
+          "misconception": "believes the break still lets the remaining values be added"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The squares one, four, nine, and sixteen all stay within the bound and are added, then the value five has a square of twenty-five and abandons the loop before its own contribution, so the total is one plus two plus three plus four. The tempting answers either ignore that abandoning the loop discards everything unvisited or count the value that triggered the exit, which was never added because the test precedes the addition.",
       "hint": "Decide whether the value that triggers the exit is added before or after the test runs.",
@@ -1136,7 +1136,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1151,7 +1151,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0018",
@@ -1176,13 +1176,13 @@
         },
         {
           "id": "B",
-          "text": "continue, which ends the current pass and starts the next one",
-          "misconception": ""
+          "text": "pass, which ends the current pass and starts the next one",
+          "misconception": "believes the placeholder statement advances the loop on its own"
         },
         {
           "id": "C",
-          "text": "pass, which ends the current pass and starts the next one",
-          "misconception": "believes the placeholder statement advances the loop on its own"
+          "text": "continue, which ends the current pass and starts the next one",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -1191,7 +1191,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "Continue abandons the rest of the current pass and hands control straight to the next value, which is exactly the skip-one-kind-of-value behaviour. Break abandons the loop entirely, so the remaining values are never visited, and pass does nothing at all, so the rest of the body still runs. The tempting answers all describe stopping rather than skipping, and a student who reaches for break in a filtering loop silently truncates their data.",
       "hint": "One of these statements ends the loop and one does nothing; find the third option.",
@@ -1205,7 +1205,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1220,7 +1220,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0019",
@@ -1250,17 +1250,17 @@
         },
         {
           "id": "C",
-          "text": "the number 5",
-          "misconception": ""
+          "text": "the number 7",
+          "misconception": "believes the loop keeps scanning after the break and takes the last value"
         },
         {
           "id": "D",
-          "text": "the number 7",
-          "misconception": "believes the loop keeps scanning after the break and takes the last value"
+          "text": "the number 5",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The attached else block belongs to the loop as a whole rather than to a pass, and it runs only when the loop reaches its natural end without a break, so the break on the second pass skips it and the message assigned inside the body survives. The tempting answer that keeps the else value assumes the block is just another statement placed after the loop, when its whole purpose is to report the case where nothing was found.",
       "hint": "The attached else block and the break are two ways of answering the same question.",
@@ -1274,7 +1274,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1289,7 +1289,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0020",
@@ -1309,8 +1309,8 @@
       "options": [
         {
           "id": "A",
-          "text": "the number 4",
-          "misconception": "believes the loop hands back the last value it visited"
+          "text": "the words no hit",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1324,12 +1324,12 @@
         },
         {
           "id": "D",
-          "text": "the words no hit",
-          "misconception": ""
+          "text": "the number 4",
+          "misconception": "believes the loop hands back the last value it visited"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "No pass sets the hit message, and because no break ever fired the loop reached its natural end, which is the one condition under which the attached else block runs, so it replaces the earlier value. The tempting answer keeps the value assigned before the loop, which would only survive if the else block did not run, and that is precisely the case the attached else is built to report.",
       "hint": "Ask whether the loop reached its end on its own or left early.",
@@ -1343,7 +1343,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1358,7 +1358,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0021",
@@ -1585,13 +1585,13 @@
       "options": [
         {
           "id": "A",
-          "text": "IndexError, then a triple whose first slot is nine",
-          "misconception": "believes an out-of-range slot is what a tuple reports on assignment"
+          "text": "TypeError, then the unchanged triple",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "TypeError, then the unchanged triple",
-          "misconception": ""
+          "text": "IndexError, then a triple whose first slot is nine",
+          "misconception": "believes an out-of-range slot is what a tuple reports on assignment"
         },
         {
           "id": "C",
@@ -1605,7 +1605,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "A tuple is fixed, so overwriting a slot is a category error rather than a bad index, and the write never lands, leaving the triple intact. The tempting answer that changes the value assumes the fault is detected after the assignment, but the interpreter refuses the operation itself, which is why the original survives; the answer naming an index fault is right about the value but wrong about the reason, since the slot is well within range.",
       "hint": "The slot is well within range, so the fault cannot be about position.",
@@ -1619,7 +1619,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1634,7 +1634,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0025",
@@ -1659,13 +1659,13 @@
         },
         {
           "id": "B",
-          "text": "the list refuses item assignment while the tuple accepts it",
-          "misconception": "believes the bracketed form is the fixed one and the parenthesised form grows"
+          "text": "the tuple refuses item assignment while the list accepts it",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "the tuple refuses item assignment while the list accepts it",
-          "misconception": ""
+          "text": "the list refuses item assignment while the tuple accepts it",
+          "misconception": "believes the bracketed form is the fixed one and the parenthesised form grows"
         },
         {
           "id": "D",
@@ -1674,7 +1674,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "A tuple is designed as a fixed record of values, so it refuses to have a slot replaced, while a list is a growable collection and accepts both replacement and growth. The tempting answer that reverses the two comes from reading the bracket notation as the restrictive form, and the answer claiming both are fixed is contradicted by any code that appends to a list, which is the single most common operation in the language.",
       "hint": "One of these two types is the usual target of an append call.",
@@ -1688,7 +1688,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1703,7 +1703,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0026",
@@ -1782,17 +1782,17 @@
         },
         {
           "id": "C",
-          "text": "four values, from position 0 through position 4 with the end in",
-          "misconception": "believes the start position is skipped and the stop position is included"
+          "text": "three values, at positions 1, 2, and 3 with the end left out",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "three values, at positions 1, 2, and 3 with the end left out",
-          "misconception": ""
+          "text": "four values, from position 0 through position 4 with the end in",
+          "misconception": "believes the start position is skipped and the stop position is included"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "A slice names the half-open span from the start position up to but not including the stop position, so three values come back and the difference between the two numbers is exactly how many. The tempting answer that includes the stop position is the most widespread slice bug, and it usually shows up as an off-by-one that duplicates a boundary element, which is also why clearing a span with a stop value leaves the last element in place.",
       "hint": "Subtract the start from the stop and the answer is the number of values returned.",
@@ -1806,7 +1806,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1821,7 +1821,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0028",
@@ -1846,8 +1846,8 @@
         },
         {
           "id": "B",
-          "text": "fedcba bd",
-          "misconception": ""
+          "text": "fedcba ac",
+          "misconception": "counts the strided slice from the end of the string backwards"
         },
         {
           "id": "C",
@@ -1856,12 +1856,12 @@
         },
         {
           "id": "D",
-          "text": "fedcba ac",
-          "misconception": "counts the strided slice from the end of the string backwards"
+          "text": "fedcba bd",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "A step of minus one with no bounds walks the string from the last character to the first, while the second slice is a forward span from position one up to position five taking every second character, which gives the second and fourth letters. The tempting answer that runs to the end ignores the stop position, and a slice with a stop value always stops short of it regardless of the step.",
       "hint": "Both bounds still apply when a step is given, in the direction the step sets.",
@@ -1875,7 +1875,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -1890,7 +1890,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0029",
@@ -1959,8 +1959,8 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints 4, because the stop position is included so four slots became two",
-          "misconception": "reads the stop position as part of the replaced span, giving the wrong count of removed slots"
+          "text": "It prints 4, because the stop position is excluded so three slots became two",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -1969,8 +1969,8 @@
         },
         {
           "id": "C",
-          "text": "It prints 4, because the stop position is excluded so three slots became two",
-          "misconception": ""
+          "text": "It prints 4, because the stop position is included so four slots became two",
+          "misconception": "reads the stop position as part of the replaced span, giving the wrong count of removed slots"
         },
         {
           "id": "D",
@@ -1979,7 +1979,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "The span covers positions one, two, and three because the stop is excluded, and replacing three values with two shortens the list by one, so it ends up four long. The tempting answers split the failure in two ways: keeping the length while getting the rule right, or applying the length correctly from a span that was miscounted, and either way the printed figure no longer describes the list that was built.",
       "hint": "Count the slots the span covers, then compare that count with the size of the replacement.",
@@ -1993,7 +1993,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2008,7 +2008,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0031",
@@ -2033,8 +2033,8 @@
         },
         {
           "id": "B",
-          "text": "it prints the absent marker",
-          "misconception": "believes the subscript form quietly returns the absent marker on a miss"
+          "text": "it prints the word missing",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -2043,12 +2043,12 @@
         },
         {
           "id": "D",
-          "text": "it prints the word missing",
-          "misconception": ""
+          "text": "it prints the absent marker",
+          "misconception": "believes the subscript form quietly returns the absent marker on a miss"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The subscript form demands that the key already exist and raises a key fault when it does not, and the handler naming that exact fault intercepts it, so the program reports the miss instead of stopping. The tempting answers describe the method form, which does supply a default for a missing key, and confusing the two forms is the whole hazard: a program that expects a fallback from the subscript will stop the first time a key is genuinely absent.",
       "hint": "Ask whether the subscript form takes a fallback value when the key is absent.",
@@ -2062,7 +2062,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2077,7 +2077,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0032",
@@ -2102,13 +2102,13 @@
         },
         {
           "id": "B",
-          "text": "None 0 1",
-          "misconception": ""
+          "text": "None None 1",
+          "misconception": "believes a supplied fallback is ignored when the key happens to be missing"
         },
         {
           "id": "C",
-          "text": "None None 1",
-          "misconception": "believes a supplied fallback is ignored when the key happens to be missing"
+          "text": "None 0 1",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -2117,7 +2117,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "With no fallback the method reports the absent marker, which is how a caller detects a genuine miss, while a supplied fallback replaces that marker, and a present key is always returned as stored. The tempting answer that gives zero for a bare miss invents a numeric default that was never supplied, and the answer that applies the fallback to a stored value would make the stored data unreachable, which defeats the purpose of storing it.",
       "hint": "Separate the case where a fallback was supplied from the case where it was not.",
@@ -2131,7 +2131,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2146,7 +2146,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0033",
@@ -2176,17 +2176,17 @@
         },
         {
           "id": "C",
-          "text": "counts.get(name, 0), which uses the fallback only when the key is absent",
-          "misconception": ""
+          "text": "counts.get(0), which looks the entry up using zero itself as the key",
+          "misconception": "believes the argument names the key rather than supplying a fallback value"
         },
         {
           "id": "D",
-          "text": "counts.get(0), which looks the entry up using zero itself as the key",
-          "misconception": "believes the argument names the key rather than supplying a fallback value"
+          "text": "counts.get(name, 0), which uses the fallback only when the key is absent",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "The fallback is used only when the key is absent, so a stored zero is returned as the genuine zero it is while a missing key reports the fallback, and the two cases stay distinguishable. The tempting answer that always applies the fallback erases the difference entirely, and the argument confusion behind the last option is common because the same call shape is used elsewhere with a key as its only argument, and there it means something entirely different.",
       "hint": "Ask what the method does when the key is present and holds a falsy value.",
@@ -2200,7 +2200,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2215,7 +2215,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0034",
@@ -2235,8 +2235,8 @@
       "options": [
         {
           "id": "A",
-          "text": "one key per pass, in alphabetical order rather than insertion order",
-          "misconception": "believes a bare loop sorts the keys before yielding them"
+          "text": "one key per pass, in the order the keys were first inserted",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -2250,12 +2250,12 @@
         },
         {
           "id": "D",
-          "text": "one key per pass, in the order the keys were first inserted",
-          "misconception": ""
+          "text": "one key per pass, in alphabetical order rather than insertion order",
+          "misconception": "believes a bare loop sorts the keys before yielding them"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "Iterating a dictionary directly walks its keys, and the interpreter remembers insertion order for exactly this reason, so the passes come out in the order the keys were first added. The tempting answers describe what a different construct yields: a loop that asks for both parts at once gives pairs, and asking for the values alone gives values, while sorting is something the program must request rather than something the bare loop does on its own.",
       "hint": "Decide whether the values are requested anywhere in the loop header.",
@@ -2269,7 +2269,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2284,7 +2284,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0035",
@@ -2803,13 +2803,13 @@
       "options": [
         {
           "id": "A",
-          "text": "Ann-Lee then Ann-Lee",
-          "misconception": "believes naming an argument makes the declared default win over it"
+          "text": "Ann-Lee then Ann+Lee",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "Ann-Lee then Ann+Lee",
-          "misconception": ""
+          "text": "Ann-Lee then Ann-Lee",
+          "misconception": "believes naming an argument makes the declared default win over it"
         },
         {
           "id": "C",
@@ -2823,7 +2823,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The first call leaves the separator at its declared default, while the second call names the separator and so overrides that default, which is why the two results differ. The tempting answers that repeat one answer assume a named value in one call leaks into another, but each call resolves its own arguments, and that independence is what makes named arguments safe to use for readability.",
       "hint": "Each call resolves its own arguments, so a value named in one call cannot reach another.",
@@ -2837,7 +2837,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2852,7 +2852,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0045",
@@ -2877,13 +2877,13 @@
         },
         {
           "id": "B",
-          "text": "a named argument is matched by position after the positional ones",
-          "misconception": "believes writing a name still counts towards the positional order"
+          "text": "a named argument is matched by its parameter name, not by position",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "a named argument is matched by its parameter name, not by position",
-          "misconception": ""
+          "text": "a named argument is matched by position after the positional ones",
+          "misconception": "believes writing a name still counts towards the positional order"
         },
         {
           "id": "D",
@@ -2892,7 +2892,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "Writing a parameter's name in a call turns that argument into a keyword argument, and it is matched against the declaration by name rather than by counting, so the two named arguments can appear in any order and need not be adjacent. The tempting answers all reduce to position playing a part it no longer plays, and that restriction is exactly what named arguments remove, which is why they are the usual remedy when a call has several values of the same type.",
       "hint": "Ask what the name in the call is being matched against in the declaration.",
@@ -2906,7 +2906,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2921,7 +2921,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0046",
@@ -2951,17 +2951,17 @@
         },
         {
           "id": "C",
-          "text": "10 20 1020",
-          "misconception": "believes adding two names concatenates their text rather than summing"
+          "text": "10 20 30",
+          "misconception": ""
         },
         {
           "id": "D",
-          "text": "10 20 30",
-          "misconception": ""
+          "text": "10 20 1020",
+          "misconception": "believes adding two names concatenates their text rather than summing"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "C"
       },
       "explanation": "A single assignment with several targets on the left unpacks the right side position by position, so the first name takes the first value and the second takes the second, and adding them gives thirty. The tempting answer that gives the whole list to one name treats a multi-target assignment like an ordinary one, and the reversed answer misreads the order, which is significant enough that an odd-length right side is rejected outright rather than padded.",
       "hint": "Count the values on the right and hand them to the targets in written order.",
@@ -2975,7 +2975,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -2990,7 +2990,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0047",
@@ -3064,8 +3064,8 @@
         },
         {
           "id": "B",
-          "text": "['a', 'b']",
-          "misconception": ""
+          "text": "[1, 2]",
+          "misconception": "believes the gathered names are converted to the values that were passed"
         },
         {
           "id": "C",
@@ -3074,12 +3074,12 @@
         },
         {
           "id": "D",
-          "text": "[1, 2]",
-          "misconception": "believes the gathered names are converted to the values that were passed"
+          "text": "['a', 'b']",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "D"
       },
       "explanation": "The variadic keyword parameter gathers each named argument into a mapping keyed by the name the caller used, and the call asks for the names in sorted order, which puts a before b. The tempting answer that keeps the written order ignores the explicit sort, and the answer that lists each name twice would describe a structure that keeps both the key and the value in one list, whereas a mapping keeps each name once with its value attached.",
       "hint": "Ask whether the call sorts what it collects or simply lists it.",
@@ -3093,7 +3093,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3108,7 +3108,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0049",
@@ -3128,8 +3128,8 @@
       "options": [
         {
           "id": "A",
-          "text": "a single starred parameter that collects both kinds in written order",
-          "misconception": "believes one parameter absorbs both positional and named arguments"
+          "text": "a starred parameter for the values, a double-starred one for the names",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3138,8 +3138,8 @@
         },
         {
           "id": "C",
-          "text": "a starred parameter for the values, a double-starred one for the names",
-          "misconception": ""
+          "text": "a single starred parameter that collects both kinds in written order",
+          "misconception": "believes one parameter absorbs both positional and named arguments"
         },
         {
           "id": "D",
@@ -3148,7 +3148,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "A"
       },
       "explanation": "A starred parameter collects the extra positional values as a tuple and a double-starred parameter collects the extra named arguments as a mapping, so the two kinds never mix and a wrapper can forward them separately. The tempting answer that swaps the markers would try to gather positional values into a mapping, which the interpreter refuses outright, and the single-parameter answer fails on the very first named argument because a starred parameter has no way to receive one.",
       "hint": "Ask which of the two collects a name written with an equals sign at the call site.",
@@ -3162,7 +3162,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3177,7 +3177,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0050",
@@ -3202,8 +3202,8 @@
         },
         {
           "id": "B",
-          "text": "positive None, with no separate line printed",
-          "misconception": "believes the print is skipped because the return on the other path won"
+          "text": "checked, then positive and the absent marker",
+          "misconception": ""
         },
         {
           "id": "C",
@@ -3212,12 +3212,12 @@
         },
         {
           "id": "D",
-          "text": "checked, then positive and the absent marker",
-          "misconception": ""
+          "text": "positive None, with no separate line printed",
+          "misconception": "believes the print is skipped because the return on the other path won"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "B"
       },
       "explanation": "The second call reaches the print statement on its way off the end of the function, so that line is emitted first, and then both calls are shown with the first returning its string while the second returns nothing at all. The tempting answer that keeps the two on one line assumes the print is suppressed because the other path returns, but the two calls are entirely separate and the print belongs to the second one.",
       "hint": "A print inside a body happens when that call runs, regardless of what another call returns.",
@@ -3231,7 +3231,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3246,7 +3246,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0051",
@@ -3271,13 +3271,13 @@
         },
         {
           "id": "B",
-          "text": "None [3]",
-          "misconception": ""
+          "text": "[0] [3]",
+          "misconception": "believes the argument itself is returned when the guard fails"
         },
         {
           "id": "C",
-          "text": "[0] [3]",
-          "misconception": "believes the argument itself is returned when the guard fails"
+          "text": "None [3]",
+          "misconception": ""
         },
         {
           "id": "D",
@@ -3286,7 +3286,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "C"
       },
       "explanation": "A function that reaches its end without meeting a return hands back the absent marker automatically, so the first call contributes that marker while the second meets its guard and returns the list holding three. The tempting answer that expects an empty collection assumes a default return value of some kind, but the language supplies exactly one thing in that situation, and a program that needs a collection on every path has to construct one itself.",
       "hint": "Ask what a function hands back when it runs out of body without returning anything.",
@@ -3300,7 +3300,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3315,7 +3315,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0052",
@@ -3345,17 +3345,17 @@
         },
         {
           "id": "C",
-          "text": "the absent marker, because the body ran out without a return",
-          "misconception": ""
+          "text": "an empty string, because a function with no value answers an empty result",
+          "misconception": "believes textual results are the default when nothing is returned"
         },
         {
           "id": "D",
-          "text": "an empty string, because a function with no value answers an empty result",
-          "misconception": "believes textual results are the default when nothing is returned"
+          "text": "the absent marker, because the body ran out without a return",
+          "misconception": ""
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "D"
       },
       "explanation": "Reaching the end of a body without meeting a return yields the absent marker, which is the one value the language supplies for that situation, and it is distinct from zero or an empty collection so a caller can tell the two cases apart. The tempting answers each invent a typed default, and inventing one is exactly what a program must do deliberately, because a function that can fall off the end silently reports something different from a function that returns an empty list on purpose.",
       "hint": "Ask what the language guarantees is returned when no return statement is reached.",
@@ -3369,7 +3369,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3384,7 +3384,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0053",
@@ -3404,8 +3404,8 @@
       "options": [
         {
           "id": "A",
-          "text": "False True",
-          "misconception": "believes the second list is the same object and the values somehow differ"
+          "text": "True False",
+          "misconception": ""
         },
         {
           "id": "B",
@@ -3419,12 +3419,12 @@
         },
         {
           "id": "D",
-          "text": "True False",
-          "misconception": ""
+          "text": "False True",
+          "misconception": "believes the second list is the same object and the values somehow differ"
         }
       ],
       "answer": {
-        "correctId": "D"
+        "correctId": "A"
       },
       "explanation": "The two lists were built by separate statements, so they occupy separate storage and the identity test fails, while their contents match exactly so the equality test succeeds. The tempting answer that reports identity as well assumes the interpreter hunts for an existing object whenever a list is constructed, which would make the identity operator useless for the run-time values a program most needs to distinguish, such as two independently fetched results that happen to agree.",
       "hint": "Ask whether the two lists were built by one statement or by two.",
@@ -3438,7 +3438,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3453,7 +3453,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0054",
@@ -3680,13 +3680,13 @@
       "options": [
         {
           "id": "A",
-          "text": "It prints zero, because the subscript form supplies a default value",
-          "misconception": "believes the subscript quietly falls back to the type's zero value"
+          "text": "It prints KeyError, because the subscript form has no fallback",
+          "misconception": ""
         },
         {
           "id": "B",
-          "text": "It prints KeyError, because the subscript form has no fallback",
-          "misconception": ""
+          "text": "It prints zero, because the subscript form supplies a default value",
+          "misconception": "believes the subscript quietly falls back to the type's zero value"
         },
         {
           "id": "C",
@@ -3700,7 +3700,7 @@
         }
       ],
       "answer": {
-        "correctId": "B"
+        "correctId": "A"
       },
       "explanation": "The subscript form has no fallback to supply, so a key that was never stored raises a key fault and the handler prints the fault's name. The tempting answers describe the method form, which does take a fallback, and the rewrite looks harmless precisely because it reads as a tidier spelling of the same call; what it actually changes is that a key absent today stops the program rather than producing a value the program can go on with.",
       "hint": "Ask whether the form used can produce a value for a key that was never stored.",
@@ -3714,7 +3714,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3729,7 +3729,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0058",
@@ -3754,13 +3754,13 @@
         },
         {
           "id": "B",
-          "text": "It prints four values, because the stop position is taken as part of the span",
-          "misconception": "counts the stop position as one of the returned values"
+          "text": "It prints three values, because the stop position is left out of the span",
+          "misconception": ""
         },
         {
           "id": "C",
-          "text": "It prints three values, because the stop position is left out of the span",
-          "misconception": ""
+          "text": "It prints four values, because the stop position is taken as part of the span",
+          "misconception": "counts the stop position as one of the returned values"
         },
         {
           "id": "D",
@@ -3769,7 +3769,7 @@
         }
       ],
       "answer": {
-        "correctId": "C"
+        "correctId": "B"
       },
       "explanation": "The span runs from position one up to position four with the stop left out, so it holds the second, third, and fourth values and its length is the difference between the two numbers. The tempting answer that includes the stop position is the most widespread slice bug, and it usually shows up not as a wrong count but as a duplicated boundary element, which is also why clearing a span this way leaves the final value still in place.",
       "hint": "Subtract the two bounds to get the length, and the second value is the first one returned.",
@@ -3783,7 +3783,7 @@
       "provenance": {
         "author": "bank-team-py",
         "reviewer": "bank-review-py",
-        "reviewedAt": "2026-09-26T00:00:00Z",
+        "reviewedAt": "2026-11-24T00:00:00Z",
         "aiAssisted": true,
         "aiModel": "muse-spark",
         "aiRunId": "sprint2-bank-w12",
@@ -3798,7 +3798,7 @@
       ],
       "relatedQuestionIds": [],
       "prerequisiteQuestionIds": [],
-      "version": 1
+      "version": 2
     },
     {
       "id": "py-1.1-0059",

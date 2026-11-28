@@ -23,6 +23,9 @@ export default defineConfig({
         outDir: "dist",
         sourcemap: false,
         cssTarget: "chrome60",
+        // The Monaco editor is a lazy-loaded, self-contained ~2.7 MB chunk;
+        // splitting it further would break its worker/editor integration.
+        chunkSizeWarningLimit: 2800,
     },
     test: {
         environment: "jsdom",
@@ -40,11 +43,9 @@ export default defineConfig({
         ],
         coverage: {
             provider: "v8",
-            // 100% unit coverage applies to pure-logic .ts modules. UI .tsx
-            // components are verified in a real browser by the Playwright
-            // E2E suite (e2e/*.spec.ts), which is the right layer for UI.
-            include: ["src/**/*.ts"],
-            exclude: ["src/**/*.test.ts", "src/vite-env.d.ts"],
+            // 100% coverage is enforced over both logic modules and UI components.
+            include: ["src/**/*.ts", "src/**/*.tsx"],
+            exclude: ["src/**/*.test.ts", "src/**/*.test.tsx", "src/vite-env.d.ts"],
             thresholds: { lines: 100, branches: 100, functions: 100, statements: 100 },
         },
     },

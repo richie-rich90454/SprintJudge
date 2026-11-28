@@ -1,3 +1,4 @@
+import { useI18n } from "../i18n";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Card } from "../ui/Card";
@@ -13,6 +14,7 @@ interface AuthProvider {
 }
 
 export function AdminLoginView() {
+    const { t } = useI18n();
     const [providers, setProviders] = useState<AuthProvider[]>([]);
     const loginFailed = new URLSearchParams(window.location.search).has("error");
     useEffect(() => {
@@ -37,47 +39,53 @@ export function AdminLoginView() {
                     <div className="p-6">
                         <div className="flex items-center gap-2.5 mb-6">
                             <LogoMark size={28} />
-                            <span className="font-extrabold tracking-tight">SprintJudge Admin</span>
+                            <span className="font-extrabold tracking-tight">
+                                {t("ui.sprintjudgeAdmin")}
+                            </span>
                         </div>
                         <form method="POST" action="/admin/login" className="flex flex-col gap-4">
                             <label className="label-caps block mb-1" htmlFor="al-user">
-                                Username
+                                {t("ui.username")}
                             </label>
                             <TextInput
                                 id="al-user"
                                 name="username"
-                                placeholder="admin"
+                                placeholder={t("ui.adminPlaceholder")}
                                 autoComplete="username"
                                 required
                                 aria-invalid={loginFailed}
                             />
                             <label className="label-caps block mb-1" htmlFor="al-pass">
-                                Password
+                                {t("ui.password")}
                             </label>
                             <TextInput
                                 id="al-pass"
                                 name="password"
                                 type="password"
-                                placeholder="password"
+                                placeholder={t("ui.passwordPlaceholder")}
                                 autoComplete="current-password"
                                 required
                                 aria-invalid={loginFailed}
                             />
                             {loginFailed && (
-                                <p id="al-error" role="alert" className="text-[var(--oq-danger)] text-sm">
-                                    Wrong username or password. Please try again.
+                                <p
+                                    id="al-error"
+                                    role="alert"
+                                    className="text-[var(--oq-danger)] text-sm"
+                                >
+                                    {t("ui.wrongUsernameOrPasswordPleaseTryAgain")}
                                 </p>
                             )}
                             <Button type="submit" variant="primary" className="w-full">
-                                Sign in
+                                {t("ui.signIn")}
                             </Button>
                             <Link to="/" className="btn btn-secondary w-full">
-                                Back to player view
+                                {t("ui.backToPlayerView")}
                             </Link>
                         </form>
                         {providers.length > 0 && (
                             <div className="border-t border-[var(--oq-border)] px-6 pb-6">
-                                <p className="label-caps mb-3">Or sign in with</p>
+                                <p className="label-caps mb-3">{t("ui.orSignInWith")}</p>
                                 <div className="flex flex-col gap-2">
                                     {providers.map((provider) => (
                                         <a
