@@ -86,6 +86,10 @@ async function setIdentity(page: Page, id: string, token: string): Promise<void>
     );
 }
 
+/** The sound label is localized, so it stays Arabic after this spec sets locale=ar. */
+const unmuteButton = (page: Page) =>
+    page.getByRole("button", { name: /^(unmute sounds|تشغيل الأصوات)$/i });
+
 async function openFreshProfile(page: Page): Promise<void> {
     await page.goto("/profile");
     await clearIdentity(page);
@@ -318,7 +322,7 @@ test.describe("explore profiles and settings", () => {
                 page.getByRole("button", { name: "Motion: system. Activate for full." }),
             ).toBeVisible();
             await page.getByRole("button", { name: "Mute sounds" }).click();
-            await expect(page.getByRole("button", { name: "Unmute sounds" })).toBeVisible();
+            await expect(unmuteButton(page)).toBeVisible();
             await page.getByRole("button", { name: "Motion: system. Activate for full." }).click();
             await page.getByRole("button", { name: "Motion: full. Activate for reduced." }).click();
             await expect(page.locator("html")).toHaveClass(/motion-reduced/);
@@ -346,7 +350,7 @@ test.describe("explore profiles and settings", () => {
             expect((await snapshot(host)).stage).toBe("neon");
 
             await page.reload();
-            await expect(page.getByRole("button", { name: "Unmute sounds" })).toBeVisible();
+            await expect(unmuteButton(page)).toBeVisible();
             await expect(page.locator("html")).toHaveClass(/motion-reduced/);
             await expect(page.locator("html")).toHaveAttribute("lang", "ar");
             await host.reload();
@@ -374,7 +378,7 @@ test.describe("explore profiles and settings", () => {
             await page.goto("/profile");
             await setIdentity(page, "bogus-id", "bogus-token");
             await page.reload();
-            await expect(page.getByRole("button", { name: "Unmute sounds" })).toBeVisible();
+            await expect(unmuteButton(page)).toBeVisible();
             expect((await snapshot(page)).motion).toBe("reduced");
             // Global theme is deliberately locked to light; only stage theme varies.
             expect((await snapshot(page)).theme ?? "light").toBe("light");
